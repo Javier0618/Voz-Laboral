@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll } from 'vitest';
-import { as, createDb, createUser, rows, LONG_TEXT, type Db } from './harness';
+import { createDb, createUser, rows, LONG_TEXT, type Db } from './harness';
 
 const ALICE = '11111111-1111-1111-1111-111111111111';
 const BOB = '22222222-2222-2222-2222-222222222222';
