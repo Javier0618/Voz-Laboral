@@ -15,6 +15,9 @@ Leyenda: ✅ hecho y probado · 🟡 hecho, pendiente de verificar en Supabase r
 - ✅ `moderation_events` es inmutable incluso para el propietario de la base de datos, salvo la purga programada.
 - ✅ Las funciones administrativas fallan sin rol y registran el intento.
 - ✅ Límites de frecuencia y antiduplicados en el servidor.
+- ✅ Envíos sin cuenta solo por `submit_anonymous_experience()`: el token de seguimiento no se guarda (solo su hash) y nadie puede leer el hash desde la API.
+- ✅ Reacciones y comentarios exigen cuenta con alias; no se puede reaccionar o comentar en nombre de otra cuenta ni sobre contenido no publicado; nadie ve quién reaccionó.
+- ✅ Los comentarios con datos personales quedan retenidos y solo los ve quien los escribió; solo la moderación los oculta o publica, con registro.
 - 🟡 Repetir `npm run test:db` contra `supabase start` (Postgres de Supabase con su Auth real) antes del lanzamiento.
 - 🟡 Ejecutar el *Security Advisor* del panel de Supabase y revisar sus avisos. Las funciones `security definer` y el esquema `private` son intencionados.
 - ⬜ Prueba de extremo a extremo con dos cuentas reales y la clave `anon`, haciendo peticiones REST manipuladas contra el proyecto de Supabase real (pendiente de que el proyecto esté conectado).
@@ -26,6 +29,7 @@ Leyenda: ✅ hecho y probado · 🟡 hecho, pendiente de verificar en Supabase r
 - 🟡 En Supabase → Auth: activar «Confirm email», la longitud mínima de contraseña (10) y la protección de contraseñas filtradas.
 - 🟡 Configurar las URL de redirección permitidas (solo los dominios propios).
 - ⬜ Activar el CAPTCHA de Supabase Auth (hCaptcha o Turnstile) en el registro.
+- ⬜ **Antes de abrir el envío sin cuenta al público:** CAPTCHA (Turnstile) verificado en una Edge Function antes de llamar a `submit_anonymous_experience()`. Hoy solo hay un freno global de 30 envíos por hora, un campo trampa y un tiempo mínimo de redacción.
 - ⬜ Configurar un SMTP propio para los correos de Auth (el de Supabase tiene límites estrictos).
 
 ## Aplicación

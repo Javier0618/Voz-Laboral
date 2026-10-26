@@ -1,6 +1,6 @@
 # VozLaboral
 
-Plataforma independiente de transparencia laboral para Colombia. Los trabajadores comparten experiencias sobre empresas reales con un alias público. Cada relato pasa por una moderación auditada antes de publicarse.
+Plataforma independiente de transparencia laboral para Colombia. Los trabajadores comparten experiencias buenas, malas y mixtas sobre empresas reales, con un alias público o sin cuenta. Cada relato pasa por una moderación auditada antes de publicarse, y la comunidad puede reaccionar y comentar.
 
 > **Estado:** MVP en desarrollo. **No está listo para producción.** Faltan la verificación contra un proyecto de Supabase real, la revisión jurídica de las políticas y los puntos pendientes de [`docs/checklist-seguridad.md`](docs/checklist-seguridad.md) y [`docs/checklist-legal.md`](docs/checklist-legal.md).
 >
@@ -15,11 +15,14 @@ Plataforma independiente de transparencia laboral para Colombia. Los trabajadore
 | Alias público con validación (duplicados, palabras reservadas, parecido al correo) | Implementado y probado en la base de datos |
 | Catálogo y buscador de empresas (nombre, alias, ciudad, sector, paginación, orden) | Implementado |
 | Perfil público de empresa con estadísticas protegidas | Implementado |
-| Formulario de experiencias con vista previa, borrador y avisos de datos personales | Implementado y probado |
+| Formulario de experiencias con tono (buena, mala o mixta), vista previa, borrador y avisos de datos personales | Implementado y probado |
+| Compartir sin cuenta, con enlace privado de seguimiento y opción de vincular a una cuenta | Implementado y probado en la base de datos |
+| Reacciones de apoyo («Me pasó igual», «Me sirvió», «Gracias») y comentarios con moderación | Implementado y probado en la base de datos |
+| Página «Quiénes somos y cómo moderamos» | Implementado |
 | Historial propio: estados, motivos, edición, retirada y apelación | Implementado |
-| Panel de moderación: cola, reportes, reclamaciones, apelaciones, catálogo e historial | Implementado |
+| Panel de moderación: cola, comentarios, reportes, reclamaciones, apelaciones, catálogo, guías e historial | Implementado |
 | Reclamaciones de empresas y respuestas empresariales | Implementado |
-| Guías de derechos laborales gestionadas desde la base de datos | Implementado, **sin contenido**: cada guía debe verificarse antes de publicarse |
+| Guías de derechos laborales con editor (formato enriquecido, índice, buscador y guías relacionadas) | Implementado; 10 guías cargadas como «pendiente de verificación» |
 | Políticas legales | **Borradores** pendientes de un abogado |
 | Eliminación de cuenta con anonimización y purga por plazo | Implementado y probado en la base de datos |
 | Archivos de respaldo | **No habilitado** a propósito (ver `docs/decisiones.md`) |
@@ -96,7 +99,7 @@ Es un sitio estático (`npm run build` genera `dist/`). Sirve en cualquier hosti
 ## Estructura
 
 ```
-supabase/migrations/   esquema, RLS, funciones y auditoría (8 migraciones)
+supabase/migrations/   esquema, RLS, funciones y auditoría (14 migraciones)
 supabase/seed.dev.sql  empresas ficticias para desarrollo
 src/config/brand.ts    nombre y textos de marca
 src/index.css          colores de marca (variables en :root)

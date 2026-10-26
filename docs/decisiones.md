@@ -22,12 +22,24 @@ Este documento registra las decisiones tomadas y los supuestos asumidos. Cuando 
 | Archivos de respaldo **no habilitados** | `evidence_files` existe con RLS cerrada y sin políticas, y no hay bucket. Se habilitará en la fase 5, cuando estén los controles: tipo real, tamaño, metadatos, acceso temporal y registro de accesos. |
 | Pruebas de base de datos con PGlite | El entorno no tiene Docker. PGlite es Postgres real compilado a WASM. El arnés reproduce los roles, `auth.uid()` y los privilegios por defecto de Supabase, y aplica las migraciones reales. Antes de producción conviene repetirlas con `supabase start` (ver `checklist-seguridad.md`). |
 
+## Experiencias buenas, comunidad y envíos sin cuenta (migración 1400)
+
+| Decisión | Motivo |
+|---|---|
+| Cada experiencia indica su tono: positiva, negativa o mixta | La plataforma no es solo un lugar de quejas: lo bueno también orienta a quien busca trabajo y reduce el riesgo legal. |
+| Categorías con nombres neutros (los slugs no cambian) | «Salario y pagos» sirve para contar algo bueno o malo; «Pago de salarios» asumía un problema. |
+| Reacciones de apoyo, no votos | «Me pasó igual», «Me sirvió» y «Gracias» expresan apoyo sin convertir la plataforma en un concurso de popularidad ni en una calificación. |
+| Reaccionar y comentar exige cuenta con alias | Una reacción por persona, menos spam y menos cuentas falsas. Nadie ve quién reaccionó. |
+| Comentarios publicados al instante, retenidos si parecen tener datos personales | Conversación fluida sin cargar a la moderación; los reportes y la retención cubren los casos de riesgo. El autor puede desactivarlos. |
+| Compartir sin cuenta con enlace privado de seguimiento | Baja la barrera de entrada. Solo se guarda el hash del token (sha256). Quien tiene el enlace ve el estado, las reacciones y los comentarios, y puede vincular la experiencia a su cuenta. |
+| Freno global de 30 envíos sin cuenta por hora | Sin cuenta no hay a quién limitar individualmente. Antes del lanzamiento hay que añadir CAPTCHA (ver el checklist de seguridad). |
+
 ## Supuestos
 
 - La relación con la empresa, el periodo (mes y año) y la indicación de que hay documentos son públicos. El resto de metadatos no.
 - Las experiencias `en_disputa` siguen visibles con una marca; las `restringida` y `retirada` se ocultan.
 - Las respuestas empresariales las publica el equipo de moderación tras verificar al representante. En el MVP no hay cuentas de empresa.
-- Las guías de derechos no se precargan porque deben verificarse contra la fuente oficial. Una guía no se puede publicar sin fecha de verificación ni sin al menos una fuente.
+- Las guías de derechos se cargan con `supabase/contenido/guias-derechos-2026.sql` en estado «pendiente de verificación» y no son públicas. Una guía no se puede publicar sin fecha de verificación ni sin al menos una fuente.
 
 ## Sistema visual
 
