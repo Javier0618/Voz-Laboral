@@ -17,14 +17,14 @@ export function ExperienceItem({ exp, showCompany = true }: { exp: PublicExperie
   const text = expanded || !long ? exp.body : `${exp.body.slice(0, PREVIEW).trimEnd()}…`;
 
   return (
-    <article id={`e-${exp.id}`} className="scroll-mt-6 border-t border-line py-7 first:border-t-0" aria-labelledby={`exp-${exp.id}`}>
+    <article id={`e-${exp.id}`} className="scroll-mt-6 border-t border-line py-8 first:border-t-0 first:pt-2" aria-labelledby={`exp-${exp.id}`}>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate">
         <span className="font-semibold text-ink">{exp.author_alias}</span>
         <span>{relationshipLabel[exp.relationship]}</span>
         <span>{formatPeriod(exp.period_start, exp.period_end)}</span>
         {exp.status === 'en_disputa' && <StatusChip status="en_disputa" />}
       </div>
-      <h3 id={`exp-${exp.id}`} className="mt-2 text-xl">
+      <h3 id={`exp-${exp.id}`} className="mt-2 text-2xl">
         {exp.title || exp.category_name}
       </h3>
       <p className="mt-1 text-sm">
@@ -36,7 +36,9 @@ export function ExperienceItem({ exp, showCompany = true }: { exp: PublicExperie
         )}
         <Link to={`/experiencias?categoria=${exp.category_slug}`} className="text-slate hover:text-ink hover:underline">{exp.category_name}</Link>
       </p>
-      <p className="testimony mt-4">{text}</p>
+      <div className="folio-margin mt-5">
+        <p className="testimony">{text}</p>
+      </div>
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
         {long && (
           <button type="button" className="btn-link" aria-expanded={expanded} onClick={() => setExpanded((v) => !v)}>

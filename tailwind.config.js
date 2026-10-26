@@ -23,13 +23,14 @@ export default {
       fontSize: {
         // Escala de tercera mayor (1.25) sobre 16 px.
         xs: ['0.8125rem', { lineHeight: '1.25rem' }],
-        sm: ['0.875rem', { lineHeight: '1.375rem' }],
-        base: ['1rem', { lineHeight: '1.6rem' }],
+        sm: ['0.9375rem', { lineHeight: '1.5rem' }],
+        base: ['1.0625rem', { lineHeight: '1.75rem' }],
         lg: ['1.25rem', { lineHeight: '1.875rem' }],
         xl: ['1.5625rem', { lineHeight: '2.125rem' }],
         '2xl': ['1.9375rem', { lineHeight: '2.5rem' }],
         '3xl': ['2.4375rem', { lineHeight: '2.875rem' }],
         '4xl': ['3.0625rem', { lineHeight: '3.375rem' }],
+        '5xl': ['3.8125rem', { lineHeight: '4.0625rem' }],
       },
       maxWidth: { prose: '68ch' },
       borderRadius: { DEFAULT: '6px', lg: '10px' },

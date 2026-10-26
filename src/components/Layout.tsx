@@ -9,22 +9,23 @@ const nav = [
   { to: '/derechos', label: 'Tus derechos' },
 ];
 
+/** Logotipo: un folio con una línea tapada. Pensado para fondo tinta. */
 export function Logo() {
   return (
     <span className="flex items-center gap-2.5">
-      <svg aria-hidden="true" width="28" height="28" viewBox="0 0 32 32">
-        <rect width="32" height="32" rx="6" fill="rgb(var(--ink))" />
-        <rect x="7" y="10" width="18" height="3" rx="1.5" fill="#fff" />
-        <rect x="7" y="16" width="11" height="3" rx="1.5" fill="rgb(var(--teal))" />
-        <rect x="7" y="22" width="14" height="3" rx="1.5" fill="#fff" />
+      <svg aria-hidden="true" width="30" height="30" viewBox="0 0 32 32">
+        <rect x="4" y="2" width="24" height="28" rx="2" fill="#fff" />
+        <rect x="9" y="9" width="14" height="2.5" rx="1" fill="rgb(var(--ink))" />
+        <rect x="9" y="15" width="9" height="2.5" rx="1" fill="rgb(var(--teal))" />
+        <rect x="9" y="21" width="12" height="2.5" rx="1" fill="rgb(var(--ink))" />
       </svg>
-      <span className="font-serif text-[1.375rem] font-semibold tracking-tight text-ink">{brand.name}</span>
+      <span className="font-serif text-[1.4375rem] font-semibold tracking-tight text-white">{brand.name}</span>
     </span>
   );
 }
 
 function navClass({ isActive }: { isActive: boolean }) {
-  return `rounded px-3 py-2 text-sm font-semibold ${isActive ? 'text-teal-strong underline decoration-2 underline-offset-[10px]' : 'text-ink hover:text-teal-strong'}`;
+  return `rounded px-3 py-2 text-[0.9375rem] font-medium ${isActive ? 'text-white underline decoration-teal-tint/70 decoration-2 underline-offset-[10px]' : 'text-white/75 hover:text-white'}`;
 }
 
 export function Layout() {
@@ -44,7 +45,7 @@ export function Layout() {
       <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-paper focus:px-4 focus:py-2 focus:shadow">
         Saltar al contenido
       </a>
-      <header className="border-b border-line bg-paper">
+      <header className="bg-ink">
         <div className="page flex h-16 items-center justify-between gap-4">
           <Link to="/" aria-label={`${brand.name}, inicio`}>
             <Logo />
@@ -55,11 +56,11 @@ export function Layout() {
             ))}
             {isModerator && <NavLink to="/moderacion" className={navClass}>Moderación</NavLink>}
             <NavLink to="/cuenta" className={navClass}>{session ? 'Mi cuenta' : 'Iniciar sesión'}</NavLink>
-            <Link to="/compartir" className="btn-primary ml-2">Compartir experiencia</Link>
+            <Link to="/compartir" className="btn ml-3 bg-white text-ink hover:bg-teal-tint">Compartir experiencia</Link>
           </nav>
           <button
             type="button"
-            className="btn-secondary lg:hidden"
+            className="btn border border-white/30 text-white hover:border-white lg:hidden"
             aria-expanded={open}
             aria-controls="menu-movil"
             onClick={() => setOpen((v) => !v)}
@@ -68,7 +69,7 @@ export function Layout() {
           </button>
         </div>
         {open && (
-          <nav id="menu-movil" aria-label="Principal" className="border-t border-line lg:hidden">
+          <nav id="menu-movil" aria-label="Principal" className="border-t border-white/15 lg:hidden">
             <ul className="page flex flex-col py-2">
               <li><NavLink to="/" end className={navClass}>Inicio</NavLink></li>
               {nav.map((item) => (
@@ -76,7 +77,7 @@ export function Layout() {
               ))}
               {isModerator && <li><NavLink to="/moderacion" className={navClass}>Moderación</NavLink></li>}
               <li><NavLink to="/cuenta" className={navClass}>{session ? 'Mi cuenta' : 'Iniciar sesión'}</NavLink></li>
-              <li className="py-2"><Link to="/compartir" className="btn-primary w-full">Compartir experiencia</Link></li>
+              <li className="py-3"><Link to="/compartir" className="btn w-full bg-white text-ink hover:bg-teal-tint">Compartir experiencia</Link></li>
             </ul>
           </nav>
         )}

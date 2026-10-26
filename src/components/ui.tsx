@@ -17,7 +17,7 @@ const statusStyles: Record<ExperienceStatus, { label: string; className: string;
 export function StatusChip({ status }: { status: ExperienceStatus }) {
   const s = statusStyles[status];
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${s.className}`} title={s.hint}>
+    <span className={`inline-flex items-center gap-1.5 rounded-[3px] border px-2 py-0.5 text-xs font-semibold ${s.className}`} title={s.hint}>
       <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
       {s.label}
     </span>
@@ -56,8 +56,8 @@ export function Loading({ label = 'Cargando…' }: { label?: string }) {
 
 export function EmptyState({ title, children, action }: { title: string; children?: ReactNode; action?: ReactNode }) {
   return (
-    <div className="rounded-lg border border-dashed border-line px-6 py-10">
-      <h3 className="text-xl">{title}</h3>
+    <div className="rounded-md bg-mist px-6 py-10 sm:px-8">
+      <h3 className="text-2xl">{title}</h3>
       {children && <div className="mt-2 max-w-prose text-slate">{children}</div>}
       {action && <div className="mt-5">{action}</div>}
     </div>
@@ -200,9 +200,9 @@ export function useAsync<T>(fn: () => Promise<T>, deps: unknown[]) {
 
 export function PageHeader({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <header className="border-b border-line pb-6">
-      <h1 className="text-3xl sm:text-4xl">{title}</h1>
-      {children && <div className="mt-3 max-w-prose text-lg text-slate">{children}</div>}
+    <header className="border-b border-ink/80 pb-8">
+      <h1 className="text-4xl font-medium tracking-[-0.01em] sm:text-5xl">{title}</h1>
+      {children && <div className="mt-4 max-w-prose text-lg leading-8 text-slate">{children}</div>}
     </header>
   );
 }

@@ -13,9 +13,9 @@
   --teal-strong: 11 94 88;  /* #0B5E58 */
   --teal-tint: 230 242 241; /* #E6F2F1 */
   --paper: 255 255 255;
-  --mist: 243 245 248;      /* #F3F5F8 */
+  --mist: 241 244 248;      /* #F1F4F8 */
   --line: 217 222 229;      /* #D9DEE5 */
-  --slate: 74 85 102;       /* #4A5566 texto secundario */
+  --slate: 63 74 90;        /* #3F4A5A texto secundario (7,9:1 sobre blanco) */
   --amber: 180 83 9;        /* #B45309 advertencias */
   --amber-tint: 254 243 226;
   --danger: 180 35 24;      /* #B42318 errores */
@@ -39,6 +39,10 @@
     outline: 3px solid rgb(var(--teal));
     outline-offset: 2px;
     border-radius: 4px;
+  }
+  /* Sobre fondo tinta el foco verde azulado no contrasta: se usa blanco. */
+  .bg-ink :focus-visible {
+    outline-color: #fff;
   }
   ::selection {
     background: rgb(var(--teal-tint));
@@ -86,6 +90,23 @@
   }
   .field-error {
     @apply mt-1 text-sm font-medium text-danger;
+  }
+  /* Folio: hoja de papel con margen de expediente. Soporte de los relatos. */
+  .folio {
+    @apply relative rounded-[3px] bg-paper text-ink;
+    box-shadow: 0 1px 0 rgb(var(--line)), 0 18px 40px -24px rgb(var(--ink) / 0.45);
+  }
+  .folio-margin {
+    @apply relative pl-6 sm:pl-8;
+  }
+  .folio-margin::before {
+    content: '';
+    @apply absolute bottom-0 left-0 top-0 w-px bg-teal/40;
+  }
+  /* Hoja de debajo: sugiere un expediente con más folios. */
+  .folio-stack::before {
+    content: '';
+    @apply absolute inset-0 -z-10 translate-x-2 translate-y-2 rounded-[3px] bg-white/15;
   }
   /* Barra de censura: el elemento visual distintivo de la marca. */
   .redacted {
