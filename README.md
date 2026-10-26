@@ -66,7 +66,15 @@ Sin variables de Supabase la app arranca igualmente y muestra un aviso de config
 
    A partir de ahí, los roles se gestionan con `select public.admin_set_role('<uuid>', 'moderator', true);`, que queda registrado.
 6. **Datos de prueba (solo en desarrollo):** `supabase/seed.dev.sql` crea tres empresas ficticias marcadas como contenido de prueba.
-7. **Tareas programadas:** ver [`docs/retencion.md`](docs/retencion.md).
+7. **Importar empresas desde el informe de Supersociedades** («10.000 empresas más grandes»):
+
+   ```bash
+   pip install openpyxl
+   python scripts/importar_empresas.py ruta/al/reporte.xlsx --anio 2025
+   ```
+
+   Genera `supabase/importaciones/empresas_<año>_parte_N.sql` (2.000 empresas por archivo). Ejecútalos en orden en el SQL Editor. Son idempotentes: repetirlos no duplica. El NIT se guarda en `company_private_data` y nunca es público. Las razones sociales idénticas en el mismo departamento se omiten para no crear perfiles indistinguibles; revísalas a mano. Estos archivos no se suben al repositorio.
+8. **Tareas programadas:** ver [`docs/retencion.md`](docs/retencion.md).
 
 ## Pruebas
 

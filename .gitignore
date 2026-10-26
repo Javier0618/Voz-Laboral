@@ -10,3 +10,5 @@ supabase/.branches
 
 # Generado a partir de las migraciones
 supabase/instalar-todo.sql
+# SQL generados con NIT (no se suben al repositorio)
+supabase/importaciones/
