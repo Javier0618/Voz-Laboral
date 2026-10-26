@@ -274,6 +274,36 @@ describe('estadísticas y privacidad', () => {
   });
 });
 
+describe('búsqueda por NIT', () => {
+  const search = (q: string) =>
+    as(db, 'anon', () => db.query<Record<string, unknown>>(`select * from public.search_companies($1)`, [q]));
+
+  beforeAll(async () => {
+    const id = await createCompany(db, admin, 'Empresa Demo Nit S.A.S.', 'empresa-demo-nit');
+    await as(db, admin, () => db.query(`insert into public.company_private_data (company_id, tax_id) values ($1, '899999068')`, [id]));
+  });
+
+  it('encuentra la empresa con el NIT completo, con o sin puntos y dígito de verificación', async () => {
+    for (const q of ['899999068', '899.999.068', '899.999.068-1', '8999990681', ' 899 999 068 ']) {
+      const { rows } = await search(q);
+      expect(rows.map((r) => r.slug), q).toEqual(['empresa-demo-nit']);
+    }
+  });
+
+  it('no encuentra nada con un NIT parcial', async () => {
+    for (const q of ['8999', '899999', '89999906', '99999068']) {
+      const { rows } = await search(q);
+      expect(rows, q).toHaveLength(0);
+    }
+  });
+
+  it('nunca devuelve el NIT en los resultados', async () => {
+    const { rows, fields } = await search('899999068');
+    expect(fields.map((f) => f.name)).not.toContain('tax_id');
+    expect(JSON.stringify(rows)).not.toContain('899999068');
+  });
+});
+
 describe('eliminación de cuenta', () => {
   it('anonimiza las publicaciones tras el plazo de cancelación', async () => {
     const fede = await createUser(db, { alias: 'fede_noche' });

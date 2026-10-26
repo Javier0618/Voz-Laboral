@@ -1,7 +1,15 @@
 // Sin variables de Supabase la app debe avisar, no simular datos.
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+// Las pruebas no deben depender de .env.local ni llegar nunca a una base de datos real.
+vi.mock('../../src/lib/supabase', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../src/lib/supabase')>()),
+  isConfigured: false,
+  supabase: null,
+}));
+
 import { AuthProvider } from '../../src/auth/AuthProvider';
 import { AppRoutes } from '../../src/App';
 

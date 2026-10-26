@@ -80,7 +80,7 @@ export function CompanyPicker({
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-err` : hint ? `${id}-hint` : undefined}
         className="input"
-        placeholder="Escribe al menos 2 letras"
+        placeholder="Nombre, sigla o NIT"
         value={query}
         autoComplete="off"
         onChange={(e) => setQuery(e.target.value)}

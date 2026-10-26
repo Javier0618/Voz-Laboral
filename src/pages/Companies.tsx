@@ -31,7 +31,7 @@ export default function Companies() {
   return (
     <div className="page py-10">
       <PageHeader title="Empresas">
-        Busca por nombre comercial, razón social o sigla. Si la empresa no aparece, puedes sugerirla para que el equipo la revise antes de
+        Busca por nombre comercial, razón social, sigla o NIT completo. El NIT solo se usa para encontrar la empresa: no se muestra. Si la empresa no aparece, puedes sugerirla para que el equipo la revise antes de
         incluirla.
       </PageHeader>
 
@@ -44,8 +44,8 @@ export default function Companies() {
         }}
       >
         <div>
-          <label htmlFor="f-q" className="label">Nombre</label>
-          <input id="f-q" type="search" className="input" value={draft.q} onChange={(e) => setDraft({ ...draft, q: e.target.value })} placeholder="Ej.: nombre o sigla" />
+          <label htmlFor="f-q" className="label">Nombre o NIT</label>
+          <input id="f-q" type="search" className="input" value={draft.q} onChange={(e) => setDraft({ ...draft, q: e.target.value })} placeholder="Ej.: nombre, sigla o 899999068" />
         </div>
         <div>
           <label htmlFor="f-city" className="label">Ciudad</label>

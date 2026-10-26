@@ -48,7 +48,7 @@ function Hero() {
                 id="buscar-empresa"
                 type="search"
                 className="input min-h-[52px] text-lg"
-                placeholder="Nombre de la empresa o sigla"
+                placeholder="Nombre, sigla o NIT"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 autoComplete="off"
