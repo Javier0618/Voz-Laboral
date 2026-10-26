@@ -8,7 +8,7 @@ import {
   type GuideDetail, type GuideStatus,
 } from '../lib/adminApi';
 import { listCategories } from '../lib/api';
-import { formatDate } from '../lib/format';
+import { formatDate, todayLocal } from '../lib/format';
 import type { AppError } from '../lib/supabase';
 import { GuideBody } from '../components/GuideBody';
 import { Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, useAsync } from '../components/ui';
@@ -264,7 +264,7 @@ function ImageDialog({ open, slug, onClose, onInsert }: { open: boolean; slug: s
 }
 
 function Sources({ guide: g, onChange }: { guide: GuideDetail; onChange: () => void }) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocal();
   const empty = { label: '', publisher: 'Secretaría General del Senado de la República', url: '', accessed_at: today };
   const [form, setForm] = useState(empty);
   const [error, setError] = useState<string | null>(null);

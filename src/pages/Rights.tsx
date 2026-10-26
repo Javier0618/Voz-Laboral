@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { getLegalResource, listCategories, listLegalResources, registerGuideView } from '../lib/api';
-import { formatDate } from '../lib/format';
+import { formatDate, todayLocal } from '../lib/format';
 import { GuideBody } from '../components/GuideBody';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, useAsync } from '../components/ui';
 
@@ -105,7 +105,7 @@ export function RightsArticle() {
 
 // shortcut: un navegador cuenta una visita por guía y día; no evita que alguien infle el contador a propósito.
 function countViewOncePerDay(slug: string) {
-  const key = `vozlaboral:visita:${slug}:${new Date().toISOString().slice(0, 10)}`;
+  const key = `vozlaboral:visita:${slug}:${todayLocal()}`;
   try {
     if (localStorage.getItem(key)) return;
     localStorage.setItem(key, '1');

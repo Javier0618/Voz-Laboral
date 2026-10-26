@@ -3,6 +3,7 @@
 import { requireClient } from './supabase';
 import { toAppError } from './errors';
 import type { ExperienceStatus } from './api';
+import { todayLocal } from './format';
 
 async function run<T>(promise: PromiseLike<{ data: T | null; error: unknown }>): Promise<T> {
   let result: { data: T | null; error: unknown };
@@ -142,7 +143,7 @@ export function listGuides() {
 /** Publicar exige fecha de verificación: se registra hoy y quién publica. */
 export function setGuideStatus(id: string, status: GuideStatus, userId: string) {
   const patch = status === 'publicado'
-    ? { status, last_verified_at: new Date().toISOString().slice(0, 10), verified_by: userId }
+    ? { status, last_verified_at: todayLocal(), verified_by: userId }
     : { status };
   return run(requireClient().from('legal_resources').update(patch).eq('id', id));
 }

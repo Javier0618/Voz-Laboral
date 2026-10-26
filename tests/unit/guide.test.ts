@@ -13,8 +13,19 @@ describe('formato de las guías', () => {
     ]);
   });
 
-  it('un bloque con líneas mezcladas es un párrafo, no una lista', () => {
-    expect(parseGuide('- Uno\nTexto suelto')).toEqual([{ type: 'paragraph', text: '- Uno Texto suelto' }]);
+  it('separa una frase introductoria de la lista que la sigue en el mismo bloque', () => {
+    expect(parseGuide('Según el artículo 168:\n- Nocturno 35 %\n- Extra 25 %\nTexto final.')).toEqual([
+      { type: 'paragraph', text: 'Según el artículo 168:' },
+      { type: 'list', items: ['Nocturno 35 %', 'Extra 25 %'] },
+      { type: 'paragraph', text: 'Texto final.' },
+    ]);
+  });
+
+  it('un subtítulo seguido de lista en el mismo bloque', () => {
+    expect(parseGuide('## Vacaciones\n- 15 días hábiles')).toEqual([
+      { type: 'heading', text: 'Vacaciones' },
+      { type: 'list', items: ['15 días hábiles'] },
+    ]);
   });
 
   it('ignora líneas en blanco extra y finales de línea de Windows', () => {
