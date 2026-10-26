@@ -23,11 +23,12 @@ export default function GuideEditor() {
   const guide = useAsync(() => (notConfigured || !isAdmin ? Promise.resolve(null) : getGuide(id)), [id, isAdmin]);
 
   if (notConfigured) return <div className="page py-10"><ConfigNotice /></div>;
-  if (loading || guide.loading) return <div className="page py-10"><Loading /></div>;
+  if (loading || (guide.loading && !guide.data)) return <div className="page py-10"><Loading /></div>;
   if (!isAdmin) return <div className="page py-10"><Alert tone="warning" title="Acceso restringido">Solo la administración puede editar guías.</Alert></div>;
   if (guide.error) return <div className="page py-10"><ErrorState error={guide.error} onRetry={guide.reload} /></div>;
   if (!guide.data) return <div className="page py-10"><EmptyState title="No encontramos esta guía" action={<Link to="/moderacion" className="btn-primary">Volver a Moderación</Link>} /></div>;
-  return <Editor key={guide.data.updated_at} guide={guide.data} onSaved={guide.reload} />;
+  // key por id: al recargar tras guardar no se vuelve a montar y el aviso de confirmación sigue visible.
+  return <Editor key={guide.data.id} guide={guide.data} onSaved={guide.reload} />;
 }
 
 function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void }) {

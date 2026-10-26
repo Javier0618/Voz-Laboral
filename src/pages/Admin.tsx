@@ -10,7 +10,7 @@ import {
   guideViews, listGuides, setGuideStatus, type GuideRow, type GuideStatus,
 } from '../lib/adminApi';
 import type { ExperienceStatus } from '../lib/api';
-import { formatDate, formatPeriod, relationshipLabel } from '../lib/format';
+import { formatDate, formatPeriod, plural, relationshipLabel } from '../lib/format';
 import { normalizeText } from '../lib/schemas';
 import type { AppError } from '../lib/supabase';
 import {
@@ -619,7 +619,7 @@ function GuideRowItem({ guide: g, onDone }: { guide: GuideRow; onDone: () => voi
       <div className="flex flex-wrap items-center gap-3 text-sm text-slate">
         <span className="rounded-[3px] border border-line px-2 py-0.5 text-xs font-semibold text-ink">{guideStatusLabel[g.status]}</span>
         <span>{g.legal_resource_sources.length} {g.legal_resource_sources.length === 1 ? 'fuente' : 'fuentes'}</span>
-        {g.status === 'publicado' && <span>{guideViews(g.legal_resource_stats).views.toLocaleString('es-CO')} visitas</span>}
+        {g.status === 'publicado' && <span>{plural(guideViews(g.legal_resource_stats).views, 'visita', 'visitas')}</span>}
         {g.last_verified_at && <span>Verificada el {formatDate(g.last_verified_at)}</span>}
       </div>
       <h3 className="mt-2 text-xl">
