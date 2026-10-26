@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseGuide } from '../../src/lib/guide';
+import { guideOutline, parseGuide, parseInline, readingMinutes } from '../../src/lib/guide';
 
 describe('formato de las guías', () => {
   it('separa subtítulos, listas y párrafos', () => {
@@ -41,5 +41,47 @@ describe('formato de las guías', () => {
     ]);
     expect(parseGuide('![x](javascript:alert(1))')[0].type).toBe('paragraph');
     expect(parseGuide('![x](http://inseguro.test/a.png)')[0].type).toBe('paragraph');
+  });
+});
+
+describe('formato enriquecido de las guías', () => {
+  it('reconoce subtítulos menores, listas numeradas y recuadros', () => {
+    expect(parseGuide('### Detalle\nTexto.\n\n1. Primero\n2. Segundo\n\n> Guarda copia\n> de todo.')).toEqual([
+      { type: 'heading', text: 'Detalle', level: 3 },
+      { type: 'paragraph', text: 'Texto.' },
+      { type: 'list', items: ['Primero', 'Segundo'], ordered: true },
+      { type: 'note', text: 'Guarda copia de todo.' },
+    ]);
+  });
+
+  it('no mezcla una lista con viñetas y una numerada seguidas', () => {
+    expect(parseGuide('- a\n1. b')).toEqual([
+      { type: 'list', items: ['a'] },
+      { type: 'list', items: ['b'], ordered: true },
+    ]);
+  });
+
+  it('separa negrita y enlaces https, y deja como texto otros esquemas', () => {
+    expect(parseInline('Mira **esto** y [la ley](https://www.secretariasenado.gov.co/x).')).toEqual([
+      { type: 'text', text: 'Mira ' },
+      { type: 'strong', text: 'esto' },
+      { type: 'text', text: ' y ' },
+      { type: 'link', text: 'la ley', href: 'https://www.secretariasenado.gov.co/x' },
+      { type: 'text', text: '.' },
+    ]);
+    expect(parseInline('[x](javascript:alert(1))')).toEqual([{ type: 'text', text: '[x](javascript:alert(1))' }]);
+    expect(parseInline('[x](http://inseguro.test)')[0].type).toBe('text');
+  });
+
+  it('genera el índice con identificadores únicos y sin tildes', () => {
+    expect(guideOutline('## Qué es\nA\n\n### Sub\nB\n\n## Qué es\nC')).toEqual([
+      { id: 'que-es', text: 'Qué es' },
+      { id: 'que-es-2', text: 'Qué es' },
+    ]);
+  });
+
+  it('calcula el tiempo de lectura', () => {
+    expect(readingMinutes('palabra '.repeat(50))).toBe(1);
+    expect(readingMinutes('palabra '.repeat(1000))).toBe(5);
   });
 });

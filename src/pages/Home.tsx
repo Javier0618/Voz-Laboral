@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { listCategories, listExperiences } from '../lib/api';
+import { listCategories, listExperiences, listLegalResources } from '../lib/api';
+import { readingMinutes } from '../lib/guide';
 import { ExperienceItem } from '../components/ExperienceItem';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, useAsync } from '../components/ui';
 
@@ -243,9 +244,11 @@ function Identity() {
 }
 
 function Rights() {
+  const guides = useAsync(() => (notConfigured ? Promise.resolve([]) : listLegalResources()), []);
+  const featured = (guides.data ?? []).slice(0, 3);
   return (
     <section className="page mt-24" aria-labelledby="derechos-inicio">
-      <div className="grid items-center gap-6 border-y border-ink/80 py-10 md:grid-cols-[minmax(0,1fr)_auto] md:gap-12">
+      <div className="grid gap-6 border-t border-ink/80 pt-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12">
         <div>
           <h2 id="derechos-inicio" className="text-3xl">Conoce tus derechos laborales</h2>
           <p className="mt-3 max-w-prose text-slate">
@@ -253,8 +256,21 @@ function Rights() {
             del Trabajo, de un inspector de trabajo ni de un abogado.
           </p>
         </div>
-        <Link to="/derechos" className="btn-primary justify-self-start px-6">Ver las guías</Link>
+        <Link to="/derechos" className="btn-primary justify-self-start px-6">Ver todas las guías</Link>
       </div>
+      {featured.length > 0 && (
+        <ul className="mt-8 grid gap-4 md:grid-cols-3">
+          {featured.map((g) => (
+            <li key={g.id}>
+              <Link to={`/derechos/${g.slug}`} className="group flex h-full flex-col rounded-lg border border-line bg-paper p-6 transition-colors hover:border-slate">
+                <span className="font-serif text-xl leading-snug text-ink group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">{g.title}</span>
+                <span className="mt-2 line-clamp-3 text-sm leading-6 text-slate">{g.summary}</span>
+                <span className="mt-auto pt-5 text-sm font-semibold text-teal-strong">Leer guía · {readingMinutes(g.content)} min</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

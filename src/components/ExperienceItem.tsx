@@ -18,23 +18,31 @@ export function ExperienceItem({ exp, showCompany = true }: { exp: PublicExperie
 
   return (
     <article id={`e-${exp.id}`} className="scroll-mt-6 border-t border-line py-8 first:border-t-0 first:pt-2" aria-labelledby={`exp-${exp.id}`}>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate">
-        <span className="font-semibold text-ink">{exp.author_alias}</span>
-        <span>{relationshipLabel[exp.relationship]}</span>
-        <span>{formatPeriod(exp.period_start, exp.period_end)}</span>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+        <Link
+          to={`/experiencias?categoria=${exp.category_slug}`}
+          className="rounded-full border border-teal/30 bg-teal-tint px-3 py-0.5 font-semibold text-teal-strong hover:border-teal"
+        >
+          {exp.category_name}
+        </Link>
+        <span className="text-slate">{formatPeriod(exp.period_start, exp.period_end)}</span>
         {exp.status === 'en_disputa' && <StatusChip status="en_disputa" />}
       </div>
-      <h3 id={`exp-${exp.id}`} className="mt-2 text-2xl">
+      <h3 id={`exp-${exp.id}`} className="mt-3 text-2xl leading-tight">
         {exp.title || exp.category_name}
       </h3>
-      <p className="mt-1 text-sm">
+      <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate">
         {showCompany && (
           <>
             <Link to={`/empresas/${exp.company_slug}`} className="btn-link">{exp.company_name}</Link>
-            <span className="text-slate">, </span>
+            <span aria-hidden="true">·</span>
           </>
         )}
-        <Link to={`/experiencias?categoria=${exp.category_slug}`} className="text-slate hover:text-ink hover:underline">{exp.category_name}</Link>
+        <span>
+          Por <span className="font-semibold text-ink">{exp.author_alias}</span>
+        </span>
+        <span aria-hidden="true">·</span>
+        <span>{relationshipLabel[exp.relationship]}</span>
       </p>
       <div className="folio-margin mt-5">
         <p className="testimony">{text}</p>

@@ -164,10 +164,20 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
                   <button type="button" className="btn-secondary" onClick={() => { caret.current = textarea.current?.selectionStart ?? null; setImageOpen(true); }}>
                     Insertar imagen
                   </button>
-                  <p className="text-sm text-slate">
-                    Separa los bloques con una línea en blanco. <code>## </code> crea un subtítulo y <code>- </code> al inicio de cada línea crea una lista.
-                  </p>
+                  <p className="text-sm text-slate">Separa los bloques con una línea en blanco.</p>
                 </div>
+                <details className="mb-3 rounded border border-line bg-mist px-4 py-3 text-sm">
+                  <summary className="cursor-pointer font-semibold text-ink">Guía de formato</summary>
+                  <dl className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-[12rem_minmax(0,1fr)]">
+                    <dt><code>## Título</code></dt><dd className="text-slate">Subtítulo de sección. Aparece en el índice «En esta guía».</dd>
+                    <dt><code>### Título</code></dt><dd className="text-slate">Subtítulo menor dentro de una sección.</dd>
+                    <dt><code>- texto</code></dt><dd className="text-slate">Lista con viñetas (una línea por punto).</dd>
+                    <dt><code>1. texto</code></dt><dd className="text-slate">Lista numerada, para pasos en orden.</dd>
+                    <dt><code>&gt; texto</code></dt><dd className="text-slate">Recuadro «Importante» para una advertencia o un dato clave.</dd>
+                    <dt><code>**texto**</code></dt><dd className="text-slate">Negrita.</dd>
+                    <dt><code>[texto](https://…)</code></dt><dd className="text-slate">Enlace a una fuente oficial. Solo se aceptan direcciones https.</dd>
+                  </dl>
+                </details>
                 <label htmlFor="guia-contenido" className="sr-only">Contenido de la guía</label>
                 <textarea
                   id="guia-contenido"
