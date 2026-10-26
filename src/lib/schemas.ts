@@ -41,6 +41,7 @@ const monthString = z.string().regex(/^\d{4}-\d{2}$/, 'Elige el mes y el año.')
 export const experienceSchema = z
   .object({
     companyId: z.string().uuid('Elige la empresa del catálogo.'),
+    tone: z.enum(['positiva', 'negativa', 'mixta'], { errorMap: () => ({ message: 'Indica si tu experiencia fue buena, mala o mixta.' }) }),
     category: z.string().min(1, 'Elige la categoría que mejor describe la situación.'),
     periodStart: monthString,
     periodEnd: z.union([monthString, z.literal('')]),
@@ -49,7 +50,7 @@ export const experienceSchema = z
     body: z
       .string()
       .trim()
-      .min(BODY_MIN, `Describe lo ocurrido con al menos ${BODY_MIN} caracteres.`)
+      .min(BODY_MIN, `Cuenta tu experiencia con al menos ${BODY_MIN} caracteres.`)
       .max(BODY_MAX, `El relato admite hasta ${BODY_MAX} caracteres.`),
     hasDocuments: z.boolean(),
     rulesAccepted: z.literal(true, { errorMap: () => ({ message: 'Confirma que leíste las reglas de publicación.' }) }),
@@ -64,6 +65,13 @@ export const experienceSchema = z
   });
 
 export type ExperienceInput = z.infer<typeof experienceSchema>;
+
+export const COMMENT_MAX = 1000;
+export const commentSchema = z
+  .string()
+  .trim()
+  .min(2, 'Escribe tu comentario.')
+  .max(COMMENT_MAX, `El comentario admite hasta ${COMMENT_MAX} caracteres.`);
 
 export const claimSchema = z.object({
   claimantName: z.string().trim().min(3, 'Escribe tu nombre.').max(120),

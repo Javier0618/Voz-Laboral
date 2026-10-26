@@ -5,6 +5,7 @@ import { toAppError } from '../../src/lib/errors';
 const body = 'Relato de prueba con suficiente longitud para cumplir el mínimo exigido. '.repeat(4);
 const base = {
   companyId: '7b0f8a3e-2c2f-4f43-9a55-0c6a1d1e5b10',
+  tone: 'mixta',
   category: 'pago-salarios',
   periodStart: '2024-03',
   periodEnd: '',

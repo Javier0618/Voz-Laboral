@@ -12,6 +12,7 @@ const years = Array.from({ length: thisYear - 1989 }, (_, i) => String(thisYear 
 export default function Experiences() {
   const [params, setParams] = useSearchParams();
   const category = params.get('categoria') ?? '';
+  const tone = params.get('tono') ?? '';
   const companyId = params.get('empresa') ?? '';
   const fromYear = params.get('desde') ?? '';
   const toYear = params.get('hasta') ?? '';
@@ -20,21 +21,21 @@ export default function Experiences() {
 
   const categories = useAsync(() => (notConfigured ? Promise.resolve([]) : listCategories()), []);
   const list = useAsync(
-    () => (notConfigured ? Promise.resolve([]) : listExperiences({ category, companyId, fromYear, toYear, page })),
-    [category, companyId, fromYear, toYear, page],
+    () => (notConfigured ? Promise.resolve([]) : listExperiences({ category, tone, companyId, fromYear, toYear, page })),
+    [category, tone, companyId, fromYear, toYear, page],
   );
   const total = list.data?.[0]?.total_count ?? 0;
 
   function set(next: Record<string, string>) {
-    const merged: Record<string, string> = { categoria: category, empresa: companyId, desde: fromYear, hasta: toYear, pagina: '', ...next };
+    const merged: Record<string, string> = { categoria: category, tono: tone, empresa: companyId, desde: fromYear, hasta: toYear, pagina: '', ...next };
     setParams(Object.fromEntries(Object.entries(merged).filter(([, v]) => v)));
   }
 
   return (
     <div className="page py-10">
       <PageHeader title="Experiencias">
-        Relatos publicados tras pasar la moderación. Cada uno refleja la vivencia de quien lo escribe: la plataforma no ha verificado los
-        hechos.
+        Experiencias buenas, malas y mixtas, publicadas tras la moderación. Cada una refleja la vivencia de quien la escribe: la plataforma
+        no verifica los hechos.
       </PageHeader>
 
       {notConfigured ? (
@@ -42,6 +43,24 @@ export default function Experiences() {
       ) : (
         <div className="mt-8 grid gap-10 lg:grid-cols-[17rem_1fr]">
           <form className="space-y-5" onSubmit={(e) => e.preventDefault()} aria-label="Filtros">
+            <fieldset>
+              <legend className="label">Tipo de experiencia</legend>
+              <div className="mt-1 flex flex-wrap gap-2">
+                {[['', 'Todas'], ['positiva', 'Buenas'], ['mixta', 'Mixtas'], ['negativa', 'Malas']].map(([v, l]) => (
+                  <button
+                    key={v || 'todas'}
+                    type="button"
+                    aria-pressed={tone === v}
+                    onClick={() => set({ tono: v })}
+                    className={`min-h-[40px] rounded-full border px-3.5 text-sm font-semibold transition-colors ${
+                      tone === v ? 'border-ink bg-ink text-white' : 'border-line bg-paper text-ink hover:border-slate'
+                    }`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
             <div>
               <label htmlFor="f-cat" className="label">Categoría</label>
               <select id="f-cat" className="input" value={category} onChange={(e) => set({ categoria: e.target.value })}>

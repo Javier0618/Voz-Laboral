@@ -20,6 +20,7 @@ export interface QueueItem {
   id: string; company_id: string; company_name: string; category_slug: string; title: string | null; body: string;
   period_start: string; period_end: string | null; relationship: string; has_documents: boolean; status: ExperienceStatus;
   status_reason: string | null; auto_flags: string[]; author_alias: string; author_id: string | null; open_reports: number; created_at: string;
+  tone: 'positiva' | 'negativa' | 'mixta'; submitted_without_account: boolean;
 }
 
 export function moderationQueue(status: ExperienceStatus | null, page = 1) {
@@ -38,11 +39,22 @@ export function setSuspension(userId: string, suspend: boolean, reason: string) 
   return run(requireClient().rpc('set_account_suspension', { p_user_id: userId, p_suspend: suspend, p_reason: reason }));
 }
 
-export interface ReportRow { id: string; experience_id: string; reason: string; details: string | null; status: string; resolution_note: string | null; created_at: string }
+export interface CommentModerationRow {
+  id: string; experience_id: string; experience_title: string; company_name: string; body: string; status: string;
+  auto_flags: string[]; author_alias: string; open_reports: number; created_at: string;
+}
+export function listCommentsForModeration(filter: 'retenido' | 'reportados' | 'ocultos') {
+  return run<CommentModerationRow[]>(requireClient().rpc('moderation_comments', { p_filter: filter }));
+}
+export function moderateComment(id: string, status: 'publicado' | 'oculto', reason: string) {
+  return run(requireClient().rpc('moderate_comment', { p_comment_id: id, p_new_status: status, p_reason: reason }));
+}
+
+export interface ReportRow { id: string; experience_id: string; comment_id: string | null; reason: string; details: string | null; status: string; resolution_note: string | null; created_at: string }
 export function listReports(status: string) {
   return run<ReportRow[]>(
     requireClient().from('content_reports')
-      .select('id, experience_id, reason, details, status, resolution_note, created_at')
+      .select('id, experience_id, comment_id, reason, details, status, resolution_note, created_at')
       .eq('status', status).order('created_at').limit(100),
   );
 }

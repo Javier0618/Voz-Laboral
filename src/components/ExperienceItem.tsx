@@ -6,19 +6,22 @@ import { formatDate, formatPeriod, relationshipLabel } from '../lib/format';
 import { fieldErrors, reportSchema } from '../lib/schemas';
 import type { AppError } from '../lib/supabase';
 import { useAuth } from '../auth/AuthProvider';
-import { Alert, Dialog, Field, StatusChip } from './ui';
+import { Alert, Dialog, Field, StatusChip, ToneChip } from './ui';
+import { Comments, ReactionBar, useEngagement } from './Engagement';
 
 const PREVIEW = 600;
 
 export function ExperienceItem({ exp, showCompany = true }: { exp: PublicExperience; showCompany?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [reporting, setReporting] = useState(false);
+  const [engagement, setEngagement] = useEngagement(exp.id);
   const long = exp.body.length > PREVIEW;
   const text = expanded || !long ? exp.body : `${exp.body.slice(0, PREVIEW).trimEnd()}…`;
 
   return (
     <article id={`e-${exp.id}`} className="scroll-mt-6 border-t border-line py-8 first:border-t-0 first:pt-2" aria-labelledby={`exp-${exp.id}`}>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+        <ToneChip tone={exp.tone} />
         <Link
           to={`/experiencias?categoria=${exp.category_slug}`}
           className="rounded-full border border-teal/30 bg-teal-tint px-3 py-0.5 font-semibold text-teal-strong hover:border-teal"
@@ -63,6 +66,15 @@ export function ExperienceItem({ exp, showCompany = true }: { exp: PublicExperie
           Reportar
         </button>
       </div>
+      <ReactionBar experienceId={exp.id} engagement={engagement} onChange={setEngagement} />
+      {engagement && (
+        <Comments
+          experienceId={exp.id}
+          enabled={engagement.comments_enabled}
+          count={engagement.comments}
+          onCountChange={(n) => setEngagement((e) => (e ? { ...e, comments: n } : e))}
+        />
+      )}
       <ReportDialog experienceId={exp.id} open={reporting} onClose={() => setReporting(false)} />
     </article>
   );
@@ -111,7 +123,7 @@ function ReportDialog({ experienceId, open, onClose }: { experienceId: string; o
         </p>
       ) : done ? (
         <div className="space-y-4">
-          <Alert tone="success" title="Reporte enviado">El equipo de moderación lo revisará. Puedes consultar su estado en Mi cuenta.</Alert>
+          <Alert tone="success" title="Reporte enviado">Gracias. El equipo de moderación lo revisará.</Alert>
           <button type="button" className="btn-secondary" onClick={onClose}>Cerrar</button>
         </div>
       ) : (

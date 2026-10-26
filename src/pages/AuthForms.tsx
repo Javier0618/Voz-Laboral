@@ -50,7 +50,7 @@ export function AuthForms() {
       if (mode === 'login') {
         const { error: err } = await client.auth.signInWithPassword({ email: email.trim(), password });
         if (err) throw err;
-        if (next?.startsWith('/')) navigate(next);
+        if (next?.startsWith('/') && !next.startsWith('//')) navigate(next);
       } else if (mode === 'registro') {
         const { error: err } = await client.auth.signUp({
           email: email.trim(),

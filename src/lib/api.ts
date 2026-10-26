@@ -5,6 +5,9 @@ import { toAppError } from './errors';
 import type { ExperienceInput } from './schemas';
 
 export type ExperienceStatus = 'en_revision' | 'publicada' | 'requiere_ajustes' | 'en_disputa' | 'restringida' | 'retirada';
+export type Tone = 'positiva' | 'negativa' | 'mixta';
+export type ReactionKind = 'me_paso' | 'me_sirvio' | 'gracias';
+export type ReactionCounts = Record<ReactionKind, number>;
 
 export interface Category { slug: string; name: string; description: string; sort_order: number }
 export interface CompanySummary {
@@ -25,12 +28,23 @@ export interface CompanyProfile {
 export interface PublicExperience {
   id: string; company_id: string; company_slug: string; company_name: string; category_slug: string; category_name: string;
   period_start: string; period_end: string | null; relationship: string; title: string | null; body: string; has_documents: boolean;
-  status: ExperienceStatus; published_at: string | null; author_alias: string; total_count: number;
+  status: ExperienceStatus; published_at: string | null; author_alias: string; tone: Tone; comments_enabled: boolean; total_count: number;
 }
 export interface MyExperience {
   id: string; company_id: string; company_slug: string; company_name: string; category_slug: string; category_name: string;
   period_start: string; period_end: string | null; relationship: string; title: string | null; body: string; has_documents: boolean;
   status: ExperienceStatus; status_reason: string | null; published_at: string | null; created_at: string; updated_at: string;
+  tone: Tone; comments_enabled: boolean; reactions: ReactionCounts; comments_count: number;
+}
+export interface Engagement {
+  experience_id: string; me_paso: number; me_sirvio: number; gracias: number; comments: number; my_reactions: ReactionKind[]; comments_enabled: boolean;
+}
+export interface ExperienceComment {
+  id: string; author_alias: string; is_experience_author: boolean; is_mine: boolean; body: string; status: 'publicado' | 'retenido'; created_at: string;
+}
+export interface TrackedExperience {
+  id: string; title: string | null; tone: Tone; status: ExperienceStatus; status_reason: string | null; created_at: string; published_at: string | null;
+  company_name: string; company_slug: string; category_name: string; reactions: ReactionCounts; comments_count: number;
 }
 export interface CompanyResponse { id: string; experience_id: string | null; representative_label: string; body: string; created_at: string }
 export interface LegalResource {
@@ -88,7 +102,7 @@ export function getCompanyProfile(slug: string) {
   return run<CompanyProfile | null>(requireClient().rpc('company_profile', { p_slug: slug }));
 }
 
-export function listExperiences(params: { companyId?: string; category?: string; fromYear?: string; toYear?: string; page?: number; pageSize?: number }) {
+export function listExperiences(params: { companyId?: string; category?: string; tone?: string; fromYear?: string; toYear?: string; page?: number; pageSize?: number }) {
   const size = params.pageSize ?? PAGE_SIZE;
   return run<PublicExperience[]>(
     requireClient().rpc('list_experiences', {
@@ -98,8 +112,52 @@ export function listExperiences(params: { companyId?: string; category?: string;
       p_to: params.toYear ? `${params.toYear}-12-31` : null,
       p_limit: size,
       p_offset: ((params.page ?? 1) - 1) * size,
+      p_tone: params.tone || null,
     }),
   );
+}
+
+// ---------------------------------------------------------------- interacción
+export async function getEngagement(ids: string[]) {
+  if (!ids.length) return [] as Engagement[];
+  const rows = await run<Engagement[]>(requireClient().rpc('experience_engagement', { p_ids: ids }));
+  return rows.map((r) => ({ ...r, me_paso: Number(r.me_paso), me_sirvio: Number(r.me_sirvio), gracias: Number(r.gracias), comments: Number(r.comments) }));
+}
+
+export function addReaction(experienceId: string, kind: ReactionKind) {
+  return run(requireClient().from('experience_reactions').insert({ experience_id: experienceId, kind }));
+}
+
+export function removeReaction(experienceId: string, kind: ReactionKind) {
+  return run(requireClient().from('experience_reactions').delete().eq('experience_id', experienceId).eq('kind', kind));
+}
+
+export function listComments(experienceId: string) {
+  return run<ExperienceComment[]>(requireClient().rpc('list_comments', { p_experience_id: experienceId }));
+}
+
+export function addComment(experienceId: string, body: string) {
+  return run(requireClient().from('experience_comments').insert({ experience_id: experienceId, body: body.trim() }));
+}
+
+export function deleteMyComment(id: string) {
+  return run(requireClient().rpc('delete_my_comment', { p_comment_id: id }));
+}
+
+export function reportComment(experienceId: string, commentId: string, reason: string, details: string) {
+  return run(requireClient().from('content_reports').insert({ experience_id: experienceId, comment_id: commentId, reason, details: details || null }));
+}
+
+export function setCommentsEnabled(experienceId: string, enabled: boolean) {
+  return run(requireClient().rpc('set_comments_enabled', { p_experience_id: experienceId, p_enabled: enabled }));
+}
+
+export function getTrackedExperience(token: string) {
+  return run<TrackedExperience | null>(requireClient().rpc('get_tracked_experience', { p_token: token }));
+}
+
+export function claimTrackedExperience(token: string) {
+  return run<string>(requireClient().rpc('claim_tracked_experience', { p_token: token }));
 }
 
 export function listCompanyResponses(companyId: string) {
@@ -187,6 +245,7 @@ function experienceRow(input: ExperienceInput) {
     period_start: monthToDate(input.periodStart),
     period_end: input.periodEnd ? monthToDate(input.periodEnd) : null,
     relationship: input.relationship,
+    tone: input.tone,
     title: input.title || null,
     body: input.body.trim(),
     has_documents: input.hasDocuments,
@@ -200,6 +259,25 @@ export function createExperience(input: ExperienceInput) {
       .insert({ ...experienceRow(input), company_id: input.companyId, rules_accepted: input.rulesAccepted })
       .select('id, status')
       .single(),
+  );
+}
+
+/** Envío sin cuenta: devuelve el token del enlace privado de seguimiento. */
+export function createAnonymousExperience(input: ExperienceInput) {
+  const row = experienceRow(input);
+  return run<{ id: string; token: string; status: ExperienceStatus }>(
+    requireClient().rpc('submit_anonymous_experience', {
+      p_company_id: input.companyId,
+      p_category: row.category_slug,
+      p_tone: row.tone,
+      p_period_start: row.period_start,
+      p_period_end: row.period_end,
+      p_relationship: row.relationship,
+      p_title: row.title,
+      p_body: row.body,
+      p_has_documents: row.has_documents,
+      p_rules_accepted: input.rulesAccepted,
+    }),
   );
 }
 

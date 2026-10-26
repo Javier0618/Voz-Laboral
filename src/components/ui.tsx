@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import type { ExperienceStatus } from '../lib/api';
+import type { ExperienceStatus, Tone as ExperienceTone } from '../lib/api';
 import type { AppError } from '../lib/supabase';
 import { isConfigured } from '../lib/supabase';
 
@@ -24,6 +24,23 @@ export function StatusChip({ status }: { status: ExperienceStatus }) {
   );
 }
 export const statusHint = (s: ExperienceStatus) => statusStyles[s].hint;
+
+// ---------------------------------------------------------------- tono
+export const toneStyles: Record<ExperienceTone, { label: string; className: string; symbol: string }> = {
+  positiva: { label: 'Experiencia positiva', className: 'bg-teal-tint text-teal-strong border-teal/30', symbol: '+' },
+  negativa: { label: 'Experiencia negativa', className: 'bg-amber-tint text-amber border-amber/30', symbol: '−' },
+  mixta: { label: 'Experiencia mixta', className: 'bg-mist text-navy border-line', symbol: '±' },
+};
+
+export function ToneChip({ tone }: { tone: ExperienceTone }) {
+  const t = toneStyles[tone];
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${t.className}`}>
+      <span aria-hidden="true" className="font-sans text-sm leading-none">{t.symbol}</span>
+      {t.label}
+    </span>
+  );
+}
 export const statusLabel = (s: ExperienceStatus) => statusStyles[s].label;
 
 // ---------------------------------------------------------------- mensajes

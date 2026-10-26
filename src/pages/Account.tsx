@@ -3,14 +3,15 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import {
   cancelAccountDeletion, getMyExperienceHistory, listMyClaims, listMyExperiences, requestAccountDeletion, submitAppeal,
-  updateAlias, withdrawMyExperience, type MyExperience,
+  setCommentsEnabled, updateAlias, withdrawMyExperience, type MyExperience,
 } from '../lib/api';
+import { Comments, reactionLabels } from '../components/Engagement';
 import { formatDate, formatPeriod } from '../lib/format';
 import { aliasSchema } from '../lib/schemas';
 import type { AppError } from '../lib/supabase';
 import { AuthForms, NewPasswordForm } from './AuthForms';
 import {
-  Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, PageHeader, StatusChip, statusHint, statusLabel, useAsync,
+  Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, PageHeader, StatusChip, statusHint, statusLabel, ToneChip, useAsync,
 } from '../components/ui';
 
 export default function Account() {
@@ -139,7 +140,18 @@ function MyExperienceRow({ exp, onChange }: { exp: MyExperience; onChange: () =>
   const [appealOpen, setAppealOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<AppError | null>(null);
+  const [commentsOn, setCommentsOn] = useState(exp.comments_enabled);
   const editable = exp.status === 'en_revision' || exp.status === 'requiere_ajustes';
+
+  async function toggleComments(enabled: boolean) {
+    setCommentsOn(enabled);
+    try {
+      await setCommentsEnabled(exp.id, enabled);
+    } catch (err) {
+      setCommentsOn(!enabled);
+      setError(err as AppError);
+    }
+  }
   const appealable = ['requiere_ajustes', 'restringida', 'retirada', 'en_disputa'].includes(exp.status) && exp.status_reason !== 'Retirada por su autor.';
 
   async function withdraw() {
@@ -160,6 +172,7 @@ function MyExperienceRow({ exp, onChange }: { exp: MyExperience; onChange: () =>
     <li className="border-t border-line py-6">
       <div className="flex flex-wrap items-center gap-3">
         <StatusChip status={exp.status} />
+        <ToneChip tone={exp.tone} />
         <span className="text-sm text-slate">Enviada el {formatDate(exp.created_at)}</span>
       </div>
       <h3 className="mt-2 text-xl">{exp.title || exp.category_name}</h3>
@@ -167,6 +180,22 @@ function MyExperienceRow({ exp, onChange }: { exp: MyExperience; onChange: () =>
       <p className="mt-2 text-sm text-slate">{statusHint(exp.status)}</p>
       {exp.status_reason && (
         <p className="mt-3 rounded bg-mist px-3 py-2 text-sm"><span className="font-semibold">Motivo de la decisión:</span> {exp.status_reason}</p>
+      )}
+      {(exp.status === 'publicada' || exp.status === 'en_disputa') && (
+        <div className="mt-4 rounded-lg border border-line p-4">
+          <p className="text-sm font-semibold">Cómo han reaccionado</p>
+          <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate">
+            {(['me_paso', 'me_sirvio', 'gracias'] as const).map((k) => (
+              <li key={k}><span className="font-semibold tabular-nums text-ink">{exp.reactions?.[k] ?? 0}</span> {reactionLabels[k].label.toLowerCase()}</li>
+            ))}
+            <li><span className="font-semibold tabular-nums text-ink">{exp.comments_count}</span> {exp.comments_count === 1 ? 'comentario' : 'comentarios'}</li>
+          </ul>
+          <Comments experienceId={exp.id} enabled={commentsOn} count={Number(exp.comments_count)} />
+          <label className="mt-4 flex items-start gap-3 text-sm">
+            <input type="checkbox" className="mt-1 h-4 w-4 accent-teal" checked={commentsOn} onChange={(e) => toggleComments(e.target.checked)} />
+            <span>Permitir comentarios en esta experiencia<span className="block text-slate">Los comentarios que ya existen siguen visibles.</span></span>
+          </label>
+        </div>
       )}
       {error && <div className="mt-3"><Alert tone="error">{error.message}</Alert></div>}
       <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import {
-  addCompanyAlias, createCompany, listAppeals, listClaims, listModerationEvents, listReports, listSuggestions, moderateExperience,
+  addCompanyAlias, createCompany, listAppeals, listClaims, listCommentsForModeration, listModerationEvents, listReports, listSuggestions, moderateComment, moderateExperience,
   moderationQueue, publishCompanyResponse, resolveAppeal, resolveClaim, resolveReport, resolveSuggestion, setSuspension,
   type ClaimRow, type QueueItem,
   createGuide, guideViews, listGuides, setGuideStatus, type GuideRow, type GuideStatus,
@@ -14,10 +14,10 @@ import { formatDate, formatPeriod, plural, relationshipLabel } from '../lib/form
 import { normalizeText } from '../lib/schemas';
 import type { AppError } from '../lib/supabase';
 import {
-  Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, PageHeader, StatusChip, statusLabel, useAsync,
+  Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, PageHeader, StatusChip, ToneChip, statusLabel, useAsync,
 } from '../components/ui';
 
-type Tab = 'cola' | 'reportes' | 'reclamaciones' | 'apelaciones' | 'catalogo' | 'guias' | 'historial';
+type Tab = 'cola' | 'comentarios' | 'reportes' | 'reclamaciones' | 'apelaciones' | 'catalogo' | 'guias' | 'historial';
 
 const flagLabel: Record<string, string> = { correo: 'Correo', telefono: 'Teléfono', documento: 'Nº de documento', confidencial: 'Confidencial' };
 const statuses: ExperienceStatus[] = ['en_revision', 'publicada', 'requiere_ajustes', 'en_disputa', 'restringida', 'retirada'];
@@ -43,6 +43,7 @@ export default function Admin() {
 
   const tabs: { id: Tab; label: string; admin?: boolean }[] = [
     { id: 'cola', label: 'Cola de revisión' },
+    { id: 'comentarios', label: 'Comentarios' },
     { id: 'reportes', label: 'Reportes' },
     { id: 'reclamaciones', label: 'Reclamaciones' },
     { id: 'apelaciones', label: 'Apelaciones' },
@@ -67,6 +68,7 @@ export default function Admin() {
       </div>
       <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="mt-8">
         {tab === 'cola' && <Queue />}
+        {tab === 'comentarios' && <CommentsModeration />}
         {tab === 'reportes' && <Reports />}
         {tab === 'reclamaciones' && <Claims />}
         {tab === 'apelaciones' && <Appeals />}
@@ -109,10 +111,12 @@ function QueueRow({ item, onDone }: { item: QueueItem; onDone: () => void }) {
     <li className="border-t border-line py-6">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <StatusChip status={item.status} />
+        {item.tone && <ToneChip tone={item.tone} />}
+        {item.submitted_without_account && <span className="rounded-full border border-line bg-mist px-2 py-0.5 text-xs font-semibold text-navy">Enviada sin cuenta</span>}
         {item.auto_flags.map((f) => (
           <span key={f} className="rounded-full border border-amber/40 bg-amber-tint px-2 py-0.5 text-xs font-semibold text-amber">{flagLabel[f] ?? f}</span>
         ))}
-        {item.open_reports > 0 && <span className="rounded-full border border-danger/40 bg-danger-tint px-2 py-0.5 text-xs font-semibold text-danger">{item.open_reports} reportes abiertos</span>}
+        {Number(item.open_reports) > 0 && <span className="rounded-full border border-danger/40 bg-danger-tint px-2 py-0.5 text-xs font-semibold text-danger">{plural(Number(item.open_reports), 'reporte abierto', 'reportes abiertos')}</span>}
         <span className="text-slate">Recibida el {formatDate(item.created_at)}</span>
       </div>
       <h3 className="mt-2 text-xl">{item.title || item.category_slug}</h3>
@@ -277,6 +281,48 @@ function StatusFilter({ value, onChange, options }: { value: string; onChange: (
   );
 }
 
+// ---------------------------------------------------------------- comentarios
+function CommentsModeration() {
+  const [filter, setFilter] = useState<'retenido' | 'reportados' | 'ocultos'>('retenido');
+  const { data, loading, error, reload } = useAsync(() => listCommentsForModeration(filter), [filter]);
+  return (
+    <section>
+      <StatusFilter
+        value={filter}
+        onChange={(v) => setFilter(v as typeof filter)}
+        options={[{ value: 'retenido', label: 'Retenidos por datos personales' }, { value: 'reportados', label: 'Publicados con reportes' }, { value: 'ocultos', label: 'Ocultos' }]}
+      />
+      <p className="mt-3 max-w-prose text-sm text-slate">
+        Los comentarios se publican al instante. Solo llegan aquí los que parecen tener datos personales o los que alguien reportó.
+      </p>
+      <div className="mt-4">
+        {loading ? <Loading /> : error ? <ErrorState error={error} onRetry={reload} /> : !data?.length ? <EmptyState title="No hay comentarios en este estado" /> : (
+          <ul>
+            {data.map((c) => (
+              <li key={c.id} className="border-t border-line py-5">
+                <p className="text-sm text-slate">
+                  {c.author_alias} · {formatDate(c.created_at)} · en «{c.experience_title}» ({c.company_name})
+                </p>
+                <p className="mt-2 whitespace-pre-line">{c.body}</p>
+                <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                  {c.auto_flags.map((f) => <span key={f} className="rounded-full bg-amber-tint px-2 py-0.5 font-semibold text-amber">{flagLabel[f] ?? f}</span>)}
+                  {Number(c.open_reports) > 0 && <span className="rounded-full bg-danger-tint px-2 py-0.5 font-semibold text-danger">{plural(Number(c.open_reports), 'reporte abierto', 'reportes abiertos')}</span>}
+                </div>
+                <ResolveForm
+                  submitLabel="Registrar decisión"
+                  noteLabel="Motivo (queda en el historial)"
+                  options={[...(c.status !== 'publicado' ? [{ value: 'publicado', label: 'Publicar' }] : []), ...(c.status !== 'oculto' ? [{ value: 'oculto', label: 'Ocultar' }] : [])]}
+                  onSubmit={async (s, t) => { await moderateComment(c.id, s as 'publicado' | 'oculto', t); reload(); }}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  );
+}
+
 // ---------------------------------------------------------------- reportes
 const reportReasons: Record<string, string> = {
   datos_personales: 'Datos personales', amenaza: 'Amenaza', falso_o_enganoso: 'Falso o engañoso', contenido_confidencial: 'Contenido confidencial', spam: 'Spam', otro: 'Otro',
@@ -293,7 +339,9 @@ function Reports() {
             {data.map((r) => (
               <li key={r.id} className="border-t border-line py-5">
                 <p className="font-semibold">{reportReasons[r.reason] ?? r.reason}</p>
-                <p className="text-sm text-slate">Recibido el {formatDate(r.created_at)}. Experiencia {r.experience_id.slice(0, 8)}</p>
+                <p className="text-sm text-slate">
+                  Recibido el {formatDate(r.created_at)}. {r.comment_id ? `Comentario ${r.comment_id.slice(0, 8)} en la experiencia` : 'Experiencia'} {r.experience_id.slice(0, 8)}
+                </p>
                 {r.details && <p className="mt-2">{r.details}</p>}
                 {r.resolution_note && <p className="mt-2 text-sm"><span className="font-semibold">Resolución:</span> {r.resolution_note}</p>}
                 <p className="mt-2 text-sm text-slate">Para actuar sobre la publicación, búscala en la cola con su estado actual o en el historial.</p>

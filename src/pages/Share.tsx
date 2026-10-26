@@ -1,18 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
-import { createExperience, getCompanyById, listCategories, listMyExperiences, updateMyExperience, type ExperienceStatus } from '../lib/api';
+import { createAnonymousExperience, createExperience, getCompanyById, listCategories, listMyExperiences, updateMyExperience, type ExperienceStatus, type Tone } from '../lib/api';
 import { formatPeriod, relationshipLabel } from '../lib/format';
 import { BODY_MAX, BODY_MIN, detectPersonalData, experienceSchema, fieldErrors, personalDataMessages, type ExperienceInput } from '../lib/schemas';
 import type { AppError } from '../lib/supabase';
 import { CompanyPicker, type PickedCompany } from '../components/CompanyPicker';
 import { SuggestCompanyDialog } from '../components/SuggestCompanyDialog';
-import { Alert, ConfigNotice, Field, Loading, notConfigured, PageHeader, StatusChip, useAsync } from '../components/ui';
+import { Alert, ConfigNotice, Field, Loading, notConfigured, PageHeader, StatusChip, ToneChip, useAsync } from '../components/ui';
 
 const DRAFT_KEY = 'vozlaboral:borrador';
 
 interface Draft {
   company: PickedCompany | null;
+  tone: '' | Tone;
   category: string;
   periodStart: string;
   periodEnd: string;
@@ -24,7 +25,7 @@ interface Draft {
 }
 
 const emptyDraft: Draft = {
-  company: null, category: '', periodStart: '', periodEnd: '', relationship: '', title: '', body: '', hasDocuments: false, rulesAccepted: false,
+  company: null, tone: '', category: '', periodStart: '', periodEnd: '', relationship: '', title: '', body: '', hasDocuments: false, rulesAccepted: false,
 };
 
 // El borrador vive en sessionStorage: sobrevive a una recarga o a un error,
@@ -46,6 +47,7 @@ function clearDraft() {
 
 export default function Share() {
   const { session, profile, loading } = useAuth();
+  const [sent, setSent] = useState(false);
 
   if (notConfigured) return <div className="page py-10"><ConfigNotice /></div>;
   if (loading) return <div className="page py-10"><Loading /></div>;
@@ -53,14 +55,23 @@ export default function Share() {
   return (
     <div className="page py-10">
       <PageHeader title="Compartir una experiencia">
-        Cuenta lo que viviste con tus palabras. Publicarás con tu alias y el equipo de moderación revisará el texto antes de que aparezca.
+        Buena, mala o mixta: cuenta cómo es trabajar en una empresa. Se publica con un alias después de una revisión.
       </PageHeader>
       <div className="mt-8">
         {!session ? (
-          <Alert tone="info" title="Necesitas una cuenta para publicar">
-            <p>Pedimos una cuenta para limitar el contenido automatizado. Tu correo nunca se muestra.</p>
-            <Link to="/cuenta?siguiente=/compartir" className="btn-primary mt-3">Iniciar sesión o crear una cuenta</Link>
-          </Alert>
+          <>
+            {!sent && <div className="mb-10 grid gap-5 rounded-lg border border-line bg-mist p-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+              <div>
+                <h2 className="font-sans text-base font-semibold">Puedes compartir sin crear una cuenta</h2>
+                <p className="mt-1 max-w-prose text-sm leading-6 text-slate">
+                  Con una cuenta podrás seguir tu experiencia: saber cuándo se publica, ver las reacciones y los comentarios de otras
+                  personas, y editarla o apelar si hace falta. Tu correo nunca se muestra.
+                </p>
+              </div>
+              <Link to="/cuenta?siguiente=/compartir" className="btn-secondary justify-self-start">Crear cuenta o iniciar sesión</Link>
+            </div>}
+            <ExperienceForm anonymous onSent={() => setSent(true)} />
+          </>
         ) : profile?.status && profile.status !== 'activa' ? (
           <Alert tone="warning" title="Tu cuenta no puede publicar en este momento">
             {profile.status === 'suspendida' ? `Motivo: ${profile.suspended_reason ?? 'incumplimiento reiterado de las reglas.'}` : 'Hay una solicitud de eliminación pendiente. Puedes cancelarla desde Mi cuenta.'}
@@ -78,7 +89,36 @@ export default function Share() {
   );
 }
 
-function ExperienceForm() {
+const toneOptions: { value: Tone; label: string; hint: string }[] = [
+  { value: 'positiva', label: 'Buena', hint: 'Algo que la empresa hace bien.' },
+  { value: 'mixta', label: 'Mixta', hint: 'Tuvo cosas buenas y malas.' },
+  { value: 'negativa', label: 'Mala', hint: 'Algo que no funcionó o te afectó.' },
+];
+
+/** Copia el enlace de seguimiento y confirma de forma accesible. */
+function TrackingLink({ token }: { token: string }) {
+  const url = `${window.location.origin}/seguimiento/${token}`;
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="rounded-lg border-2 border-ink p-5">
+      <p className="font-semibold">Tu enlace privado de seguimiento</p>
+      <p className="mt-1 text-sm text-slate">Guárdalo: es la única forma de ver tu experiencia sin cuenta. No lo compartas.</p>
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+        <input readOnly value={url} aria-label="Enlace de seguimiento" className="input font-mono text-sm" onFocus={(e) => e.currentTarget.select()} />
+        <button
+          type="button"
+          className="btn-primary shrink-0"
+          onClick={() => navigator.clipboard?.writeText(url).then(() => setCopied(true)).catch(() => setCopied(false))}
+        >
+          {copied ? 'Copiado' : 'Copiar enlace'}
+        </button>
+      </div>
+      <p role="status" className="sr-only">{copied ? 'Enlace copiado' : ''}</p>
+    </div>
+  );
+}
+
+function ExperienceForm({ anonymous = false, onSent }: { anonymous?: boolean; onSent?: () => void }) {
   const [params] = useSearchParams();
   const editId = params.get('editar');
   const presetCompany = params.get('empresa');
@@ -87,7 +127,7 @@ function ExperienceForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<AppError | null>(null);
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{ status: ExperienceStatus } | null>(null);
+  const [result, setResult] = useState<{ status: ExperienceStatus; token?: string } | null>(null);
   const [suggesting, setSuggesting] = useState(false);
   const [editBlocked, setEditBlocked] = useState<string | null>(null);
   const honeypot = useRef<HTMLInputElement>(null);
@@ -105,6 +145,7 @@ function ExperienceForm() {
       if (!['en_revision', 'requiere_ajustes'].includes(e.status)) return setEditBlocked('Solo puedes editar experiencias en revisión o con ajustes solicitados.');
       setDraft({
         company: { id: e.company_id, name: e.company_name },
+        tone: e.tone,
         category: e.category_slug,
         periodStart: e.period_start.slice(0, 7),
         periodEnd: e.period_end?.slice(0, 7) ?? '',
@@ -135,6 +176,7 @@ function ExperienceForm() {
   function toInput(): unknown {
     return {
       companyId: draft.company?.id ?? '',
+      tone: draft.tone || undefined,
       category: draft.category,
       periodStart: draft.periodStart,
       periodEnd: draft.periodEnd,
@@ -163,7 +205,7 @@ function ExperienceForm() {
   async function submit() {
     // Señales simples contra envíos automatizados; los límites reales están en la base de datos.
     if (honeypot.current?.value || Date.now() - startedAt.current < 4000) {
-      setSubmitError({ kind: 'validation', message: 'No pudimos enviar el formulario. Revisa el texto e inténtalo de nuevo.' } as AppError);
+      setSubmitError({ kind: 'validation', message: 'Lo enviaste muy rápido. Espera unos segundos y vuelve a intentarlo.' } as AppError);
       return;
     }
     const parsed = experienceSchema.safeParse(toInput());
@@ -171,10 +213,12 @@ function ExperienceForm() {
     setBusy(true);
     setSubmitError(null);
     try {
-      const saved = editId ? await updateMyExperience(editId, parsed.data as ExperienceInput) : await createExperience(parsed.data as ExperienceInput);
-      setResult({ status: saved.status });
+      const input = parsed.data as ExperienceInput;
+      const saved = editId ? await updateMyExperience(editId, input) : anonymous ? await createAnonymousExperience(input) : await createExperience(input);
+      setResult({ status: saved.status, token: 'token' in saved ? String(saved.token) : undefined });
       clearDraft();
       setStep('done');
+      onSent?.();
     } catch (err) {
       setSubmitError(err as AppError);
     } finally {
@@ -186,17 +230,32 @@ function ExperienceForm() {
 
   if (step === 'done' && result) {
     return (
-      <div className="max-w-2xl space-y-5" role="status">
-        <h2 className="text-2xl">Enviada a revisión</h2>
-        <p className="text-slate">
-          Tu experiencia está en la cola de moderación. Verás el resultado y el motivo de la decisión en Mi cuenta. Si necesita ajustes, te
-          diremos qué cambiar.
-        </p>
-        <StatusChip status={result.status} />
-        <div className="flex flex-wrap gap-3">
-          <Link to="/cuenta" className="btn-primary">Ver mis publicaciones</Link>
-          <Link to="/" className="btn-secondary">Volver al inicio</Link>
+      <div className="max-w-2xl space-y-6" role="status">
+        <div>
+          <h2 className="text-3xl">Gracias por compartir</h2>
+          <p className="mt-2 text-slate">
+            Tu experiencia está en revisión. La moderación comprueba que cumpla las reglas y, si necesita algún ajuste, te dirá qué cambiar.
+          </p>
+          <div className="mt-3"><StatusChip status={result.status} /></div>
         </div>
+        {result.token ? (
+          <>
+            <TrackingLink token={result.token} />
+            <div className="rounded-lg bg-mist p-5">
+              <p className="font-semibold">¿Quieres enterarte de cómo reaccionan otras personas?</p>
+              <p className="mt-1 text-sm leading-6 text-slate">
+                Crea una cuenta y vincula esta experiencia desde tu enlace de seguimiento. Así la verás en Mi cuenta con sus reacciones y
+                comentarios, y podrás editarla o apelar.
+              </p>
+              <Link to={`/cuenta?siguiente=/seguimiento/${result.token}`} className="btn-primary mt-4">Crear cuenta</Link>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-wrap gap-3">
+            <Link to="/cuenta" className="btn-primary">Ver mis experiencias</Link>
+            <Link to="/" className="btn-secondary">Volver al inicio</Link>
+          </div>
+        )}
       </div>
     );
   }
@@ -205,9 +264,12 @@ function ExperienceForm() {
     return (
       <div ref={formTop} className="max-w-3xl">
         <h2 className="text-2xl">Revisa antes de enviar</h2>
-        <p className="mt-2 text-slate">Así se verá si se publica. Tu correo y tu cuenta no aparecen.</p>
+        <p className="mt-2 text-slate">
+          Así se verá si se publica{anonymous ? ', firmada como «Persona sin cuenta»' : ''}. Tu correo y tu cuenta no aparecen.
+        </p>
         <article className="mt-6 rounded-lg border border-line p-6">
-          <div className="flex flex-wrap gap-x-3 text-sm text-slate">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate">
+            {draft.tone && <ToneChip tone={draft.tone} />}
             <span>{relationshipLabel[draft.relationship]}</span>
             <span>{formatPeriod(`${draft.periodStart}-01`, draft.periodEnd ? `${draft.periodEnd}-01` : null)}</span>
           </div>
@@ -244,6 +306,28 @@ function ExperienceForm() {
         </div>
 
         {editId && <Alert tone="info" title="Editando una experiencia">Al guardar los cambios volverá a la cola de revisión.</Alert>}
+
+        <fieldset>
+          <legend className="label">¿Cómo fue tu experiencia?</legend>
+          <div className="mt-2 grid gap-3 sm:grid-cols-3">
+            {toneOptions.map((t) => (
+              <label
+                key={t.value}
+                className={`flex cursor-pointer flex-col rounded-lg border p-4 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-teal ${
+                  draft.tone === t.value ? 'border-ink bg-mist' : 'border-line hover:border-slate'
+                }`}
+              >
+                <span className="flex items-center gap-2 font-semibold">
+                  <input type="radio" name="tone" className="h-4 w-4 accent-teal" checked={draft.tone === t.value} onChange={() => set('tone', t.value)}
+                    aria-labelledby={`tono-${t.value}`} aria-describedby={`tono-${t.value}-ayuda`} />
+                  <span id={`tono-${t.value}`}>{t.label}</span>
+                </span>
+                <span id={`tono-${t.value}-ayuda`} className="mt-1 pl-6 text-sm text-slate">{t.hint}</span>
+              </label>
+            ))}
+          </div>
+          {errors.tone && <p className="field-error">{errors.tone}</p>}
+        </fieldset>
 
         <div>
           <CompanyPicker label="Empresa" value={draft.company} onChange={(c) => set('company', c)} error={errors.companyId}
@@ -295,11 +379,11 @@ function ExperienceForm() {
         </Field>
 
         <Field
-          label="¿Qué ocurrió?"
+          label="Cuenta tu experiencia"
           error={errors.body}
           hint={
             <>
-              Distingue lo que viviste o viste directamente de lo que te contaron otras personas. No es necesario nombrar a jefes ni compañeros.{' '}
+              Cuenta lo que viviste o viste. Si algo te lo contaron, dilo. No hace falta nombrar a jefes ni compañeros.{' '}
               <span className="tabular-nums">{remaining > 0 ? `Faltan ${remaining} caracteres para el mínimo.` : `${draft.body.trim().length} de ${BODY_MAX} caracteres.`}</span>
             </>
           }
@@ -311,7 +395,7 @@ function ExperienceForm() {
               maxLength={BODY_MAX}
               value={draft.body}
               onChange={(e) => set('body', e.target.value)}
-              placeholder="Por ejemplo: qué pasó, durante cuánto tiempo, a cuántas personas afectó y si se informó a alguien."
+              placeholder="Por ejemplo: cómo era el día a día, qué hacía bien o mal la empresa y cómo te afectó."
             />
           )}
         </Field>
@@ -357,10 +441,10 @@ function ExperienceForm() {
         <section>
           <h2 className="font-sans text-base font-semibold text-ink">Antes de escribir</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5">
-            <li>Describe hechos y cómo te afectaron. Las opiniones son válidas si se presentan como tales.</li>
-            <li>No incluyas nombres, teléfonos, cédulas ni correos de nadie.</li>
-            <li>No hace falta aportar pruebas para contar tu experiencia.</li>
-            <li>Si estás en riesgo, acude primero a los canales oficiales.</li>
+            <li>Cuenta hechos y cómo te afectaron. Tu opinión vale si la presentas como tal.</li>
+            <li>Lo bueno también ayuda: dice qué esperar de un trabajo.</li>
+            <li>No escribas nombres, teléfonos, cédulas ni correos de nadie.</li>
+            <li>Si estás en riesgo, acude primero a las <Link to="/derechos" className="btn-link">autoridades</Link>.</li>
           </ul>
         </section>
         <section>

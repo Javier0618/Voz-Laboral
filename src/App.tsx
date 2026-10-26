@@ -8,6 +8,7 @@ import CompanyProfile from './pages/CompanyProfile';
 import Experiences from './pages/Experiences';
 import Rights, { RightsArticle } from './pages/Rights';
 import Share from './pages/Share';
+import Tracking from './pages/Tracking';
 import Account, { NewPasswordPage } from './pages/Account';
 import Claim from './pages/Claim';
 import PolicyPage, { NotFound } from './pages/Policies';
@@ -29,6 +30,7 @@ export function AppRoutes() {
         <Route path="derechos/:slug" element={<RightsArticle />} />
         <Route path="compartir" element={<Share />} />
         <Route path="cuenta" element={<Account />} />
+        <Route path="seguimiento/:token" element={<Tracking />} />
         <Route path="cuenta/nueva-contrasena" element={<NewPasswordPage />} />
         <Route path="politicas/:slug" element={<PolicyPage />} />
         <Route path="moderacion" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><Admin /></Suspense>} />
