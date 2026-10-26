@@ -1,0 +1,48 @@
+// Sin variables de Supabase la app debe avisar, no simular datos.
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { describe, expect, it } from 'vitest';
+import { AuthProvider } from '../../src/auth/AuthProvider';
+import { AppRoutes } from '../../src/App';
+
+function renderAt(path: string) {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </MemoryRouter>,
+  );
+}
+
+describe('aplicación sin configurar', () => {
+  it('la portada muestra el aviso de configuración y marca el ejemplo como ilustrativo', async () => {
+    renderAt('/');
+    expect(screen.getByRole('heading', { level: 1, name: /Cuenta lo que pasó en tu trabajo/ })).toBeInTheDocument();
+    expect(screen.getByText('Falta conectar la base de datos')).toBeInTheDocument();
+    expect(screen.getByText(/Ejemplo ilustrativo, no es una experiencia real/)).toBeInTheDocument();
+    expect(screen.getByRole('search')).toBeInTheDocument();
+  });
+
+  it('las páginas de datos no inventan contenido', async () => {
+    renderAt('/empresas');
+    expect(screen.getByText('Falta conectar la base de datos')).toBeInTheDocument();
+    expect(screen.queryByRole('listitem', { name: /Empresa/ })).not.toBeInTheDocument();
+  });
+
+  it('el panel de moderación no se muestra a visitantes', async () => {
+    renderAt('/');
+    expect(screen.queryByRole('link', { name: 'Moderación' })).not.toBeInTheDocument();
+  });
+
+  it('las políticas se marcan como borradores pendientes de revisión jurídica', async () => {
+    renderAt('/politicas/tratamiento-de-datos');
+    expect(screen.getByText('Borrador pendiente de revisión jurídica')).toBeInTheDocument();
+  });
+
+  it('muestra una página útil para rutas inexistentes', async () => {
+    renderAt('/no-existe');
+    expect(screen.getByRole('heading', { name: 'Esta página no existe' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Ir al inicio' })).toBeInTheDocument();
+  });
+});

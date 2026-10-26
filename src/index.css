@@ -1,0 +1,104 @@
+@import '@fontsource-variable/newsreader';
+@import '@fontsource-variable/instrument-sans';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Identidad visual: cambia estos valores (RGB) para cambiar la marca. */
+:root {
+  --ink: 15 36 64;          /* #0F2440 titulares y cabecera */
+  --navy: 27 58 92;         /* #1B3A5C */
+  --teal: 15 118 110;       /* #0F766E acciones principales */
+  --teal-strong: 11 94 88;  /* #0B5E58 */
+  --teal-tint: 230 242 241; /* #E6F2F1 */
+  --paper: 255 255 255;
+  --mist: 243 245 248;      /* #F3F5F8 */
+  --line: 217 222 229;      /* #D9DEE5 */
+  --slate: 74 85 102;       /* #4A5566 texto secundario */
+  --amber: 180 83 9;        /* #B45309 advertencias */
+  --amber-tint: 254 243 226;
+  --danger: 180 35 24;      /* #B42318 errores */
+  --danger-tint: 253 236 234;
+  color-scheme: light;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-paper font-sans text-base text-ink antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-serif text-ink;
+    font-optical-sizing: auto;
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 3px solid rgb(var(--teal));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  ::selection {
+    background: rgb(var(--teal-tint));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+  /* Texto de los relatos: serif con interlineado generoso. */
+  .testimony {
+    @apply max-w-prose font-serif text-[1.0625rem] leading-[1.75rem] text-ink;
+    white-space: pre-line;
+  }
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-teal text-white hover:bg-teal-strong;
+  }
+  .btn-secondary {
+    @apply btn border border-line bg-paper text-ink hover:border-slate;
+  }
+  .btn-danger {
+    @apply btn bg-danger text-white hover:bg-danger/90;
+  }
+  .btn-link {
+    @apply font-semibold text-teal underline decoration-teal/40 underline-offset-4 hover:decoration-teal;
+  }
+  .input {
+    @apply block min-h-[44px] w-full rounded border border-line bg-paper px-3 py-2 text-base text-ink placeholder:text-slate/70 focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/30 aria-[invalid=true]:border-danger;
+  }
+  .label {
+    @apply mb-1 block text-sm font-semibold text-ink;
+  }
+  .hint {
+    @apply mt-1 text-sm text-slate;
+  }
+  .field-error {
+    @apply mt-1 text-sm font-medium text-danger;
+  }
+  /* Barra de censura: el elemento visual distintivo de la marca. */
+  .redacted {
+    @apply inline-block h-[0.95em] max-w-full translate-y-[0.12em] rounded-[2px] bg-ink align-baseline;
+  }
+  /* Único movimiento automático del sitio: las barras se trazan al cargar la portada. */
+  .vl-redact {
+    transform-origin: left center;
+    animation: vl-redact 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+}
+
+@keyframes vl-redact {
+  from { transform: translateY(0.12em) scaleX(0); }
+  to { transform: translateY(0.12em) scaleX(1); }
+}
