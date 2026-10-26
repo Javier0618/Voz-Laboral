@@ -1,0 +1,88 @@
+@import '@fontsource-variable/newsreader';
+@import '@fontsource-variable/instrument-sans';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tokens de marca. Cambia aquí la paleta (valores RGB separados por espacios). */
+:root {
+  --color-ink: 15 36 64; /* #0F2440 */
+  --color-navy: 27 58 92; /* #1B3A5C */
+  --color-action: 15 118 110; /* #0F766E */
+  --color-action-tint: 230 242 241; /* #E6F2F1 */
+  --color-paper: 255 255 255; /* #FFFFFF */
+  --color-mist: 243 245 248; /* #F3F5F8 */
+  --color-line: 217 222 229; /* #D9DEE5 */
+  --color-muted: 74 85 102; /* #4A5566 */
+  --color-warning: 180 83 9; /* #B45309 */
+  --color-danger: 180 35 24; /* #B42318 */
+  color-scheme: light;
+}
+
+@layer base {
+  html {
+    @apply bg-paper text-ink antialiased;
+    font-family: 'Instrument Sans Variable', system-ui, sans-serif;
+  }
+  body {
+    @apply min-h-screen bg-paper;
+    min-width: 320px;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-serif text-ink;
+    text-wrap: balance;
+  }
+  a {
+    @apply text-action underline decoration-1 underline-offset-2;
+  }
+  a:hover {
+    @apply decoration-2;
+  }
+  :focus-visible {
+    outline: 3px solid rgb(var(--color-action));
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  ::selection {
+    background: rgb(var(--color-action-tint));
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-2 text-base font-medium no-underline transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-action text-paper hover:bg-navy;
+  }
+  .btn-secondary {
+    @apply btn border border-line bg-paper text-ink hover:bg-mist;
+  }
+  .btn-danger {
+    @apply btn bg-danger text-paper hover:opacity-90;
+  }
+  .btn-link {
+    @apply inline-flex min-h-11 items-center text-action underline underline-offset-2;
+  }
+  .field-label {
+    @apply mb-1 block font-medium text-ink;
+  }
+  .field-hint {
+    @apply mt-1 text-sm text-muted;
+  }
+  .field-error {
+    @apply mt-1 text-sm font-medium text-danger;
+  }
+  .input {
+    @apply block min-h-11 w-full rounded-md border border-line bg-paper px-3 py-2 text-base text-ink placeholder:text-muted/80 aria-[invalid=true]:border-danger;
+  }
+  .prose-reading {
+    @apply max-w-prose font-serif text-lg leading-relaxed text-ink;
+  }
+}
