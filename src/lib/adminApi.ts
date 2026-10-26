@@ -182,3 +182,25 @@ export async function uploadGuideImage(guideSlug: string, file: File) {
   if (error) throw toAppError(error);
   return bucket.getPublicUrl(path).data.publicUrl;
 }
+
+const NEW_GUIDE_CONTENT = `## Qué dice la ley
+Escribe aquí el contenido de la guía. Cita el artículo y la norma de cada afirmación.
+
+## Qué puedes hacer
+- Primer paso
+- Segundo paso`;
+
+/** Crea una guía en borrador y devuelve su id. Si la dirección ya existe, añade un sufijo. */
+export async function createGuide(input: { title: string; summary: string; category_slug: string | null }, slugBase: string) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const slug = attempt === 0 ? slugBase : `${slugBase.slice(0, 75)}-${attempt + 1}`;
+    const { data, error } = await requireClient()
+      .from('legal_resources')
+      .insert({ ...input, slug, content: NEW_GUIDE_CONTENT, status: 'borrador' })
+      .select('id')
+      .single();
+    if (!error) return (data as { id: string }).id;
+    if ((error as { code?: string }).code !== '23505') throw toAppError(error);
+  }
+  throw toAppError({ message: 'VL072: Ya existe una guía con un título muy parecido. Cambia el título.' });
+}

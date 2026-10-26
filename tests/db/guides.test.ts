@@ -82,4 +82,17 @@ describe('guías de derechos', () => {
     await as(db, admin, () => db.query(`delete from public.legal_resource_sources where id = $1`, [fuentes.rows[1].id]));
     expect(await errorOf(as(db, admin, () => db.query(`delete from public.legal_resource_sources where id = $1`, [fuentes.rows[2].id])))).toMatch(/VL071/);
   });
+
+  it('la administración crea guías en borrador; nadie más puede y no son públicas', async () => {
+    const insert = (who: { id: string }) => as(db, who, () => db.query<{ id: string }>(
+      `insert into public.legal_resources (slug, title, summary, content, status)
+       values ('guia-nueva-prueba', 'Guía nueva de prueba', 'Resumen de la guía nueva de prueba.', repeat('Contenido de la guía. ', 5), 'borrador') returning id`,
+    ));
+    expect(await errorOf(insert(user))).toMatch(/row-level security/);
+    const { rows } = await insert(admin);
+    expect(rows).toHaveLength(1);
+    const pub = await as(db, 'anon', () => db.query(`select id from public.legal_resources where slug = 'guia-nueva-prueba'`));
+    expect(pub.rows).toHaveLength(0);
+    expect(await errorOf(insert(admin))).toMatch(/duplicate key|unique/);
+  });
 });

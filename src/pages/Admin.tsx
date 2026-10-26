@@ -1,15 +1,15 @@
 // Panel de moderación. Ocultar este panel a quien no tiene rol es solo una
 // comodidad: cada operación la autoriza la base de datos.
 import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import {
   addCompanyAlias, createCompany, listAppeals, listClaims, listModerationEvents, listReports, listSuggestions, moderateExperience,
   moderationQueue, publishCompanyResponse, resolveAppeal, resolveClaim, resolveReport, resolveSuggestion, setSuspension,
   type ClaimRow, type QueueItem,
-  guideViews, listGuides, setGuideStatus, type GuideRow, type GuideStatus,
+  createGuide, guideViews, listGuides, setGuideStatus, type GuideRow, type GuideStatus,
 } from '../lib/adminApi';
-import type { ExperienceStatus } from '../lib/api';
+import { listCategories, type ExperienceStatus } from '../lib/api';
 import { formatDate, formatPeriod, plural, relationshipLabel } from '../lib/format';
 import { normalizeText } from '../lib/schemas';
 import type { AppError } from '../lib/supabase';
@@ -576,8 +576,14 @@ const guideStatusLabel: Record<GuideStatus, string> = {
 
 function Guides() {
   const { data, loading, error, reload } = useAsync(() => listGuides(), []);
+  const [creating, setCreating] = useState(false);
   return (
     <section>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-slate">{data ? plural(data.length, 'guía', 'guías') : ''}</p>
+        <button type="button" className="btn-primary" onClick={() => setCreating(true)}>Nueva guía</button>
+      </div>
+      <NewGuideDialog open={creating} onClose={() => setCreating(false)} />
       <Alert tone="warning" title="Publica solo guías revisadas">
         Cada guía debe revisarla un abogado contra su fuente oficial antes de publicarse. Al publicar se registra la fecha de hoy como
         fecha de verificación.
@@ -647,5 +653,62 @@ function GuideRowItem({ guide: g, onDone }: { guide: GuideRow; onDone: () => voi
         derechos.
       </ConfirmDialog>
     </li>
+  );
+}
+
+function NewGuideDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const navigate = useNavigate();
+  const categories = useAsync(() => (open ? listCategories() : Promise.resolve([])), [open]);
+  const [form, setForm] = useState({ title: '', summary: '', category_slug: '' });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const slug = normalizeText(form.title).replace(/ /g, '-').slice(0, 80).replace(/-+$/, '');
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const v: Record<string, string> = {};
+    if (form.title.trim().length < 5 || form.title.trim().length > 160) v.title = 'El título debe tener entre 5 y 160 caracteres.';
+    if (form.summary.trim().length < 20 || form.summary.trim().length > 400) v.summary = 'El resumen debe tener entre 20 y 400 caracteres.';
+    if (slug.length < 3) v.title = v.title ?? 'El título necesita letras o números.';
+    setErrors(v);
+    if (Object.keys(v).length) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const id = await createGuide({ title: form.title.trim(), summary: form.summary.trim(), category_slug: form.category_slug || null }, slug);
+      navigate(`/moderacion/guias/${id}`);
+    } catch (err) {
+      setError((err as AppError).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onClose={onClose} title="Nueva guía">
+      <form onSubmit={submit} noValidate className="space-y-4">
+        <p className="text-sm text-slate">Se crea como borrador, no visible al público. Después la completas en el editor.</p>
+        <Field label="Título" error={errors.title} hint={slug ? `Dirección: /derechos/${slug}` : undefined}>
+          {(p) => <input {...p} className="input" maxLength={160} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />}
+        </Field>
+        <Field label="Resumen" error={errors.summary} hint="Una o dos frases que aparecen en el listado de guías.">
+          {(p) => <textarea {...p} className="input min-h-[88px]" maxLength={400} value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} />}
+        </Field>
+        <Field label="Categoría" optional>
+          {(p) => (
+            <select {...p} className="input" value={form.category_slug} onChange={(e) => setForm({ ...form, category_slug: e.target.value })}>
+              <option value="">Temas generales</option>
+              {categories.data?.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+            </select>
+          )}
+        </Field>
+        {error && <Alert tone="error">{error}</Alert>}
+        <div className="flex justify-end gap-3">
+          <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button type="submit" className="btn-primary" disabled={busy}>{busy ? 'Creando…' : 'Crear y editar'}</button>
+        </div>
+      </form>
+    </Dialog>
   );
 }
