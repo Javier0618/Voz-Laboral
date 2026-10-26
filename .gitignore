@@ -12,3 +12,4 @@ supabase/.branches
 supabase/instalar-todo.sql
 # SQL generados con NIT (no se suben al repositorio)
 supabase/importaciones/
+.claude/
