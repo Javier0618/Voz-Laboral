@@ -1,6 +1,6 @@
 export function ConfigNotice() {
   return (
-    <div role="alert" className="rounded-md border border-warning/40 bg-warning/5 p-5">
+    <div role="alert" className="rounded-md border border-l-4 border-warning/50 bg-paper p-5">
       <h2 className="text-2xl">Falta configurar la conexión con Supabase</h2>
       <p className="mt-2 max-w-prose text-ink">
         Esta sección necesita la base de datos. Define <code>VITE_SUPABASE_URL</code> y{' '}

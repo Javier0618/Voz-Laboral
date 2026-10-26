@@ -11,7 +11,7 @@ function VerificationTag({ status }: { status: 'pendiente_verificacion' | 'verif
       <span aria-hidden="true">●</span>Verificado
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-warning/40 bg-warning/10 px-2.5 py-0.5 text-sm font-medium text-warning">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-warning/50 bg-paper px-2.5 py-0.5 text-sm font-medium text-warning">
       <span aria-hidden="true">◐</span>Pendiente de verificación
     </span>
   );

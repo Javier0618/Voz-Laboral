@@ -4,9 +4,9 @@ import { statusLabels, type ExperienceStatus } from '../shared/domain';
 const styles: Record<ExperienceStatus, { className: string; icon: string }> = {
   en_revision: { className: 'border-navy/30 bg-mist text-navy', icon: '○' },
   publicada: { className: 'border-action/30 bg-action-tint text-action', icon: '●' },
-  requiere_ajustes: { className: 'border-warning/40 bg-warning/10 text-warning', icon: '◐' },
+  requiere_ajustes: { className: 'border-warning/50 bg-paper text-warning', icon: '◐' },
   en_disputa: { className: 'border-warning/40 bg-paper text-warning', icon: '◆' },
-  restringida: { className: 'border-danger/30 bg-danger/5 text-danger', icon: '◇' },
+  restringida: { className: 'border-danger/40 bg-paper text-danger', icon: '◇' },
   retirada: { className: 'border-line bg-mist text-muted', icon: '×' },
 };
 

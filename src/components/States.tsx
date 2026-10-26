@@ -23,7 +23,7 @@ export function EmptyState({ title, children }: { title: string; children?: Reac
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div role="alert" className="rounded-md border border-danger/30 bg-danger/5 p-4">
+    <div role="alert" className="rounded-md border border-l-4 border-danger/50 bg-paper p-4">
       <p className="font-medium text-danger">No pudimos cargar esta información</p>
       <p className="mt-1 text-ink">{message}</p>
       {onRetry && (
@@ -38,8 +38,8 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
 type NoticeTone = 'info' | 'warning' | 'danger' | 'success';
 const toneClass: Record<NoticeTone, string> = {
   info: 'border-navy/20 bg-mist text-ink',
-  warning: 'border-warning/40 bg-warning/5 text-ink',
-  danger: 'border-danger/30 bg-danger/5 text-ink',
+  warning: 'border-warning/50 border-l-4 bg-paper text-ink',
+  danger: 'border-danger/50 border-l-4 bg-paper text-ink',
   success: 'border-action/30 bg-action-tint text-ink',
 };
 
