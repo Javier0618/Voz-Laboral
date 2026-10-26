@@ -7,16 +7,17 @@ import {
   addCompanyAlias, createCompany, listAppeals, listClaims, listModerationEvents, listReports, listSuggestions, moderateExperience,
   moderationQueue, publishCompanyResponse, resolveAppeal, resolveClaim, resolveReport, resolveSuggestion, setSuspension,
   type ClaimRow, type QueueItem,
+  listGuides, setGuideStatus, type GuideRow, type GuideStatus,
 } from '../lib/adminApi';
 import type { ExperienceStatus } from '../lib/api';
 import { formatDate, formatPeriod, relationshipLabel } from '../lib/format';
 import { normalizeText } from '../lib/schemas';
 import type { AppError } from '../lib/supabase';
 import {
-  Alert, ConfigNotice, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, PageHeader, StatusChip, statusLabel, useAsync,
+  Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, PageHeader, StatusChip, statusLabel, useAsync,
 } from '../components/ui';
 
-type Tab = 'cola' | 'reportes' | 'reclamaciones' | 'apelaciones' | 'catalogo' | 'historial';
+type Tab = 'cola' | 'reportes' | 'reclamaciones' | 'apelaciones' | 'catalogo' | 'guias' | 'historial';
 
 const flagLabel: Record<string, string> = { correo: 'Correo', telefono: 'Teléfono', documento: 'Nº de documento', confidencial: 'Confidencial' };
 const statuses: ExperienceStatus[] = ['en_revision', 'publicada', 'requiere_ajustes', 'en_disputa', 'restringida', 'retirada'];
@@ -44,6 +45,7 @@ export default function Admin() {
     { id: 'reclamaciones', label: 'Reclamaciones' },
     { id: 'apelaciones', label: 'Apelaciones' },
     { id: 'catalogo', label: 'Catálogo', admin: true },
+    { id: 'guias', label: 'Guías', admin: true },
     { id: 'historial', label: 'Historial' },
   ];
 
@@ -67,6 +69,7 @@ export default function Admin() {
         {tab === 'reclamaciones' && <Claims />}
         {tab === 'apelaciones' && <Appeals />}
         {tab === 'catalogo' && isAdmin && <Catalog />}
+        {tab === 'guias' && isAdmin && <Guides />}
         {tab === 'historial' && <History />}
       </div>
     </div>
@@ -561,5 +564,82 @@ function History() {
         )}
       </div>
     </section>
+  );
+}
+
+// ---------------------------------------------------------------- guías
+const guideStatusLabel: Record<GuideStatus, string> = {
+  borrador: 'Borrador', pendiente_verificacion: 'Pendiente de verificación', publicado: 'Publicada', archivado: 'Archivada',
+};
+
+function Guides() {
+  const { data, loading, error, reload } = useAsync(() => listGuides(), []);
+  return (
+    <section>
+      <Alert tone="warning" title="Publica solo guías revisadas">
+        Cada guía debe revisarla un abogado contra su fuente oficial antes de publicarse. Al publicar se registra la fecha de hoy como
+        fecha de verificación.
+      </Alert>
+      <div className="mt-6">
+        {loading ? <Loading /> : error ? <ErrorState error={error} onRetry={reload} /> : !data?.length ? (
+          <EmptyState title="No hay guías cargadas">Carga el archivo supabase/contenido/guias-derechos-2026.sql desde el SQL Editor.</EmptyState>
+        ) : (
+          <ul>{data.map((g) => <GuideRowItem key={g.id} guide={g} onDone={reload} />)}</ul>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function GuideRowItem({ guide: g, onDone }: { guide: GuideRow; onDone: () => void }) {
+  const { session } = useAuth();
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function change(status: GuideStatus) {
+    if (!session) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await setGuideStatus(g.id, status, session.user.id);
+      setConfirming(false);
+      onDone();
+    } catch (err) {
+      setError((err as AppError).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <li className="border-t border-line py-5">
+      <div className="flex flex-wrap items-center gap-3 text-sm text-slate">
+        <span className="rounded-[3px] border border-line px-2 py-0.5 text-xs font-semibold text-ink">{guideStatusLabel[g.status]}</span>
+        <span>{g.legal_resource_sources.length} {g.legal_resource_sources.length === 1 ? 'fuente' : 'fuentes'}</span>
+        {g.last_verified_at && <span>Verificada el {formatDate(g.last_verified_at)}</span>}
+      </div>
+      <h3 className="mt-2 text-xl">{g.title}</h3>
+      <p className="mt-1 max-w-prose text-slate">{g.summary}</p>
+      {error && <div className="mt-3"><Alert tone="error">{error}</Alert></div>}
+      <div className="mt-4 flex flex-wrap gap-3">
+        {g.status !== 'publicado' && <button type="button" className="btn-primary" disabled={busy} onClick={() => setConfirming(true)}>Publicar guía</button>}
+        {g.status === 'publicado' && <Link to={`/derechos/${g.slug}`} className="btn-secondary">Ver publicada</Link>}
+        {g.status === 'publicado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => change('pendiente_verificacion')}>Retirar para revisar</button>}
+        {g.status !== 'archivado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => change('archivado')}>Archivar</button>}
+      </div>
+      <ConfirmDialog
+        open={confirming}
+        onClose={() => setConfirming(false)}
+        title="¿Publicar esta guía?"
+        confirmLabel="Publicar guía"
+        tone="primary"
+        busy={busy}
+        onConfirm={() => change('publicado')}
+      >
+        Confirma que un abogado revisó el contenido contra las fuentes oficiales citadas. La guía será visible para cualquier persona en Tus
+        derechos.
+      </ConfirmDialog>
+    </li>
   );
 }

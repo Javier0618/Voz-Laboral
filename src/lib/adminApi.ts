@@ -118,3 +118,23 @@ export function publishCompanyResponse(input: { companyId: string; experienceId?
     }),
   );
 }
+
+export type GuideStatus = 'borrador' | 'pendiente_verificacion' | 'publicado' | 'archivado';
+export interface GuideRow {
+  id: string; slug: string; title: string; summary: string; status: GuideStatus; last_verified_at: string | null; updated_at: string;
+  legal_resource_sources: { id: string }[];
+}
+export function listGuides() {
+  return run<GuideRow[]>(
+    requireClient().from('legal_resources')
+      .select('id, slug, title, summary, status, last_verified_at, updated_at, legal_resource_sources(id)')
+      .order('title'),
+  );
+}
+/** Publicar exige fecha de verificación: se registra hoy y quién publica. */
+export function setGuideStatus(id: string, status: GuideStatus, userId: string) {
+  const patch = status === 'publicado'
+    ? { status, last_verified_at: new Date().toISOString().slice(0, 10), verified_by: userId }
+    : { status };
+  return run(requireClient().from('legal_resources').update(patch).eq('id', id));
+}

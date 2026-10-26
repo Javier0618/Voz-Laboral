@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { getLegalResource, listCategories, listLegalResources } from '../lib/api';
 import { formatDate } from '../lib/format';
+import { parseGuide } from '../lib/guide';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, useAsync } from '../components/ui';
 
 const disclaimer =
@@ -22,9 +23,8 @@ export default function Rights() {
         {notConfigured ? <ConfigNotice /> : resources.loading ? <Loading /> : resources.error ? (
           <ErrorState error={resources.error} onRetry={resources.reload} />
         ) : !resources.data?.length ? (
-          <EmptyState title="Las guías están en verificación">
-            Publicamos cada guía solo después de comprobar su contenido contra la fuente oficial vigente. Mientras tanto, para orientación sobre
-            tu caso acude a los canales del Ministerio del Trabajo o a un profesional del derecho.
+          <EmptyState title="Las guías están en revisión jurídica">
+            Publicaremos cada guía cuando un abogado confirme su contenido contra la norma vigente.
           </EmptyState>
         ) : (
           <div className="space-y-12">
@@ -81,7 +81,7 @@ export function RightsArticle() {
         {data.last_verified_at ? `Verificada contra la fuente oficial el ${formatDate(data.last_verified_at)}` : 'Pendiente de verificación'}. Última
         actualización: {formatDate(data.updated_at)}.
       </p>
-      <div className="testimony mt-8">{data.content}</div>
+      <GuideBody content={data.content} />
       <section className="mt-10 max-w-prose border-t border-line pt-6" aria-labelledby="fuentes">
         <h2 id="fuentes" className="font-sans text-base font-semibold">Fuentes oficiales</h2>
         <ul className="mt-3 space-y-3 text-sm">
@@ -95,5 +95,23 @@ export function RightsArticle() {
       </section>
       <p className="mt-8 max-w-prose rounded border-l-4 border-navy/30 bg-mist px-4 py-3 text-sm">{data.disclaimer}</p>
     </article>
+  );
+}
+
+function GuideBody({ content }: { content: string }) {
+  return (
+    <div className="mt-10 max-w-prose space-y-5 font-serif text-[1.125rem] leading-[1.85rem]">
+      {parseGuide(content).map((b, i) =>
+        b.type === 'heading' ? (
+          <h2 key={i} className="pt-4 text-2xl first:pt-0">{b.text}</h2>
+        ) : b.type === 'list' ? (
+          <ul key={i} className="list-disc space-y-2 pl-6 marker:text-teal">
+            {b.items.map((it, j) => <li key={j}>{it}</li>)}
+          </ul>
+        ) : (
+          <p key={i}>{b.text}</p>
+        ),
+      )}
+    </div>
   );
 }

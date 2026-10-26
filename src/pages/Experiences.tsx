@@ -94,9 +94,15 @@ export default function Experiences() {
               <div className="max-w-3xl">{list.data.map((exp) => <ExperienceItem key={exp.id} exp={exp} />)}</div>
             ) : (
               <div className="mt-6">
-                <EmptyState title="No hay experiencias con estos filtros" action={<Link to="/compartir" className="btn-primary">Compartir una experiencia</Link>}>
-                  Prueba a quitar algún filtro o a ampliar el periodo.
-                </EmptyState>
+                {category || companyId || fromYear || toYear ? (
+                  <EmptyState title="No hay experiencias con estos filtros" action={<button type="button" className="btn-secondary" onClick={() => setParams({})}>Quitar filtros</button>}>
+                    Prueba con otra categoría o amplía el periodo.
+                  </EmptyState>
+                ) : (
+                  <EmptyState title="Todavía no hay experiencias publicadas" action={<Link to="/compartir" className="btn-primary">Compartir una experiencia</Link>}>
+                    Cuando una experiencia supere la revisión, aparecerá aquí.
+                  </EmptyState>
+                )}
               </div>
             )}
             <Pagination page={page} total={total} pageSize={PAGE_SIZE} onPage={(p) => set({ pagina: String(p) })} />
