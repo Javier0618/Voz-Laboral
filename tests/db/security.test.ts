@@ -304,6 +304,33 @@ describe('búsqueda por NIT', () => {
   });
 });
 
+describe('búsqueda estricta', () => {
+  const search = (q: string) =>
+    as(db, 'anon', () => db.query<{ trade_name: string; is_suggestion: boolean }>(`select trade_name, is_suggestion from public.search_companies($1)`, [q]));
+
+  beforeAll(async () => {
+    await createCompany(db, admin, 'SUNCOLOMBIA SAS', 'suncolombia');
+    const exito = await createCompany(db, admin, 'ALMACENES EXITO S A', 'almacenes-exito');
+    await as(db, admin, () => db.query(`insert into public.company_aliases (company_id, alias) values ($1, 'Grupo Éxito')`, [exito]));
+  });
+
+  it('con todas las palabras presentes devuelve solo coincidencias', async () => {
+    const { rows } = await search('almacenes éxito');
+    expect(rows).toEqual([{ trade_name: 'ALMACENES EXITO S A', is_suggestion: false }]);
+  });
+
+  it('encuentra por alias aunque las palabras no estén en la razón social', async () => {
+    const { rows } = await search('grupo exito');
+    expect(rows).toEqual([{ trade_name: 'ALMACENES EXITO S A', is_suggestion: false }]);
+  });
+
+  it('si la empresa no existe, los nombres parecidos vienen marcados como sugerencia', async () => {
+    const { rows } = await search('bancolombia');
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.every((r) => r.is_suggestion)).toBe(true);
+  });
+});
+
 describe('eliminación de cuenta', () => {
   it('anonimiza las publicaciones tras el plazo de cancelación', async () => {
     const fede = await createUser(db, { alias: 'fede_noche' });

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PAGE_SIZE, searchCompanies } from '../lib/api';
 import { formatDate, plural } from '../lib/format';
-import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, Pagination, useAsync } from '../components/ui';
+import { Alert, ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, Pagination, useAsync } from '../components/ui';
 import { SuggestCompanyDialog } from '../components/SuggestCompanyDialog';
 
 export default function Companies() {
@@ -21,6 +21,7 @@ export default function Companies() {
     [q, city, sector, order, page],
   );
   const total = data?.[0]?.total_count ?? 0;
+  const onlySuggestions = Boolean(data?.[0]?.is_suggestion);
 
   function apply(next: Record<string, string>) {
     const merged = { q, ciudad: city, sector, orden: order, pagina: '1', ...next };
@@ -63,7 +64,7 @@ export default function Companies() {
       ) : (
         <section className="mt-8" aria-live="polite" aria-busy={loading}>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
-            <p className="text-sm text-slate">{loading ? 'Buscando…' : plural(total, 'empresa encontrada', 'empresas encontradas')}</p>
+            <p className="text-sm text-slate">{loading ? 'Buscando…' : onlySuggestions ? plural(total, 'nombre parecido', 'nombres parecidos') : plural(total, 'empresa encontrada', 'empresas encontradas')}</p>
             <label className="flex items-center gap-2 text-sm">
               <span className="text-slate">Ordenar por</span>
               <select className="input min-h-[40px] w-auto py-1" value={order} onChange={(e) => apply({ orden: e.target.value })}>
@@ -78,6 +79,15 @@ export default function Companies() {
           ) : error ? (
             <div className="mt-6"><ErrorState error={error} onRetry={reload} /></div>
           ) : data && data.length > 0 ? (
+            <>
+            {onlySuggestions && (
+              <div className="mt-6">
+                <Alert tone="warning" title={`No encontramos «${q}» en el catálogo`}>
+                  Estas empresas tienen nombres parecidos, pero pueden ser otras. Comprueba la ciudad y el sector antes de abrir una, o sugiere la
+                  empresa que buscas.
+                </Alert>
+              </div>
+            )}
             <ul>
               {data.map((c) => (
                 <li key={c.id} className="border-b border-line">
@@ -97,6 +107,7 @@ export default function Companies() {
                 </li>
               ))}
             </ul>
+            </>
           ) : (
             <div className="mt-6">
               <EmptyState

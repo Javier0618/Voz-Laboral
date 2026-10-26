@@ -96,7 +96,7 @@ export function CompanyPicker({
       {hint && !error && <p id={`${id}-hint`} className="hint">{hint}</p>}
       {error && <p id={`${id}-err`} className="field-error">{error}</p>}
       <p className="sr-only" aria-live="polite">
-        {loading ? 'Buscando' : open && query.length >= 2 ? `${results.length} resultados` : ''}
+        {loading ? 'Buscando' : open && query.length >= 2 ? results[0]?.is_suggestion ? `Sin coincidencia exacta, ${results.length} nombres parecidos` : `${results.length} resultados` : ''}
       </p>
       {failed && <p className="field-error">No se pudo buscar. Revisa tu conexión.</p>}
       {open && query.trim().length >= 2 && !loading && (
@@ -104,7 +104,13 @@ export function CompanyPicker({
           {results.length === 0 ? (
             <li className="px-3 py-2 text-sm text-slate">Sin coincidencias en el catálogo.</li>
           ) : (
-            results.map((c, i) => (
+            <>
+            {results[0].is_suggestion && (
+              <li role="presentation" className="border-b border-line px-3 py-2 text-xs font-semibold text-amber">
+                No está en el catálogo con ese nombre. Estas empresas solo se parecen:
+              </li>
+            )}
+            {results.map((c, i) => (
               <li
                 key={c.id}
                 id={`${listId}-${i}`}
@@ -116,7 +122,8 @@ export function CompanyPicker({
                 <span className="block font-semibold">{c.trade_name}</span>
                 <span className="block text-sm text-slate">{c.sector}. {c.city}, {c.department}</span>
               </li>
-            ))
+            ))}
+            </>
           )}
         </ul>
       )}

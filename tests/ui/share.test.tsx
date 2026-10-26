@@ -26,7 +26,7 @@ const createExperience = vi.fn();
 vi.mock('../../src/lib/api', () => ({
   listCategories: () => Promise.resolve([{ slug: 'pago-salarios', name: 'Pago de salarios', description: '', sort_order: 1 }]),
   searchCompanies: () =>
-    Promise.resolve([{ id: '7b0f8a3e-2c2f-4f43-9a55-0c6a1d1e5b10', slug: 'demo', trade_name: 'Empresa Demo', legal_name: null, sector: 'Comercio', city: 'Cali', department: 'Valle del Cauca', visible_experiences: 0, last_activity: null, total_count: 1 }]),
+    Promise.resolve([{ id: '7b0f8a3e-2c2f-4f43-9a55-0c6a1d1e5b10', slug: 'demo', trade_name: 'Empresa Demo', legal_name: null, sector: 'Comercio', city: 'Cali', department: 'Valle del Cauca', visible_experiences: 0, last_activity: null, total_count: 1, is_suggestion: false }]),
   createExperience: (...args: unknown[]) => createExperience(...args),
   updateMyExperience: vi.fn(),
   listMyExperiences: vi.fn(),

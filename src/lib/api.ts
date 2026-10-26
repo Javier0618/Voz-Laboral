@@ -10,6 +10,8 @@ export interface Category { slug: string; name: string; description: string; sor
 export interface CompanySummary {
   id: string; slug: string; trade_name: string; legal_name: string | null; sector: string; city: string; department: string;
   visible_experiences: number; last_activity: string | null; total_count: number;
+  /** true: no hubo coincidencia y este es solo un nombre parecido. */
+  is_suggestion: boolean;
 }
 export interface CompanyProfile {
   company: { id: string; slug: string; trade_name: string; legal_name: string | null; sector: string; city: string; department: string; website: string | null; updated_at: string; aliases: string[] };
