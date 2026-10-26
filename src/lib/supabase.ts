@@ -4,7 +4,7 @@ const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
 /** true cuando faltan las variables de entorno: la app lo indica en lugar de simular datos. */
-export const isConfigured = Boolean(url && anonKey && !url.includes('FICTICIO'));
+export const isConfigured = Boolean(url && anonKey && !/FICTICIO|PEGA-AQUI/.test(url + anonKey));
 
 export const supabase: SupabaseClient | null = isConfigured
   ? createClient(url!, anonKey!, {

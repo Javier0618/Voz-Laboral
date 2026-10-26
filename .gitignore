@@ -7,3 +7,6 @@ coverage
 *.log
 supabase/.temp
 supabase/.branches
+
+# Generado a partir de las migraciones
+supabase/instalar-todo.sql

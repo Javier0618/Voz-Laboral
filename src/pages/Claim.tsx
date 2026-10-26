@@ -70,7 +70,7 @@ export default function Claim() {
               <Link to={`/cuenta?siguiente=/empresas/${c.slug}/reclamacion`} className="btn-primary mt-3">Iniciar sesión o crear una cuenta</Link>
             </Alert>
           ) : done ? (
-            <div className="space-y-4" role="status">
+            <div className="space-y-4">
               <Alert tone="success" title="Solicitud enviada">Puedes seguir su estado en Mi cuenta. Te escribiremos al correo de contacto si necesitamos más información.</Alert>
               <Link to={`/empresas/${c.slug}`} className="btn-secondary">Volver al perfil</Link>
             </div>
