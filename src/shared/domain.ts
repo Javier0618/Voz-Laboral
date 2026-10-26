@@ -101,3 +101,18 @@ export interface CompanyStats {
   categories: { category_id: number; name: string; count: number }[];
   hidden_categories: number;
 }
+
+// Copia de las 10 categorías que carga la migración 20261026000200_core.sql.
+// Se usa para enlazar desde el inicio aunque la base de datos no esté disponible.
+export const baseCategories: Category[] = [
+  { id: 1, slug: 'pago-de-salarios', name: 'Pago de salarios' },
+  { id: 2, slug: 'contrato-y-condiciones', name: 'Contrato y condiciones laborales' },
+  { id: 3, slug: 'ascensos-y-ajustes', name: 'Ascensos y ajustes salariales' },
+  { id: 4, slug: 'abuso-de-autoridad', name: 'Abuso de autoridad' },
+  { id: 5, slug: 'posible-acoso-laboral', name: 'Posible acoso laboral' },
+  { id: 6, slug: 'jornadas-y-descansos', name: 'Jornadas y descansos' },
+  { id: 7, slug: 'seguridad-y-salud', name: 'Seguridad y salud en el trabajo' },
+  { id: 8, slug: 'discriminacion-y-trato-desigual', name: 'Discriminación y trato desigual' },
+  { id: 9, slug: 'organizacion-y-administracion', name: 'Organización y administración' },
+  { id: 10, slug: 'otras-situaciones', name: 'Otras situaciones laborales' },
+];

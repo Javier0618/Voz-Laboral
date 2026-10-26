@@ -358,13 +358,17 @@ function Panel() {
 
 export default function Admin() {
   return (
-    <div className="container-page">
-      <PageHeader title="Moderación">Todas las decisiones quedan registradas con su motivo.</PageHeader>
-      <SupabaseGate>
-        <RequireAuth>
-          <Panel />
-        </RequireAuth>
-      </SupabaseGate>
-    </div>
+    <>
+      <PageHeader title="Moderación" crumbs={[{ to: '/admin', label: 'Moderación' }]}>
+        Todas las decisiones quedan registradas con su motivo.
+      </PageHeader>
+      <div className="container-page">
+        <SupabaseGate>
+          <RequireAuth>
+            <Panel />
+          </RequireAuth>
+        </SupabaseGate>
+      </div>
+    </>
   );
 }

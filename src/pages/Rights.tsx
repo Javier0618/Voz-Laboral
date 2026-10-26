@@ -67,8 +67,11 @@ function Resources() {
 
 export default function Rights() {
   return (
-    <div className="container-page">
-      <PageHeader title="Tus derechos">Guías prácticas sobre situaciones laborales frecuentes en Colombia.</PageHeader>
+    <>
+    <PageHeader title="Tus derechos" crumbs={[{ to: '/derechos', label: 'Tus derechos' }]}>
+      Guías prácticas sobre situaciones laborales frecuentes en Colombia.
+    </PageHeader>
+    <div className="container-page max-w-4xl">
       <div className="py-6">
         <Notice tone="warning" title="Esto no es asesoría jurídica">
           Si tu caso es urgente, busca orientación de un abogado laboral o de las autoridades del trabajo. Solo
@@ -79,5 +82,6 @@ export default function Rights() {
         <Resources />
       </SupabaseGate>
     </div>
+    </>
   );
 }

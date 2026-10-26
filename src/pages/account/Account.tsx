@@ -278,15 +278,19 @@ function DangerZone() {
 
 export default function Account() {
   return (
-    <div className="container-page max-w-3xl">
-      <PageHeader title="Mi cuenta" />
-      <SupabaseGate>
-        <RequireAuth>
-          <AliasSection />
-          <History />
-          <DangerZone />
-        </RequireAuth>
-      </SupabaseGate>
-    </div>
+    <>
+      <PageHeader title="Mi cuenta" narrow crumbs={[{ to: '/cuenta', label: 'Mi cuenta' }]}>
+        Tu alias, el estado de tus experiencias y la gestión de tu cuenta.
+      </PageHeader>
+      <div className="container-page max-w-3xl">
+        <SupabaseGate>
+          <RequireAuth>
+            <AliasSection />
+            <History />
+            <DangerZone />
+          </RequireAuth>
+        </SupabaseGate>
+      </div>
+    </>
   );
 }

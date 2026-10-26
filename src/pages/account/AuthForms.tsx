@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthProvider';
 import { Checkbox, TextField } from '../../components/Field';
-import { PageHeader } from '../../components/PageHeader';
+import { usePageTitle } from '../../components/PageHeader';
+import { CheckIcon, LockIcon } from '../../components/Icons';
 import { Notice } from '../../components/States';
 import { SupabaseGate } from '../../components/SupabaseGate';
 import { useToast } from '../../components/Toast';
@@ -13,12 +14,29 @@ import { emailSchema, fieldErrors, passwordSchema, signUpSchema } from '../../sh
 const redirect = (path: string) => `${window.location.origin}${path}`;
 
 function Shell({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
+  usePageTitle(title);
   return (
-    <div className="container-page max-w-xl">
-      <PageHeader title={title}>{intro}</PageHeader>
-      <SupabaseGate>
-        <div className="py-6">{children}</div>
-      </SupabaseGate>
+    <div className="container-page grid gap-10 py-10 sm:py-16 lg:grid-cols-[1fr_1fr] lg:gap-20">
+      <div className="max-w-md">
+        <h1 className="text-4xl leading-tight sm:text-5xl">{title}</h1>
+        {intro && <p className="mt-3 text-lg text-muted">{intro}</p>}
+        <div className="mt-8">
+          <SupabaseGate>{children}</SupabaseGate>
+        </div>
+      </div>
+      <aside aria-label="Cómo protegemos tu cuenta" className="hidden self-start rounded-xl border border-line bg-mist p-8 lg:block">
+        <div className="flex items-center gap-2 text-navy">
+          <LockIcon />
+          <p className="font-semibold">Tu cuenta es privada</p>
+        </div>
+        <ul className="mt-5 space-y-4 text-ink">
+          <li className="flex gap-3"><CheckIcon className="mt-0.5 shrink-0 text-action" />Tu correo solo sirve para entrar. Nunca se muestra.</li>
+          <li className="flex gap-3"><CheckIcon className="mt-0.5 shrink-0 text-action" />En la plataforma solo aparece tu alias.</li>
+          <li className="flex gap-3"><CheckIcon className="mt-0.5 shrink-0 text-action" />Las empresas no reciben datos de quienes publican.</li>
+          <li className="flex gap-3"><CheckIcon className="mt-0.5 shrink-0 text-action" />Puedes pedir la eliminación de tu cuenta cuando quieras.</li>
+        </ul>
+        <p className="mt-6 text-sm text-muted">Más detalles en la <Link to="/privacidad">política de privacidad</Link>.</p>
+      </aside>
     </div>
   );
 }

@@ -18,6 +18,20 @@ import {
 import { experienceSchema, fieldErrors } from '../../shared/schemas';
 import { CompanyPicker, type PickedCompany } from './CompanyPicker';
 
+function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+  return (
+    <section aria-labelledby={`paso-${n}`} className="grid gap-5 border-t border-line pt-8 sm:grid-cols-[3rem_1fr]">
+      <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-full bg-ink font-semibold text-paper">
+        {n}
+      </span>
+      <div className="space-y-5">
+        <h2 id={`paso-${n}`} className="text-2xl">{title}</h2>
+        {children}
+      </div>
+    </section>
+  );
+}
+
 export interface ShareDraft {
   company: PickedCompany | null;
   categoryId: string;
@@ -163,7 +177,7 @@ export function ShareForm({
           Vista previa
         </h2>
         <p className="mt-1 text-muted">Así se verá si la moderación la publica. Nadie la ve mientras está en revisión.</p>
-        <article className="mt-4 rounded-md border border-line p-5">
+        <article className="mt-6 rounded-xl border border-line p-6 sm:p-8">
           <p className="text-sm text-muted">
             {categoryName} · {formatPeriod(monthToDate(draft.periodStart), draft.periodEnd ? monthToDate(draft.periodEnd) : null)}
             {draft.relationship && ` · ${relationshipLabels[draft.relationship]}`}
@@ -213,7 +227,7 @@ export function ShareForm({
   return (
     <form
       noValidate
-      className="space-y-6 py-6"
+      className="space-y-8 py-8"
       onSubmit={(e) => {
         e.preventDefault();
         if (validate()) setMode('preview');
@@ -247,6 +261,7 @@ export function ShareForm({
         )}
       </div>
 
+      <Step n={1} title="Empresa y tema">
       <CompanyPicker
         value={draft.company}
         onChange={(c) => set('company', c)}
@@ -263,6 +278,9 @@ export function ShareForm({
         ))}
       </SelectField>
 
+      </Step>
+
+      <Step n={2} title="Periodo y relación">
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField label="Desde" type="month" value={draft.periodStart} error={errors.periodStart}
           hint="Mes y año aproximados" onChange={(e) => set('periodStart', e.target.value)} />
@@ -290,6 +308,9 @@ export function ShareForm({
         {errors.relationship && <p className="field-error">{errors.relationship}</p>}
       </fieldset>
 
+      </Step>
+
+      <Step n={3} title="Tu relato">
       <TextField label="Título" optional value={draft.title} error={errors.title} maxLength={120}
         onChange={(e) => set('title', e.target.value)} />
 
@@ -318,6 +339,9 @@ export function ShareForm({
         </Notice>
       )}
 
+      </Step>
+
+      <Step n={4} title="Antes de enviar">
       <Checkbox
         label="Dispongo de documentos que respaldan lo que cuento"
         checked={draft.hasDocuments}
@@ -332,9 +356,10 @@ export function ShareForm({
         hint={<>Lee las <Link to="/reglas">reglas</Link> antes de continuar.</>}
       />
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3 pt-2">
         <button type="submit" className="btn-primary">Ver vista previa</button>
       </div>
+      </Step>
     </form>
   );
 }

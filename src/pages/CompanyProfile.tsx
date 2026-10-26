@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ClaimButton } from '../components/ClaimDialog';
 import { ExperienceItem } from '../components/ExperienceItem';
-import { usePageTitle } from '../components/PageHeader';
+import { Breadcrumbs, usePageTitle } from '../components/PageHeader';
+import { Monogram } from '../components/Monogram';
 import { Pagination } from '../components/Pagination';
 import { EmptyState, ErrorState, LoadingState, Notice } from '../components/States';
 import { SupabaseGate } from '../components/SupabaseGate';
@@ -20,9 +21,9 @@ function Distribution({ companyId }: { companyId: string }) {
   const s = stats.data;
   const max = Math.max(1, ...s.categories.map((c) => c.count));
   return (
-    <section aria-labelledby="distribucion" className="py-6">
+    <section aria-labelledby="distribucion" className="py-8">
       <h2 id="distribucion" className="text-2xl">Lo que ha recibido la plataforma</h2>
-      <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+      <dl className="my-5 grid grid-cols-2 gap-4 lg:grid-cols-1">
         <div className="border-l-2 border-action pl-4">
           <dt className="text-muted">Experiencias visibles</dt>
           <dd className="font-serif text-3xl font-semibold">{s.visible_count.toLocaleString('es-CO')}</dd>
@@ -37,7 +38,7 @@ function Distribution({ companyId }: { companyId: string }) {
         empresa ni representa a todas las personas que trabajan ahí.
       </Notice>
       {s.categories.length > 0 ? (
-        <ul className="mt-4 space-y-3" aria-label="Distribución por categoría">
+        <ul className="mt-5 space-y-4" aria-label="Distribución por categoría">
           {s.categories.map((c) => (
             <li key={c.category_id}>
               <div className="flex justify-between gap-4">
@@ -76,7 +77,7 @@ function Experiences({ company }: { company: Company }) {
   }, [company.id, page]);
 
   return (
-    <section aria-labelledby="recientes" className="border-t border-line py-6">
+    <section aria-labelledby="recientes" className="py-8">
       <h2 id="recientes" className="text-2xl">Experiencias recientes</h2>
       {data.status === 'loading' && <LoadingState label="Cargando experiencias" />}
       {data.status === 'error' && <ErrorState message={data.error} onRetry={data.reload} />}
@@ -105,11 +106,11 @@ function Experiences({ company }: { company: Company }) {
 function Profile({ slug }: { slug: string }) {
   const company = useAsync(() => getCompanyBySlug(slug), [slug]);
   usePageTitle(company.status === 'success' && company.data ? company.data.name : 'Empresa');
-  if (company.status === 'loading') return <LoadingState label="Cargando empresa" />;
-  if (company.status === 'error') return <ErrorState message={company.error} onRetry={company.reload} />;
+  if (company.status === 'loading') return <div className="container-page"><LoadingState label="Cargando empresa" /></div>;
+  if (company.status === 'error') return <div className="container-page py-8"><ErrorState message={company.error} onRetry={company.reload} /></div>;
   if (!company.data) {
     return (
-      <div className="py-10">
+      <div className="container-page py-10">
         <h1 className="text-4xl">No encontramos esta empresa</h1>
         <p className="mt-2 text-muted">Puede que no exista o que aún esté en revisión.</p>
         <Link className="btn-secondary mt-4" to="/empresas">Volver a empresas</Link>
@@ -119,17 +120,30 @@ function Profile({ slug }: { slug: string }) {
   const c = company.data;
   return (
     <>
-      <div className="border-b border-line pb-6 pt-8 sm:pt-12">
-        <p className="text-muted"><Link to="/empresas">Empresas</Link></p>
-        <h1 className="mt-1 text-4xl leading-tight sm:text-5xl">{c.name}</h1>
-        <p className="mt-2 text-lg text-muted">{[c.city, c.sector].filter(Boolean).join(' · ')}</p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Link className="btn-primary" to={`/compartir?empresa=${c.id}`}>Compartir experiencia</Link>
-          <ClaimButton companyId={c.id} companyName={c.name} />
+      <div className="border-b border-line bg-mist">
+        <div className="container-page py-10 sm:py-14">
+          <Breadcrumbs items={[{ to: '/empresas', label: 'Empresas' }, { to: `/empresas/${c.slug}`, label: c.name }]} />
+          <div className="mt-5 flex flex-wrap items-start gap-5">
+            <Monogram text={c.name} size="lg" />
+            <div className="min-w-0 flex-1">
+              <h1 className="text-4xl leading-tight sm:text-5xl">{c.name}</h1>
+              <p className="mt-2 text-lg text-muted">{[c.city, c.sector].filter(Boolean).join(' · ') || 'Sin ciudad ni sector registrados'}</p>
+            </div>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link className="btn-primary" to={`/compartir?empresa=${c.id}`}>Compartir experiencia</Link>
+            <ClaimButton companyId={c.id} companyName={c.name} />
+          </div>
         </div>
       </div>
-      <Distribution companyId={c.id} />
-      <Experiences company={c} />
+      <div className="container-page grid gap-x-16 lg:grid-cols-[1fr_20rem]">
+        <div className="order-2 lg:order-1">
+          <Experiences company={c} />
+        </div>
+        <aside className="order-1 lg:order-2 lg:sticky lg:top-20 lg:self-start" aria-label="Resumen">
+          <Distribution companyId={c.id} />
+        </aside>
+      </div>
     </>
   );
 }
@@ -137,10 +151,8 @@ function Profile({ slug }: { slug: string }) {
 export default function CompanyProfile() {
   const { slug = '' } = useParams();
   return (
-    <div className="container-page">
-      <SupabaseGate>
-        <Profile slug={slug} />
-      </SupabaseGate>
-    </div>
+    <SupabaseGate>
+      <Profile slug={slug} />
+    </SupabaseGate>
   );
 }

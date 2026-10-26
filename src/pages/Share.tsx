@@ -64,15 +64,17 @@ function Content() {
 
 export default function Share() {
   return (
-    <div className="container-page max-w-3xl">
-      <PageHeader title="Compartir experiencia">
+    <>
+      <PageHeader title="Compartir experiencia" narrow crumbs={[{ to: '/compartir', label: 'Compartir experiencia' }]}>
         Cuenta lo que viviste. La moderación lo revisa antes de publicarlo y solo se mostrará tu alias.
       </PageHeader>
-      <SupabaseGate>
-        <RequireAuth>
-          <Content />
-        </RequireAuth>
-      </SupabaseGate>
-    </div>
+      <div className="container-page max-w-3xl">
+        <SupabaseGate>
+          <RequireAuth>
+            <Content />
+          </RequireAuth>
+        </SupabaseGate>
+      </div>
+    </>
   );
 }

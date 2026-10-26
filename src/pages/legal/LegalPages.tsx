@@ -9,15 +9,15 @@ import { PageHeader } from '../../components/PageHeader';
 
 function LegalPage({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="container-page">
-      <PageHeader title={title} />
-      <div className="py-6">
+    <>
+      <PageHeader title={title} narrow />
+      <div className="container-page max-w-3xl py-8">
         <LegalReviewBanner />
-        <div className="mt-6 max-w-prose space-y-4 text-lg leading-relaxed [&_h2]:mt-8 [&_h2]:text-2xl [&_li]:ml-5 [&_li]:list-disc">
+        <div className="mt-8 max-w-prose space-y-4 font-serif text-[1.15rem] leading-relaxed text-ink [&_h2]:mt-10 [&_h2]:text-2xl [&_li]:ml-5 [&_li]:list-disc [&_li]:pl-1">
           {children}
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -5,6 +5,7 @@ import { Pagination } from '../components/Pagination';
 import { EmptyState, ErrorState, LoadingState } from '../components/States';
 import { SupabaseGate } from '../components/SupabaseGate';
 import { TextField } from '../components/Field';
+import { Monogram } from '../components/Monogram';
 import { searchCompanies } from '../lib/api';
 import { pluralize } from '../lib/format';
 import { useAsync } from '../lib/useAsync';
@@ -34,7 +35,7 @@ function Results() {
     <>
       <form
         role="search"
-        className="grid gap-4 py-6 sm:grid-cols-[2fr_1fr_1fr_auto] sm:items-end"
+        className="-mt-8 mb-8 grid gap-4 rounded-xl border border-line bg-paper p-5 sm:grid-cols-[2fr_1fr_1fr_auto] sm:items-end"
         onSubmit={(e) => {
           e.preventDefault();
           apply({ q: form.q.trim(), ciudad: form.city.trim(), sector: form.sector.trim() });
@@ -61,14 +62,17 @@ function Results() {
             </p>
             <ul className="mt-2 border-t border-line">
               {result.data.rows.map((c) => (
-                <li key={c.id} className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line py-4">
-                  <div>
-                    <Link to={`/empresas/${c.slug}`} className="font-serif text-xl font-semibold">
+                <li key={c.id} className="flex items-center gap-4 border-b border-line py-5">
+                  <Monogram text={c.name} />
+                  <div className="min-w-0 flex-1">
+                    <Link to={`/empresas/${c.slug}`} className="font-serif text-xl font-semibold text-ink no-underline hover:text-action hover:underline">
                       {c.name}
                     </Link>
                     <p className="text-muted">{[c.city, c.sector].filter(Boolean).join(' · ') || 'Sin ciudad ni sector'}</p>
                   </div>
-                  <span className="text-muted">{pluralize(Number(c.experience_count), 'experiencia', 'experiencias')}</span>
+                  <span className="hidden shrink-0 rounded-full border border-line px-3 py-1 text-sm text-muted sm:inline">
+                    {pluralize(Number(c.experience_count), 'experiencia', 'experiencias')}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -86,11 +90,15 @@ function Results() {
 
 export default function Companies() {
   return (
-    <div className="container-page">
-      <PageHeader title="Empresas">Busca por nombre, sigla, ciudad o sector.</PageHeader>
-      <SupabaseGate>
-        <Results />
-      </SupabaseGate>
-    </div>
+    <>
+      <PageHeader title="Empresas" crumbs={[{ to: '/empresas', label: 'Empresas' }]}>
+        Busca por nombre, sigla, ciudad o sector. Solo aparecen empresas revisadas por la moderación.
+      </PageHeader>
+      <div className="container-page">
+        <SupabaseGate>
+          <Results />
+        </SupabaseGate>
+      </div>
+    </>
   );
 }

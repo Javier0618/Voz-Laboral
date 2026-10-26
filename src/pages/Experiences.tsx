@@ -49,7 +49,7 @@ function List() {
   return (
     <>
       <form
-        className="grid gap-4 py-6 sm:grid-cols-2 lg:grid-cols-[1.5fr_1.5fr_1fr_1fr_auto] lg:items-end"
+        className="-mt-8 mb-6 grid gap-4 rounded-xl border border-line bg-paper p-5 sm:grid-cols-2 lg:grid-cols-[1.5fr_1.5fr_1fr_1fr_auto] lg:items-end"
         onSubmit={(e) => {
           e.preventDefault();
           apply({ ...form, empresa: form.empresa.trim() });
@@ -99,13 +99,15 @@ function List() {
 
 export default function Experiences() {
   return (
-    <div className="container-page">
-      <PageHeader title="Experiencias">
+    <>
+      <PageHeader title="Experiencias" crumbs={[{ to: '/experiencias', label: 'Experiencias' }]}>
         Relatos revisados por la moderación antes de publicarse. Filtra por categoría, empresa o periodo.
       </PageHeader>
-      <SupabaseGate>
-        <List />
-      </SupabaseGate>
-    </div>
+      <div className="container-page">
+        <SupabaseGate>
+          <List />
+        </SupabaseGate>
+      </div>
+    </>
   );
 }
