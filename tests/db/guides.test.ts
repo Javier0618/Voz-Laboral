@@ -59,4 +59,27 @@ describe('guías de derechos', () => {
       await errorOf(as(db, admin, () => db.query(`update public.legal_resources set status = 'publicado', last_verified_at = null where slug = 'licencias-remuneradas'`))),
     ).toMatch(/legal_resources_publish_requires_verification/);
   });
+
+  it('cuenta visitas solo de guías publicadas y el público no puede leer el contador', async () => {
+    await as(db, 'anon', () => db.query(`select public.register_guide_view('pago-del-salario')`));
+    await as(db, 'anon', () => db.query(`select public.register_guide_view('pago-del-salario')`));
+    await as(db, 'anon', () => db.query(`select public.register_guide_view('licencias-remuneradas')`)); // no publicada
+    const { rows } = await as(db, admin, () => db.query<{ slug: string; views: number }>(
+      `select r.slug, s.views::int from public.legal_resource_stats s join public.legal_resources r on r.id = s.resource_id`,
+    ));
+    expect(rows).toEqual([{ slug: 'pago-del-salario', views: 2 }]);
+    expect(await errorOf(as(db, 'anon', () => db.query(`select views from public.legal_resource_stats`)))).toMatch(/permission denied/);
+    const other = await as(db, user, () => db.query(`select views from public.legal_resource_stats`));
+    expect(other.rows).toHaveLength(0);
+    expect(await errorOf(as(db, user, () => db.query(`update public.legal_resource_stats set views = 999`)))).toMatch(/permission denied/);
+  });
+
+  it('una guía publicada no puede quedarse sin fuentes', async () => {
+    const fuentes = await db.query<{ id: string }>(
+      `select s.id from public.legal_resource_sources s join public.legal_resources r on r.id = s.resource_id where r.slug = 'pago-del-salario' order by s.label`,
+    );
+    await as(db, admin, () => db.query(`delete from public.legal_resource_sources where id = $1`, [fuentes.rows[0].id]));
+    await as(db, admin, () => db.query(`delete from public.legal_resource_sources where id = $1`, [fuentes.rows[1].id]));
+    expect(await errorOf(as(db, admin, () => db.query(`delete from public.legal_resource_sources where id = $1`, [fuentes.rows[2].id])))).toMatch(/VL071/);
+  });
 });

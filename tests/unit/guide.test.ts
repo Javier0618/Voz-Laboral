@@ -23,4 +23,12 @@ describe('formato de las guías', () => {
       { type: 'paragraph', text: 'Texto' },
     ]);
   });
+
+  it('reconoce imágenes https en su propio bloque y rechaza otros esquemas', () => {
+    expect(parseGuide('![Tabla de recargos](https://x.supabase.co/storage/v1/object/public/guias/a.png)')).toEqual([
+      { type: 'image', alt: 'Tabla de recargos', src: 'https://x.supabase.co/storage/v1/object/public/guias/a.png' },
+    ]);
+    expect(parseGuide('![x](javascript:alert(1))')[0].type).toBe('paragraph');
+    expect(parseGuide('![x](http://inseguro.test/a.png)')[0].type).toBe('paragraph');
+  });
 });

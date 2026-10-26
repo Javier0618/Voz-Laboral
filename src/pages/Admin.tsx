@@ -1,13 +1,13 @@
 // Panel de moderación. Ocultar este panel a quien no tiene rol es solo una
 // comodidad: cada operación la autoriza la base de datos.
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import {
   addCompanyAlias, createCompany, listAppeals, listClaims, listModerationEvents, listReports, listSuggestions, moderateExperience,
   moderationQueue, publishCompanyResponse, resolveAppeal, resolveClaim, resolveReport, resolveSuggestion, setSuspension,
   type ClaimRow, type QueueItem,
-  listGuides, setGuideStatus, type GuideRow, type GuideStatus,
+  guideViews, listGuides, setGuideStatus, type GuideRow, type GuideStatus,
 } from '../lib/adminApi';
 import type { ExperienceStatus } from '../lib/api';
 import { formatDate, formatPeriod, relationshipLabel } from '../lib/format';
@@ -24,7 +24,9 @@ const statuses: ExperienceStatus[] = ['en_revision', 'publicada', 'requiere_ajus
 
 export default function Admin() {
   const { session, isModerator, isAdmin, loading } = useAuth();
-  const [tab, setTab] = useState<Tab>('cola');
+  const [params, setParams] = useSearchParams();
+  const tab = (params.get('tab') as Tab) || 'cola';
+  const setTab = (t: Tab) => setParams(t === 'cola' ? {} : { tab: t }, { replace: true });
 
   if (notConfigured) return <div className="page py-10"><ConfigNotice /></div>;
   if (loading) return <div className="page py-10"><Loading /></div>;
@@ -617,13 +619,17 @@ function GuideRowItem({ guide: g, onDone }: { guide: GuideRow; onDone: () => voi
       <div className="flex flex-wrap items-center gap-3 text-sm text-slate">
         <span className="rounded-[3px] border border-line px-2 py-0.5 text-xs font-semibold text-ink">{guideStatusLabel[g.status]}</span>
         <span>{g.legal_resource_sources.length} {g.legal_resource_sources.length === 1 ? 'fuente' : 'fuentes'}</span>
+        {g.status === 'publicado' && <span>{guideViews(g.legal_resource_stats).views.toLocaleString('es-CO')} visitas</span>}
         {g.last_verified_at && <span>Verificada el {formatDate(g.last_verified_at)}</span>}
       </div>
-      <h3 className="mt-2 text-xl">{g.title}</h3>
+      <h3 className="mt-2 text-xl">
+        <Link to={`/moderacion/guias/${g.id}`} className="hover:text-teal-strong hover:underline">{g.title}</Link>
+      </h3>
       <p className="mt-1 max-w-prose text-slate">{g.summary}</p>
       {error && <div className="mt-3"><Alert tone="error">{error}</Alert></div>}
       <div className="mt-4 flex flex-wrap gap-3">
-        {g.status !== 'publicado' && <button type="button" className="btn-primary" disabled={busy} onClick={() => setConfirming(true)}>Publicar guía</button>}
+        <Link to={`/moderacion/guias/${g.id}`} className="btn-primary">Abrir y editar</Link>
+        {g.status !== 'publicado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => setConfirming(true)}>Publicar guía</button>}
         {g.status === 'publicado' && <Link to={`/derechos/${g.slug}`} className="btn-secondary">Ver publicada</Link>}
         {g.status === 'publicado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => change('pendiente_verificacion')}>Retirar para revisar</button>}
         {g.status !== 'archivado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => change('archivado')}>Archivar</button>}

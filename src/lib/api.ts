@@ -123,6 +123,10 @@ export function listLegalResources() {
   );
 }
 
+export function registerGuideView(slug: string) {
+  return run(requireClient().rpc('register_guide_view', { p_slug: slug }));
+}
+
 export function getLegalResource(slug: string) {
   return run<LegalResource | null>(
     requireClient()

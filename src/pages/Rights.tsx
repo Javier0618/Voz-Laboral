@@ -1,7 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
-import { getLegalResource, listCategories, listLegalResources } from '../lib/api';
+import { useEffect } from 'react';
+import { getLegalResource, listCategories, listLegalResources, registerGuideView } from '../lib/api';
 import { formatDate } from '../lib/format';
-import { parseGuide } from '../lib/guide';
+import { GuideBody } from '../components/GuideBody';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, useAsync } from '../components/ui';
 
 const disclaimer =
@@ -58,6 +59,9 @@ export default function Rights() {
 export function RightsArticle() {
   const { slug = '' } = useParams();
   const { data, loading, error, reload } = useAsync(() => (notConfigured ? Promise.resolve(null) : getLegalResource(slug)), [slug]);
+  useEffect(() => {
+    if (data) countViewOncePerDay(slug);
+  }, [data, slug]);
 
   if (notConfigured) return <div className="page py-10"><ConfigNotice /></div>;
   if (loading) return <div className="page py-10"><Loading /></div>;
@@ -81,7 +85,7 @@ export function RightsArticle() {
         {data.last_verified_at ? `Verificada contra la fuente oficial el ${formatDate(data.last_verified_at)}` : 'Pendiente de verificación'}. Última
         actualización: {formatDate(data.updated_at)}.
       </p>
-      <GuideBody content={data.content} />
+      <div className="mt-10"><GuideBody content={data.content} /></div>
       <section className="mt-10 max-w-prose border-t border-line pt-6" aria-labelledby="fuentes">
         <h2 id="fuentes" className="font-sans text-base font-semibold">Fuentes oficiales</h2>
         <ul className="mt-3 space-y-3 text-sm">
@@ -98,20 +102,15 @@ export function RightsArticle() {
   );
 }
 
-function GuideBody({ content }: { content: string }) {
-  return (
-    <div className="mt-10 max-w-prose space-y-5 font-serif text-[1.125rem] leading-[1.85rem]">
-      {parseGuide(content).map((b, i) =>
-        b.type === 'heading' ? (
-          <h2 key={i} className="pt-4 text-2xl first:pt-0">{b.text}</h2>
-        ) : b.type === 'list' ? (
-          <ul key={i} className="list-disc space-y-2 pl-6 marker:text-teal">
-            {b.items.map((it, j) => <li key={j}>{it}</li>)}
-          </ul>
-        ) : (
-          <p key={i}>{b.text}</p>
-        ),
-      )}
-    </div>
-  );
+
+// shortcut: un navegador cuenta una visita por guía y día; no evita que alguien infle el contador a propósito.
+function countViewOncePerDay(slug: string) {
+  const key = `vozlaboral:visita:${slug}:${new Date().toISOString().slice(0, 10)}`;
+  try {
+    if (localStorage.getItem(key)) return;
+    localStorage.setItem(key, '1');
+  } catch {
+    /* sin almacenamiento: se cuenta igualmente */
+  }
+  registerGuideView(slug).catch(() => undefined);
 }

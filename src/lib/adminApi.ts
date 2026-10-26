@@ -119,15 +119,23 @@ export function publishCompanyResponse(input: { companyId: string; experienceId?
   );
 }
 
+// Relación uno a uno: PostgREST la devuelve como objeto, pero sin tipos generados se infiere como lista.
+type Stats = { views: number; last_view_at?: string | null } | { views: number; last_view_at?: string | null }[] | null;
+export function guideViews(stats: Stats) {
+  const s = Array.isArray(stats) ? stats[0] : stats;
+  return { views: s?.views ?? 0, lastViewAt: s?.last_view_at ?? null };
+}
+
 export type GuideStatus = 'borrador' | 'pendiente_verificacion' | 'publicado' | 'archivado';
 export interface GuideRow {
   id: string; slug: string; title: string; summary: string; status: GuideStatus; last_verified_at: string | null; updated_at: string;
   legal_resource_sources: { id: string }[];
+  legal_resource_stats: Stats;
 }
 export function listGuides() {
   return run<GuideRow[]>(
     requireClient().from('legal_resources')
-      .select('id, slug, title, summary, status, last_verified_at, updated_at, legal_resource_sources(id)')
+      .select('id, slug, title, summary, status, last_verified_at, updated_at, legal_resource_sources(id), legal_resource_stats(views)')
       .order('title'),
   );
 }
@@ -137,4 +145,39 @@ export function setGuideStatus(id: string, status: GuideStatus, userId: string) 
     ? { status, last_verified_at: new Date().toISOString().slice(0, 10), verified_by: userId }
     : { status };
   return run(requireClient().from('legal_resources').update(patch).eq('id', id));
+}
+
+export interface GuideSource { id: string; label: string; publisher: string; url: string; accessed_at: string }
+export interface GuideDetail {
+  id: string; slug: string; title: string; summary: string; content: string; category_slug: string | null;
+  status: GuideStatus; last_verified_at: string | null; updated_at: string;
+  legal_resource_sources: GuideSource[];
+  legal_resource_stats: Stats;
+}
+export function getGuide(id: string) {
+  return run<GuideDetail | null>(
+    requireClient().from('legal_resources')
+      .select('id, slug, title, summary, content, category_slug, status, last_verified_at, updated_at, legal_resource_sources(id, label, publisher, url, accessed_at), legal_resource_stats(views, last_view_at)')
+      .eq('id', id).maybeSingle(),
+  );
+}
+export function updateGuide(id: string, patch: { title: string; summary: string; content: string; category_slug: string | null }) {
+  return run(requireClient().from('legal_resources').update(patch).eq('id', id).select('id').single());
+}
+export function addGuideSource(resourceId: string, s: Omit<GuideSource, 'id'>) {
+  return run(requireClient().from('legal_resource_sources').insert({ resource_id: resourceId, ...s }));
+}
+export function deleteGuideSource(id: string) {
+  return run(requireClient().from('legal_resource_sources').delete().eq('id', id));
+}
+/** Sube una imagen al bucket público «guias» y devuelve su URL pública. */
+export async function uploadGuideImage(guideSlug: string, file: File) {
+  const ext = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[file.type];
+  if (!ext) throw toAppError({ message: 'VL090: Usa una imagen PNG, JPG o WebP.' });
+  if (file.size > 2 * 1024 * 1024) throw toAppError({ message: 'VL091: La imagen supera 2 MB. Redúcela e inténtalo de nuevo.' });
+  const path = `${guideSlug}/${crypto.randomUUID()}.${ext}`;
+  const bucket = requireClient().storage.from('guias');
+  const { error } = await bucket.upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw toAppError(error);
+  return bucket.getPublicUrl(path).data.publicUrl;
 }
