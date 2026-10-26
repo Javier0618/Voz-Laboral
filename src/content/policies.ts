@@ -21,7 +21,9 @@ export const policies: Policy[] = [
         heading: 'Datos que tratamos',
         paragraphs: [
           'Para la cuenta: correo electrónico y contraseña (almacenada cifrada por el proveedor de autenticación). No pedimos nombre real ni documento de identidad.',
-          'Para publicar: el alias que eliges y el contenido de tus experiencias, reportes, apelaciones y solicitudes.',
+          'Para publicar: el alias que eliges y el contenido de tus experiencias, comentarios, reportes, apelaciones y solicitudes.',
+          'Reacciones: guardamos qué reacción dejó cada cuenta para contar una por persona y permitir quitarla. Solo se publica el total; nadie más ve quién reaccionó.',
+          'Envíos sin cuenta: no pedimos correo ni otro dato de contacto. Guardamos el contenido y una huella cifrada (hash) del enlace de seguimiento, nunca el enlace. Quien tenga el enlace puede ver el estado, las reacciones y los comentarios, y vincular la experiencia a una cuenta.',
           'Registros técnicos y de seguridad: eventos como superar límites de envío o cambios de rol. En nuestras tablas no guardamos direcciones IP; el proveedor de infraestructura puede registrarlas en sus propios registros técnicos durante el plazo que define su contrato [confirmar plazo y condiciones con el proveedor].',
           'No solicitamos datos sensibles. Si un relato los incluye, el equipo de moderación puede pedir que se retiren.',
         ],
@@ -40,7 +42,8 @@ export const policies: Policy[] = [
       {
         heading: 'Conservación',
         paragraphs: [
-          'Cuenta: mientras esté activa. Al solicitar la eliminación hay 15 días para cancelarla; después, las publicaciones se desvinculan de la cuenta y se borran el alias y el acceso.',
+          'Cuenta: mientras esté activa. Al solicitar la eliminación hay 15 días para cancelarla; después, las publicaciones y los comentarios se desvinculan de la cuenta, se borran sus reacciones, el alias y el acceso.',
+          'Comentarios eliminados por su autor: dejan de mostrarse de inmediato y se conservan ocultos para atender reclamaciones durante el plazo del historial de moderación. [Plazo pendiente de validación jurídica.]',
           'Registros de seguridad: 12 meses. Historial de moderación: 5 años, para atender reclamaciones y requerimientos legales. [Plazos propuestos, pendientes de validación jurídica.]',
         ],
       },
@@ -60,7 +63,11 @@ export const policies: Policy[] = [
     sections: [
       {
         heading: 'Lo que ven otras personas',
-        paragraphs: ['Tu alias, el contenido de las experiencias publicadas, la empresa, la categoría, tu relación con la empresa (si la indicas) y el periodo aproximado, mostrado como mes y año.'],
+        paragraphs: [
+          'Tu alias, el contenido de las experiencias publicadas, si fueron buenas, malas o mixtas, la empresa, el tema, tu relación con la empresa (si la indicas) y el periodo aproximado, mostrado como mes y año.',
+          'Tus comentarios, con tu alias. De las reacciones solo se muestra el total, nunca quién reaccionó.',
+          'Si compartes sin cuenta, la experiencia aparece firmada como «Persona sin cuenta».',
+        ],
       },
       {
         heading: 'Lo que nunca se publica',
@@ -86,13 +93,16 @@ export const policies: Policy[] = [
       {
         heading: 'Qué es y qué no es la plataforma',
         paragraphs: [
-          'Un espacio independiente para compartir experiencias laborales y orientación general sobre derechos. No es una autoridad judicial ni administrativa, y no sustituye al Ministerio del Trabajo, a los inspectores de trabajo, a los jueces ni la asesoría jurídica profesional.',
+          'Un espacio independiente para compartir experiencias laborales, buenas y malas, conversar sobre ellas y encontrar orientación general sobre derechos. No es una autoridad judicial ni administrativa, y no sustituye al Ministerio del Trabajo, a los inspectores de trabajo, a los jueces ni la asesoría jurídica profesional.',
           'Que una experiencia esté publicada significa que cumple las reglas de publicación, no que la plataforma haya comprobado los hechos.',
         ],
       },
       {
         heading: 'Responsabilidad sobre el contenido',
-        paragraphs: ['Cada persona responde por lo que publica. Debes relatar hechos que viviste o conoces, distinguiendo lo que te contaron terceros, y expresar tus opiniones como tales.'],
+        paragraphs: [
+          'Cada persona responde por lo que publica, también en los comentarios. Debes relatar hechos que viviste o conoces, distinguiendo lo que te contaron terceros, y expresar tus opiniones como tales.',
+          'El enlace de seguimiento de un envío sin cuenta es personal: quien lo tenga puede ver y vincular esa experiencia. Guárdalo y no lo compartas.',
+        ],
       },
       {
         heading: 'Independencia',
@@ -109,7 +119,8 @@ export const policies: Policy[] = [
       {
         heading: 'Sí',
         paragraphs: [
-          'Relatar situaciones laborales que viviste o presenciaste, con el máximo detalle sobre los hechos y su efecto.',
+          'Contar experiencias laborales buenas, malas o mixtas que viviste o presenciaste, con detalle sobre los hechos y cómo te afectaron.',
+          'Reconocer lo que una empresa hace bien: también ayuda a quien busca trabajo.',
           'Separar lo que viste directamente de lo que te contaron otras personas.',
           'Expresar tu opinión, dejando claro que es tu valoración.',
         ],
@@ -125,9 +136,19 @@ export const policies: Policy[] = [
         ],
       },
       {
+        heading: 'Comentarios y reacciones',
+        paragraphs: [
+          'Comenta para aportar tu experiencia, hacer una pregunta o dar apoyo. Valen las mismas reglas: sin nombres ni datos de contacto, sin insultos ni amenazas.',
+          'No acuses a personas concretas ni intentes adivinar quién escribió una experiencia.',
+          'Las reacciones expresan apoyo («Me pasó igual», «Me sirvió», «Gracias»). No son votos ni una calificación de la empresa.',
+          'Quien escribe una experiencia puede desactivar los comentarios.',
+        ],
+      },
+      {
         heading: 'Cómo moderamos',
         paragraphs: [
           'Revisamos cada experiencia antes de publicarla. Podemos publicarla, pedir ajustes, marcarla como en disputa, restringirla temporalmente ante un riesgo justificado o retirarla. Cada decisión tiene un motivo que puedes consultar y apelar.',
+          'Los comentarios se publican al instante. Si parecen incluir datos personales quedan retenidos hasta que los revisemos, y cualquiera con cuenta puede reportar uno.',
           'Los avisos automáticos de datos personales solo ayudan a priorizar la revisión: nunca deciden sobre la veracidad de un relato.',
         ],
       },
@@ -140,7 +161,10 @@ export const policies: Policy[] = [
     sections: [
       {
         heading: 'Desde tu cuenta',
-        paragraphs: ['Puedes cambiar tu alias, retirar tus experiencias y solicitar la eliminación de la cuenta directamente en Mi cuenta.'],
+        paragraphs: [
+          'Puedes cambiar tu alias, retirar tus experiencias, borrar tus comentarios, quitar tus reacciones y solicitar la eliminación de la cuenta directamente en Mi cuenta.',
+          'Si compartiste sin cuenta, puedes vincular la experiencia a una cuenta desde tu enlace de seguimiento y gestionarla desde allí.',
+        ],
       },
       {
         heading: 'Otras solicitudes',

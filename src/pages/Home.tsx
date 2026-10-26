@@ -29,11 +29,10 @@ function Hero() {
       <div className="page grid items-center gap-14 pb-20 pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pb-28 lg:pt-20">
         <div className="min-w-0">
           <h1 className="text-[2.5rem] font-medium leading-[2.875rem] tracking-[-0.01em] text-white sm:text-5xl lg:text-[4.25rem] lg:leading-[4.5rem]">
-            Cuenta lo que pasó en tu trabajo. Tu nombre se queda contigo.
+            Cómo es trabajar ahí, contado por quienes trabajan ahí.
           </h1>
           <p className="mt-6 max-w-[34rem] text-lg leading-8 text-white/80">
-            Trabajadores en Colombia comparten experiencias sobre salarios, contratos, jornadas y trato en empresas reales. Publicas con
-            un alias, y cada relato pasa por moderación antes de aparecer.
+            Experiencias buenas, malas y mixtas en empresas de Colombia. Se publican con un alias: tu nombre y tu correo no aparecen.
           </p>
           <form
             role="search"
@@ -58,10 +57,11 @@ function Hero() {
             </div>
           </form>
           <p className="mt-6 text-white/75">
-            ¿Viviste algo que otros deberían saber?{' '}
+            ¿Trabajas o trabajaste en una empresa?{' '}
             <Link to="/compartir" className="font-semibold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white">
-              Comparte tu experiencia
+              Cuenta cómo te fue
             </Link>
+            . No necesitas cuenta.
           </p>
         </div>
         <RedactionSpecimen />
@@ -96,16 +96,17 @@ function RedactionSpecimen() {
             <dd>Empresa de ejemplo</dd>
             <dt className="text-slate">Periodo</dt>
             <dd>marzo de 2025</dd>
+            <dt className="text-slate">Tipo</dt>
+            <dd>Experiencia mixta</dd>
           </dl>
           <p className="testimony mt-6 border-t border-dashed border-line pt-5">
-            Durante tres meses el pago de la quincena llegó con más de una semana de retraso. Mi supervisor, {bar('5.5rem', 640)}
-            <span className="sr-only">nombre omitido</span>, nos decía que esperáramos sin dar fechas.
+            Los pagos llegaban a tiempo y la capacitación fue buena. Lo difícil era que mi supervisor, {bar('5.5rem', 640)}
+            <span className="sr-only">nombre omitido</span>, cambiaba los turnos sin avisar.
           </p>
         </div>
       </div>
       <figcaption className="mt-5 max-w-[30rem] text-sm text-white/70">
-        Ejemplo ilustrativo, no es una experiencia real. Otras personas ven el alias, la empresa, el periodo y el relato. Tu correo y tu
-        cuenta nunca se publican.
+        Ejemplo ilustrativo. Se ve el alias, la empresa, el periodo y el relato; tu correo y tu cuenta, nunca.
       </figcaption>
     </figure>
   );
@@ -128,7 +129,7 @@ function RecentExperiences() {
   return (
     <section className="page mt-20" aria-labelledby="recientes">
       <SectionHeading id="recientes" title="Experiencias recientes" action={<Link to="/experiencias" className="btn-link">Ver todas las experiencias</Link>}>
-        Relatos que cumplen las reglas de publicación. La moderación no certifica que los hechos sean ciertos.
+        Buenas, malas y mixtas. La moderación revisa que cumplan las reglas, no que los hechos sean ciertos.
       </SectionHeading>
       <div className="mt-8">
         {loading ? (
@@ -138,8 +139,16 @@ function RecentExperiences() {
         ) : data && data.length > 0 ? (
           <div className="max-w-3xl">{data.map((exp) => <ExperienceItem key={exp.id} exp={exp} />)}</div>
         ) : (
-          <EmptyState title="Todavía no hay experiencias publicadas" action={<Link to="/compartir" className="btn-primary">Compartir la primera</Link>}>
-            Cuando una experiencia supere la revisión, aparecerá aquí.
+          <EmptyState
+            title="Las primeras experiencias empiezan contigo"
+            action={
+              <div className="flex flex-wrap gap-3">
+                <Link to="/compartir" className="btn-primary">Compartir la primera</Link>
+                <Link to="/como-funciona" className="btn-secondary">Cómo funciona</Link>
+              </div>
+            }
+          >
+            Estamos empezando. Cuenta cómo es trabajar en tu empresa, lo bueno también cuenta, y ayuda a quien está pensando en trabajar ahí.
           </EmptyState>
         )}
       </div>
@@ -153,7 +162,7 @@ function Categories() {
   return (
     <section className="page mt-24" aria-labelledby="categorias">
       <SectionHeading id="categorias" title="Qué puedes contar">
-        Elige la categoría que mejor describa lo que viviste. Cada una lleva a las experiencias publicadas sobre ese tema.
+        Lo bueno y lo malo de trabajar en una empresa. Cada tema lleva a sus experiencias publicadas.
       </SectionHeading>
       <div className="mt-8">
         {loading ? <Loading /> : error ? <ErrorState error={error} onRetry={reload} /> : (
@@ -177,14 +186,14 @@ function Categories() {
 
 function HowItWorks() {
   const steps = [
-    { title: 'Escribes tu experiencia', text: 'Eliges la empresa, la categoría y un periodo aproximado. Antes de enviarla ves cómo quedará.' },
-    { title: 'Moderación la revisa', text: 'Comprobamos que cumpla las reglas: sin datos personales de terceros, sin amenazas, sin documentos confidenciales. No juzgamos si los hechos son ciertos.' },
-    { title: 'Se publica o te pedimos ajustes', text: 'Ves el estado y el motivo de cada decisión en tu cuenta. Si no estás de acuerdo, puedes apelar.' },
+    { title: 'Cuentas tu experiencia', text: 'Con o sin cuenta. Eliges la empresa, el tema y si fue buena, mala o mixta.' },
+    { title: 'La moderación la revisa', text: 'Que no tenga datos personales, amenazas ni documentos confidenciales. No juzga si los hechos son ciertos.' },
+    { title: 'Otras personas participan', text: 'Reaccionan y comentan. Con cuenta lo ves todo en Mi cuenta y puedes apelar cada decisión.' },
   ];
   return (
     <section className="mt-24 bg-mist" aria-labelledby="como-funciona">
       <div className="page py-16 sm:py-20">
-        <SectionHeading id="como-funciona" title="Cómo se publica una experiencia" />
+        <SectionHeading id="como-funciona" title="Cómo funciona" action={<Link to="/como-funciona" className="btn-link">Cómo moderamos</Link>} />
         <ol className="relative mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
           {/* Línea de tiempo: une los tres pasos en escritorio. */}
           <span aria-hidden="true" className="absolute left-5 right-5 top-5 hidden h-px bg-ink/25 md:block" />
@@ -206,16 +215,16 @@ function HowItWorks() {
 }
 
 function Identity() {
-  const visible = ['Tu alias', 'La empresa y la categoría', 'El periodo aproximado (mes y año)', 'El relato, tal como se aprobó'];
-  const hidden = ['Tu correo y tu contraseña', 'Tu identificador de cuenta', 'Los datos técnicos de acceso', 'Quién eres, incluso ante una reclamación de la empresa'];
+  const visible = ['Tu alias (o «Persona sin cuenta»)', 'La empresa, el tema y el periodo (mes y año)', 'Tu relato, tal como se aprobó', 'Tus comentarios, con tu alias'];
+  const hidden = ['Tu correo y tu contraseña', 'Quién reaccionó a cada experiencia', 'Los datos técnicos de acceso', 'Quién eres, incluso ante una reclamación de la empresa'];
   return (
     <section className="page mt-24" aria-labelledby="identidad">
       <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <div>
-          <h2 id="identidad" className="text-3xl sm:text-4xl">No prometemos anonimato absoluto. Te decimos qué se ve y qué no.</h2>
+          <h2 id="identidad" className="text-3xl sm:text-4xl">Te decimos qué se ve y qué no.</h2>
           <p className="mt-5 max-w-prose text-slate">
-            Si tu relato incluye detalles que solo tú conoces, alguien de tu entorno podría reconocerte. Por eso te avisamos cuando el texto
-            parece incluir datos personales y ocultamos el desglose por categorías cuando una empresa tiene muy pocas experiencias.
+            No prometemos anonimato absoluto: si cuentas detalles que solo tú conoces, alguien cercano podría reconocerte. Por eso te
+            avisamos cuando el texto parece incluir datos personales.
           </p>
           <Link to="/politicas/privacidad" className="btn-link mt-5 inline-block">Qué datos tratamos y por cuánto tiempo</Link>
         </div>

@@ -7,6 +7,7 @@ const nav = [
   { to: '/empresas', label: 'Empresas' },
   { to: '/experiencias', label: 'Experiencias' },
   { to: '/derechos', label: 'Tus derechos' },
+  { to: '/como-funciona', label: 'Cómo funciona' },
 ];
 
 /** Logotipo: un folio con una línea tapada. Pensado para fondo tinta. */
@@ -99,8 +100,8 @@ function Footer() {
         <div>
           <p className="font-serif text-xl font-semibold">{brand.name}</p>
           <p className="mt-3 max-w-sm text-sm text-white/75">
-            Plataforma independiente de experiencias laborales en {brand.country}. No es una autoridad judicial ni administrativa:
-            publicar una experiencia no prueba que los hechos sean ciertos.
+            Experiencias laborales buenas, malas y mixtas en {brand.country}, contadas con un alias. No somos una autoridad: publicar una
+            experiencia no prueba que los hechos sean ciertos.
           </p>
         </div>
         <div>
@@ -115,6 +116,7 @@ function Footer() {
         <div>
           <h2 className="font-sans text-sm font-semibold text-white">Contacto</h2>
           <ul className="mt-3 space-y-2 text-sm text-white/80">
+            <li><Link className="hover:text-white hover:underline" to="/como-funciona">Quiénes somos y cómo moderamos</Link></li>
             <li><Link className="hover:text-white hover:underline" to="/politicas/solicitudes">Consultas y reclamos sobre tus datos</Link></li>
             <li><Link className="hover:text-white hover:underline" to="/empresas">Soy una empresa: solicitar una corrección</Link></li>
             {brand.contactEmail && (
