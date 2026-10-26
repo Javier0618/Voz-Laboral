@@ -30,35 +30,44 @@ export default function CompanyProfile() {
   const max = Math.max(1, ...p.categories.map((x) => x.count));
 
   return (
-    <div className="page py-10">
-      <header className="border-b border-line pb-8">
-        <p className="text-sm text-slate"><Link to="/empresas" className="hover:underline">Empresas</Link></p>
-        <h1 className="mt-2 text-3xl sm:text-4xl">{c.trade_name}</h1>
-        <p className="mt-2 text-lg text-slate">
-          {c.legal_name && c.legal_name !== c.trade_name && <>{c.legal_name}. </>}
-          {c.sector}. {c.city}, {c.department}
-        </p>
-        {c.aliases.length > 0 && <p className="mt-1 text-sm text-slate">También conocida como {c.aliases.join(', ')}</p>}
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link to={`/compartir?empresa=${c.id}`} className="btn-primary">Compartir una experiencia sobre esta empresa</Link>
-          {c.website && <a href={c.website} className="btn-secondary" target="_blank" rel="noopener noreferrer nofollow">Sitio web oficial</a>}
+    <>
+      {/* Carátula del expediente de la empresa. */}
+      <header className="bg-mist">
+        <div className="page pb-10 pt-8">
+          <p className="text-sm text-slate"><Link to="/empresas" className="hover:text-ink hover:underline">Empresas</Link></p>
+          <h1 className="mt-3 text-4xl font-medium tracking-[-0.01em] sm:text-5xl">{c.trade_name}</h1>
+          {c.legal_name && c.legal_name !== c.trade_name && <p className="mt-2 text-lg text-slate">{c.legal_name}</p>}
+          <dl className="mt-8 grid grid-cols-2 gap-x-8 gap-y-5 border-t border-ink/80 pt-5 sm:grid-cols-4">
+            <div><dt className="text-sm text-slate">Sector</dt><dd className="mt-1 font-semibold">{c.sector}</dd></div>
+            <div><dt className="text-sm text-slate">Ciudad</dt><dd className="mt-1 font-semibold">{c.city}</dd></div>
+            <div><dt className="text-sm text-slate">Departamento</dt><dd className="mt-1 font-semibold">{c.department}</dd></div>
+            <div>
+              <dt className="text-sm text-slate">Experiencias publicadas</dt>
+              <dd className="mt-1 font-semibold">{p.visible_experiences}{period && <span className="font-normal text-slate">, de {period}</span>}</dd>
+            </div>
+          </dl>
+          {c.aliases.length > 0 && <p className="mt-5 text-sm text-slate">También conocida como {c.aliases.join(', ')}</p>}
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to={`/compartir?empresa=${c.id}`} className="btn-primary px-5">Compartir una experiencia sobre esta empresa</Link>
+            {c.website && <a href={c.website} className="btn-secondary" target="_blank" rel="noopener noreferrer nofollow">Sitio web oficial</a>}
+          </div>
         </div>
       </header>
 
-      <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_20rem]">
+      <div className="page grid gap-12 py-12 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <section aria-labelledby="exp-empresa" className="min-w-0">
-          <h2 id="exp-empresa" className="text-2xl">Experiencias</h2>
+          <h2 id="exp-empresa" className="text-3xl">Experiencias</h2>
           <CompanyExperiences companyId={c.id} />
           <CompanyResponses companyId={c.id} />
         </section>
 
         <aside className="space-y-8 lg:border-l lg:border-line lg:pl-8">
           <section aria-labelledby="resumen">
-            <h2 id="resumen" className="font-sans text-base font-semibold">Lo que ha recibido la plataforma</h2>
-            <p className="mt-3 font-serif text-4xl text-ink">{p.visible_experiences}</p>
-            <p className="text-sm text-slate">{p.visible_experiences === 1 ? 'experiencia publicada' : 'experiencias publicadas'}{period && `, de ${period}`}</p>
-            {p.breakdown_hidden ? (
-              p.visible_experiences > 0 && (
+            <h2 id="resumen" className="border-b border-ink/80 pb-3 font-sans text-base font-semibold">Experiencias por categoría</h2>
+            {p.visible_experiences === 0 ? (
+              <p className="mt-4 text-sm text-slate">Todavía no hay experiencias publicadas.</p>
+            ) : p.breakdown_hidden ? (
+              (
                 <p className="mt-4 text-sm text-slate">
                   Con menos de 3 experiencias no mostramos el desglose por categoría, para que nadie pueda identificar a quien escribió.
                 </p>
@@ -102,7 +111,7 @@ export default function CompanyProfile() {
           <p className="text-xs text-slate">Perfil actualizado el {formatDate(c.updated_at)}</p>
         </aside>
       </div>
-    </div>
+    </>
   );
 }
 
