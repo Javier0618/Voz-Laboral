@@ -1,158 +1,149 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ClaimButton } from '../components/ClaimDialog';
+import { getCompanyProfile, listCompanyResponses, listExperiences, PAGE_SIZE } from '../lib/api';
+import { formatDate, plural } from '../lib/format';
 import { ExperienceItem } from '../components/ExperienceItem';
-import { Breadcrumbs, usePageTitle } from '../components/PageHeader';
-import { Monogram } from '../components/Monogram';
-import { Pagination } from '../components/Pagination';
-import { EmptyState, ErrorState, LoadingState, Notice } from '../components/States';
-import { SupabaseGate } from '../components/SupabaseGate';
-import { getCompanyBySlug, getCompanyStats, listCompanyResponses, listPublicExperiences } from '../lib/api';
-import { formatPeriod, pluralize } from '../lib/format';
-import { useAsync } from '../lib/useAsync';
-import type { Company } from '../shared/domain';
+import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, Pagination, useAsync } from '../components/ui';
 
-const PAGE_SIZE = 10;
+export default function CompanyProfile() {
+  const { slug = '' } = useParams();
+  const profile = useAsync(() => (notConfigured ? Promise.resolve(null) : getCompanyProfile(slug)), [slug]);
 
-function Distribution({ companyId }: { companyId: string }) {
-  const stats = useAsync(() => getCompanyStats(companyId), [companyId]);
-  if (stats.status === 'loading') return <LoadingState label="Cargando cifras" />;
-  if (stats.status === 'error') return <ErrorState message={stats.error} onRetry={stats.reload} />;
-  const s = stats.data;
-  const max = Math.max(1, ...s.categories.map((c) => c.count));
-  return (
-    <section aria-labelledby="distribucion" className="py-8">
-      <h2 id="distribucion" className="text-2xl">Lo que ha recibido la plataforma</h2>
-      <dl className="my-5 grid grid-cols-2 gap-4 lg:grid-cols-1">
-        <div className="border-l-2 border-action pl-4">
-          <dt className="text-muted">Experiencias visibles</dt>
-          <dd className="font-serif text-3xl font-semibold">{s.visible_count.toLocaleString('es-CO')}</dd>
-        </div>
-        <div className="border-l-2 border-line pl-4">
-          <dt className="text-muted">Periodo cubierto</dt>
-          <dd className="font-serif text-2xl">{s.period_from ? formatPeriod(s.period_from, s.period_to) : 'Sin datos'}</dd>
-        </div>
-      </dl>
-      <Notice tone="info">
-        Esta distribución solo refleja las experiencias que ha recibido la plataforma. No es una calificación de la
-        empresa ni representa a todas las personas que trabajan ahí.
-      </Notice>
-      {s.categories.length > 0 ? (
-        <ul className="mt-5 space-y-4" aria-label="Distribución por categoría">
-          {s.categories.map((c) => (
-            <li key={c.category_id}>
-              <div className="flex justify-between gap-4">
-                <span>{c.name}</span>
-                <span className="font-medium">{c.count}</span>
-              </div>
-              <div aria-hidden="true" className="mt-1 h-2 rounded-full bg-mist">
-                <div className="h-2 rounded-full bg-navy" style={{ width: `${(c.count / max) * 100}%` }} />
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        s.visible_count > 0 && (
-          <p className="mt-4 text-muted">Aún no hay suficientes experiencias por categoría para mostrar la distribución.</p>
-        )
-      )}
-      {s.hidden_categories > 0 && (
-        <p className="mt-3 text-sm text-muted">
-          {pluralize(s.hidden_categories, 'categoría tiene', 'categorías tienen')} menos de 3 experiencias y no se
-          muestra por separado, para proteger a quienes publicaron.
-        </p>
-      )}
-    </section>
-  );
-}
-
-function Experiences({ company }: { company: Company }) {
-  const [page, setPage] = useState(1);
-  const data = useAsync(async () => {
-    const [list, responses] = await Promise.all([
-      listPublicExperiences({ companyId: company.id, page, pageSize: PAGE_SIZE }),
-      listCompanyResponses(company.id),
-    ]);
-    return { ...list, responses };
-  }, [company.id, page]);
-
-  return (
-    <section aria-labelledby="recientes" className="py-8">
-      <h2 id="recientes" className="text-2xl">Experiencias recientes</h2>
-      {data.status === 'loading' && <LoadingState label="Cargando experiencias" />}
-      {data.status === 'error' && <ErrorState message={data.error} onRetry={data.reload} />}
-      {data.status === 'success' &&
-        (data.data.rows.length === 0 ? (
-          <EmptyState title="Todavía no hay experiencias publicadas sobre esta empresa">
-            <Link to={`/compartir?empresa=${company.id}`}>Comparte la tuya</Link>
-          </EmptyState>
-        ) : (
-          <>
-            {data.data.rows.map((e) => (
-              <ExperienceItem
-                key={e.id}
-                experience={e}
-                showCompany={false}
-                response={data.data.responses.find((r) => r.experience_id === e.id)}
-              />
-            ))}
-            <Pagination page={page} pageSize={PAGE_SIZE} total={data.data.total} onChange={setPage} />
-          </>
-        ))}
-    </section>
-  );
-}
-
-function Profile({ slug }: { slug: string }) {
-  const company = useAsync(() => getCompanyBySlug(slug), [slug]);
-  usePageTitle(company.status === 'success' && company.data ? company.data.name : 'Empresa');
-  if (company.status === 'loading') return <div className="container-page"><LoadingState label="Cargando empresa" /></div>;
-  if (company.status === 'error') return <div className="container-page py-8"><ErrorState message={company.error} onRetry={company.reload} /></div>;
-  if (!company.data) {
+  if (notConfigured) return <div className="page py-10"><ConfigNotice /></div>;
+  if (profile.loading) return <div className="page py-10"><Loading label="Cargando la empresa…" /></div>;
+  if (profile.error) return <div className="page py-10"><ErrorState error={profile.error} onRetry={profile.reload} /></div>;
+  if (!profile.data) {
     return (
-      <div className="container-page py-10">
-        <h1 className="text-4xl">No encontramos esta empresa</h1>
-        <p className="mt-2 text-muted">Puede que no exista o que aún esté en revisión.</p>
-        <Link className="btn-secondary mt-4" to="/empresas">Volver a empresas</Link>
+      <div className="page py-10">
+        <EmptyState title="No encontramos esta empresa" action={<Link to="/empresas" className="btn-primary">Buscar empresas</Link>}>
+          Puede que el enlace esté mal escrito o que el perfil se haya fusionado con otro.
+        </EmptyState>
       </div>
     );
   }
-  const c = company.data;
+
+  const p = profile.data;
+  const c = p.company;
+  const period = p.period_from_year
+    ? p.period_from_year === p.period_to_year ? `${p.period_from_year}` : `${p.period_from_year} a ${p.period_to_year}`
+    : null;
+  const max = Math.max(1, ...p.categories.map((x) => x.count));
+
   return (
-    <>
-      <div className="border-b border-line bg-mist">
-        <div className="container-page py-10 sm:py-14">
-          <Breadcrumbs items={[{ to: '/empresas', label: 'Empresas' }, { to: `/empresas/${c.slug}`, label: c.name }]} />
-          <div className="mt-5 flex flex-wrap items-start gap-5">
-            <Monogram text={c.name} size="lg" />
-            <div className="min-w-0 flex-1">
-              <h1 className="text-4xl leading-tight sm:text-5xl">{c.name}</h1>
-              <p className="mt-2 text-lg text-muted">{[c.city, c.sector].filter(Boolean).join(' · ') || 'Sin ciudad ni sector registrados'}</p>
-            </div>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link className="btn-primary" to={`/compartir?empresa=${c.id}`}>Compartir experiencia</Link>
-            <ClaimButton companyId={c.id} companyName={c.name} />
-          </div>
+    <div className="page py-10">
+      <header className="border-b border-line pb-8">
+        <p className="text-sm text-slate"><Link to="/empresas" className="hover:underline">Empresas</Link></p>
+        <h1 className="mt-2 text-3xl sm:text-4xl">{c.trade_name}</h1>
+        <p className="mt-2 text-lg text-slate">
+          {c.legal_name && c.legal_name !== c.trade_name && <>{c.legal_name}. </>}
+          {c.sector}. {c.city}, {c.department}
+        </p>
+        {c.aliases.length > 0 && <p className="mt-1 text-sm text-slate">También conocida como {c.aliases.join(', ')}</p>}
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link to={`/compartir?empresa=${c.id}`} className="btn-primary">Compartir una experiencia sobre esta empresa</Link>
+          {c.website && <a href={c.website} className="btn-secondary" target="_blank" rel="noopener noreferrer nofollow">Sitio web oficial</a>}
         </div>
-      </div>
-      <div className="container-page grid gap-x-16 lg:grid-cols-[1fr_20rem]">
-        <div className="order-2 lg:order-1">
-          <Experiences company={c} />
-        </div>
-        <aside className="order-1 lg:order-2 lg:sticky lg:top-20 lg:self-start" aria-label="Resumen">
-          <Distribution companyId={c.id} />
+      </header>
+
+      <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_20rem]">
+        <section aria-labelledby="exp-empresa" className="min-w-0">
+          <h2 id="exp-empresa" className="text-2xl">Experiencias</h2>
+          <CompanyExperiences companyId={c.id} />
+          <CompanyResponses companyId={c.id} />
+        </section>
+
+        <aside className="space-y-8 lg:border-l lg:border-line lg:pl-8">
+          <section aria-labelledby="resumen">
+            <h2 id="resumen" className="font-sans text-base font-semibold">Lo que ha recibido la plataforma</h2>
+            <p className="mt-3 font-serif text-4xl text-ink">{p.visible_experiences}</p>
+            <p className="text-sm text-slate">{p.visible_experiences === 1 ? 'experiencia publicada' : 'experiencias publicadas'}{period && `, de ${period}`}</p>
+            {p.breakdown_hidden ? (
+              p.visible_experiences > 0 && (
+                <p className="mt-4 text-sm text-slate">
+                  Con menos de 3 experiencias no mostramos el desglose por categoría, para que nadie pueda identificar a quien escribió.
+                </p>
+              )
+            ) : (
+              <ul className="mt-5 space-y-3">
+                {p.categories.map((cat) => (
+                  <li key={cat.slug}>
+                    <div className="flex justify-between gap-3 text-sm">
+                      <span>{cat.name}</span>
+                      <span className="font-semibold tabular-nums">{cat.count}</span>
+                    </div>
+                    <div className="mt-1 h-1.5 rounded-full bg-mist" aria-hidden="true">
+                      <div className="h-1.5 rounded-full bg-navy" style={{ width: `${(cat.count / max) * 100}%` }} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-5 text-xs text-slate">
+              Estas cifras reflejan solo las experiencias enviadas a esta plataforma. No describen el conjunto de las condiciones laborales de
+              la empresa ni la frecuencia real de ninguna conducta.
+            </p>
+          </section>
+
+          {p.open_claims > 0 && (
+            <section className="rounded border border-amber/40 bg-amber-tint p-4 text-sm">
+              <h2 className="font-sans text-sm font-semibold">Reclamaciones en estudio</h2>
+              <p className="mt-1">La empresa tiene {plural(p.open_claims, 'solicitud de corrección', 'solicitudes de corrección')} en revisión.</p>
+            </section>
+          )}
+
+          <section aria-labelledby="correcciones">
+            <h2 id="correcciones" className="font-sans text-base font-semibold">¿Representas a esta empresa?</h2>
+            <p className="mt-2 text-sm text-slate">
+              Puedes pedir que corrijamos un dato verificable, que retiremos información privada o publicar una respuesta. Las reclamaciones
+              no revelan quién escribió una experiencia ni permiten retirar críticas legítimas.
+            </p>
+            <Link to={`/empresas/${c.slug}/reclamacion`} className="btn-secondary mt-4 w-full">Solicitar una corrección</Link>
+          </section>
+          <p className="text-xs text-slate">Perfil actualizado el {formatDate(c.updated_at)}</p>
         </aside>
       </div>
+    </div>
+  );
+}
+
+function CompanyExperiences({ companyId }: { companyId: string }) {
+  const [page, setPage] = useState(1);
+  const { data, loading, error, reload } = useAsync(() => listExperiences({ companyId, page }), [companyId, page]);
+  if (loading) return <Loading />;
+  if (error) return <div className="mt-4"><ErrorState error={error} onRetry={reload} /></div>;
+  if (!data?.length) {
+    return (
+      <div className="mt-4">
+        <EmptyState title="Aún no hay experiencias publicadas sobre esta empresa">
+          Si trabajas o trabajaste allí, puedes ser la primera persona en contar cómo fue.
+        </EmptyState>
+      </div>
+    );
+  }
+  return (
+    <>
+      <div className="mt-2">{data.map((exp) => <ExperienceItem key={exp.id} exp={exp} showCompany={false} />)}</div>
+      <Pagination page={page} total={data[0].total_count} pageSize={PAGE_SIZE} onPage={setPage} />
     </>
   );
 }
 
-export default function CompanyProfile() {
-  const { slug = '' } = useParams();
+function CompanyResponses({ companyId }: { companyId: string }) {
+  const { data, error } = useAsync(() => listCompanyResponses(companyId), [companyId]);
+  if (error || !data?.length) return null;
   return (
-    <SupabaseGate>
-      <Profile slug={slug} />
-    </SupabaseGate>
+    <section aria-labelledby="respuestas" className="mt-12">
+      <h2 id="respuestas" className="text-2xl">Respuestas de la empresa</h2>
+      <p className="mt-1 text-sm text-slate">Publicadas por representantes cuya identidad verificó el equipo. Son la versión de la empresa, no conclusiones de la plataforma.</p>
+      <ul className="mt-4 space-y-4">
+        {data.map((r) => (
+          <li key={r.id} className="rounded border border-navy/25 bg-mist p-5">
+            <p className="text-sm font-semibold text-navy">{r.representative_label}</p>
+            <p className="mt-2 whitespace-pre-line">{r.body}</p>
+            <p className="mt-3 text-xs text-slate">Publicada el {formatDate(r.created_at)}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

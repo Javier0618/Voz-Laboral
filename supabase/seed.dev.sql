@@ -1,13 +1,13 @@
--- DATOS DE DEMO SOLO PARA DESARROLLO LOCAL. NO EJECUTAR EN PRODUCCIÓN.
--- Todas las empresas son ficticias y están marcadas como prueba.
--- Uso: psql "$DATABASE_URL" -f supabase/seed.dev.sql
-
-insert into public.companies (name, slug, city, sector, status) values
-  ('[PRUEBA] Confecciones Ficticias del Valle', 'prueba-confecciones-ficticias-del-valle', 'Cali', 'Manufactura', 'activa'),
-  ('[PRUEBA] Logística Imaginaria Andina', 'prueba-logistica-imaginaria-andina', 'Bogotá', 'Transporte', 'activa'),
-  ('[PRUEBA] Servicios Inventados de la Costa', 'prueba-servicios-inventados-de-la-costa', 'Barranquilla', 'Servicios', 'activa')
-on conflict do nothing;
+-- SOLO PARA DESARROLLO. No ejecutar en producción.
+-- Empresas claramente ficticias para probar el buscador y los perfiles.
+-- No se cargan experiencias: créalas desde la aplicación para probar el
+-- flujo completo de publicación y moderación.
+insert into public.companies (slug, trade_name, legal_name, sector, city, department) values
+  ('empresa-demo-alfa-contenido-de-prueba', 'Empresa Demo Alfa (contenido de prueba)', 'Empresa Demo Alfa S.A.S. (ficticia)', 'Comercio', 'Bogotá', 'Bogotá D.C.'),
+  ('empresa-demo-beta-contenido-de-prueba', 'Empresa Demo Beta (contenido de prueba)', null, 'Logística', 'Medellín', 'Antioquia'),
+  ('empresa-demo-gamma-contenido-de-prueba', 'Empresa Demo Gamma (contenido de prueba)', null, 'Servicios', 'Cali', 'Valle del Cauca')
+on conflict (slug) do nothing;
 
 insert into public.company_aliases (company_id, alias)
-select id, 'CFV (prueba)' from public.companies where slug = 'prueba-confecciones-ficticias-del-valle'
+select id, 'Demo Alfa' from public.companies where slug = 'empresa-demo-alfa-contenido-de-prueba'
 on conflict do nothing;

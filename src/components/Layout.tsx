@@ -1,152 +1,128 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { brand } from '../config/brand';
 import { useAuth } from '../auth/AuthProvider';
-import { BrandMark, CloseIcon, MenuIcon } from './Icons';
 
-const navClass = ({ isActive }: { isActive: boolean }) =>
-  `relative inline-flex min-h-11 items-center px-1 text-[0.95rem] no-underline transition-colors ${
-    isActive
-      ? 'font-semibold text-ink after:absolute after:inset-x-1 after:-bottom-[13px] after:h-0.5 after:bg-action'
-      : 'text-muted hover:text-ink'
-  }`;
+const nav = [
+  { to: '/empresas', label: 'Empresas' },
+  { to: '/experiencias', label: 'Experiencias' },
+  { to: '/derechos', label: 'Tus derechos' },
+];
 
-const mobileNavClass = ({ isActive }: { isActive: boolean }) =>
-  `flex min-h-12 items-center border-l-2 pl-3 no-underline ${
-    isActive ? 'border-action font-semibold text-ink' : 'border-transparent text-muted hover:text-ink'
-  }`;
-
-function BrandLink() {
+/** Logotipo: un folio con una línea tapada. Pensado para fondo tinta. */
+export function Logo() {
   return (
-    <Link to="/" className="inline-flex min-h-11 items-center gap-2.5 text-ink no-underline" aria-label={`${brand.name}, inicio`}>
-      <BrandMark />
-      <span className="font-serif text-[1.6rem] font-semibold tracking-tight">{brand.name}</span>
-    </Link>
+    <span className="flex items-center gap-2.5">
+      <svg aria-hidden="true" width="30" height="30" viewBox="0 0 32 32">
+        <rect x="4" y="2" width="24" height="28" rx="2" fill="#fff" />
+        <rect x="9" y="9" width="14" height="2.5" rx="1" fill="rgb(var(--ink))" />
+        <rect x="9" y="15" width="9" height="2.5" rx="1" fill="rgb(var(--teal))" />
+        <rect x="9" y="21" width="12" height="2.5" rx="1" fill="rgb(var(--ink))" />
+      </svg>
+      <span className="font-serif text-[1.4375rem] font-semibold tracking-tight text-white">{brand.name}</span>
+    </span>
   );
+}
+
+function navClass({ isActive }: { isActive: boolean }) {
+  return `rounded px-3 py-2 text-[0.9375rem] font-medium ${isActive ? 'text-white underline decoration-teal-tint/70 decoration-2 underline-offset-[10px]' : 'text-white/75 hover:text-white'}`;
 }
 
 export function Layout() {
   const { session, isModerator } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const location = useLocation();
-  const mainRef = useRef<HTMLElement>(null);
-  const first = useRef(true);
 
-  // Al navegar, cierra el menú y lleva el foco al contenido principal.
+  useEffect(() => setOpen(false), [location.pathname]);
+  // Al cambiar de página, el foco vuelve al contenido principal.
   useEffect(() => {
-    setMenuOpen(false);
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    mainRef.current?.focus();
-    window.scrollTo?.(0, 0);
+    document.getElementById('contenido')?.focus({ preventScroll: true });
+    window.scrollTo(0, 0);
   }, [location.pathname]);
-
-  const items = [
-    { to: '/empresas', label: 'Empresas' },
-    { to: '/experiencias', label: 'Experiencias' },
-    { to: '/derechos', label: 'Tus derechos' },
-    ...(isModerator ? [{ to: '/admin', label: 'Moderación' }] : []),
-  ];
-  const accountItem = { to: session ? '/cuenta' : '/cuenta/ingresar', label: session ? 'Mi cuenta' : 'Ingresar' };
 
   return (
     <div className="flex min-h-screen flex-col">
-      <a
-        href="#contenido"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-paper focus:px-4 focus:py-2"
-      >
+      <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-paper focus:px-4 focus:py-2 focus:shadow">
         Saltar al contenido
       </a>
-      <header className="sticky top-0 z-40 border-b border-line bg-paper/95 backdrop-blur supports-[backdrop-filter]:bg-paper/85">
-        <div className="container-page flex h-16 items-center justify-between gap-4">
-          <BrandLink />
-          <nav aria-label="Principal" className="hidden h-full md:block">
-            <ul className="flex h-full items-center gap-6">
-              {items.map((i) => (
-                <li key={i.to}>
-                  <NavLink to={i.to} className={navClass}>{i.label}</NavLink>
-                </li>
-              ))}
-            </ul>
+      <header className="bg-ink">
+        <div className="page flex h-16 items-center justify-between gap-4">
+          <Link to="/" aria-label={`${brand.name}, inicio`}>
+            <Logo />
+          </Link>
+          <nav aria-label="Principal" className="hidden items-center gap-1 lg:flex">
+            {nav.map((item) => (
+              <NavLink key={item.to} to={item.to} className={navClass}>{item.label}</NavLink>
+            ))}
+            {isModerator && <NavLink to="/moderacion" className={navClass}>Moderación</NavLink>}
+            <NavLink to="/cuenta" className={navClass}>{session ? 'Mi cuenta' : 'Iniciar sesión'}</NavLink>
+            <Link to="/compartir" className="btn ml-3 bg-white text-ink hover:bg-teal-tint">Compartir experiencia</Link>
           </nav>
-          <div className="flex items-center gap-3">
-            <NavLink to={accountItem.to} className={(s) => `${navClass(s)} hidden md:inline-flex`}>
-              {accountItem.label}
-            </NavLink>
-            <Link to="/compartir" className="btn-primary hidden min-h-10 sm:inline-flex">
-              Compartir experiencia
-            </Link>
-            <button
-              type="button"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-line text-ink hover:bg-mist md:hidden"
-              aria-expanded={menuOpen}
-              aria-controls="menu-movil"
-              aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
-              onClick={() => setMenuOpen((v) => !v)}
-            >
-              {menuOpen ? <CloseIcon /> : <MenuIcon />}
-            </button>
-          </div>
+          <button
+            type="button"
+            className="btn border border-white/30 text-white hover:border-white lg:hidden"
+            aria-expanded={open}
+            aria-controls="menu-movil"
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? 'Cerrar menú' : 'Menú'}
+          </button>
         </div>
-        {menuOpen && (
-          <nav id="menu-movil" aria-label="Principal" className="border-t border-line bg-paper md:hidden">
-            <ul className="container-page flex flex-col gap-1 py-3">
-              {[...items, accountItem].map((i) => (
-                <li key={i.to}>
-                  <NavLink to={i.to} className={mobileNavClass}>{i.label}</NavLink>
-                </li>
+        {open && (
+          <nav id="menu-movil" aria-label="Principal" className="border-t border-white/15 lg:hidden">
+            <ul className="page flex flex-col py-2">
+              <li><NavLink to="/" end className={navClass}>Inicio</NavLink></li>
+              {nav.map((item) => (
+                <li key={item.to}><NavLink to={item.to} className={navClass}>{item.label}</NavLink></li>
               ))}
-              <li className="pt-2">
-                <Link to="/compartir" className="btn-primary w-full">Compartir experiencia</Link>
-              </li>
+              {isModerator && <li><NavLink to="/moderacion" className={navClass}>Moderación</NavLink></li>}
+              <li><NavLink to="/cuenta" className={navClass}>{session ? 'Mi cuenta' : 'Iniciar sesión'}</NavLink></li>
+              <li className="py-3"><Link to="/compartir" className="btn w-full bg-white text-ink hover:bg-teal-tint">Compartir experiencia</Link></li>
             </ul>
           </nav>
         )}
       </header>
 
-      <main id="contenido" ref={mainRef} tabIndex={-1} className="flex-1 outline-none">
+      <main id="contenido" tabIndex={-1} className="flex-1 focus:outline-none">
         <Outlet />
       </main>
 
-      <footer className="mt-20 bg-ink text-paper">
-        <div className="container-page grid gap-10 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
-          <div>
-            <div className="flex items-center gap-2.5">
-              <BrandMark className="h-8 w-8" inverted />
-              <span className="font-serif text-2xl font-semibold">{brand.name}</span>
-            </div>
-            <p className="mt-3 max-w-sm text-paper/75">{brand.tagline}. Sin puntuaciones ni rankings.</p>
-          </div>
-          <nav aria-label="Plataforma">
-            <p className="font-semibold">Plataforma</p>
-            <ul className="mt-2">
-              {[['/empresas', 'Empresas'], ['/experiencias', 'Experiencias'], ['/derechos', 'Tus derechos'], ['/compartir', 'Compartir experiencia']].map(([to, label]) => (
-                <li key={to}>
-                  <Link className="inline-flex min-h-11 items-center text-paper/80 no-underline hover:text-paper hover:underline" to={to}>{label}</Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-          <nav aria-label="Legal y contacto">
-            <p className="font-semibold">Legal y contacto</p>
-            <ul className="mt-2">
-              {[['/politica-de-datos', 'Política de datos'], ['/terminos', 'Términos'], ['/reglas', 'Reglas'], ['/privacidad', 'Privacidad'], ['/contacto', 'Contacto']].map(([to, label]) => (
-                <li key={to}>
-                  <Link className="inline-flex min-h-11 items-center text-paper/80 no-underline hover:text-paper hover:underline" to={to}>{label}</Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
-        <div className="border-t border-paper/15">
-          <p className="container-page py-5 text-sm text-paper/70">
-            Los relatos expresan la experiencia de quienes los publican y no han sido verificados como hechos.
-            {` ${brand.name}`} no ofrece asesoría jurídica.
+      <Footer />
+    </div>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="mt-20 bg-ink text-white">
+      <div className="page grid gap-10 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
+        <div>
+          <p className="font-serif text-xl font-semibold">{brand.name}</p>
+          <p className="mt-3 max-w-sm text-sm text-white/75">
+            Plataforma independiente de experiencias laborales en {brand.country}. No es una autoridad judicial ni administrativa:
+            publicar una experiencia no prueba que los hechos sean ciertos.
           </p>
         </div>
-      </footer>
-    </div>
+        <div>
+          <h2 className="font-sans text-sm font-semibold text-white">Políticas</h2>
+          <ul className="mt-3 space-y-2 text-sm text-white/80">
+            <li><Link className="hover:text-white hover:underline" to="/politicas/tratamiento-de-datos">Tratamiento de datos personales</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/politicas/privacidad">Aviso de privacidad</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/politicas/terminos">Términos de uso</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/politicas/reglas">Reglas de publicación</Link></li>
+          </ul>
+        </div>
+        <div>
+          <h2 className="font-sans text-sm font-semibold text-white">Contacto</h2>
+          <ul className="mt-3 space-y-2 text-sm text-white/80">
+            <li><Link className="hover:text-white hover:underline" to="/politicas/solicitudes">Consultas y reclamos sobre tus datos</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/empresas">Soy una empresa: solicitar una corrección</Link></li>
+            {brand.contactEmail && (
+              <li><a className="hover:text-white hover:underline" href={`mailto:${brand.contactEmail}`}>{brand.contactEmail}</a></li>
+            )}
+          </ul>
+        </div>
+      </div>
+    </footer>
   );
 }

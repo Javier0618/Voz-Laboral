@@ -1,37 +1,33 @@
-# Retención y eliminación de datos
+# Conservación y eliminación de datos (propuesta)
 
-> Requiere revisión de abogado colombiano. Los plazos son una propuesta técnica pendiente de validar frente a la
-> Ley 1581 de 2012 y el Decreto 1074 de 2015.
+> Los plazos son **una propuesta**, pendiente de validación por un abogado colombiano. Están implementados en `supabase/migrations/20261026000800_account_lifecycle_retention.sql`.
 
-## Qué ocurre al eliminar una cuenta
+| Dato | Plazo | Mecanismo |
+|---|---|---|
+| Cuenta activa (correo y alias) | Mientras la cuenta exista | Supabase Auth y `profiles` |
+| Solicitud de eliminación | 15 días para cancelarla | `request_account_deletion()` y `cancel_account_deletion()` |
+| Experiencias publicadas de una cuenta eliminada | Se conservan **anonimizadas** (`author_id = null`, firmadas como «Autor anónimo») | `process_account_deletion()` |
+| Experiencias no publicadas de una cuenta eliminada | Se retiran y se desvinculan de la cuenta | `process_account_deletion()` |
+| Reportes, apelaciones y sugerencias de una cuenta eliminada | Se desvinculan del autor | `process_account_deletion()` |
+| `security_events` | 12 meses | `purge_expired_records()` |
+| `moderation_events` | 5 años, para atender reclamaciones y requerimientos legales | `purge_expired_records()` |
+| Usuario en `auth.users` | Se borra después de anonimizar | API de administración de Supabase con la clave `service_role`, **solo desde el servidor** |
+| Registros técnicos del proveedor (IP y similares) | Los que fije el contrato del proveedor | Fuera de la aplicación; debe documentarse en la política |
 
-1. La persona pide la eliminación desde *Mi cuenta* (RPC `request_account_deletion`). Desde ese momento no puede publicar
-   y puede cancelar la solicitud.
-2. La administración la procesa con `process_account_deletion`, que:
-   - marca las experiencias de la cuenta con `anonymized_at`;
-   - borra el usuario de `auth.users`. Eso elimina en cascada el perfil (y el alias) y los roles, y pone en `null` el
-     autor de experiencias, reportes, reclamaciones, respuestas y apelaciones;
-   - registra `account_deleted` en `security_events`.
-3. Las experiencias publicadas se conservan sin autor ("Cuenta eliminada").
-4. `moderation_events` y `security_events` se conservan. No tienen FK a la cuenta; guardan el UUID como referencia
-   de auditoría, no el correo ni el alias.
+## Procedimiento para eliminar una cuenta
 
-## Plazos propuestos
+1. La persona titular solicita la eliminación desde «Mi cuenta».
+2. Durante 15 días puede cancelarla.
+3. Pasado ese plazo, una persona administradora, o un proceso programado con `service_role`, ejecuta `select public.process_account_deletion('<uuid>');`.
+4. Después se elimina el usuario de Auth: en el panel de Supabase (Authentication → Users) o con `auth.admin.deleteUser` desde un entorno de servidor.
+5. Todo queda registrado en `moderation_events`.
 
-| Dato | Plazo propuesto | Motivo |
-| --- | --- | --- |
-| Procesar una solicitud de eliminación | Hasta 15 días hábiles | Pendiente de verificar el plazo legal aplicable |
-| Correo, alias y perfil | Se borran al procesar la solicitud | Minimización |
-| Experiencias publicadas | Se conservan anonimizadas | Interés público de la plataforma (pendiente de validar) |
-| Experiencias no publicadas de una cuenta eliminada | Se conservan anonimizadas 12 meses y luego se borran | Pendiente de implementar el borrado programado |
-| `moderation_events` | 5 años | Auditoría y defensa ante reclamaciones (pendiente de validar) |
-| `security_events` | 2 años | Seguridad (pendiente de validar) |
-| Reportes, reclamaciones y apelaciones cerrados | 3 años | Trazabilidad (pendiente de validar) |
-| Copias de seguridad de Supabase | Según el plan contratado | Revisar el plan antes del lanzamiento |
+## Purga periódica
+
+Programa `select public.purge_expired_records();` una vez al mes, por ejemplo con `pg_cron` en Supabase. La purga es la única vía para borrar registros de auditoría, y ella misma deja registro.
 
 ## Pendiente
 
-- Tarea programada (pg_cron o Edge Function) que aplique los plazos. Hoy no existe borrado automático.
-- Procedimiento documentado ante requerimientos de autoridades.
-- Verificar si `delete from auth.users` desde una función `security definer` tiene permisos en el proyecto real. Si no,
-  mover el paso a una Edge Function con `service_role` (nunca en el navegador).
+- Validar los plazos con un abogado.
+- Automatizar los pasos 3 y 4 con una función de servidor (Edge Function) que use `service_role`.
+- Definir la conservación de los archivos de respaldo cuando se habiliten.

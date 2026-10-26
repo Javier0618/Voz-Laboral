@@ -1,37 +1,46 @@
-// Traduce errores de Supabase/Postgres a mensajes claros. Los mensajes que ya
-// vienen en español desde nuestras funciones se muestran tal cual.
-interface PgLikeError {
-  message?: string;
-  code?: string;
-  details?: string;
-}
+import { AppError } from './supabase';
 
-export function friendlyError(error: unknown): string {
-  const e = (error ?? {}) as PgLikeError;
-  const msg = e.message ?? '';
-  if (e.code === '23505' || /duplicate key/i.test(msg)) {
-    if (/alias/i.test(msg)) return 'Ese alias ya está en uso. Elige otro.';
-    if (/content_hash|author_hash/i.test(msg)) return 'Ya enviaste un relato idéntico.';
-    if (/content_reports/i.test(msg)) return 'Ya reportaste este contenido y está en revisión.';
-    if (/appeals/i.test(msg)) return 'Ya hay una apelación pendiente para esta experiencia.';
-    if (/company_claims/i.test(msg)) return 'Ya enviaste una solicitud igual que está pendiente.';
-    return 'Ese registro ya existe.';
+type RawError = { message?: string; code?: string; status?: number } | null | undefined;
+
+/**
+ * Convierte errores de Supabase/Postgres en mensajes comprensibles.
+ * Nunca devuelve detalles internos (nombres de tablas, consultas, trazas).
+ */
+export function toAppError(error: unknown): AppError {
+  if (error instanceof AppError) return error;
+  const raw = (error ?? {}) as RawError & { name?: string };
+  const message = raw?.message ?? '';
+
+  const business = /VL(\d{3}):\s*(.+)$/s.exec(message);
+  if (business) {
+    const code = business[1];
+    const kind = code === '403' ? 'permission' : code === '401' ? 'auth' : code === '404' ? 'not_found' : 'validation';
+    const text = code === '403' ? 'No tienes permiso para realizar esta acción.' : business[2].trim();
+    return new AppError(kind, text);
   }
-  if (e.code === '42501' && /row-level security|permission denied/i.test(msg)) {
-    return 'No tienes permiso para hacer esto.';
+  if (raw?.code === '42501' || /permission denied|row-level security/i.test(message)) {
+    return new AppError('permission', 'No tienes permiso para realizar esta acción.');
   }
-  if (e.code === '23514' || /violates check constraint/i.test(msg)) {
-    if (/account_length/.test(msg)) return 'El relato debe tener entre 200 y 5000 caracteres.';
-    if (/alias_format/.test(msg)) return 'El alias tiene caracteres no permitidos.';
-    return 'Algún dato no cumple el formato esperado.';
+  if (raw?.code === '23505' || /duplicate key/i.test(message)) {
+    return new AppError('validation', 'Ese valor ya está en uso. Prueba con otro.');
   }
-  if (/Failed to fetch|NetworkError|network/i.test(msg)) {
-    return 'No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.';
+  if (/Invalid login credentials/i.test(message)) {
+    return new AppError('auth', 'El correo o la contraseña no coinciden.');
   }
-  if (/Invalid login credentials/i.test(msg)) return 'Correo o contraseña incorrectos.';
-  if (/Email not confirmed/i.test(msg)) return 'Confirma tu correo antes de iniciar sesión.';
-  if (/User already registered/i.test(msg)) return 'Ya existe una cuenta con ese correo.';
-  if (/rate limit/i.test(msg)) return 'Demasiados intentos. Espera unos minutos.';
-  if (msg && /[áéíóúñ¿]|^(No |Solo |Elige|Escribe|Llegaste|Necesitas|Indica|Activa|La |El |Esta )/.test(msg)) return msg;
-  return 'Ocurrió un error inesperado. Inténtalo de nuevo.';
+  if (/Email not confirmed/i.test(message)) {
+    return new AppError('auth', 'Confirma tu correo con el enlace que te enviamos antes de iniciar sesión.');
+  }
+  if (/User already registered/i.test(message)) {
+    return new AppError('auth', 'Ya existe una cuenta con ese correo. Inicia sesión o recupera tu contraseña.');
+  }
+  if (/Password should be/i.test(message)) {
+    return new AppError('validation', 'La contraseña no cumple los requisitos de seguridad.');
+  }
+  if (/rate limit|too many/i.test(message)) {
+    return new AppError('validation', 'Demasiados intentos seguidos. Espera unos minutos e inténtalo de nuevo.');
+  }
+  if (/Failed to fetch|NetworkError|network/i.test(message) || raw?.name === 'TypeError') {
+    return new AppError('network', 'No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo.');
+  }
+  return new AppError('unknown', 'Algo no funcionó como esperábamos. Inténtalo de nuevo en unos minutos.');
 }

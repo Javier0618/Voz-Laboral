@@ -1,36 +1,34 @@
-# Checklist legal
+# Lista de comprobación legal para el lanzamiento
 
-> Requiere revisión de abogado colombiano. Este documento enumera temas a verificar; no es asesoría jurídica y no
-> afirma el contenido de ninguna norma.
+> Esta lista no sustituye el asesoramiento jurídico. Todos los puntos requieren la revisión de un **abogado colombiano**. Las normas citadas deben verificarse en cuanto a vigencia y alcance antes de usarlas como referencia.
 
-## Protección de datos personales
+## Marco normativo a verificar
 
-- [ ] **Ley 1581 de 2012**: pendiente de verificar con un abogado su aplicación a la plataforma (responsable del
-      tratamiento, autorización, finalidades, derechos de los titulares y plazos para consultas y reclamos).
-- [ ] **Decreto 1074 de 2015**: pendiente de verificar con un abogado las obligaciones reglamentarias aplicables
-      (política de tratamiento, aviso de privacidad, registro de bases de datos si corresponde).
-- [ ] Redactar la política de tratamiento definitiva (hoy `/politica-de-datos` es un borrador).
-- [ ] Definir el canal oficial de consultas y reclamos (hoy hay un correo provisional en `src/config/brand.ts`).
-- [ ] Validar los plazos de `docs/retencion.md`.
-- [ ] Revisar las transferencias internacionales de datos (región del proyecto de Supabase y del hosting).
-- [ ] Validar si los relatos pueden contener datos sensibles y qué autorización requieren.
+- ⬜ Ley 1581 de 2012 (protección de datos personales): vigencia, deberes del responsable y derechos de los titulares.
+- ⬜ Decreto 1074 de 2015 (Decreto Único Reglamentario del sector Comercio, Industria y Turismo), en lo relativo al tratamiento de datos: política de tratamiento, aviso de privacidad, autorización y Registro Nacional de Bases de Datos.
+- ⬜ Normas sobre transferencia y transmisión internacional de datos, si los servidores de Supabase están fuera de Colombia.
+- ⬜ Responsabilidad por contenidos de terceros, derecho al buen nombre y rectificación de información publicada (jurisprudencia aplicable).
+- ⬜ Régimen de acoso laboral y canales oficiales de denuncia, para las guías y para los avisos a usuarios en riesgo.
 
-## Contenido publicado
+## Documentos (borradores en `src/content/policies.ts`)
 
-- [ ] Revisar el riesgo de responsabilidad por relatos sobre empresas (injuria, calumnia, buen nombre) y el papel de
-      la moderación previa.
-- [ ] Definir el procedimiento de rectificación para empresas (hoy: reclamación de corrección y respuesta pública).
-- [ ] Definir el procedimiento ante órdenes judiciales o de autoridades que pidan identificar a un autor.
-- [ ] Validar las reglas de publicación (`/reglas`) y los términos (`/terminos`).
-- [ ] Validar el uso de la categoría "Posible acoso laboral" y su redacción.
+- ⬜ Política de tratamiento de datos personales: completar al responsable, el NIT, el domicilio, el canal y las finalidades.
+- ⬜ Aviso de privacidad.
+- ⬜ Términos de uso: ley aplicable, jurisdicción, limitación de responsabilidad y notificación de contenido ilícito.
+- ⬜ Reglas de publicación: validar su redacción y proporcionalidad.
+- ⬜ Procedimiento de consultas y reclamos de titulares: plazos legales, verificación de identidad y canal.
+- ⬜ Procedimiento de corrección y retirada de contenido para empresas y terceros afectados.
+- ⬜ Política de conservación (`docs/retencion.md`): validar los plazos de 12 meses, 5 años y 15 días.
+- ⬜ Procedimiento de respuesta ante incidentes de seguridad y notificación a la autoridad.
+- ⬜ Protocolo para atender requerimientos de autoridades (qué datos se entregan, con qué orden y con qué registro).
+- ⬜ Criterios de tratamiento de documentos adjuntos (antes de habilitarlos).
 
-## Guías de derechos
+## Producto
 
-- [ ] Verificar cada ficha de `legal_resources` antes de cambiar su estado a `verificado`.
-- [ ] Verificar cada fuente de `legal_resource_sources` y su enlace oficial antes de publicarlo.
-- [ ] Mantener la marca "Pendiente de verificación" hasta entonces (la interfaz ya lo hace).
-
-## Marca y operación
-
-- [ ] Verificar la disponibilidad del nombre definitivo y del dominio.
-- [ ] Identificar al responsable legal de la plataforma.
+- ✅ La plataforma no se presenta como autoridad ni afirma la veracidad de los relatos (avisos en el pie de página, las experiencias y los términos).
+- ✅ No hay rankings, puntuaciones ni porcentajes de incumplimiento.
+- ✅ Las empresas no pueden pagar por retirar contenido (términos) ni acceder a los datos de los autores (técnico).
+- ✅ Las guías no se publican sin una fuente oficial y una fecha de verificación (restricción en la base de datos).
+- ⬜ Autorización expresa para el tratamiento de datos al registrarse: hoy es una casilla obligatoria; validar si basta y cómo conservar la prueba de la autorización.
+- ⬜ Verificar la disponibilidad del nombre «VozLaboral» como marca y dominio (no se ha comprobado).
+- ⬜ Registro de las bases de datos ante la SIC, si aplica.

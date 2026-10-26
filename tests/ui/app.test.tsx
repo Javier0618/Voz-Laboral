@@ -1,65 +1,56 @@
+// Sin variables de Supabase la app debe avisar, no simular datos.
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
-import { AppRoutes } from '../../src/App';
+import { describe, expect, it, vi } from 'vitest';
+
+// Las pruebas no deben depender de .env.local ni llegar nunca a una base de datos real.
+vi.mock('../../src/lib/supabase', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../src/lib/supabase')>()),
+  isConfigured: false,
+  supabase: null,
+}));
+
 import { AuthProvider } from '../../src/auth/AuthProvider';
-import { ToastProvider } from '../../src/components/Toast';
-import { StatusChip } from '../../src/components/StatusChip';
-import { experienceStatuses, statusLabels } from '../../src/shared/domain';
+import { AppRoutes } from '../../src/App';
 
 function renderAt(path: string) {
   return render(
-    <MemoryRouter initialEntries={[path]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <MemoryRouter initialEntries={[path]}>
       <AuthProvider>
-        <ToastProvider>
-          <AppRoutes />
-        </ToastProvider>
+        <AppRoutes />
       </AuthProvider>
     </MemoryRouter>,
   );
 }
 
-describe('sin variables de Supabase', () => {
-  it('el inicio muestra el buscador, el diagrama de privacidad y el aviso de configuración', () => {
+describe('aplicación sin configurar', () => {
+  it('la portada muestra el aviso de configuración y marca el ejemplo como ilustrativo', async () => {
     renderAt('/');
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole('searchbox', { name: 'Busca una empresa' })).toBeInTheDocument();
-    expect(screen.getByText('Lo que ven otros')).toBeInTheDocument();
-    expect(screen.getByText('Lo que queda privado')).toBeInTheDocument();
-    expect(screen.getByText('Tu correo electrónico')).toBeInTheDocument();
-    expect(screen.getByText(/Falta configurar la conexión con Supabase/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /Cuenta lo que pasó en tu trabajo/ })).toBeInTheDocument();
+    expect(screen.getByText('Falta conectar la base de datos')).toBeInTheDocument();
+    expect(screen.getByText(/Ejemplo ilustrativo, no es una experiencia real/)).toBeInTheDocument();
+    expect(screen.getByRole('search')).toBeInTheDocument();
   });
 
-  it.each(['/empresas', '/experiencias', '/compartir', '/cuenta', '/admin'])('%s muestra el aviso en lugar de datos', async (path) => {
-    renderAt(path);
-    expect(await screen.findByRole('alert')).toHaveTextContent('Falta configurar la conexión con Supabase');
+  it('las páginas de datos no inventan contenido', async () => {
+    renderAt('/empresas');
+    expect(screen.getByText('Falta conectar la base de datos')).toBeInTheDocument();
+    expect(screen.queryByRole('listitem', { name: /Empresa/ })).not.toBeInTheDocument();
   });
-});
 
-describe('estructura accesible', () => {
-  it('tiene enlace para saltar al contenido, navegación y pie con enlaces legales', () => {
+  it('el panel de moderación no se muestra a visitantes', async () => {
     renderAt('/');
-    expect(screen.getByRole('link', { name: 'Saltar al contenido' })).toHaveAttribute('href', '#contenido');
-    expect(screen.getByRole('main')).toHaveAttribute('id', 'contenido');
-    const legal = screen.getByRole('navigation', { name: 'Legal y contacto' });
-    for (const name of ['Política de datos', 'Términos', 'Reglas', 'Privacidad', 'Contacto']) {
-      expect(legal).toContainElement(screen.getByRole('link', { name }));
-    }
+    expect(screen.queryByRole('link', { name: 'Moderación' })).not.toBeInTheDocument();
   });
 
-  it.each(['/politica-de-datos', '/terminos', '/reglas', '/privacidad', '/contacto'])(
-    '%s lleva la marca de revisión legal',
-    (path) => {
-      renderAt(path);
-      expect(screen.getByText(/Requiere revisión de abogado colombiano/)).toBeInTheDocument();
-    },
-  );
+  it('las políticas se marcan como borradores pendientes de revisión jurídica', async () => {
+    renderAt('/politicas/tratamiento-de-datos');
+    expect(screen.getByText('Borrador pendiente de revisión jurídica')).toBeInTheDocument();
+  });
 
-  it('los chips de estado siempre incluyen texto', () => {
-    for (const s of experienceStatuses) {
-      const { unmount } = render(<StatusChip status={s} />);
-      expect(screen.getByText(statusLabels[s])).toBeInTheDocument();
-      unmount();
-    }
+  it('muestra una página útil para rutas inexistentes', async () => {
+    renderAt('/no-existe');
+    expect(screen.getByRole('heading', { name: 'Esta página no existe' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Ir al inicio' })).toBeInTheDocument();
   });
 });

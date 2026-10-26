@@ -1,488 +1,357 @@
-// @vitest-environment node
-import { describe, it, expect, beforeAll } from 'vitest';
-import { createDb, createUser, rows, LONG_TEXT, type Db } from './harness';
-
-const ALICE = '11111111-1111-1111-1111-111111111111';
-const BOB = '22222222-2222-2222-2222-222222222222';
-const MOD = '33333333-3333-3333-3333-333333333333';
-const ADMIN = '44444444-4444-4444-4444-444444444444';
-const REP = '55555555-5555-5555-5555-555555555555';
+// Pruebas de seguridad contra un Postgres real con las migraciones del proyecto.
+// Cada prueba hace las peticiones como lo haría un cliente manipulado: no se
+// fía de que un botón no aparezca en la interfaz.
+import { beforeAll, describe, expect, it } from 'vitest';
+import { as, createCompany, createDb, createExperience, createUser, errorOf, SAMPLE_BODY, type Db } from './harness';
 
 let db: Db;
+let admin: { id: string; email: string };
+let moderator: { id: string; email: string };
+let ana: { id: string; email: string };
+let beto: { id: string; email: string };
 let companyId: string;
-
-async function insertExperience(userId: string, overrides: Record<string, unknown> = {}, text = LONG_TEXT) {
-  const values = {
-    author_id: userId,
-    company_id: companyId,
-    category_id: 1,
-    period_start: '2025-01-01',
-    relationship: 'anterior',
-    account_direct: text,
-    ...overrides,
-  };
-  const cols = Object.keys(values);
-  const params = Object.values(values);
-  const sql = `insert into public.experiences (${cols.join(', ')})
-               values (${cols.map((_, i) => `$${i + 1}`).join(', ')}) returning id, status`;
-  const [row] = await rows<{ id: string; status: string }>(db, 'authenticated', userId, sql, params);
-  return row;
-}
-
-async function moderate(userId: string, experienceId: string, status: string, reason = 'Cumple las reglas') {
-  return rows<{ moderate_experience: string }>(
-    db,
-    'authenticated',
-    userId,
-    'select public.moderate_experience($1, $2::public.experience_status, $3, $4)',
-    [experienceId, status, reason, 'Nota interna de prueba'],
-  );
-}
 
 beforeAll(async () => {
   db = await createDb();
-  await createUser(db, ALICE, 'alicia.prueba@example.test', 'Trabajadora_Norte');
-  await createUser(db, BOB, 'bob.prueba@example.test', 'Operario_Sur');
-  await createUser(db, MOD, 'mod.prueba@example.test', 'Revisora_Uno');
-  await createUser(db, ADMIN, 'adm.prueba@example.test', 'Gestora_Dos');
-  await createUser(db, REP, 'rep.prueba@example.test', 'Representante_Ficticio');
-  await db.exec(`
-    insert into public.admin_roles (user_id, role) values
-      ('${MOD}', 'moderator'), ('${ADMIN}', 'admin');
-    insert into public.companies (name, slug, city, sector, status)
-      values ('Empresa Ficticia de Prueba S.A.S.', 'empresa-ficticia-de-prueba', 'Bogotá', 'Servicios', 'activa');
-  `);
-  companyId = (await db.query<{ id: string }>('select id from public.companies limit 1')).rows[0].id;
-});
+  admin = await createUser(db, { alias: 'coordinacion_1', role: 'admin' });
+  moderator = await createUser(db, { alias: 'revisora_1', role: 'moderator' });
+  ana = await createUser(db, { alias: 'ana_turnos' });
+  beto = await createUser(db, { alias: 'beto_bodega' });
+  companyId = await createCompany(db, admin, 'Empresa Demo Uno S.A.S.', 'empresa-demo-uno');
+}, 60_000);
 
-describe('perfiles y alias', () => {
-  it('crea el perfil con el alias al registrarse', async () => {
-    const r = await rows(db, 'authenticated', ALICE, 'select alias from public.profiles where id = $1', [ALICE]);
-    expect(r).toEqual([{ alias: 'Trabajadora_Norte' }]);
-  });
+const variant = (n: number) => `${SAMPLE_BODY} Variante número ${n}.`;
 
-  it('rechaza alias duplicado sin distinguir mayúsculas', async () => {
-    await expect(
-      rows(db, 'authenticated', BOB, `update public.profiles set alias = 'trabajadora_norte' where id = $1`, [BOB]),
-    ).rejects.toThrow(/duplicate key|unique/i);
-  });
-
-  it('rechaza palabras reservadas', async () => {
-    await expect(
-      rows(db, 'authenticated', BOB, `update public.profiles set alias = 'ElAdmin77' where id = $1`, [BOB]),
-    ).rejects.toThrow(/reservada/);
-    await expect(
-      rows(db, 'authenticated', BOB, `update public.profiles set alias = 'Equipo_VozLaboral' where id = $1`, [BOB]),
-    ).rejects.toThrow(/reservada/);
-  });
-
-  it('rechaza alias parecido al correo', async () => {
-    await expect(
-      rows(db, 'authenticated', BOB, `update public.profiles set alias = 'Bob_Prueba' where id = $1`, [BOB]),
-    ).rejects.toThrow(/correo/);
-  });
-
-  it('un usuario no ve el perfil de otro', async () => {
-    const r = await rows(db, 'authenticated', BOB, 'select id from public.profiles where id = $1', [ALICE]);
-    expect(r).toEqual([]);
-  });
-});
-
-describe('publicaciones', () => {
-  let aliceExp: string;
-
-  beforeAll(async () => {
-    aliceExp = (await insertExperience(ALICE)).id;
-  });
-
-  it('la experiencia nueva queda en revisión aunque el cliente pida publicada', async () => {
-    await expect(insertExperience(ALICE, { status: 'publicada' }, LONG_TEXT + ' Segundo intento.')).rejects.toThrow(
-      /permission denied/,
+describe('RLS habilitado', () => {
+  it('todas las tablas del esquema public tienen RLS activo', async () => {
+    const { rows } = await db.query<{ tablename: string }>(
+      `select tablename from pg_tables where schemaname = 'public' and not rowsecurity`,
     );
-    const r = await rows<{ status: string }>(db, 'authenticated', ALICE,
-      'select status from public.experiences where id = $1', [aliceExp]);
-    expect(r[0].status).toBe('en_revision');
-  });
-
-  it('un usuario no ve publicaciones no publicadas de otra cuenta', async () => {
-    const base = await rows(db, 'authenticated', BOB, 'select id from public.experiences where id = $1', [aliceExp]);
-    expect(base).toEqual([]);
-    const view = await rows(db, 'authenticated', BOB, 'select id from public.public_experiences where id = $1', [aliceExp]);
-    expect(view).toEqual([]);
-  });
-
-  it('no puede suplantar el author_id', async () => {
-    await expect(insertExperience(BOB, { author_id: ALICE }, LONG_TEXT + ' Suplantación.')).rejects.toThrow(
-      /otra cuenta|row-level security/,
-    );
-    await expect(
-      rows(db, 'authenticated', ALICE, 'update public.experiences set author_id = $1 where id = $2', [BOB, aliceExp]),
-    ).rejects.toThrow(/permission denied/);
-  });
-
-  it('no puede aprobar su propio contenido', async () => {
-    await expect(
-      rows(db, 'authenticated', ALICE, `update public.experiences set status = 'publicada' where id = $1`, [aliceExp]),
-    ).rejects.toThrow(/permission denied/);
-    await expect(moderate(ALICE, aliceExp, 'publicada')).rejects.toThrow(/permisos de moderación/);
-  });
-
-  it('un moderador tampoco puede aprobar lo que él mismo escribió', async () => {
-    const modExp = (await insertExperience(MOD, {}, LONG_TEXT + ' Texto del moderador.')).id;
-    await expect(moderate(MOD, modExp, 'publicada')).rejects.toThrow(/propio contenido/);
-  });
-
-  it('rechaza relatos fuera de 200 a 5000 caracteres', async () => {
-    await expect(insertExperience(BOB, {}, 'Demasiado corto.')).rejects.toThrow(/experiences_account_length/);
-    await expect(insertExperience(BOB, {}, 'x'.repeat(5001))).rejects.toThrow(/experiences_account_length/);
-  });
-
-  it('rechaza el mismo relato dos veces por el mismo autor', async () => {
-    await expect(insertExperience(ALICE, { category_id: 2 })).rejects.toThrow(/duplicate key|unique/i);
-  });
-
-  it('limita a 3 publicaciones cada 24 horas', async () => {
-    await insertExperience(BOB, {}, LONG_TEXT + ' Uno.');
-    await insertExperience(BOB, {}, LONG_TEXT + ' Dos.');
-    await insertExperience(BOB, {}, LONG_TEXT + ' Tres.');
-    await expect(insertExperience(BOB, {}, LONG_TEXT + ' Cuatro.')).rejects.toThrow(/límite de 3/);
-  });
-
-  it('un moderador puede moderar y queda registro completo', async () => {
-    const [r] = await moderate(MOD, aliceExp, 'publicada', 'Cumple las reglas de la comunidad');
-    expect(r.moderate_experience).toBe('publicada');
-
-    const events = await rows<Record<string, unknown>>(db, 'authenticated', MOD,
-      `select previous_status, new_status, reason, internal_note, moderator_id, created_at
-       from public.moderation_events where entity_type = 'experience' and entity_id = $1`, [aliceExp]);
-    expect(events).toHaveLength(1);
-    expect(events[0]).toMatchObject({
-      previous_status: 'en_revision',
-      new_status: 'publicada',
-      reason: 'Cumple las reglas de la comunidad',
-      internal_note: 'Nota interna de prueba',
-      moderator_id: MOD,
-    });
-    expect(events[0].created_at).toBeInstanceOf(Date);
-
-    const pub = await rows<{ author_alias: string }>(db, 'anon', null,
-      'select * from public.public_experiences where id = $1', [aliceExp]);
-    expect(pub).toHaveLength(1);
-    expect(pub[0].author_alias).toBe('Trabajadora_Norte');
-    expect(Object.keys(pub[0])).not.toContain('author_id');
-  });
-
-  it('el autor ve el motivo pero no la nota interna', async () => {
-    const r = await rows<{ status: string; moderation_reason: string }>(db, 'authenticated', ALICE,
-      'select status, moderation_reason from public.experiences where id = $1', [aliceExp]);
-    expect(r[0]).toEqual({ status: 'publicada', moderation_reason: 'Cumple las reglas de la comunidad' });
-    const events = await rows(db, 'authenticated', ALICE, 'select * from public.moderation_events');
-    expect(events).toEqual([]);
-  });
-
-  it('el autor no puede editar una experiencia publicada', async () => {
-    await expect(
-      rows(db, 'authenticated', ALICE, `update public.experiences set title = 'Nuevo' where id = $1 returning id`, [aliceExp]),
-    ).resolves.toEqual([]);
-  });
-
-  it('al editar tras requerir ajustes vuelve a revisión y queda registro', async () => {
-    const exp = (await insertExperience(ALICE, { category_id: 3 }, LONG_TEXT + ' Ajustable.')).id;
-    await moderate(MOD, exp, 'requiere_ajustes', 'Quita el nombre de la persona');
-    await rows(db, 'authenticated', ALICE,
-      `update public.experiences set account_direct = $1 where id = $2`, [LONG_TEXT + ' Ajustado.', exp]);
-    const r = await rows<{ status: string }>(db, 'authenticated', ALICE,
-      'select status from public.experiences where id = $1', [exp]);
-    expect(r[0].status).toBe('en_revision');
-    const events = await rows<{ new_status: string }>(db, 'authenticated', MOD,
-      `select new_status from public.moderation_events where entity_id = $1 order by id`, [exp]);
-    expect(events.map((e) => e.new_status)).toEqual(['requiere_ajustes', 'en_revision']);
+    expect(rows).toEqual([]);
   });
 });
 
-describe('roles y auditoría', () => {
-  it('no puede asignarse un rol', async () => {
-    await expect(
-      rows(db, 'authenticated', BOB, `insert into public.admin_roles (user_id, role) values ($1, 'admin')`, [BOB]),
-    ).rejects.toThrow(/permission denied/);
-    await expect(
-      rows(db, 'authenticated', MOD, `update public.admin_roles set role = 'admin' where user_id = $1`, [MOD]),
-    ).rejects.toThrow(/permission denied/);
-    await expect(
-      rows(db, 'authenticated', BOB, `select public.admin_set_role($1, 'admin')`, [BOB]),
-    ).rejects.toThrow(/Solo la administración/);
-    await expect(
-      rows(db, 'authenticated', MOD, `select public.admin_set_role($1, 'admin')`, [MOD]),
-    ).rejects.toThrow(/Solo la administración/);
-    const r = await db.query('select role from public.admin_roles where user_id = $1', [BOB]);
-    expect(r.rows).toEqual([]);
-  });
-
-  it('un admin asigna roles a otros, no a sí mismo, y queda registro', async () => {
-    await rows(db, 'authenticated', ADMIN, `select public.admin_set_role($1, 'moderator')`, [REP]);
-    await expect(
-      rows(db, 'authenticated', ADMIN, `select public.admin_set_role($1, null)`, [ADMIN]),
-    ).rejects.toThrow(/propio rol/);
-    const ev = await rows<{ event_type: string }>(db, 'authenticated', ADMIN,
-      `select event_type from public.security_events where event_type = 'role_changed'`);
-    expect(ev).toHaveLength(1);
-    await rows(db, 'authenticated', ADMIN, `select public.admin_set_role($1, null)`, [REP]);
-  });
-
-  it('moderation_events es inmutable', async () => {
-    for (const userId of [ALICE, MOD, ADMIN]) {
-      await expect(
-        rows(db, 'authenticated', userId, `update public.moderation_events set reason = 'alterado'`),
-      ).rejects.toThrow(/permission denied/);
-      await expect(
-        rows(db, 'authenticated', userId, `delete from public.moderation_events`),
-      ).rejects.toThrow(/permission denied/);
-      await expect(
-        rows(db, 'authenticated', userId,
-          `insert into public.moderation_events (entity_type, entity_id, new_status, reason)
-           values ('experience', gen_random_uuid(), 'publicada', 'falso')`),
-      ).rejects.toThrow(/permission denied/);
-    }
-    // Ni siquiera el propietario de la tabla puede modificarla.
-    await expect(db.query(`update public.moderation_events set reason = 'alterado'`)).rejects.toThrow(/solo inserción/);
-    await expect(db.query(`delete from public.moderation_events`)).rejects.toThrow(/solo inserción/);
-  });
-
-  it('security_events es inmutable', async () => {
-    await expect(
-      rows(db, 'authenticated', ADMIN, `delete from public.security_events`),
-    ).rejects.toThrow(/permission denied/);
-    await expect(db.query(`update public.security_events set event_type = 'otro'`)).rejects.toThrow(/solo inserción/);
-  });
-
-  it('las RPC administrativas fallan sin rol', async () => {
-    const someId = '99999999-9999-9999-9999-999999999999';
-    const calls = [
-      [`select public.moderate_experience($1, 'publicada', 'motivo', null)`, [someId]],
-      [`select public.set_company_status($1, 'oculta', 'motivo', null)`, [companyId]],
-      [`select public.add_company_alias($1, 'Alias')`, [companyId]],
-      [`select public.resolve_report($1, 'resuelto', 'motivo', null)`, [someId]],
-      [`select public.review_company_claim($1, 'aprobada', 'motivo', null)`, [someId]],
-      [`select public.moderate_company_response($1, 'publicada', 'motivo', null)`, [someId]],
-      [`select public.resolve_appeal($1, 'aceptada', 'motivo', null)`, [someId]],
-      [`select public.process_account_deletion($1)`, [someId]],
-    ] as const;
-    for (const [sql, params] of calls) {
-      await expect(rows(db, 'authenticated', BOB, sql, [...params])).rejects.toThrow(/permisos|Solo la administración/);
-      await expect(rows(db, 'anon', null, sql, [...params])).rejects.toThrow(/permission denied/);
-    }
-  });
-});
-
-describe('acceso anónimo', () => {
-  it('anon no ve emails, borradores, reclamaciones ni moderación', async () => {
-    const denied = [
-      'select email from auth.users',
+describe('visitantes sin sesión', () => {
+  it('no pueden leer perfiles, correos ni registros internos', async () => {
+    for (const sql of [
       'select * from public.profiles',
-      'select * from public.experiences',
-      'select * from public.company_claims',
+      'select email from auth.users',
       'select * from public.moderation_events',
       'select * from public.security_events',
-      'select * from public.admin_roles',
+      'select * from public.company_claims',
       'select * from public.content_reports',
-      'select * from public.appeals',
+      'select * from public.company_private_data',
       'select * from public.evidence_files',
-      'select proposed_by from public.companies',
-    ];
-    for (const sql of denied) {
-      await expect(rows(db, 'anon', null, sql)).rejects.toThrow(/permission denied/);
+      'select * from public.admin_roles',
+    ]) {
+      expect(await errorOf(as(db, 'anon', () => db.query(sql)))).toMatch(/permission denied/);
     }
-    const drafts = await rows(db, 'anon', null,
-      `select id from public.public_experiences where status not in ('publicada', 'en_disputa')`);
-    expect(drafts).toEqual([]);
   });
 
-  it('anon no puede escribir', async () => {
-    await expect(
-      rows(db, 'anon', null, `insert into public.companies (name, slug) values ('X', 'x')`),
-    ).rejects.toThrow(/permission denied/);
-    await expect(rows(db, 'anon', null, `select public.propose_company('X')`)).rejects.toThrow(/permission denied/);
+  it('no pueden leer el autor de una experiencia', async () => {
+    expect(await errorOf(as(db, 'anon', () => db.query('select author_id from public.experiences')))).toMatch(/permission denied/);
   });
 
-  it('las vistas públicas no exponen identificadores de cuenta', async () => {
-    const cols = await db.query<{ table_name: string; column_name: string }>(`
-      select table_name, column_name from information_schema.columns
-      where table_schema = 'public' and table_name in ('public_experiences', 'public_company_responses')`);
-    const names = cols.rows.map((c) => c.column_name);
-    for (const forbidden of ['author_id', 'responder_id', 'email', 'reporter_id', 'content_hash']) {
-      expect(names).not.toContain(forbidden);
-    }
+  it('pueden buscar empresas y ver su perfil público', async () => {
+    const search = await as(db, 'anon', () => db.query<{ slug: string }>(`select slug from public.search_companies('demo uno')`));
+    expect(search.rows.map((r) => r.slug)).toContain('empresa-demo-uno');
+    const profile = await as(db, 'anon', () => db.query<{ p: { company: { slug: string } } }>(`select public.company_profile('empresa-demo-uno') as p`));
+    expect(profile.rows[0].p.company.slug).toBe('empresa-demo-uno');
+  });
+
+  it('no pueden ejecutar funciones de moderación ni crear empresas', async () => {
+    expect(await errorOf(as(db, 'anon', () => db.query(`select * from public.moderation_queue()`)))).toMatch(/permission denied/);
+    expect(
+      await errorOf(as(db, 'anon', () => db.query(`insert into public.companies (slug, trade_name, sector, city, department) values ('x-y', 'Xy', 'A', 'B', 'C')`))),
+    ).toMatch(/permission denied/);
   });
 });
 
-describe('reclamaciones y respuestas de empresas', () => {
-  let publishedExp: string;
-  let claimId: string;
+describe('publicaciones y autoría', () => {
+  it('una experiencia nueva siempre entra en revisión y no la ve otra cuenta', async () => {
+    const id = await createExperience(db, ana, companyId, variant(1));
+    const own = await as(db, ana, () => db.query<{ status: string }>(`select status from public.experiences where id = $1`, [id]));
+    expect(own.rows[0].status).toBe('en_revision');
+
+    const other = await as(db, beto, () => db.query(`select id from public.experiences where id = $1`, [id]));
+    expect(other.rows).toHaveLength(0);
+    const anon = await as(db, 'anon', () => db.query(`select id from public.list_experiences() where id = $1`, [id]));
+    expect(anon.rows).toHaveLength(0);
+  });
+
+  it('no se puede enviar una experiencia ya publicada ni con otro autor', async () => {
+    const withStatus = as(db, ana, () =>
+      db.query(
+        `insert into public.experiences (company_id, category_slug, period_start, relationship, body, rules_accepted, status)
+         values ($1, 'pago-salarios', '2025-01-01', 'actual', $2, true, 'publicada')`,
+        [companyId, variant(2)],
+      ),
+    );
+    expect(await errorOf(withStatus)).toMatch(/permission denied/);
+
+    const withAuthor = as(db, ana, () =>
+      db.query(
+        `insert into public.experiences (company_id, category_slug, period_start, relationship, body, rules_accepted, author_id)
+         values ($1, 'pago-salarios', '2025-01-01', 'actual', $2, true, $3)`,
+        [companyId, variant(3), beto.id],
+      ),
+    );
+    expect(await errorOf(withAuthor)).toMatch(/permission denied/);
+  });
+
+  it('el autor no puede aprobar su propio contenido', async () => {
+    const id = await createExperience(db, beto, companyId, variant(4));
+    expect(await errorOf(as(db, beto, () => db.query(`update public.experiences set status = 'publicada' where id = $1`, [id])))).toMatch(/permission denied/);
+    expect(
+      await errorOf(as(db, beto, () => db.query(`select public.moderate_experience($1, 'publicada', 'Aprobado por mí mismo')`, [id]))),
+    ).toMatch(/VL403/);
+  });
+
+  it('un usuario no puede modificar experiencias ajenas', async () => {
+    const id = await createExperience(db, ana, companyId, variant(5));
+    const result = await as(db, beto, () => db.query(`update public.experiences set body = $2 where id = $1`, [id, variant(99)]));
+    expect(result.affectedRows ?? 0).toBe(0);
+    const { rows } = await db.query<{ body: string }>(`select body from public.experiences where id = $1`, [id]);
+    expect(rows[0].body).toBe(variant(5));
+  });
+
+  it('bloquea textos repetidos y más de 3 envíos en 24 horas', async () => {
+    const carla = await createUser(db, { alias: 'carla_caja' });
+    await createExperience(db, carla, companyId, variant(10));
+    expect(await errorOf(createExperience(db, carla, companyId, variant(10)))).toMatch(/VL035/);
+    await createExperience(db, carla, companyId, variant(11));
+    await createExperience(db, carla, companyId, variant(12));
+    expect(await errorOf(createExperience(db, carla, companyId, variant(13)))).toMatch(/VL033/);
+  });
+
+  it('marca datos personales evidentes para revisión humana', async () => {
+    const dani = await createUser(db, { alias: 'dani_ruta' });
+    const id = await createExperience(db, dani, companyId, `${variant(20)} Escriban a jefe.turno@empresa.test o al 310 555 1234.`);
+    const { rows } = await db.query<{ auto_flags: string[]; status: string }>(`select auto_flags, status from public.experiences where id = $1`, [id]);
+    expect(rows[0].auto_flags).toEqual(expect.arrayContaining(['correo', 'telefono']));
+    expect(rows[0].status).toBe('en_revision');
+  });
+
+  it('exige alias antes de publicar', async () => {
+    const sinAlias = await createUser(db);
+    expect(await errorOf(createExperience(db, sinAlias, companyId, variant(30)))).toMatch(/VL030/);
+  });
+});
+
+describe('roles y cuentas', () => {
+  it('un usuario no puede darse un rol ni cambiar su estado', async () => {
+    expect(
+      await errorOf(as(db, ana, () => db.query(`insert into public.admin_roles (user_id, role) values ($1, 'admin')`, [ana.id]))),
+    ).toMatch(/permission denied/);
+    expect(await errorOf(as(db, ana, () => db.query(`select public.admin_set_role($1, 'admin', true)`, [ana.id])))).toMatch(/VL403/);
+    expect(await errorOf(as(db, ana, () => db.query(`update public.profiles set status = 'activa' where id = $1`, [ana.id])))).toMatch(
+      /permission denied/,
+    );
+    const { rows } = await db.query(`select * from public.admin_roles where user_id = $1`, [ana.id]);
+    expect(rows).toHaveLength(0);
+  });
+
+  it('un usuario no ve el perfil de otra cuenta', async () => {
+    const { rows } = await as(db, ana, () => db.query(`select id from public.profiles where id = $1`, [beto.id]));
+    expect(rows).toHaveLength(0);
+  });
+
+  it('valida alias reservados, duplicados y parecidos al correo', async () => {
+    const eva = await createUser(db);
+    const setAlias = (alias: string) => as(db, eva, () => db.query(`update public.profiles set alias = $1 where id = $2`, [alias, eva.id]));
+    expect(await errorOf(setAlias('Moderador_Oficial'))).toMatch(/VL012/);
+    expect(await errorOf(setAlias('ANA_TURNOS'))).toMatch(/duplicate key|unique/);
+    expect(await errorOf(setAlias(eva.email.split('@')[0]))).toMatch(/VL013/);
+    expect(await errorOf(setAlias('a@b'))).toMatch(/VL011/);
+  });
+
+  it('un administrador sí puede asignar roles y queda registro de seguridad', async () => {
+    await as(db, admin, () => db.query(`select public.admin_set_role($1, 'moderator', true)`, [beto.id]));
+    const { rows } = await db.query<{ event_type: string }>(`select event_type from public.security_events where details->>'target' = $1`, [beto.id]);
+    expect(rows.map((r) => r.event_type)).toContain('rol_concedido');
+    await as(db, admin, () => db.query(`select public.admin_set_role($1, 'moderator', false)`, [beto.id]));
+  });
+});
+
+describe('moderación auditada', () => {
+  it('un moderador publica con motivo y queda el registro completo', async () => {
+    const id = await createExperience(db, ana, companyId, variant(40));
+    await as(db, moderator, () => db.query(`select public.moderate_experience($1, 'publicada', 'Cumple las reglas de publicación', 'Sin datos personales')`, [id]));
+
+    const { rows } = await db.query<{ previous_status: string; new_status: string; actor_id: string; reason: string }>(
+      `select previous_status, new_status, actor_id, reason from public.moderation_events where target_id = $1`,
+      [id],
+    );
+    expect(rows).toEqual([{ previous_status: 'en_revision', new_status: 'publicada', actor_id: moderator.id, reason: 'Cumple las reglas de publicación' }]);
+
+    const pub = await as(db, 'anon', () => db.query<{ author_alias: string }>(`select author_alias from public.list_experiences() where id = $1`, [id]));
+    expect(pub.rows[0].author_alias).toBe('ana_turnos');
+  });
+
+  it('el autor consulta el motivo, pero no la nota interna ni quién moderó', async () => {
+    const id = await createExperience(db, beto, companyId, variant(41));
+    await as(db, moderator, () => db.query(`select public.moderate_experience($1, 'requiere_ajustes', 'Quita el nombre propio del segundo párrafo', 'Nombre de supervisor')`, [id]));
+    const { rows, fields } = await as(db, beto, () => db.query(`select * from public.my_experience_history($1)`, [id]));
+    expect(rows).toHaveLength(1);
+    expect(fields.map((f) => f.name)).not.toContain('internal_note');
+    expect(fields.map((f) => f.name)).not.toContain('actor_id');
+
+    // Al corregir, vuelve a revisión automáticamente.
+    await as(db, beto, () => db.query(`update public.experiences set body = $2 where id = $1`, [id, variant(42)]));
+    const after = await db.query<{ status: string }>(`select status from public.experiences where id = $1`, [id]);
+    expect(after.rows[0].status).toBe('en_revision');
+  });
+
+  it('un moderador no puede moderar su propio contenido', async () => {
+    const id = await createExperience(db, moderator, companyId, variant(43));
+    expect(await errorOf(as(db, moderator, () => db.query(`select public.moderate_experience($1, 'publicada', 'Autoaprobación de prueba')`, [id])))).toMatch(/VL052/);
+  });
+
+  it('los registros de moderación no se pueden modificar ni borrar', async () => {
+    expect(await errorOf(as(db, ana, () => db.query(`update public.moderation_events set reason = 'x'`)))).toMatch(/permission denied/);
+    expect(await errorOf(as(db, moderator, () => db.query(`delete from public.moderation_events`)))).toMatch(/permission denied/);
+    // Ni siquiera el propietario de la base de datos fuera de la purga.
+    expect(await errorOf(db.query(`update public.moderation_events set reason = 'alterado'`))).toMatch(/VL403/);
+    const own = await as(db, ana, () => db.query(`select * from public.moderation_events`));
+    expect(own.rows).toHaveLength(0);
+  });
+});
+
+describe('reclamaciones empresariales', () => {
+  it('una reclamación no revela al autor', async () => {
+    const rep = await createUser(db, { alias: 'representante_x' });
+    const gabi = await createUser(db, { alias: 'gabi_planta' });
+    const id = await createExperience(db, gabi, companyId, variant(50));
+    await as(db, moderator, () => db.query(`select public.moderate_experience($1, 'publicada', 'Cumple las reglas de publicación')`, [id]));
+
+    await as(db, rep, () =>
+      db.query(
+        `insert into public.company_claims (company_id, experience_id, claimant_name, claimant_role, contact_email, claim_type, description, requested_action)
+         values ($1, $2, 'Persona Representante', 'Jefatura de talento humano', 'rep@empresa.test', 'error_verificable',
+                 'La fecha indicada no coincide con nuestros registros de nómina de ese periodo concreto.', 'revision')`,
+        [companyId, id],
+      ),
+    );
+
+    expect(await errorOf(as(db, rep, () => db.query(`select author_id from public.experiences where id = $1`, [id])))).toMatch(/permission denied/);
+    const visible = await as(db, rep, () => db.query(`select * from public.list_experiences() where id = $1`, [id]));
+    expect(Object.keys(visible.rows[0] as object)).not.toContain('author_id');
+    expect(JSON.stringify(visible.rows[0])).not.toContain(gabi.id);
+    expect(JSON.stringify(visible.rows[0])).not.toContain(gabi.email);
+
+    const claims = await as(db, rep, () => db.query(`select id, company_id, experience_id, claimant_name, claimant_role, contact_email, claim_type, description, requested_action, status, resolution_public, created_at from public.company_claims`));
+    expect(await errorOf(as(db, rep, () => db.query(`select claimant_id from public.company_claims`)))).toMatch(/permission denied/);
+    expect(claims.rows).toHaveLength(1);
+    expect(JSON.stringify(claims.rows[0])).not.toContain(gabi.id);
+
+    // Otra cuenta no ve la reclamación.
+    const other = await as(db, beto, () => db.query(`select id from public.company_claims`));
+    expect(other.rows).toHaveLength(0);
+  });
+});
+
+describe('estadísticas y privacidad', () => {
+  it('oculta el desglose por categoría cuando hay muy pocas experiencias', async () => {
+    const otherCompany = await createCompany(db, admin, 'Empresa Demo Dos S.A.S.', 'empresa-demo-dos');
+    const id = await createExperience(db, beto, otherCompany, variant(60));
+    await as(db, moderator, () => db.query(`select public.moderate_experience($1, 'publicada', 'Cumple las reglas de publicación')`, [id]));
+    const { rows } = await as(db, 'anon', () => db.query<{ p: { breakdown_hidden: boolean; categories: unknown[]; visible_experiences: number } }>(
+      `select public.company_profile('empresa-demo-dos') as p`,
+    ));
+    expect(rows[0].p.visible_experiences).toBe(1);
+    expect(rows[0].p.breakdown_hidden).toBe(true);
+    expect(rows[0].p.categories).toEqual([]);
+  });
+
+  it('no se puede publicar una guía sin fuente oficial', async () => {
+    const insert = as(db, admin, () =>
+      db.query(
+        `insert into public.legal_resources (slug, title, summary, content, status, last_verified_at)
+         values ('guia-prueba', 'Guía de prueba', 'Resumen suficientemente largo para la guía.', repeat('Contenido de prueba. ', 5), 'publicado', current_date)`,
+      ),
+    );
+    expect(await errorOf(insert)).toMatch(/VL070/);
+  });
+});
+
+describe('búsqueda por NIT', () => {
+  const search = (q: string) =>
+    as(db, 'anon', () => db.query<Record<string, unknown>>(`select * from public.search_companies($1)`, [q]));
 
   beforeAll(async () => {
-    publishedExp = (
-      await rows<{ id: string }>(db, 'anon', null, 'select id from public.public_experiences limit 1')
-    )[0].id;
+    const id = await createCompany(db, admin, 'Empresa Demo Nit S.A.S.', 'empresa-demo-nit');
+    await as(db, admin, () => db.query(`insert into public.company_private_data (company_id, tax_id) values ($1, '899999068')`, [id]));
   });
 
-  it('crea una reclamación de representación sin acceso a los datos del autor', async () => {
-    const [c] = await rows<{ id: string }>(db, 'authenticated', REP,
-      `insert into public.company_claims
-         (company_id, claimant_id, claim_type, claimant_name, claimant_position, contact_email, message)
-       values ($1, $2, 'representacion', 'Persona Ficticia', 'Gerencia', 'rrhh@example.test',
-               'Represento a la empresa ficticia y quiero responder públicamente.')
-       returning id`, [companyId, REP]);
-    claimId = c.id;
-    await rows(db, 'authenticated', MOD, `select public.review_company_claim($1, 'aprobada', 'Verificada por correo corporativo', null)`, [claimId]);
+  it('encuentra la empresa con el NIT completo, con o sin puntos y dígito de verificación', async () => {
+    for (const q of ['899999068', '899.999.068', '899.999.068-1', '8999990681', ' 899 999 068 ']) {
+      const { rows } = await search(q);
+      expect(rows.map((r) => r.slug), q).toEqual(['empresa-demo-nit']);
+    }
   });
 
-  it('las reclamaciones no revelan al autor', async () => {
-    const base = await rows(db, 'authenticated', REP, 'select author_id from public.experiences where id = $1', [publishedExp]);
-    expect(base).toEqual([]);
-    await expect(
-      rows(db, 'authenticated', REP, 'select * from public.profiles where id = $1', [ALICE]),
-    ).resolves.toEqual([]);
-    const claim = await rows<Record<string, unknown>>(db, 'authenticated', REP,
-      'select * from public.company_claims where id = $1', [claimId]);
-    expect(Object.keys(claim[0])).not.toContain('author_id');
-    expect(JSON.stringify(claim[0])).not.toContain(ALICE);
+  it('no encuentra nada con un NIT parcial', async () => {
+    for (const q of ['8999', '899999', '89999906', '99999068']) {
+      const { rows } = await search(q);
+      expect(rows, q).toHaveLength(0);
+    }
   });
 
-  it('otra cuenta no ve reclamaciones ajenas', async () => {
-    const r = await rows(db, 'authenticated', BOB, 'select id from public.company_claims');
-    expect(r).toEqual([]);
-  });
-
-  it('un representante aprobado responde y la respuesta queda en revisión', async () => {
-    const [resp] = await rows<{ id: string; status: string }>(db, 'authenticated', REP,
-      `insert into public.company_responses (company_id, experience_id, responder_id, body)
-       values ($1, $2, $3, 'Gracias por el comentario, revisamos los pagos de ese periodo.') returning id, status`,
-      [companyId, publishedExp, REP]);
-    expect(resp.status).toBe('en_revision');
-    expect(await rows(db, 'anon', null, 'select id from public.public_company_responses')).toEqual([]);
-    await rows(db, 'authenticated', MOD, `select public.moderate_company_response($1, 'publicada', 'Respuesta respetuosa', null)`, [resp.id]);
-    const pub = await rows<Record<string, unknown>>(db, 'anon', null, 'select * from public.public_company_responses');
-    expect(pub).toHaveLength(1);
-    expect(Object.keys(pub[0])).not.toContain('responder_id');
-  });
-
-  it('quien no representa a la empresa no puede responder', async () => {
-    await expect(
-      rows(db, 'authenticated', BOB,
-        `insert into public.company_responses (company_id, experience_id, responder_id, body)
-         values ($1, $2, $3, 'Respuesta falsa en nombre de la empresa.')`, [companyId, publishedExp, BOB]),
-    ).rejects.toThrow(/row-level security/);
+  it('nunca devuelve el NIT en los resultados', async () => {
+    const { rows, fields } = await search('899999068');
+    expect(fields.map((f) => f.name)).not.toContain('tax_id');
+    expect(JSON.stringify(rows)).not.toContain('899999068');
   });
 });
 
-describe('reportes y apelaciones', () => {
-  it('cualquier cuenta reporta contenido publicado, una vez', async () => {
-    const pub = (await rows<{ id: string }>(db, 'anon', null, 'select id from public.public_experiences limit 1'))[0].id;
-    await rows(db, 'authenticated', BOB,
-      `insert into public.content_reports (experience_id, reporter_id, reason, details) values ($1, $2, 'datos_personales', 'Aparece un nombre')`,
-      [pub, BOB]);
-    await expect(
-      rows(db, 'authenticated', BOB,
-        `insert into public.content_reports (experience_id, reporter_id, reason) values ($1, $2, 'otro')`, [pub, BOB]),
-    ).rejects.toThrow(/duplicate key|unique/i);
-    expect(await rows(db, 'authenticated', ALICE, 'select id from public.content_reports')).toEqual([]);
+describe('búsqueda estricta', () => {
+  const search = (q: string) =>
+    as(db, 'anon', () => db.query<{ trade_name: string; is_suggestion: boolean }>(`select trade_name, is_suggestion from public.search_companies($1)`, [q]));
+
+  beforeAll(async () => {
+    await createCompany(db, admin, 'SUNCOLOMBIA SAS', 'suncolombia');
+    const exito = await createCompany(db, admin, 'ALMACENES EXITO S A', 'almacenes-exito');
+    await as(db, admin, () => db.query(`insert into public.company_aliases (company_id, alias) values ($1, 'Grupo Éxito')`, [exito]));
   });
 
-  it('no se puede reportar contenido no publicado (no revela su existencia)', async () => {
-    const draft = (await rows<{ id: string }>(db, 'authenticated', BOB,
-      `select id from public.experiences where author_id = $1 and status = 'en_revision' limit 1`, [BOB]))[0].id;
-    await expect(
-      rows(db, 'authenticated', ALICE,
-        `insert into public.content_reports (experience_id, reporter_id, reason) values ($1, $2, 'otro')`, [draft, ALICE]),
-    ).rejects.toThrow(/row-level security/);
+  it('con todas las palabras presentes devuelve solo coincidencias', async () => {
+    const { rows } = await search('almacenes éxito');
+    expect(rows).toEqual([{ trade_name: 'ALMACENES EXITO S A', is_suggestion: false }]);
   });
 
-  it('el autor apela una restricción; otra cuenta no puede', async () => {
-    const exp = (await rows<{ id: string }>(db, 'authenticated', ALICE,
-      `select id from public.experiences where author_id = $1 and status = 'publicada' limit 1`, [ALICE]))[0].id;
-    await moderate(MOD, exp, 'restringida', 'Contiene datos de terceros');
-    await expect(
-      rows(db, 'authenticated', BOB,
-        `insert into public.appeals (experience_id, appellant_id, reason) values ($1, $2, 'Quiero apelar algo que no es mío.')`, [exp, BOB]),
-    ).rejects.toThrow(/row-level security/);
-    const [a] = await rows<{ id: string }>(db, 'authenticated', ALICE,
-      `insert into public.appeals (experience_id, appellant_id, reason) values ($1, $2, 'Retiré el dato y pido que se revise de nuevo.') returning id`,
-      [exp, ALICE]);
-    await rows(db, 'authenticated', MOD, `select public.resolve_appeal($1, 'aceptada', 'Se revisará de nuevo', null)`, [a.id]);
-    await moderate(MOD, exp, 'publicada', 'Republicada tras apelación');
-    const ev = await rows<{ entity_type: string }>(db, 'authenticated', MOD,
-      `select entity_type from public.moderation_events where entity_id = $1`, [a.id]);
-    expect(ev).toEqual([{ entity_type: 'appeal' }]);
-  });
-});
-
-describe('estadísticas públicas', () => {
-  it('oculta categorías con menos de 3 publicaciones', async () => {
-    const [r] = await rows<{ company_stats: { visible_count: number; categories: unknown[]; hidden_categories: number } }>(
-      db, 'anon', null, 'select public.company_stats($1)', [companyId]);
-    expect(r.company_stats.visible_count).toBe(1);
-    expect(r.company_stats.categories).toEqual([]);
-    expect(r.company_stats.hidden_categories).toBe(1);
+  it('encuentra por alias aunque las palabras no estén en la razón social', async () => {
+    const { rows } = await search('grupo exito');
+    expect(rows).toEqual([{ trade_name: 'ALMACENES EXITO S A', is_suggestion: false }]);
   });
 
-  it('muestra la categoría al llegar a 3', async () => {
-    const bobExps = await rows<{ id: string }>(db, 'authenticated', BOB,
-      `select id from public.experiences where author_id = $1 and status = 'en_revision'`, [BOB]);
-    for (const e of bobExps.slice(0, 2)) await moderate(MOD, e.id, 'publicada');
-    const [r] = await rows<{ company_stats: { visible_count: number; categories: { count: number; name: string }[] } }>(
-      db, 'anon', null, 'select public.company_stats($1)', [companyId]);
-    expect(r.company_stats.visible_count).toBe(3);
-    expect(r.company_stats.categories).toEqual([{ category_id: 1, name: 'Pago de salarios', count: 3 }]);
-  });
-
-  it('la búsqueda encuentra por nombre aproximado y por alias', async () => {
-    await rows(db, 'authenticated', MOD, `select public.add_company_alias($1, 'EFP')`, [companyId]);
-    const byName = await rows<{ slug: string; total_count: number }>(db, 'anon', null,
-      `select slug, total_count from public.search_companies('ficticia prueba', null, null, 10, 0)`);
-    expect(byName[0].slug).toBe('empresa-ficticia-de-prueba');
-    const byAlias = await rows<{ slug: string }>(db, 'anon', null,
-      `select slug from public.search_companies('efp', 'bogota', null, 10, 0)`);
-    expect(byAlias.map((r) => r.slug)).toEqual(['empresa-ficticia-de-prueba']);
-    const none = await rows(db, 'anon', null, `select slug from public.search_companies('efp', 'cali', null, 10, 0)`);
-    expect(none).toEqual([]);
-  });
-});
-
-describe('propuesta de empresas', () => {
-  it('una empresa propuesta no es pública hasta que se active', async () => {
-    const [p] = await rows<{ propose_company: string }>(db, 'authenticated', BOB,
-      `select public.propose_company('Compañía Inventada Para Pruebas', 'Medellín', 'Comercio')`);
-    expect(await rows(db, 'anon', null, 'select id from public.companies where id = $1', [p.propose_company])).toEqual([]);
-    expect(await rows(db, 'authenticated', BOB, 'select id from public.companies where id = $1', [p.propose_company]))
-      .toHaveLength(1);
-    const [again] = await rows<{ propose_company: string }>(db, 'authenticated', BOB,
-      `select public.propose_company('compañia inventada para pruebas', 'medellin', null)`);
-    expect(again.propose_company).toBe(p.propose_company);
+  it('si la empresa no existe, los nombres parecidos vienen marcados como sugerencia', async () => {
+    const { rows } = await search('bancolombia');
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.every((r) => r.is_suggestion)).toBe(true);
   });
 });
 
 describe('eliminación de cuenta', () => {
-  it('anonimiza las publicaciones y conserva la auditoría', async () => {
-    const before = await rows<{ author_alias: string }>(db, 'anon', null,
-      `select author_alias from public.public_experiences where author_alias = 'Operario_Sur'`);
-    expect(before.length).toBeGreaterThan(0);
+  it('anonimiza las publicaciones tras el plazo de cancelación', async () => {
+    const fede = await createUser(db, { alias: 'fede_noche' });
+    const published = await createExperience(db, fede, companyId, variant(70));
+    const pending = await createExperience(db, fede, companyId, variant(71));
+    await as(db, moderator, () => db.query(`select public.moderate_experience($1, 'publicada', 'Cumple las reglas de publicación')`, [published]));
 
-    await expect(
-      rows(db, 'authenticated', ADMIN, 'select public.process_account_deletion($1)', [BOB]),
-    ).rejects.toThrow(/No hay una solicitud/);
-    await rows(db, 'authenticated', BOB, 'select public.request_account_deletion()');
-    await expect(insertExperience(BOB, {}, LONG_TEXT + ' Tras pedir la baja.')).rejects.toThrow();
-    await rows(db, 'authenticated', ADMIN, 'select public.process_account_deletion($1)', [BOB]);
+    await as(db, fede, () => db.query(`select public.request_account_deletion()`));
+    expect(await errorOf(as(db, admin, () => db.query(`select public.process_account_deletion($1)`, [fede.id])))).toMatch(/VL083/);
+    expect(await errorOf(as(db, ana, () => db.query(`select public.process_account_deletion($1)`, [fede.id])))).toMatch(/VL403/);
 
-    expect((await db.query('select id from auth.users where id = $1', [BOB])).rows).toEqual([]);
-    const after = await rows<{ author_alias: string }>(db, 'anon', null,
-      `select author_alias from public.public_experiences where author_alias = 'Operario_Sur'`);
-    expect(after).toEqual([]);
-    const anon = await db.query<{ n: number }>(
-      `select count(*)::int as n from public.experiences where author_id is null and anonymized_at is not null`);
-    expect(anon.rows[0].n).toBeGreaterThan(0);
-    const audit = await db.query<{ n: number }>(
-      `select count(*)::int as n from public.security_events where user_id = $1`, [BOB]);
-    expect(audit.rows[0].n).toBeGreaterThan(0);
+    await db.query(`update public.profiles set deletion_requested_at = now() - interval '16 days' where id = $1`, [fede.id]);
+    await as(db, admin, () => db.query(`select public.process_account_deletion($1)`, [fede.id]));
+
+    const { rows } = await db.query<{ id: string; author_id: string | null; status: string }>(
+      `select id, author_id, status from public.experiences where id in ($1, $2) order by status`,
+      [published, pending],
+    );
+    expect(rows.every((r) => r.author_id === null)).toBe(true);
+    expect(rows.find((r) => r.id === pending)?.status).toBe('retirada');
+    const pub = await as(db, 'anon', () => db.query<{ author_alias: string }>(`select author_alias from public.list_experiences() where id = $1`, [published]));
+    expect(pub.rows[0].author_alias).toBe('Autor anónimo');
   });
 });

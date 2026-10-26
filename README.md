@@ -1,111 +1,114 @@
 # VozLaboral
 
-Plataforma de transparencia laboral para Colombia. Las personas comparten sus experiencias en empresas reales con un
-alias público. El correo, la IP y el identificador de la cuenta nunca se muestran. Cada publicación pasa por moderación
-y cada decisión queda registrada.
+Plataforma independiente de transparencia laboral para Colombia. Los trabajadores comparten experiencias sobre empresas reales con un alias público. Cada relato pasa por una moderación auditada antes de publicarse.
 
-> Nombre provisional. La marca se cambia en `src/config/brand.ts` y la paleta en los tokens de `:root`
-> (`src/styles/index.css`).
+> **Estado:** MVP en desarrollo. **No está listo para producción.** Faltan la verificación contra un proyecto de Supabase real, la revisión jurídica de las políticas y los puntos pendientes de [`docs/checklist-seguridad.md`](docs/checklist-seguridad.md) y [`docs/checklist-legal.md`](docs/checklist-legal.md).
+>
+> «VozLaboral» es un nombre provisional: la disponibilidad de la marca y del dominio no se ha comprobado.
 
-## Estado
+## Qué incluye
 
-| Fase | Contenido | Estado |
-| --- | --- | --- |
-| 1. Inspección y base | Proyecto, esquema, RLS, auth, alias, categorías | Hecha y probada |
-| 2. Publicaciones | Compartir, vista previa, borrador, límites, búsqueda, perfil de empresa | Hecha y probada |
-| 3. Moderación, reclamaciones y apelaciones | RPC con rol, auditoría, panel, reportes, reclamaciones, respuestas | Base de datos probada; panel hecho, sin pruebas de interfaz contra Supabase real |
-| 4. Guías, políticas y privacidad | Fichas legales pendientes de verificación, borradores legales | Estructura hecha, contenido pendiente de abogado |
-| 5. Archivos | Tabla `evidence_files` con RLS cerrada | Sin habilitar a propósito |
-| 6. Pruebas y entrega | Ver abajo | En curso |
+| Área | Estado |
+|---|---|
+| Portada, navegación, diseño adaptable y accesible | Implementado |
+| Registro, confirmación de correo, inicio y cierre de sesión, recuperación de contraseña | Implementado (Supabase Auth) |
+| Alias público con validación (duplicados, palabras reservadas, parecido al correo) | Implementado y probado en la base de datos |
+| Catálogo y buscador de empresas (nombre, alias, ciudad, sector, paginación, orden) | Implementado |
+| Perfil público de empresa con estadísticas protegidas | Implementado |
+| Formulario de experiencias con vista previa, borrador y avisos de datos personales | Implementado y probado |
+| Historial propio: estados, motivos, edición, retirada y apelación | Implementado |
+| Panel de moderación: cola, reportes, reclamaciones, apelaciones, catálogo e historial | Implementado |
+| Reclamaciones de empresas y respuestas empresariales | Implementado |
+| Guías de derechos laborales gestionadas desde la base de datos | Implementado, **sin contenido**: cada guía debe verificarse antes de publicarse |
+| Políticas legales | **Borradores** pendientes de un abogado |
+| Eliminación de cuenta con anonimización y purga por plazo | Implementado y probado en la base de datos |
+| Archivos de respaldo | **No habilitado** a propósito (ver `docs/decisiones.md`) |
 
-El siguiente paso está en [`docs/decisiones.md`](docs/decisiones.md#siguiente-paso).
+## Requisitos
 
-## Stack
+- Node.js 20 o superior y npm.
+- Un proyecto de [Supabase](https://supabase.com).
 
-React 18, TypeScript, Vite, Tailwind CSS, React Router, `@supabase/supabase-js` y zod en el frontend. Supabase
-(Postgres, Auth y Storage privado) en el backend. Vitest con Testing Library, jsdom y PGlite para las pruebas.
-Las fuentes (Newsreader e Instrument Sans) están autoalojadas: no se usa Google Fonts.
-
-## Instalación
-
-Requisitos: Node 20 o superior y npm.
+## Instalación local
 
 ```bash
 npm install
-cp .env.example .env.local   # y completa los valores reales
-npm run dev                  # http://localhost:5173
+cp .env.example .env.local   # y edita los valores
+npm run dev
 ```
 
-Sin las variables de Supabase la aplicación arranca y muestra un aviso de configuración en cada sección que necesita
-datos. No muestra datos simulados.
+Sin variables de Supabase la app arranca igualmente y muestra un aviso de configuración. Nunca muestra datos simulados.
 
 ### Variables de entorno
 
 | Variable | Descripción |
-| --- | --- |
-| `VITE_SUPABASE_URL` | URL del proyecto (Settings, API) |
-| `VITE_SUPABASE_ANON_KEY` | Clave pública `anon` |
+|---|---|
+| `VITE_SUPABASE_URL` | URL del proyecto (Settings → API) |
+| `VITE_SUPABASE_ANON_KEY` | Clave pública `anon` / *publishable*. Su seguridad depende de RLS. |
+| `VITE_CONTACT_EMAIL` | Correo público de contacto (opcional) |
 
-La clave `service_role` **nunca** va en el frontend ni en `.env.local`.
+**Nunca** pongas la clave `service_role` en variables `VITE_*`: quedarían expuestas en el navegador.
 
-## Supabase
+## Configurar Supabase
 
-1. Crea el proyecto en Supabase.
-2. Aplica las migraciones de `supabase/migrations` en orden. Con la CLI:
-   ```bash
-   supabase link --project-ref <tu-ref>
-   supabase db push
-   ```
-   Sin CLI: pega cada archivo, en orden, en el editor SQL del panel.
-3. En Authentication:
-   - Activa la confirmación de correo.
-   - Agrega a *Redirect URLs* `https://<tu-dominio>/cuenta/confirmada` y `https://<tu-dominio>/cuenta/nueva-contrasena`
-     (y las equivalentes en `http://localhost:5173` para desarrollo).
-   - Configura un SMTP propio antes del lanzamiento: el de Supabase tiene límites bajos.
-4. Crea la primera cuenta administradora desde el editor SQL (rol `postgres`), después de registrarla en la app:
+1. **Aplicar las migraciones** de `supabase/migrations`, en orden, con una de estas opciones:
+   - Supabase CLI: `supabase link --project-ref <ref>` y después `supabase db push`.
+   - SQL Editor del panel: pega y ejecuta cada archivo en orden numérico.
+2. **Auth → Providers → Email**: activa *Confirm email*.
+3. **Auth → URL Configuration**: define *Site URL* y añade a *Redirect URLs* `https://tu-dominio/cuenta` y `https://tu-dominio/cuenta/nueva-contrasena` (en local, `http://localhost:5173/...`).
+4. **Auth → Policies / Security**: contraseña mínima de 10 caracteres y protección de contraseñas filtradas. Recomendado: CAPTCHA y SMTP propio.
+5. **Primer administrador.** Regístrate desde la app, confirma el correo, elige un alias y después ejecuta en el SQL Editor:
+
    ```sql
    insert into public.admin_roles (user_id, role)
-   select id, 'admin' from auth.users where email = 'correo-real@dominio.co';
+   select id, 'admin' from auth.users where email = 'tu-correo@dominio.com';
    ```
-   A partir de ahí, la administración asigna roles con la RPC `admin_set_role`.
-5. Datos de demo (solo desarrollo): `supabase/seed.dev.sql`. Son empresas ficticias marcadas como `[PRUEBA]`.
 
-### Migraciones
+   A partir de ahí, los roles se gestionan con `select public.admin_set_role('<uuid>', 'moderator', true);`, que queda registrado.
+6. **Datos de prueba (solo en desarrollo):** `supabase/seed.dev.sql` crea tres empresas ficticias marcadas como contenido de prueba.
+7. **Importar empresas desde el informe de Supersociedades** («10.000 empresas más grandes»):
 
-| Archivo | Contenido |
-| --- | --- |
-| `20261026000100_base.sql` | `pg_trgm`, normalización, roles de la aplicación, `security_events`, perfiles y validación de alias |
-| `20261026000200_core.sql` | `moderation_events`, empresas, alias de empresa, categorías (las 10 iniciales), experiencias, `evidence_files` |
-| `20261026000300_participation.sql` | Reportes, reclamaciones, respuestas de empresas, apelaciones y recursos legales |
-| `20261026000400_public_api.sql` | Vistas públicas, búsqueda, estadísticas y RPC de moderación y administración |
+   ```bash
+   pip install openpyxl
+   python scripts/importar_empresas.py ruta/al/reporte.xlsx --anio 2025
+   ```
+
+   Genera `supabase/importaciones/empresas_<año>_parte_N.sql` (2.000 empresas por archivo). Ejecútalos en orden en el SQL Editor. Son idempotentes: repetirlos no duplica. El NIT se guarda en `company_private_data` y nunca es público. Las razones sociales idénticas en el mismo departamento se omiten para no crear perfiles indistinguibles; revísalas a mano. Estos archivos no se suben al repositorio.
+8. **Tareas programadas:** ver [`docs/retencion.md`](docs/retencion.md).
 
 ## Pruebas
 
 ```bash
-npm test           # todas las pruebas
+npm test          # todo
+npm run test:db   # seguridad de la base de datos (RLS, privilegios, auditoría)
+npm run test:ui   # validación y recorridos de interfaz
 npm run typecheck
 npm run build
 ```
 
-- `tests/db`: pruebas de seguridad reales. Levantan PostgreSQL 18 en WebAssembly (PGlite) con una réplica mínima de
-  Supabase (esquema `auth`, `auth.uid()` leyendo `request.jwt.claims`, roles `anon` y `authenticated` con los
-  privilegios por defecto de Supabase). Después aplican las migraciones reales y ejecutan las consultas con `SET ROLE`.
-  `rls-sanity.test.ts` comprueba antes que RLS se aplica de verdad.
-- `tests/unit`: esquemas zod y detección de datos personales.
-- `tests/ui`: formulario de compartir, borrador, avisos de configuración y estructura accesible.
+Las pruebas de base de datos aplican las **migraciones reales** sobre [PGlite](https://pglite.dev), un Postgres real compilado a WebAssembly, que reproduce los roles `anon`, `authenticated` y `service_role`, `auth.uid()` y los privilegios por defecto de Supabase. No requieren Docker. Antes del lanzamiento conviene repetirlas contra `supabase start`.
 
 ## Despliegue
 
-El frontend es estático (`npm run build` genera `dist/`). Sirve en Vercel, Netlify, Cloudflare Pages o similar:
+Es un sitio estático (`npm run build` genera `dist/`). Sirve en cualquier hosting con *fallback* a `index.html` para las rutas del cliente (Vercel, Netlify, Cloudflare Pages…). Configura las variables `VITE_*` en el hosting y añade las cabeceras de seguridad indicadas en el checklist.
 
-- Comando de build: `npm run build`. Directorio de salida: `dist`.
-- Define `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en el proveedor.
-- Configura la reescritura de todas las rutas a `index.html` (SPA).
-- Añade cabeceras de seguridad (CSP, `X-Content-Type-Options`, `Referrer-Policy`). Ver `docs/checklist-seguridad.md`.
+## Estructura
 
-## Documentación
+```
+supabase/migrations/   esquema, RLS, funciones y auditoría (8 migraciones)
+supabase/seed.dev.sql  empresas ficticias para desarrollo
+src/config/brand.ts    nombre y textos de marca
+src/index.css          colores de marca (variables en :root)
+src/lib/               cliente Supabase, acceso a datos, validación y errores
+src/pages/             páginas (Admin.tsx se carga aparte)
+src/content/           borradores de políticas
+tests/db/              pruebas de seguridad contra Postgres
+tests/unit, tests/ui   validación y recorridos de interfaz
+docs/                  decisiones, conservación y checklists
+```
 
-- [`docs/decisiones.md`](docs/decisiones.md): decisiones de diseño y siguiente paso.
-- [`docs/checklist-seguridad.md`](docs/checklist-seguridad.md)
-- [`docs/checklist-legal.md`](docs/checklist-legal.md)
-- [`docs/retencion.md`](docs/retencion.md): plazos de conservación y eliminación.
+## Cambiar la identidad visual
+
+- Nombre y textos: `src/config/brand.ts`, `index.html` y `public/favicon.svg`.
+- Colores: variables RGB en `:root` dentro de `src/index.css`.
+- Tipografías: los `@import` de `src/index.css` y `fontFamily` en `tailwind.config.js`.

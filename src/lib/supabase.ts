@@ -3,17 +3,22 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-export const isSupabaseConfigured = Boolean(url && anonKey);
+/** true cuando faltan las variables de entorno: la app lo indica en lugar de simular datos. */
+export const isConfigured = Boolean(url && anonKey && !/FICTICIO|PEGA-AQUI/.test(url + anonKey));
 
-// Si faltan variables no se crea cliente: la app muestra un aviso de
-// configuración en lugar de fallar o simular datos.
-export const supabase: SupabaseClient | null = isSupabaseConfigured
+export const supabase: SupabaseClient | null = isConfigured
   ? createClient(url!, anonKey!, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'pkce' },
     })
   : null;
 
 export function requireClient(): SupabaseClient {
-  if (!supabase) throw new Error('Supabase no está configurado');
+  if (!supabase) throw new AppError('config', 'La conexión con la base de datos no está configurada.');
   return supabase;
+}
+
+export class AppError extends Error {
+  constructor(public kind: 'config' | 'auth' | 'permission' | 'validation' | 'network' | 'not_found' | 'unknown', message: string) {
+    super(message);
+  }
 }

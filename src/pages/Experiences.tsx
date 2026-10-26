@@ -1,113 +1,108 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { listCategories, listExperiences, PAGE_SIZE } from '../lib/api';
+import { plural } from '../lib/format';
 import { ExperienceItem } from '../components/ExperienceItem';
-import { SelectField, TextField } from '../components/Field';
-import { PageHeader } from '../components/PageHeader';
-import { Pagination } from '../components/Pagination';
-import { EmptyState, ErrorState, LoadingState } from '../components/States';
-import { SupabaseGate } from '../components/SupabaseGate';
-import { listCategories, listPublicExperiences, searchCompanies } from '../lib/api';
-import { monthToDate, pluralize } from '../lib/format';
-import { useAsync } from '../lib/useAsync';
+import { CompanyPicker } from '../components/CompanyPicker';
+import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, Pagination, useAsync } from '../components/ui';
 
-const PAGE_SIZE = 10;
+const thisYear = new Date().getFullYear();
+const years = Array.from({ length: thisYear - 1989 }, (_, i) => String(thisYear - i));
 
-function List() {
+export default function Experiences() {
   const [params, setParams] = useSearchParams();
-  const categoryId = Number(params.get('categoria') ?? '') || undefined;
-  const companyQuery = params.get('empresa') ?? '';
-  const from = params.get('desde') ?? '';
-  const to = params.get('hasta') ?? '';
-  const page = Math.max(1, Number(params.get('pagina') ?? '1') || 1);
-  const [form, setForm] = useState({ categoria: categoryId ? String(categoryId) : '', empresa: companyQuery, desde: from, hasta: to });
+  const category = params.get('categoria') ?? '';
+  const companyId = params.get('empresa') ?? '';
+  const fromYear = params.get('desde') ?? '';
+  const toYear = params.get('hasta') ?? '';
+  const page = Math.max(1, Number(params.get('pagina') ?? 1) || 1);
+  const [companyName, setCompanyName] = useState('');
 
-  const categories = useAsync(listCategories, []);
-  const data = useAsync(async () => {
-    let companyId: string | undefined;
-    if (companyQuery) {
-      const match = await searchCompanies({ query: companyQuery, page: 1, pageSize: 1 });
-      if (!match.rows[0]) return { rows: [], total: 0, companyName: null as string | null };
-      companyId = match.rows[0].id;
-    }
-    const list = await listPublicExperiences({
-      categoryId,
-      companyId,
-      from: from ? monthToDate(from) : undefined,
-      to: to ? monthToDate(to) : undefined,
-      page,
-      pageSize: PAGE_SIZE,
-    });
-    return { ...list, companyName: companyId ? list.rows[0]?.company_name ?? null : null };
-  }, [categoryId, companyQuery, from, to, page]);
+  const categories = useAsync(() => (notConfigured ? Promise.resolve([]) : listCategories()), []);
+  const list = useAsync(
+    () => (notConfigured ? Promise.resolve([]) : listExperiences({ category, companyId, fromYear, toYear, page })),
+    [category, companyId, fromYear, toYear, page],
+  );
+  const total = list.data?.[0]?.total_count ?? 0;
 
-  function apply(next: Record<string, string>) {
-    const p = new URLSearchParams();
-    Object.entries(next).forEach(([k, v]) => v && p.set(k, v));
-    setParams(p);
+  function set(next: Record<string, string>) {
+    const merged: Record<string, string> = { categoria: category, empresa: companyId, desde: fromYear, hasta: toYear, pagina: '', ...next };
+    setParams(Object.fromEntries(Object.entries(merged).filter(([, v]) => v)));
   }
 
   return (
-    <>
-      <form
-        className="-mt-8 mb-6 grid gap-4 rounded-xl border border-line bg-paper p-5 sm:grid-cols-2 lg:grid-cols-[1.5fr_1.5fr_1fr_1fr_auto] lg:items-end"
-        onSubmit={(e) => {
-          e.preventDefault();
-          apply({ ...form, empresa: form.empresa.trim() });
-        }}
-        aria-label="Filtrar experiencias"
-      >
-        <SelectField label="Categoría" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })}>
-          <option value="">Todas</option>
-          {categories.status === 'success' &&
-            categories.data.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-        </SelectField>
-        <TextField label="Empresa" type="search" value={form.empresa} onChange={(e) => setForm({ ...form, empresa: e.target.value })} />
-        <TextField label="Desde" type="month" value={form.desde} onChange={(e) => setForm({ ...form, desde: e.target.value })} />
-        <TextField label="Hasta" type="month" value={form.hasta} onChange={(e) => setForm({ ...form, hasta: e.target.value })} />
-        <button type="submit" className="btn-primary">Filtrar</button>
-      </form>
-
-      {data.status === 'loading' && <LoadingState label="Cargando experiencias" />}
-      {data.status === 'error' && <ErrorState message={data.error} onRetry={data.reload} />}
-      {data.status === 'success' &&
-        (data.data.rows.length === 0 ? (
-          <EmptyState title="No hay experiencias publicadas con estos filtros">Prueba con otros filtros.</EmptyState>
-        ) : (
-          <>
-            <p className="text-muted" aria-live="polite">
-              {pluralize(data.data.total, 'experiencia', 'experiencias')}
-              {data.data.companyName ? ` en ${data.data.companyName}` : ''}
-            </p>
-            <div className="border-t border-line">
-              {data.data.rows.map((e) => (
-                <ExperienceItem key={e.id} experience={e} />
-              ))}
-            </div>
-            <Pagination
-              page={page}
-              pageSize={PAGE_SIZE}
-              total={data.data.total}
-              onChange={(p) => apply({ categoria: form.categoria, empresa: companyQuery, desde: from, hasta: to, pagina: String(p) })}
-            />
-          </>
-        ))}
-    </>
-  );
-}
-
-export default function Experiences() {
-  return (
-    <>
-      <PageHeader title="Experiencias" crumbs={[{ to: '/experiencias', label: 'Experiencias' }]}>
-        Relatos revisados por la moderación antes de publicarse. Filtra por categoría, empresa o periodo.
+    <div className="page py-10">
+      <PageHeader title="Experiencias">
+        Relatos publicados tras pasar la moderación. Cada uno refleja la vivencia de quien lo escribe: la plataforma no ha verificado los
+        hechos.
       </PageHeader>
-      <div className="container-page">
-        <SupabaseGate>
-          <List />
-        </SupabaseGate>
-      </div>
-    </>
+
+      {notConfigured ? (
+        <div className="mt-8"><ConfigNotice /></div>
+      ) : (
+        <div className="mt-8 grid gap-10 lg:grid-cols-[17rem_1fr]">
+          <form className="space-y-5" onSubmit={(e) => e.preventDefault()} aria-label="Filtros">
+            <div>
+              <label htmlFor="f-cat" className="label">Categoría</label>
+              <select id="f-cat" className="input" value={category} onChange={(e) => set({ categoria: e.target.value })}>
+                <option value="">Todas</option>
+                {categories.data?.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+              </select>
+            </div>
+            <CompanyPicker
+              label="Empresa"
+              optional
+              value={companyId ? { id: companyId, name: companyName || 'Empresa seleccionada' } : null}
+              onChange={(c) => {
+                setCompanyName(c?.name ?? '');
+                set({ empresa: c?.id ?? '' });
+              }}
+            />
+            <fieldset>
+              <legend className="label">Periodo aproximado</legend>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="f-desde" className="text-sm text-slate">Desde</label>
+                  <select id="f-desde" className="input" value={fromYear} onChange={(e) => set({ desde: e.target.value })}>
+                    <option value="">Cualquiera</option>
+                    {years.map((y) => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="f-hasta" className="text-sm text-slate">Hasta</label>
+                  <select id="f-hasta" className="input" value={toYear} onChange={(e) => set({ hasta: e.target.value })}>
+                    <option value="">Cualquiera</option>
+                    {years.map((y) => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+            {(category || companyId || fromYear || toYear) && (
+              <button type="button" className="btn-link" onClick={() => setParams({})}>Quitar filtros</button>
+            )}
+          </form>
+
+          <section aria-live="polite" aria-busy={list.loading} className="min-w-0">
+            <p className="border-b border-line pb-3 text-sm text-slate">
+              {list.loading ? 'Cargando…' : plural(total, 'experiencia', 'experiencias')}
+            </p>
+            {list.loading ? (
+              <Loading />
+            ) : list.error ? (
+              <div className="mt-6"><ErrorState error={list.error} onRetry={list.reload} /></div>
+            ) : list.data && list.data.length > 0 ? (
+              <div className="max-w-3xl">{list.data.map((exp) => <ExperienceItem key={exp.id} exp={exp} />)}</div>
+            ) : (
+              <div className="mt-6">
+                <EmptyState title="No hay experiencias con estos filtros" action={<Link to="/compartir" className="btn-primary">Compartir una experiencia</Link>}>
+                  Prueba a quitar algún filtro o a ampliar el periodo.
+                </EmptyState>
+              </div>
+            )}
+            <Pagination page={page} total={total} pageSize={PAGE_SIZE} onPage={(p) => set({ pagina: String(p) })} />
+          </section>
+        </div>
+      )}
+    </div>
   );
 }

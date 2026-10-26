@@ -1,49 +1,53 @@
-# Checklist de seguridad
+# Lista de comprobación de seguridad
 
-Leyenda: [x] hecho y probado · [~] hecho sin prueba automatizada · [ ] pendiente.
+Leyenda: ✅ hecho y probado · 🟡 hecho, pendiente de verificar en Supabase real · ⬜ pendiente
 
-## Base de datos
+## Base de datos y permisos
 
-- [x] RLS activado en todas las tablas de `public`. Una prueba falla si alguna tabla queda sin RLS.
-- [x] Privilegios por defecto de Supabase revocados tabla por tabla; las columnas se conceden de forma explícita.
-- [x] La tabla `experiences` no es legible por `anon`. Lo público va por `public_experiences`, que no expone `author_id`.
-- [x] `companies.proposed_by` no es legible por nadie desde la API.
-- [x] Las lecturas públicas nunca devuelven email ni `auth.uid` (prueba sobre las columnas de las vistas).
-- [x] El autor no puede cambiar `status`, `author_id`, `published_at` ni `moderation_reason` (privilegios de columna y trigger).
-- [x] Nadie aprueba su propio contenido, tampoco un moderador.
-- [x] Los cambios de estado solo se hacen por RPC con rol, con motivo obligatorio y registro en `moderation_events`.
-- [x] `moderation_events` y `security_events` son de solo inserción, incluso para el propietario de la tabla (trigger).
-- [x] `admin_roles` no es modificable por usuarios; `admin_set_role` exige admin y no permite cambiar el propio rol.
-- [x] Las RPC administrativas fallan sin rol y no son ejecutables por `anon`.
-- [x] Límite de 3 experiencias cada 24 h por cuenta (trigger) y hash antiduplicado por autor.
-- [x] Las reclamaciones de empresas no dan acceso al autor.
-- [x] No se puede reportar ni reclamar contenido no publicado (no revela su existencia).
-- [x] `evidence_files` sin políticas ni privilegios hasta tener controles de archivos.
-- [x] Funciones `security definer` con `search_path` fijo.
-- [ ] Ejecutar `supabase db lint` y el *Security Advisor* sobre el proyecto real.
-- [ ] Probar las migraciones con `supabase start` (Postgres real de Supabase), no solo con PGlite.
+- ✅ RLS activado en todas las tablas de `public` (lo comprueba una prueba).
+- ✅ Se revocan los privilegios por defecto de Supabase y se conceden por columna.
+- ✅ Anónimos sin acceso a perfiles, correos, borradores, reclamaciones, reportes, moderación, NIT ni archivos.
+- ✅ Un usuario no ve publicaciones no publicadas de otra cuenta.
+- ✅ Un usuario no puede fijar `author_id` ni `status` al crear o editar.
+- ✅ Un usuario no puede aprobar su propio contenido; un moderador tampoco.
+- ✅ Un usuario no puede asignarse roles ni cambiar el estado de su cuenta.
+- ✅ Las reclamaciones no revelan al autor (sin acceso a `author_id` ni al correo).
+- ✅ `moderation_events` es inmutable incluso para el propietario de la base de datos, salvo la purga programada.
+- ✅ Las funciones administrativas fallan sin rol y registran el intento.
+- ✅ Límites de frecuencia y antiduplicados en el servidor.
+- 🟡 Repetir `npm run test:db` contra `supabase start` (Postgres de Supabase con su Auth real) antes del lanzamiento.
+- 🟡 Ejecutar el *Security Advisor* del panel de Supabase y revisar sus avisos. Las funciones `security definer` y el esquema `private` son intencionados.
+- ⬜ Prueba de extremo a extremo con dos cuentas reales y la clave `anon`, haciendo peticiones REST manipuladas contra el proyecto de Supabase real (pendiente de que el proyecto esté conectado).
 
 ## Autenticación
 
-- [~] Confirmación de correo obligatoria (configurar en el panel).
-- [~] Contraseña de al menos 10 caracteres en el formulario. Falta configurar el mismo mínimo en Supabase Auth.
-- [ ] Activar la protección contra contraseñas filtradas y el CAPTCHA (hCaptcha o Turnstile) en registro e ingreso.
-- [ ] SMTP propio con SPF, DKIM y DMARC.
-- [ ] Revisar los límites de tasa de Auth.
+- ✅ Registro con confirmación de correo (`emailRedirectTo`), recuperación de contraseña y PKCE.
+- ✅ Mensaje idéntico en la recuperación de contraseña, exista o no la cuenta.
+- 🟡 En Supabase → Auth: activar «Confirm email», la longitud mínima de contraseña (10) y la protección de contraseñas filtradas.
+- 🟡 Configurar las URL de redirección permitidas (solo los dominios propios).
+- ⬜ Activar el CAPTCHA de Supabase Auth (hCaptcha o Turnstile) en el registro.
+- ⬜ Configurar un SMTP propio para los correos de Auth (el de Supabase tiene límites estrictos).
 
-## Frontend y despliegue
+## Aplicación
 
-- [x] Solo la clave `anon` en el cliente; `service_role` nunca.
-- [x] Sin datos simulados cuando falta configuración.
-- [x] Fuentes autoalojadas (sin peticiones a terceros).
-- [~] El panel de administración se oculta sin rol, pero la seguridad la impone la base de datos.
-- [ ] Cabeceras: `Content-Security-Policy` (limitar `connect-src` al dominio de Supabase), `X-Content-Type-Options: nosniff`,
-      `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `frame-ancestors 'none'`.
-- [ ] Monitoreo de errores sin datos personales.
+- ✅ Ninguna clave `service_role` en el frontend; solo `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
+- ✅ Los errores se traducen a mensajes sin detalles internos (prueba unitaria).
+- ✅ Sin `dangerouslySetInnerHTML`: los relatos se muestran como texto.
+- ✅ Los enlaces externos usan `rel="noopener noreferrer"`.
+- ⬜ Cabeceras de seguridad en el hosting: `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` y `frame-ancestors 'none'`.
+- ⬜ Monitorización de errores sin datos personales (sin correos ni textos de relatos).
+
+## Archivos de respaldo (fase 5, no habilitada)
+
+- ⬜ Bucket privado con políticas de Storage por rol.
+- ⬜ Validar el tipo real (*magic bytes*) y el tamaño en una Edge Function.
+- ⬜ Eliminar metadatos (EXIF, PDF) y avisar de que eso no anonimiza el contenido.
+- ⬜ URL firmadas de corta duración solo para moderación, con registro de cada acceso.
+- ⬜ Plazo de conservación y borrado.
 
 ## Operación
 
-- [ ] Proceso para atender requerimientos de autoridades.
-- [ ] Copias de seguridad y prueba de restauración.
-- [ ] Revisión periódica de `security_events` (`moderation_denied`, `role_change_denied`).
-- [ ] Borrado programado según `docs/retencion.md`.
+- ⬜ Programar `purge_expired_records()` (pg_cron) y el procesamiento de eliminaciones.
+- ⬜ Procedimiento de respuesta ante incidentes: responsables, contención, notificación a la SIC y a los titulares (revisión jurídica).
+- ⬜ Copias de seguridad y prueba de restauración.
+- ⬜ Rotación de claves y revisión periódica de quién tiene rol de administración.

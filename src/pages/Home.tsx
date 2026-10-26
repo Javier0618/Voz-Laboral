@@ -1,151 +1,260 @@
-import { Link } from 'react-router-dom';
-import { CompanySearchForm } from '../components/CompanySearchForm';
-import { ConfigNotice } from '../components/ConfigNotice';
-import { CheckIcon, ReplyIcon, ScaleIcon, ShieldIcon } from '../components/Icons';
-import { usePageTitle } from '../components/PageHeader';
-import { PrivacyDiagram } from '../components/PrivacyDiagram';
-import { LoadingState } from '../components/States';
-import { getGlobalStats } from '../lib/api';
-import { formatPeriod } from '../lib/format';
-import { isSupabaseConfigured } from '../lib/supabase';
-import { useAsync } from '../lib/useAsync';
-import { baseCategories } from '../shared/domain';
+import { useState, type ReactNode } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { listCategories, listExperiences } from '../lib/api';
+import { ExperienceItem } from '../components/ExperienceItem';
+import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, useAsync } from '../components/ui';
 
-function GlobalStats() {
-  const stats = useAsync(getGlobalStats, []);
-  if (stats.status === 'loading') return <LoadingState label="Cargando cifras" />;
-  if (stats.status === 'error') return <p className="text-muted">No pudimos cargar las cifras en este momento.</p>;
-  const s = stats.data;
-  if (s.visible_count === 0) {
-    return <p className="text-lg text-muted">Todavía no hay experiencias publicadas. La primera puede ser la tuya.</p>;
-  }
+export default function Home() {
   return (
-    <dl className="grid gap-6 sm:grid-cols-2">
-      <div className="border-l-2 border-action pl-4">
-        <dt className="text-muted">Experiencias publicadas</dt>
-        <dd className="font-serif text-4xl font-semibold text-ink">{s.visible_count.toLocaleString('es-CO')}</dd>
-      </div>
-      <div className="border-l-2 border-line pl-4">
-        <dt className="text-muted">Periodo cubierto</dt>
-        <dd className="font-serif text-2xl text-ink">{formatPeriod(s.period_from, s.period_to)}</dd>
-      </div>
-    </dl>
+    <>
+      <Hero />
+      {notConfigured && (
+        <div className="page mt-10"><ConfigNotice /></div>
+      )}
+      <RecentExperiences />
+      <Categories />
+      <HowItWorks />
+      <Identity />
+      <Rights />
+    </>
   );
 }
 
-const steps = [
-  { title: 'Creas una cuenta con un alias', text: 'Tu correo sirve para entrar y nunca se muestra.' },
-  { title: 'Cuentas lo que viviste', text: 'Separas lo que viste directamente de lo que te contaron.' },
-  { title: 'La moderación lo revisa', text: 'Se retiran datos personales y ataques antes de publicar.' },
-  { title: 'Se publica con tu alias', text: 'Siempre ves el motivo de cada decisión y puedes apelar.' },
-];
-
-const principles = [
-  { icon: ShieldIcon, title: 'Moderación previa', text: 'Nada se publica sin revisión. Cada decisión queda registrada con su motivo.' },
-  { icon: ScaleIcon, title: 'Sin puntuaciones ni rankings', text: 'Mostramos relatos y su distribución por categoría, no notas que resuman a una empresa.' },
-  { icon: ReplyIcon, title: 'Derecho a responder', text: 'Las empresas verificadas pueden responder y pedir correcciones, sin conocer la identidad de nadie.' },
-];
-
-export default function Home() {
-  usePageTitle('');
+function Hero() {
+  const navigate = useNavigate();
+  const [q, setQ] = useState('');
   return (
-    <>
-      <section className="border-b border-line">
-        <div className="container-page grid gap-12 py-12 sm:py-20 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-16">
-          <div>
-            <p className="font-medium text-action">Transparencia laboral en Colombia</p>
-            <h1 className="mt-3 text-[2.6rem] leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.25rem]">
-              Lo que se vive en el trabajo, contado por quienes lo viven
-            </h1>
-            <p className="mt-5 max-w-[34rem] text-lg leading-relaxed text-muted sm:text-xl">
-              Personas que trabajan o trabajaron en empresas reales comparten su experiencia con un alias. Tu
-              identidad queda protegida.
-            </p>
-            <div className="mt-8 max-w-xl">
-              <CompanySearchForm />
+    <section className="bg-ink text-white">
+      <div className="page grid items-center gap-14 pb-20 pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pb-28 lg:pt-20">
+        <div className="min-w-0">
+          <h1 className="text-[2.5rem] font-medium leading-[2.875rem] tracking-[-0.01em] text-white sm:text-5xl lg:text-[4.25rem] lg:leading-[4.5rem]">
+            Cuenta lo que pasó en tu trabajo. Tu nombre se queda contigo.
+          </h1>
+          <p className="mt-6 max-w-[34rem] text-lg leading-8 text-white/80">
+            Trabajadores en Colombia comparten experiencias sobre salarios, contratos, jornadas y trato en empresas reales. Publicas con
+            un alias, y cada relato pasa por moderación antes de aparecer.
+          </p>
+          <form
+            role="search"
+            className="mt-10 max-w-[36rem]"
+            onSubmit={(e) => {
+              e.preventDefault();
+              navigate(`/empresas${q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ''}`);
+            }}
+          >
+            <label htmlFor="buscar-empresa" className="mb-2 block text-sm font-semibold text-white">Busca una empresa</label>
+            <div className="flex flex-col gap-2 rounded-md bg-white p-1.5 sm:flex-row">
+              <input
+                id="buscar-empresa"
+                type="search"
+                className="block min-h-[52px] w-full rounded border-0 bg-transparent px-3 text-lg text-ink placeholder:text-slate/70 focus:outline-none focus:ring-2 focus:ring-teal/40"
+                placeholder="Nombre, sigla o NIT"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                autoComplete="off"
+              />
+              <button type="submit" className="btn-primary min-h-[52px] px-7 text-base">Buscar</button>
             </div>
-            <ul className="mt-8 flex flex-col gap-2 text-ink sm:flex-row sm:flex-wrap sm:gap-x-6">
-              {['Revisión antes de publicar', 'Tu correo nunca se muestra', 'Puedes apelar cada decisión'].map((t) => (
-                <li key={t} className="flex items-center gap-2">
-                  <CheckIcon className="text-action" />
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <PrivacyDiagram />
+          </form>
+          <p className="mt-6 text-white/75">
+            ¿Viviste algo que otros deberían saber?{' '}
+            <Link to="/compartir" className="font-semibold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white">
+              Comparte tu experiencia
+            </Link>
+          </p>
         </div>
-      </section>
+        <RedactionSpecimen />
+      </div>
+    </section>
+  );
+}
 
-      <section aria-labelledby="como-funciona" className="container-page py-16">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <h2 id="como-funciona" className="text-3xl sm:text-4xl">Cómo funciona</h2>
-          <Link to="/reglas">Leer las reglas de publicación</Link>
+/** Ejemplo ilustrativo: un folio con los datos privados tapados. */
+function RedactionSpecimen() {
+  const bar = (w: string, delay: number) => (
+    <span className="redacted vl-redact" style={{ width: w, animationDelay: `${delay}ms` }} aria-hidden="true" />
+  );
+  return (
+    <figure className="relative isolate min-w-0 lg:ml-6">
+      <div className="folio folio-stack p-6 sm:p-8">
+        <div className="flex items-baseline justify-between gap-4 border-b border-line pb-4 text-sm text-slate">
+          <span>Experiencia de ejemplo</span>
+          <span className="font-serif text-base italic text-ink">Folio 1</span>
         </div>
-        <ol className="mt-8 grid gap-8 border-t border-line pt-8 sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map((s, i) => (
-            <li key={s.title}>
-              <span aria-hidden="true" className="font-serif text-4xl font-semibold text-action">{i + 1}</span>
-              <p className="mt-2 font-semibold text-ink">{s.title}</p>
-              <p className="mt-1 text-muted">{s.text}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
+        <div className="folio-margin mt-5">
+          <dl className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-4 gap-y-3 text-[0.9375rem] sm:grid-cols-[8rem_minmax(0,1fr)]">
+            <dt className="text-slate">Alias público</dt>
+            <dd className="font-semibold">turno_de_noche</dd>
+            <dt className="text-slate">Correo</dt>
+            <dd>{bar('11rem', 250)}<span className="sr-only">oculto</span></dd>
+            <dt className="text-slate">Nombre real</dt>
+            <dd>{bar('8rem', 380)}<span className="sr-only">no se pide</span></dd>
+            <dt className="text-slate">Cuenta interna</dt>
+            <dd>{bar('12rem', 510)}<span className="sr-only">oculta</span></dd>
+            <dt className="text-slate">Empresa</dt>
+            <dd>Empresa de ejemplo</dd>
+            <dt className="text-slate">Periodo</dt>
+            <dd>marzo de 2025</dd>
+          </dl>
+          <p className="testimony mt-6 border-t border-dashed border-line pt-5">
+            Durante tres meses el pago de la quincena llegó con más de una semana de retraso. Mi supervisor, {bar('5.5rem', 640)}
+            <span className="sr-only">nombre omitido</span>, nos decía que esperáramos sin dar fechas.
+          </p>
+        </div>
+      </div>
+      <figcaption className="mt-5 max-w-[30rem] text-sm text-white/70">
+        Ejemplo ilustrativo, no es una experiencia real. Otras personas ven el alias, la empresa, el periodo y el relato. Tu correo y tu
+        cuenta nunca se publican.
+      </figcaption>
+    </figure>
+  );
+}
 
-      <section aria-labelledby="categorias" className="border-y border-line bg-mist">
-        <div className="container-page grid gap-10 py-16 lg:grid-cols-[1fr_2fr]">
-          <div>
-            <h2 id="categorias" className="text-3xl sm:text-4xl">Explora por tema</h2>
-            <p className="mt-3 max-w-sm text-muted">
-              Cada experiencia se clasifica en una de estas categorías. Elige una para leer los relatos publicados.
-            </p>
-          </div>
-          <ul className="grid border-t border-line sm:grid-cols-2 sm:gap-x-8">
-            {baseCategories.map((c) => (
-              <li key={c.id} className="border-b border-line">
-                <Link
-                  to={`/experiencias?categoria=${c.id}`}
-                  className="flex min-h-14 items-center py-3 font-medium text-ink no-underline hover:text-action hover:underline"
-                >
-                  {c.name}
+function SectionHeading({ id, title, children, action }: { id: string; title: string; children?: ReactNode; action?: ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+      <div>
+        <h2 id={id} className="text-3xl sm:text-4xl">{title}</h2>
+        {children && <p className="mt-3 max-w-prose text-slate">{children}</p>}
+      </div>
+      {action}
+    </div>
+  );
+}
+
+function RecentExperiences() {
+  const { data, loading, error, reload } = useAsync(() => (notConfigured ? Promise.resolve([]) : listExperiences({ pageSize: 3 })), []);
+  return (
+    <section className="page mt-20" aria-labelledby="recientes">
+      <SectionHeading id="recientes" title="Experiencias recientes" action={<Link to="/experiencias" className="btn-link">Ver todas las experiencias</Link>}>
+        Relatos que cumplen las reglas de publicación. La moderación no certifica que los hechos sean ciertos.
+      </SectionHeading>
+      <div className="mt-8">
+        {loading ? (
+          <Loading />
+        ) : error ? (
+          <ErrorState error={error} onRetry={reload} />
+        ) : data && data.length > 0 ? (
+          <div className="max-w-3xl">{data.map((exp) => <ExperienceItem key={exp.id} exp={exp} />)}</div>
+        ) : (
+          <EmptyState title="Todavía no hay experiencias publicadas" action={<Link to="/compartir" className="btn-primary">Compartir la primera</Link>}>
+            Cuando una experiencia supere la revisión, aparecerá aquí.
+          </EmptyState>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function Categories() {
+  const { data, loading, error, reload } = useAsync(() => (notConfigured ? Promise.resolve([]) : listCategories()), []);
+  if (notConfigured) return null;
+  return (
+    <section className="page mt-24" aria-labelledby="categorias">
+      <SectionHeading id="categorias" title="Qué puedes contar">
+        Elige la categoría que mejor describa lo que viviste. Cada una lleva a las experiencias publicadas sobre ese tema.
+      </SectionHeading>
+      <div className="mt-8">
+        {loading ? <Loading /> : error ? <ErrorState error={error} onRetry={reload} /> : (
+          <ul className="grid border-t border-ink/80 sm:grid-cols-2 sm:gap-x-12">
+            {data?.map((c) => (
+              <li key={c.slug} className="border-b border-line">
+                <Link to={`/experiencias?categoria=${c.slug}`} className="group block py-5">
+                  <span className="font-serif text-xl text-ink group-hover:text-teal-strong group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
+                    {c.name}
+                  </span>
+                  <span className="mt-1 block text-[0.9375rem] text-slate">{c.description}</span>
                 </Link>
               </li>
             ))}
           </ul>
-        </div>
-      </section>
+        )}
+      </div>
+    </section>
+  );
+}
 
-      <section aria-labelledby="principios" className="container-page py-16">
-        <h2 id="principios" className="text-3xl sm:text-4xl">Cómo cuidamos la información</h2>
-        <ul className="mt-8 grid gap-10 md:grid-cols-3">
-          {principles.map(({ icon: I, title, text }) => (
-            <li key={title}>
-              <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-action-tint text-action">
-                <I width={22} height={22} />
+function HowItWorks() {
+  const steps = [
+    { title: 'Escribes tu experiencia', text: 'Eliges la empresa, la categoría y un periodo aproximado. Antes de enviarla ves cómo quedará.' },
+    { title: 'Moderación la revisa', text: 'Comprobamos que cumpla las reglas: sin datos personales de terceros, sin amenazas, sin documentos confidenciales. No juzgamos si los hechos son ciertos.' },
+    { title: 'Se publica o te pedimos ajustes', text: 'Ves el estado y el motivo de cada decisión en tu cuenta. Si no estás de acuerdo, puedes apelar.' },
+  ];
+  return (
+    <section className="mt-24 bg-mist" aria-labelledby="como-funciona">
+      <div className="page py-16 sm:py-20">
+        <SectionHeading id="como-funciona" title="Cómo se publica una experiencia" />
+        <ol className="relative mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
+          {/* Línea de tiempo: une los tres pasos en escritorio. */}
+          <span aria-hidden="true" className="absolute left-5 right-5 top-5 hidden h-px bg-ink/25 md:block" />
+          {steps.map((s, i) => (
+            <li key={s.title} className="relative flex gap-5 md:block">
+              <span className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink font-serif text-lg text-white">
+                {i + 1}
               </span>
-              <p className="mt-4 text-lg font-semibold text-ink">{title}</p>
-              <p className="mt-1 text-muted">{text}</p>
+              <div className="md:mt-6">
+                <h3 className="font-sans text-lg font-semibold">{s.title}</h3>
+                <p className="mt-2 text-slate">{s.text}</p>
+              </div>
             </li>
           ))}
-        </ul>
-      </section>
+        </ol>
+      </div>
+    </section>
+  );
+}
 
-      <section aria-labelledby="cifras" className="container-page">
-        <div className="grid gap-8 rounded-xl border border-line p-6 sm:p-10 lg:grid-cols-[1fr_1.2fr] lg:items-center">
-          <div>
-            <h2 id="cifras" className="text-3xl">Lo que hay hasta ahora</h2>
-            <p className="mt-3 max-w-prose text-muted">
-              Las cifras solo reflejan lo que la plataforma ha recibido y no describen a toda una empresa.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/experiencias" className="btn-secondary">Leer experiencias</Link>
-              <Link to="/compartir" className="btn-primary">Compartir experiencia</Link>
-            </div>
-          </div>
-          <div>{isSupabaseConfigured ? <GlobalStats /> : <ConfigNotice />}</div>
+function Identity() {
+  const visible = ['Tu alias', 'La empresa y la categoría', 'El periodo aproximado (mes y año)', 'El relato, tal como se aprobó'];
+  const hidden = ['Tu correo y tu contraseña', 'Tu identificador de cuenta', 'Los datos técnicos de acceso', 'Quién eres, incluso ante una reclamación de la empresa'];
+  return (
+    <section className="page mt-24" aria-labelledby="identidad">
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+        <div>
+          <h2 id="identidad" className="text-3xl sm:text-4xl">No prometemos anonimato absoluto. Te decimos qué se ve y qué no.</h2>
+          <p className="mt-5 max-w-prose text-slate">
+            Si tu relato incluye detalles que solo tú conoces, alguien de tu entorno podría reconocerte. Por eso te avisamos cuando el texto
+            parece incluir datos personales y ocultamos el desglose por categorías cuando una empresa tiene muy pocas experiencias.
+          </p>
+          <Link to="/politicas/privacidad" className="btn-link mt-5 inline-block">Qué datos tratamos y por cuánto tiempo</Link>
         </div>
-      </section>
-    </>
+        <div className="grid gap-8 sm:grid-cols-2">
+          <div>
+            <h3 className="border-b border-ink/80 pb-3 font-sans text-base font-semibold">Lo que ven otras personas</h3>
+            <ul className="mt-2">
+              {visible.map((v) => <li key={v} className="border-b border-line py-3">{v}</li>)}
+            </ul>
+          </div>
+          <div>
+            <h3 className="border-b border-ink/80 pb-3 font-sans text-base font-semibold">Lo que nunca se publica</h3>
+            <ul className="mt-2">
+              {hidden.map((v) => (
+                <li key={v} className="flex items-center gap-3 border-b border-line py-3">
+                  <span aria-hidden="true" className="h-2.5 w-6 shrink-0 rounded-[2px] bg-ink" />
+                  {v}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Rights() {
+  return (
+    <section className="page mt-24" aria-labelledby="derechos-inicio">
+      <div className="grid items-center gap-6 border-y border-ink/80 py-10 md:grid-cols-[minmax(0,1fr)_auto] md:gap-12">
+        <div>
+          <h2 id="derechos-inicio" className="text-3xl">Conoce tus derechos laborales</h2>
+          <p className="mt-3 max-w-prose text-slate">
+            Guías de información general con su fuente oficial y la fecha de su última revisión. No sustituyen la orientación del Ministerio
+            del Trabajo, de un inspector de trabajo ni de un abogado.
+          </p>
+        </div>
+        <Link to="/derechos" className="btn-primary justify-self-start px-6">Ver las guías</Link>
+      </div>
+    </section>
   );
 }
