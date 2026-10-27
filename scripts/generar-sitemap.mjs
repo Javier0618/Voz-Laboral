@@ -16,7 +16,7 @@ if (!existsSync(out)) {
 }
 if (!site) {
   console.warn('[sitemap] Falta SITE_URL: no se genera el mapa del sitio.');
-  writeFileSync(new URL('robots.txt', out), 'User-agent: *\nDisallow: /cuenta\nDisallow: /moderacion\nDisallow: /seguimiento/\n');
+  writeFileSync(new URL('robots.txt', out), 'User-agent: *\nDisallow: /cuenta\nDisallow: /moderacion\nDisallow: /seguimiento/\nDisallow: /avisos\n');
   process.exit(0);
 }
 
@@ -60,6 +60,6 @@ const xml = [
 writeFileSync(new URL('sitemap.xml', out), xml);
 writeFileSync(
   new URL('robots.txt', out),
-  `User-agent: *\nDisallow: /cuenta\nDisallow: /moderacion\nDisallow: /seguimiento/\n\nSitemap: ${site}/sitemap.xml\n`,
+  `User-agent: *\nDisallow: /cuenta\nDisallow: /moderacion\nDisallow: /seguimiento/\nDisallow: /avisos\n\nSitemap: ${site}/sitemap.xml\n`,
 );
 console.log(`[sitemap] ${urls.size} direcciones en dist/sitemap.xml`);

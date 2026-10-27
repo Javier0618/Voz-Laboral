@@ -19,6 +19,9 @@ Plataforma independiente de transparencia laboral para Colombia. Los trabajadore
 | Compartir sin cuenta, con enlace privado de seguimiento y opción de vincular a una cuenta | Implementado y probado en la base de datos |
 | Reacciones de apoyo («Me pasó igual», «Me sirvió», «Gracias») y comentarios con moderación | Implementado y probado en la base de datos |
 | Página «Quiénes somos y cómo moderamos» | Implementado |
+| Página propia de cada experiencia (`/experiencias/:id`) con botón Compartir (WhatsApp, copiar enlace) | Implementado |
+| Avisos para quien publica: comentarios, reacciones y decisiones de moderación (campana y `/avisos`) | Implementado y probado en la base de datos |
+| `sitemap.xml` y `robots.txt` generados al compilar | Implementado (requiere `SITE_URL`) |
 | Historial propio: estados, motivos, edición, retirada y apelación | Implementado |
 | Panel de moderación: cola, comentarios, reportes, reclamaciones, apelaciones, catálogo, guías e historial | Implementado |
 | Reclamaciones de empresas y respuestas empresariales | Implementado |
@@ -49,6 +52,7 @@ Sin variables de Supabase la app arranca igualmente y muestra un aviso de config
 | `VITE_SUPABASE_URL` | URL del proyecto (Settings → API) |
 | `VITE_SUPABASE_ANON_KEY` | Clave pública `anon` / *publishable*. Su seguridad depende de RLS. |
 | `VITE_CONTACT_EMAIL` | Correo público de contacto (opcional) |
+| `SITE_URL` | Dominio público, por ejemplo `https://vozlaboral.co`. Solo se usa al compilar para generar `sitemap.xml` y `robots.txt`. En Netlify se toma la variable `URL` si no la defines. |
 
 **Nunca** pongas la clave `service_role` en variables `VITE_*`: quedarían expuestas en el navegador.
 
@@ -99,7 +103,7 @@ Es un sitio estático (`npm run build` genera `dist/`). Sirve en cualquier hosti
 ## Estructura
 
 ```
-supabase/migrations/   esquema, RLS, funciones y auditoría (14 migraciones)
+supabase/migrations/   esquema, RLS, funciones y auditoría (15 migraciones)
 supabase/seed.dev.sql  empresas ficticias para desarrollo
 src/config/brand.ts    nombre y textos de marca
 src/index.css          colores de marca (variables en :root)

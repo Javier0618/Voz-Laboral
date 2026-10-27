@@ -11,6 +11,7 @@ import Share from './pages/Share';
 import Tracking from './pages/Tracking';
 import About from './pages/About';
 import ExperienceDetail from './pages/ExperienceDetail';
+import Notifications from './pages/Notifications';
 import Account, { NewPasswordPage } from './pages/Account';
 import Claim from './pages/Claim';
 import PolicyPage, { NotFound } from './pages/Policies';
@@ -35,6 +36,7 @@ export function AppRoutes() {
         <Route path="cuenta" element={<Account />} />
         <Route path="seguimiento/:token" element={<Tracking />} />
         <Route path="como-funciona" element={<About />} />
+        <Route path="avisos" element={<Notifications />} />
         <Route path="cuenta/nueva-contrasena" element={<NewPasswordPage />} />
         <Route path="politicas/:slug" element={<PolicyPage />} />
         <Route path="moderacion" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><Admin /></Suspense>} />

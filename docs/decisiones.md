@@ -34,6 +34,17 @@ Este documento registra las decisiones tomadas y los supuestos asumidos. Cuando 
 | Compartir sin cuenta con enlace privado de seguimiento | Baja la barrera de entrada. Solo se guarda el hash del token (sha256). Quien tiene el enlace ve el estado, las reacciones y los comentarios, y puede vincular la experiencia a su cuenta. |
 | Freno global de 30 envíos sin cuenta por hora | Sin cuenta no hay a quién limitar individualmente. Antes del lanzamiento hay que añadir CAPTCHA (ver el checklist de seguridad). |
 
+## Página de experiencia y avisos (migración 1500)
+
+| Decisión | Motivo |
+|---|---|
+| Cada experiencia publicada tiene su página (`/experiencias/:id`) | Se puede enlazar y compartir: la gente comparte experiencias concretas, no portadas. |
+| Compartir con el menú nativo del teléfono, WhatsApp o copiar enlace | WhatsApp es el canal principal en Colombia; no se cargan botones ni scripts de redes sociales que rastreen a las personas. |
+| Avisos dentro de la web (campana y `/avisos`), sin correo por ahora | El correo exige un servidor de envío y una función con `service_role`. Queda como siguiente paso. |
+| Comentarios y reacciones se agrupan en un aviso mientras no se lea | Evita llenar la lista con un aviso por cada reacción. |
+| No hay aviso por lo que hace la propia persona | Ni al reaccionar o comentar en lo propio, ni al retirar su experiencia. |
+| Vistas previas en redes con etiquetas fijas | Una SPA no puede dar a WhatsApp una vista previa distinta por página sin un paso en el servidor (función en Netlify o en el VPS). Queda pendiente. |
+
 ## Supuestos
 
 - La relación con la empresa, el periodo (mes y año) y la indicación de que hay documentos son públicos. El resto de metadatos no.

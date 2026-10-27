@@ -122,6 +122,24 @@ export async function getPublicExperience(id: string) {
   return rows[0] ?? null;
 }
 
+// ---------------------------------------------------------------- avisos
+export interface AppNotification {
+  id: string; kind: 'comentario' | 'reaccion' | 'estado'; experience_id: string; experience_title: string; company_name: string;
+  count: number; new_status: ExperienceStatus | null; read_at: string | null; created_at: string; experience_public: boolean;
+}
+
+export function listNotifications() {
+  return run<AppNotification[]>(requireClient().rpc('my_notifications', { p_limit: 50 }));
+}
+
+export function unreadNotificationsCount() {
+  return run<number>(requireClient().rpc('unread_notifications_count'));
+}
+
+export function markNotificationsRead(ids?: string[]) {
+  return run(requireClient().rpc('mark_notifications_read', { p_ids: ids ?? null }));
+}
+
 // ---------------------------------------------------------------- interacción
 export async function getEngagement(ids: string[]) {
   if (!ids.length) return [] as Engagement[];

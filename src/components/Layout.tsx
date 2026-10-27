@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { brand } from '../config/brand';
 import { useAuth } from '../auth/AuthProvider';
+import { NotificationBell } from './NotificationBell';
 
 const nav = [
   { to: '/empresas', label: 'Empresas' },
@@ -57,17 +58,21 @@ export function Layout() {
             ))}
             {isModerator && <NavLink to="/moderacion" className={navClass}>Moderación</NavLink>}
             <NavLink to="/cuenta" className={navClass}>{session ? 'Mi cuenta' : 'Iniciar sesión'}</NavLink>
+            {session && <NotificationBell />}
             <Link to="/compartir" className="btn ml-3 bg-white text-ink hover:bg-teal-tint">Compartir experiencia</Link>
           </nav>
+          <div className="flex items-center gap-1 lg:hidden">
+          {session && <NotificationBell />}
           <button
             type="button"
-            className="btn border border-white/30 text-white hover:border-white lg:hidden"
+            className="btn border border-white/30 text-white hover:border-white"
             aria-expanded={open}
             aria-controls="menu-movil"
             onClick={() => setOpen((v) => !v)}
           >
             {open ? 'Cerrar menú' : 'Menú'}
           </button>
+          </div>
         </div>
         {open && (
           <nav id="menu-movil" aria-label="Principal" className="border-t border-white/15 lg:hidden">
