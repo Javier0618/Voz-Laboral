@@ -34,7 +34,18 @@ Necesita Playwright con Chromium y ffmpeg. Tarda unos 3 minutos.
 
 Las tarjetas de experiencias son ejemplos ilustrativos y así lo dice el video. Si cambia el número de guías publicadas, actualiza la escena 7 de `promo.html`.
 
-## Guion de voz (opcional)
+## Voz
+
+`voz.cjs` une una locución al video: corta el audio por frases y pone cada una en su escena, con el volumen normalizado para redes (−14 LUFS).
+
+```bash
+node video/render.cjs sin-voz.mp4
+node video/voz.cjs locucion.mp3 sin-voz.mp4 vozlaboral-presentacion-con-voz.mp4
+```
+
+Los cortes de `voz.cjs` corresponden a la locución de ElevenLabs con la voz «Diego». Si grabas otra, ajusta los segundos de cada frase.
+
+## Guion de voz
 
 El video funciona sin sonido, como se ve la mayoría de los videos en redes. Si quieres grabar una voz, este guion sigue las escenas (unas 140 palabras):
 
