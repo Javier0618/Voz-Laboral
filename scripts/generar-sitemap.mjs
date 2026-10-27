@@ -1,11 +1,13 @@
 // Genera dist/sitemap.xml y dist/robots.txt después de `vite build`.
 // Usa la clave pública (anon) y solo funciones/columnas públicas.
-// Variables: SITE_URL (dominio público, p. ej. https://vozlaboral.co),
+// Variables: SITE_URL (dominio público, p. ej. https://vozlaboral.co; si falta,
+// se usa el de Netlify o el de producción de Vercel),
 // VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY. Si falta algo o Supabase no
 // responde, genera el mapa solo con las páginas fijas: nunca rompe el build.
 import { writeFileSync, existsSync } from 'node:fs';
 
-const site = (process.env.SITE_URL || process.env.URL || '').replace(/\/$/, '');
+const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '';
+const site = (process.env.SITE_URL || process.env.URL || vercel).replace(/\/$/, '');
 const api = (process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
 const key = process.env.VITE_SUPABASE_ANON_KEY || '';
 const out = new URL('../dist/', import.meta.url);

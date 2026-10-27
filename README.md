@@ -53,7 +53,7 @@ Sin variables de Supabase la app arranca igualmente y muestra un aviso de config
 | `VITE_SUPABASE_URL` | URL del proyecto (Settings → API) |
 | `VITE_SUPABASE_ANON_KEY` | Clave pública `anon` / *publishable*. Su seguridad depende de RLS. |
 | `VITE_CONTACT_EMAIL` | Correo público de contacto (opcional) |
-| `SITE_URL` | Dominio público, por ejemplo `https://vozlaboral.co`. Solo se usa al compilar para generar `sitemap.xml` y `robots.txt`. En Netlify se toma la variable `URL` si no la defines. |
+| `SITE_URL` | Dominio público, por ejemplo `https://vozlaboral.co`. Solo se usa al compilar para generar `sitemap.xml` y `robots.txt`. En Netlify se toma la variable `URL` y en Vercel `VERCEL_PROJECT_PRODUCTION_URL` si no la defines. |
 
 **Nunca** pongas la clave `service_role` en variables `VITE_*`: quedarían expuestas en el navegador.
 
