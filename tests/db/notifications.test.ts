@@ -104,3 +104,63 @@ describe('avisos', () => {
     expect(await errorOf(as(db, 'anon', () => db.query(`select public.my_notifications()`)))).toMatch(/permission denied/);
   });
 });
+
+describe('respuestas a comentarios', () => {
+  let parentId: string;
+
+  beforeAll(async () => {
+    await as(db, lectora, () => db.query(`insert into public.experience_comments (experience_id, body) values ($1, 'Comentario al que responderán.')`, [published]));
+    const { rows } = await as(db, lectora, () => db.query<{ id: string }>(`select id from public.list_comments($1) where body = 'Comentario al que responderán.'`, [published]));
+    parentId = rows[0].id;
+    await as(db, lectora, () => db.query(`select public.mark_notifications_read()`));
+    await as(db, autora, () => db.query(`select public.mark_notifications_read()`));
+  });
+
+  it('se responde a un comentario y la respuesta indica a qué comentario responde', async () => {
+    const tercera = await createUser(db, { alias: 'tercera_vez' });
+    await as(db, tercera, () => db.query(`insert into public.experience_comments (experience_id, parent_id, body) values ($1, $2, 'Te respondo a ti.')`, [published, parentId]));
+    const { rows } = await as(db, 'anon', () => db.query<{ parent_id: string }>(`select parent_id from public.list_comments($1) where body = 'Te respondo a ti.'`, [published]));
+    expect(rows[0].parent_id).toBe(parentId);
+  });
+
+  it('avisa a quien escribió el comentario y al autor de la experiencia', async () => {
+    const lect = await mine(lectora);
+    expect(lect.filter((r) => r.read_at === null).map((r) => r.kind)).toEqual(['respuesta']);
+    const aut = await mine(autora);
+    expect(aut.filter((r) => r.read_at === null).map((r) => r.kind)).toEqual(['comentario']);
+  });
+
+  it('no se responde a una respuesta ni a un comentario de otra experiencia', async () => {
+    const { rows } = await as(db, 'anon', () => db.query<{ id: string }>(`select id from public.list_comments($1) where body = 'Te respondo a ti.'`, [published]));
+    expect(
+      await errorOf(as(db, autora, () => db.query(`insert into public.experience_comments (experience_id, parent_id, body) values ($1, $2, 'Respuesta a respuesta.')`, [published, rows[0].id]))),
+    ).toMatch(/VL063/);
+    const otraAutora = await createUser(db, { alias: 'otra_autora' });
+    const other = await createExperience(db, otraAutora, companyId, `${SAMPLE_BODY} Otro relato publicado para respuestas.`);
+    await as(db, moderator, () => db.query(`select public.moderate_experience($1, 'publicada', 'Cumple las reglas de publicación.')`, [other]));
+    expect(
+      await errorOf(as(db, lectora, () => db.query(`insert into public.experience_comments (experience_id, parent_id, body) values ($1, $2, 'Cruzado.')`, [other, parentId]))),
+    ).toMatch(/VL063/);
+  });
+});
+
+describe('balance de tono en el perfil de empresa', () => {
+  it('oculta el balance con menos de 3 experiencias y lo muestra a partir de 3', async () => {
+    const solo = await createCompany(db, admin, 'Empresa Demo Cuatro S.A.S.', 'empresa-demo-cuatro');
+    const ids: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      const author = await createUser(db, { alias: `persona_balance_${i}` });
+      const id = await createExperience(db, author, solo, `${SAMPLE_BODY} Balance ${i}.`);
+      await as(db, moderator, () => db.query(`select public.moderate_experience($1, 'publicada', 'Cumple las reglas de publicación.')`, [id]));
+      ids.push(id);
+      if (i === 1) {
+        const p = await as(db, 'anon', () => db.query<{ p: { tones: unknown } }>(`select public.company_profile('empresa-demo-cuatro') as p`));
+        expect(p.rows[0].p.tones).toBeNull();
+      }
+    }
+    await db.query(`update public.experiences set tone = 'positiva' where id = $1`, [ids[0]]);
+    const p = await as(db, 'anon', () => db.query<{ p: { tones: Record<string, number>; categories: { positiva: number; count: number }[] } }>(`select public.company_profile('empresa-demo-cuatro') as p`));
+    expect(p.rows[0].p.tones).toEqual({ positiva: 1, mixta: 2, negativa: 0 });
+    expect(p.rows[0].p.categories[0]).toMatchObject({ count: 3, positiva: 1 });
+  });
+});

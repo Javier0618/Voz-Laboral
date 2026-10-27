@@ -1,9 +1,36 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getCompanyProfile, listCompanyResponses, listExperiences, PAGE_SIZE } from '../lib/api';
+import { getCompanyProfile, listCompanyResponses, listExperiences, PAGE_SIZE, type Tone } from '../lib/api';
 import { formatDate, plural } from '../lib/format';
 import { ExperienceItem } from '../components/ExperienceItem';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, Pagination, useAsync } from '../components/ui';
+
+/** Cuántas experiencias buenas, mixtas y malas: sin puntuaciones ni rankings. */
+function ToneBalance({ tones }: { tones: Record<Tone, number> }) {
+  const rows: { key: Tone; label: string; bar: string }[] = [
+    { key: 'positiva', label: 'Buenas', bar: 'bg-teal' },
+    { key: 'mixta', label: 'Mixtas', bar: 'bg-slate/40' },
+    { key: 'negativa', label: 'Malas', bar: 'bg-amber' },
+  ];
+  return (
+    <section aria-labelledby="balance">
+      <h2 id="balance" className="border-b border-ink/80 pb-3 font-sans text-base font-semibold">Cómo les fue a quienes escribieron</h2>
+      <div className="mt-5 flex h-3 overflow-hidden rounded-full bg-mist" aria-hidden="true">
+        {rows.map((r) => <div key={r.key} className={r.bar} style={{ flexGrow: tones[r.key] }} />)}
+      </div>
+      <dl className="mt-4 grid grid-cols-3 gap-3 text-center">
+        {rows.map((r) => (
+          <div key={r.key} className="rounded border border-line px-2 py-3">
+            <dt className="flex items-center justify-center gap-1.5 text-xs text-slate">
+              <span aria-hidden="true" className={`h-2 w-2 rounded-full ${r.bar}`} />{r.label}
+            </dt>
+            <dd className="mt-1 font-serif text-2xl">{tones[r.key]}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
 
 export default function CompanyProfile() {
   const { slug = '' } = useParams();
@@ -62,6 +89,8 @@ export default function CompanyProfile() {
         </section>
 
         <aside className="space-y-8 lg:border-l lg:border-line lg:pl-8">
+          {p.tones && <ToneBalance tones={p.tones} />}
+
           <section aria-labelledby="resumen">
             <h2 id="resumen" className="border-b border-ink/80 pb-3 font-sans text-base font-semibold">Experiencias por categoría</h2>
             {p.visible_experiences === 0 ? (
@@ -80,9 +109,22 @@ export default function CompanyProfile() {
                       <span>{cat.name}</span>
                       <span className="font-semibold tabular-nums">{cat.count}</span>
                     </div>
-                    <div className="mt-1 h-1.5 rounded-full bg-mist" aria-hidden="true">
-                      <div className="h-1.5 rounded-full bg-navy" style={{ width: `${(cat.count / max) * 100}%` }} />
+                    <div className="mt-1 flex h-1.5 overflow-hidden rounded-full bg-mist" aria-hidden="true" style={{ width: `${(cat.count / max) * 100}%` }}>
+                      {cat.positiva !== undefined ? (
+                        <>
+                          <div className="bg-teal" style={{ flexGrow: cat.positiva ?? 0 }} />
+                          <div className="bg-slate/40" style={{ flexGrow: cat.mixta ?? 0 }} />
+                          <div className="bg-amber" style={{ flexGrow: cat.negativa ?? 0 }} />
+                        </>
+                      ) : (
+                        <div className="flex-1 bg-navy" />
+                      )}
                     </div>
+                    {cat.positiva !== undefined && (
+                      <p className="mt-1 text-xs text-slate">
+                        {cat.positiva} {cat.positiva === 1 ? 'buena' : 'buenas'} · {cat.mixta} {cat.mixta === 1 ? 'mixta' : 'mixtas'} · {cat.negativa} {cat.negativa === 1 ? 'mala' : 'malas'}
+                      </p>
+                    )}
                   </li>
                 ))}
               </ul>

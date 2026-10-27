@@ -164,12 +164,62 @@ function CommentReport({ experienceId, commentId, onDone }: { experienceId: stri
   );
 }
 
-function CommentItem({ c, experienceId, onDeleted }: { c: ExperienceComment; experienceId: string; onDeleted: () => void }) {
+function ReplyForm({ experienceId, parentId, onDone }: { experienceId: string; parentId: string; onDone: (sent: boolean) => void }) {
+  const [text, setText] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  return (
+    <form
+      className="mt-3"
+      noValidate
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const parsed = commentSchema.safeParse(text);
+        if (!parsed.success) return setError(parsed.error.issues[0].message);
+        setBusy(true);
+        setError(null);
+        try {
+          await addComment(experienceId, parsed.data, parentId);
+          onDone(true);
+        } catch (err) {
+          setError((err as AppError).message);
+          setBusy(false);
+        }
+      }}
+    >
+      <label htmlFor={`respuesta-${parentId}`} className="sr-only">Tu respuesta</label>
+      <textarea
+        id={`respuesta-${parentId}`}
+        className="input min-h-[72px]"
+        maxLength={COMMENT_MAX}
+        value={text}
+        autoFocus
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Escribe tu respuesta. Sin nombres ni datos de contacto."
+      />
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        <button type="submit" className="btn-primary min-h-[40px]" disabled={busy}>{busy ? 'Publicando…' : 'Responder'}</button>
+        <button type="button" className="text-sm text-slate hover:underline" onClick={() => onDone(false)}>Cancelar</button>
+      </div>
+      {error && <p className="field-error">{error}</p>}
+    </form>
+  );
+}
+
+function CommentItem({ c, experienceId, onChanged, replies = [], canReply = false, isReply = false }: {
+  c: ExperienceComment;
+  experienceId: string;
+  onChanged: () => void;
+  replies?: ExperienceComment[];
+  canReply?: boolean;
+  isReply?: boolean;
+}) {
   const { session } = useAuth();
   const [reporting, setReporting] = useState(false);
+  const [replying, setReplying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   return (
-    <li className="border-t border-line py-4 first:border-t-0">
+    <li className={isReply ? 'mt-3 border-l-2 border-line pl-4' : 'border-t border-line py-4 first:border-t-0'}>
       <p className="flex flex-wrap items-center gap-x-2 text-sm">
         <span className="font-semibold">{c.author_alias}</span>
         {c.is_experience_author && <span className="rounded-full bg-ink px-2 py-0.5 text-xs font-semibold text-white">Autor de la experiencia</span>}
@@ -182,6 +232,9 @@ function CommentItem({ c, experienceId, onDeleted }: { c: ExperienceComment; exp
       </p>
       <p className="mt-1 whitespace-pre-line text-ink">{c.body}</p>
       <div className="mt-1 flex gap-4 text-sm">
+        {canReply && !replying && c.status === 'publicado' && (
+          <button type="button" className="font-semibold text-teal-strong hover:underline" onClick={() => setReplying(true)}>Responder</button>
+        )}
         {c.is_mine ? (
           <button
             type="button"
@@ -189,7 +242,7 @@ function CommentItem({ c, experienceId, onDeleted }: { c: ExperienceComment; exp
             onClick={async () => {
               try {
                 await deleteMyComment(c.id);
-                onDeleted();
+                onChanged();
               } catch (err) {
                 setError((err as AppError).message);
               }
@@ -203,6 +256,21 @@ function CommentItem({ c, experienceId, onDeleted }: { c: ExperienceComment; exp
       </div>
       {reporting && <CommentReport experienceId={experienceId} commentId={c.id} onDone={() => setReporting(false)} />}
       {error && <p className="field-error">{error}</p>}
+      {replies.length > 0 && (
+        <ul aria-label={`Respuestas a ${c.author_alias}`}>
+          {replies.map((r) => <CommentItem key={r.id} c={r} experienceId={experienceId} onChanged={onChanged} isReply />)}
+        </ul>
+      )}
+      {replying && (
+        <ReplyForm
+          experienceId={experienceId}
+          parentId={c.id}
+          onDone={(sent) => {
+            setReplying(false);
+            if (sent) onChanged();
+          }}
+        />
+      )}
     </li>
   );
 }
@@ -267,7 +335,18 @@ export function Comments({ experienceId, enabled, count, onCountChange, startOpe
           {items === null && !error ? (
             <p className="py-4 text-sm text-slate">Cargando comentarios…</p>
           ) : items && items.length > 0 ? (
-            <ul>{items.map((c) => <CommentItem key={c.id} c={c} experienceId={experienceId} onDeleted={reload} />)}</ul>
+            <ul>
+              {items.filter((c) => !c.parent_id).map((c) => (
+                <CommentItem
+                  key={c.id}
+                  c={c}
+                  experienceId={experienceId}
+                  onChanged={reload}
+                  replies={items.filter((r) => r.parent_id === c.id)}
+                  canReply={enabled && Boolean(session && profile?.alias)}
+                />
+              ))}
+            </ul>
           ) : (
             <p className="py-4 text-sm text-slate">{enabled ? 'Aún no hay comentarios. Puedes ser la primera persona en comentar.' : 'Su autor desactivó los comentarios.'}</p>
           )}

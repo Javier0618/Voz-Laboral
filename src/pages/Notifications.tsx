@@ -8,6 +8,7 @@ import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeade
 
 function message(n: AppNotification) {
   if (n.kind === 'comentario') return n.count === 1 ? 'Alguien comentó tu experiencia' : `${n.count} comentarios nuevos en tu experiencia`;
+  if (n.kind === 'respuesta') return n.count === 1 ? 'Alguien respondió tu comentario' : `${n.count} respuestas a tu comentario`;
   if (n.kind === 'reaccion') return n.count === 1 ? 'Alguien reaccionó a tu experiencia' : `${n.count} reacciones nuevas a tu experiencia`;
   if (n.new_status === 'publicada') return 'Tu experiencia se publicó';
   if (n.new_status === 'requiere_ajustes') return 'Te pidieron ajustes en tu experiencia';
@@ -20,7 +21,7 @@ function target(n: AppNotification) {
   return n.experience_public ? `/experiencias/${n.experience_id}` : '/cuenta';
 }
 
-const icon: Record<AppNotification['kind'], string> = { comentario: '“', reaccion: '+', estado: '•' };
+const icon: Record<AppNotification['kind'], string> = { comentario: '“', respuesta: '↩', reaccion: '+', estado: '•' };
 
 export default function Notifications() {
   const { session, loading: authLoading } = useAuth();

@@ -20,7 +20,9 @@ export interface CompanyProfile {
   company: { id: string; slug: string; trade_name: string; legal_name: string | null; sector: string; city: string; department: string; website: string | null; updated_at: string; aliases: string[] };
   visible_experiences: number;
   breakdown_hidden: boolean;
-  categories: { slug: string; name: string; count: number }[];
+  /** Balance de tono; null si hay menos de 3 experiencias. */
+  tones: Record<Tone, number> | null;
+  categories: { slug: string; name: string; count: number; positiva?: number; mixta?: number; negativa?: number }[];
   period_from_year: number | null;
   period_to_year: number | null;
   open_claims: number;
@@ -40,7 +42,7 @@ export interface Engagement {
   experience_id: string; me_paso: number; me_sirvio: number; gracias: number; comments: number; my_reactions: ReactionKind[]; comments_enabled: boolean;
 }
 export interface ExperienceComment {
-  id: string; author_alias: string; is_experience_author: boolean; is_mine: boolean; body: string; status: 'publicado' | 'retenido'; created_at: string;
+  id: string; parent_id: string | null; author_alias: string; is_experience_author: boolean; is_mine: boolean; body: string; status: 'publicado' | 'retenido'; created_at: string;
 }
 export interface TrackedExperience {
   id: string; title: string | null; tone: Tone; status: ExperienceStatus; status_reason: string | null; created_at: string; published_at: string | null;
@@ -124,7 +126,7 @@ export async function getPublicExperience(id: string) {
 
 // ---------------------------------------------------------------- avisos
 export interface AppNotification {
-  id: string; kind: 'comentario' | 'reaccion' | 'estado'; experience_id: string; experience_title: string; company_name: string;
+  id: string; kind: 'comentario' | 'reaccion' | 'estado' | 'respuesta'; experience_id: string; experience_title: string; company_name: string;
   count: number; new_status: ExperienceStatus | null; read_at: string | null; created_at: string; experience_public: boolean;
 }
 
@@ -159,8 +161,8 @@ export function listComments(experienceId: string) {
   return run<ExperienceComment[]>(requireClient().rpc('list_comments', { p_experience_id: experienceId }));
 }
 
-export function addComment(experienceId: string, body: string) {
-  return run(requireClient().from('experience_comments').insert({ experience_id: experienceId, body: body.trim() }));
+export function addComment(experienceId: string, body: string, parentId?: string) {
+  return run(requireClient().from('experience_comments').insert({ experience_id: experienceId, body: body.trim(), parent_id: parentId ?? null }));
 }
 
 export function deleteMyComment(id: string) {

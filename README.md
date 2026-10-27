@@ -22,6 +22,7 @@ Plataforma independiente de transparencia laboral para Colombia. Los trabajadore
 | Página propia de cada experiencia (`/experiencias/:id`) con botón Compartir (WhatsApp, copiar enlace) | Implementado |
 | Avisos para quien publica: comentarios, reacciones y decisiones de moderación (campana y `/avisos`) | Implementado y probado en la base de datos |
 | `sitemap.xml` y `robots.txt` generados al compilar | Implementado (requiere `SITE_URL`) |
+| Respuestas a comentarios (un nivel) con aviso, y balance bueno/mixto/malo en el perfil de empresa | Implementado y probado en la base de datos |
 | Historial propio: estados, motivos, edición, retirada y apelación | Implementado |
 | Panel de moderación: cola, comentarios, reportes, reclamaciones, apelaciones, catálogo, guías e historial | Implementado |
 | Reclamaciones de empresas y respuestas empresariales | Implementado |
@@ -103,7 +104,7 @@ Es un sitio estático (`npm run build` genera `dist/`). Sirve en cualquier hosti
 ## Estructura
 
 ```
-supabase/migrations/   esquema, RLS, funciones y auditoría (15 migraciones)
+supabase/migrations/   esquema, RLS, funciones y auditoría (16 migraciones)
 supabase/seed.dev.sql  empresas ficticias para desarrollo
 src/config/brand.ts    nombre y textos de marca
 src/index.css          colores de marca (variables en :root)
