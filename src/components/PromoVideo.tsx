@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type Ref } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type Ref } from 'react';
 
 // Video de presentación (vertical, 57 s). Se descarga solo cuando alguien lo
 // reproduce: preload="none" y una imagen de portada liviana.
@@ -67,8 +67,8 @@ function VideoDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   );
 }
 
-/** Tarjeta de la portada: miniatura y botón que abre el video. */
-export function PromoVideoTeaser({ className = 'mt-6' }: { className?: string }) {
+/** Botón que abre el video en una ventana. Solo se abre cuando la persona lo pulsa. */
+export function PromoVideoButton({ className, children }: { className: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
 
   // En el celular, el botón «atrás» cierra el video en lugar de salir de la página:
@@ -89,28 +89,42 @@ export function PromoVideoTeaser({ className = 'mt-6' }: { className?: string })
 
   return (
     <>
-      <button
-        type="button"
-        onClick={show}
-        className={`group flex w-full max-w-[36rem] ${className} items-center gap-4 rounded-md border border-white/20 bg-white/[0.06] p-2.5 pr-5 text-left transition-colors hover:border-white/40 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
-      >
-        <span className="relative block w-[4.5rem] flex-none overflow-hidden rounded">
-          <img src={POSTER} alt="" width={72} height={128} loading="lazy" className="block aspect-[9/16] w-full object-cover" />
-          <span className="absolute inset-0 flex items-center justify-center bg-ink/30">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-ink shadow transition-transform group-hover:scale-110">
-              <PlayIcon className="ml-0.5 h-5 w-5" />
-            </span>
-          </span>
-        </span>
-        <span>
-          <span className="block font-semibold text-white">Mira cómo funciona</span>
-          <span className="mt-0.5 block text-sm text-white/75">
-            Video de {promoDuration}, con sonido y subtítulos: qué es VozLaboral y qué puedes hacer.
-          </span>
-        </span>
+      <button type="button" onClick={show} className={className}>
+        {children}
       </button>
       <VideoDialog open={open} onClose={hide} />
     </>
+  );
+}
+
+/** Miniatura del video con el botón de reproducir encima. */
+export function PromoVideoThumb({ className = 'w-[4.5rem]' }: { className?: string }) {
+  return (
+    <span className={`relative block flex-none overflow-hidden rounded ${className}`}>
+      <img src={POSTER} alt="" width={72} height={128} loading="lazy" className="block aspect-[9/16] w-full object-cover" />
+      <span className="absolute inset-0 flex items-center justify-center bg-ink/30">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-ink shadow transition-transform group-hover:scale-110">
+          <PlayIcon className="ml-0.5 h-5 w-5" />
+        </span>
+      </span>
+    </span>
+  );
+}
+
+/** Tarjeta de la portada: miniatura y botón que abre el video. */
+export function PromoVideoTeaser({ className = 'mt-6' }: { className?: string }) {
+  return (
+    <PromoVideoButton
+      className={`group flex w-full max-w-[36rem] ${className} items-center gap-4 rounded-md border border-white/20 bg-white/[0.06] p-2.5 pr-5 text-left transition-colors hover:border-white/40 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+    >
+      <PromoVideoThumb />
+      <span>
+        <span className="block font-semibold text-white">Mira cómo funciona</span>
+        <span className="mt-0.5 block text-sm text-white/75">
+          Video de {promoDuration}, con sonido y subtítulos: qué es VozLaboral y qué puedes hacer.
+        </span>
+      </span>
+    </PromoVideoButton>
   );
 }
 

@@ -3,21 +3,37 @@ import { Link, useNavigate } from 'react-router-dom';
 import { listCategories, listExperiences, listLegalResources } from '../lib/api';
 import { readingMinutes } from '../lib/guide';
 import { ExperienceItem } from '../components/ExperienceItem';
-import { PromoVideoTeaser } from '../components/PromoVideo';
-import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, useAsync } from '../components/ui';
+import { PromoVideoButton, PromoVideoTeaser, PromoVideoThumb } from '../components/PromoVideo';
+import { ConfigNotice, ErrorState, Loading, notConfigured, useAsync } from '../components/ui';
 
 export default function Home() {
+  const recent = useAsync(() => (notConfigured ? Promise.resolve([]) : listExperiences({ pageSize: 3 })), []);
+  // Mientras no haya experiencias publicadas, la portada invita a ser de los
+  // primeros y sube las guías, que ya tienen contenido.
+  const empty = !recent.loading && !recent.error && recent.data?.length === 0;
   return (
     <>
       <Hero />
       {notConfigured && (
         <div className="page mt-10"><ConfigNotice /></div>
       )}
-      <RecentExperiences />
-      <Categories />
-      <HowItWorks />
-      <Identity />
-      <Rights />
+      {empty ? (
+        <>
+          <FirstExperiences />
+          <Rights />
+          <HowItWorks />
+          <Categories />
+          <Identity />
+        </>
+      ) : (
+        <>
+          <RecentExperiences {...recent} />
+          <Categories />
+          <HowItWorks />
+          <Identity />
+          <Rights />
+        </>
+      )}
     </>
   );
 }
@@ -127,8 +143,7 @@ function SectionHeading({ id, title, children, action }: { id: string; title: st
   );
 }
 
-function RecentExperiences() {
-  const { data, loading, error, reload } = useAsync(() => (notConfigured ? Promise.resolve([]) : listExperiences({ pageSize: 3 })), []);
+function RecentExperiences({ data, loading, error, reload }: ReturnType<typeof useAsync<Awaited<ReturnType<typeof listExperiences>>>>) {
   return (
     <section className="page mt-20" aria-labelledby="recientes">
       <SectionHeading id="recientes" title="Experiencias recientes" action={<Link to="/experiencias" className="btn-link">Ver todas las experiencias</Link>}>
@@ -139,23 +154,77 @@ function RecentExperiences() {
           <Loading />
         ) : error ? (
           <ErrorState error={error} onRetry={reload} />
-        ) : data && data.length > 0 ? (
-          <div className="max-w-3xl">{data.map((exp) => <ExperienceItem key={exp.id} exp={exp} />)}</div>
         ) : (
-          <EmptyState
-            title="Las primeras experiencias empiezan contigo"
-            action={
-              <div className="flex flex-wrap gap-3">
-                <Link to="/compartir" className="btn-primary">Compartir la primera</Link>
-                <Link to="/como-funciona" className="btn-secondary">Cómo funciona</Link>
-              </div>
-            }
-          >
-            Estamos empezando. Cuenta cómo es trabajar en tu empresa, lo bueno también cuenta, y ayuda a quien está pensando en trabajar ahí.
-          </EmptyState>
+          <div className="max-w-3xl">{data?.map((exp) => <ExperienceItem key={exp.id} exp={exp} />)}</div>
         )}
       </div>
     </section>
+  );
+}
+
+/** Portada sin experiencias publicadas todavía: invita a contar la primera. */
+function FirstExperiences() {
+  const card = 'group flex h-full flex-col rounded-lg border p-6 text-left transition-colors sm:p-7';
+  return (
+    <section className="page mt-20" aria-labelledby="primeras">
+      <SectionHeading id="primeras" title="Sé de las primeras personas en contar">
+        VozLaboral está empezando. Cada experiencia ayuda a quien está pensando en trabajar en esa empresa, y lo bueno también cuenta.
+      </SectionHeading>
+      <ul className="mt-8 grid gap-4 md:grid-cols-3">
+        <li>
+          <Link to="/compartir" className={`${card} border-ink bg-ink text-white hover:bg-navy`}>
+            <span className="font-serif text-2xl leading-snug">Cuenta cómo te fue</span>
+            <span className="mt-2 text-white/80">En unos minutos, con un alias o sin crear cuenta. La moderación la revisa antes de publicarla.</span>
+            <span className="mt-auto pt-6 font-semibold text-[#5FD3C5]">Compartir mi experiencia →</span>
+          </Link>
+        </li>
+        <li>
+          <PromoVideoButton className={`${card} w-full border-line bg-paper hover:border-slate`}>
+            <span className="flex items-start gap-4">
+              <span className="min-w-0 flex-1">
+                <span className="block font-serif text-2xl leading-snug text-ink">Mira cómo funciona</span>
+                <span className="mt-2 block text-slate">Un video de 1 minuto: qué es, cómo se comparte y qué pueden hacer los demás.</span>
+              </span>
+              <PromoVideoThumb className="w-14" />
+            </span>
+            <span className="mt-auto pt-6 font-semibold text-teal-strong">Ver el video →</span>
+          </PromoVideoButton>
+        </li>
+        <li>
+          <Link to="/empresas" className={`${card} border-line bg-paper hover:border-slate`}>
+            <span className="font-serif text-2xl leading-snug text-ink">Busca tu empresa</span>
+            <span className="mt-2 text-slate">Si no aparece, pide que la agreguen y vuelve a contar tu experiencia cuando esté en la lista.</span>
+            <span className="mt-auto pt-6 font-semibold text-teal-strong">Ver empresas →</span>
+          </Link>
+        </li>
+      </ul>
+      <InviteRow />
+    </section>
+  );
+}
+
+/** Invitar a otras personas: las primeras experiencias llegan por recomendación. */
+function InviteRow() {
+  const [copied, setCopied] = useState(false);
+  const url = typeof window === 'undefined' ? '' : window.location.origin;
+  const message = `Te invito a VozLaboral: cuenta cómo es trabajar en tu empresa, sin dar tu nombre. ${url}`;
+  return (
+    <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 rounded-lg bg-mist px-6 py-4">
+      <p className="font-semibold">¿Conoces a alguien que trabaje en una empresa? Envíale la invitación.</p>
+      <div className="flex flex-wrap gap-3">
+        <a href={`https://wa.me/?text=${encodeURIComponent(message)}`} target="_blank" rel="noopener noreferrer" className="btn-secondary">
+          Enviar por WhatsApp<span className="sr-only"> (se abre en otra pestaña)</span>
+        </a>
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={() => navigator.clipboard?.writeText(url).then(() => setCopied(true)).catch(() => setCopied(false))}
+        >
+          {copied ? 'Enlace copiado' : 'Copiar enlace'}
+        </button>
+      </div>
+      <span className="sr-only" aria-live="polite">{copied ? 'Enlace copiado' : ''}</span>
+    </div>
   );
 }
 
@@ -259,7 +328,7 @@ function Rights() {
   const guides = useAsync(() => (notConfigured ? Promise.resolve([]) : listLegalResources()), []);
   const featured = (guides.data ?? []).slice(0, 3);
   return (
-    <section className="page mt-24" aria-labelledby="derechos-inicio">
+    <section className="page mt-20" aria-labelledby="derechos-inicio">
       <div className="grid gap-6 border-t border-ink/80 pt-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12">
         <div>
           <h2 id="derechos-inicio" className="text-3xl">Conoce tus derechos laborales</h2>
