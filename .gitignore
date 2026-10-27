@@ -13,3 +13,7 @@ supabase/instalar-todo.sql
 # SQL generados con NIT (no se suben al repositorio)
 supabase/importaciones/
 .claude/
+
+# Videos generados con video/render.cjs
+*.mp4
+video/*.png

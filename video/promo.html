@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>VozLaboral · video de presentación</title>
+<!-- Video vertical 1080×1920. Cada animación usa el reloj global: render.cjs
+     pausa todas y las lleva al segundo exacto de cada cuadro. Para verlo en
+     vivo, abre este archivo en el navegador: las animaciones corren solas. -->
+<style>
+@font-face { font-family: 'Newsreader'; src: url('../node_modules/@fontsource-variable/newsreader/files/newsreader-latin-wght-normal.woff2') format('woff2'); font-weight: 200 800; }
+@font-face { font-family: 'Newsreader'; src: url('../node_modules/@fontsource-variable/newsreader/files/newsreader-latin-wght-italic.woff2') format('woff2'); font-weight: 200 800; font-style: italic; }
+@font-face { font-family: 'Instrument Sans'; src: url('../node_modules/@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2') format('woff2'); font-weight: 400 700; }
+:root {
+  --ink: #0F2440; --navy: #1B3A5C; --teal: #0F766E; --teal-strong: #0B5E58; --teal-tint: #E6F2F1;
+  --paper: #FFFFFF; --mist: #F1F4F8; --line: #D9DEE5; --slate: #3F4A5A; --amber: #B45309; --amber-tint: #FEF3E2;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+body { font-family: 'Instrument Sans', system-ui, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+.serif { font-family: 'Newsreader', Georgia, serif; font-optical-sizing: auto; }
+
+/* Escenas: aparecen en --s y se van en --e (segundos del reloj global). */
+.scene { position: absolute; inset: 0; padding: 150px 96px; display: flex; flex-direction: column; justify-content: center;
+  opacity: 0; animation: sIn .5s var(--ease) var(--s) both, sOut .45s ease-in var(--e) forwards; }
+.dark { background: var(--ink); color: #fff; }
+.light { background: var(--paper); }
+.mist { background: var(--mist); }
+@keyframes sIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* Entradas de elementos: retraso absoluto en --d. */
+.up { animation: up .8s var(--ease) var(--d) both; }
+.pop { animation: pop .6s cubic-bezier(.3, 1.5, .5, 1) var(--d) both; }
+.left { animation: left .8s var(--ease) var(--d) both; }
+.fade { animation: sIn .8s ease var(--d) both; }
+@keyframes up { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: none; } }
+@keyframes pop { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+@keyframes left { from { opacity: 0; transform: translateX(120px); } to { opacity: 1; transform: none; } }
+
+.brand { position: absolute; top: 80px; left: 96px; display: flex; align-items: center; gap: 22px; font-size: 44px; font-weight: 600; }
+.brand svg { width: 64px; height: 64px; }
+.kicker { font-size: 34px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--teal); }
+.dark .kicker { color: #5FD3C5; }
+h1 { font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 118px; line-height: 1.04; letter-spacing: -.02em; }
+h2 { font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 92px; line-height: 1.06; letter-spacing: -.015em; }
+.lead { font-size: 46px; line-height: 1.4; color: var(--slate); }
+.dark .lead { color: #C9D5E3; }
+.hl { color: #5FD3C5; font-style: italic; }
+.light .hl, .mist .hl { color: var(--teal); }
+.small { font-size: 30px; color: var(--slate); }
+.dark .small { color: #9FB2C8; }
+
+/* Preguntas */
+.q { display: inline-block; background: var(--mist); border: 2px solid var(--line); border-radius: 999px; padding: 26px 44px; font-size: 50px; font-weight: 600; margin: 0 0 30px; }
+
+/* Tarjetas de experiencia (ejemplos ilustrativos, no datos reales) */
+.card { background: #fff; border: 2px solid var(--line); border-radius: 22px; padding: 40px 44px; margin-top: 34px; box-shadow: 0 18px 50px rgba(15, 36, 64, .08); }
+.chip { display: inline-flex; align-items: center; gap: 14px; border-radius: 999px; padding: 10px 26px; font-size: 30px; font-weight: 600; border: 2px solid; }
+.chip b { font-size: 36px; }
+.pos { background: var(--teal-tint); color: var(--teal-strong); border-color: rgba(15, 118, 110, .3); }
+.neg { background: var(--amber-tint); color: var(--amber); border-color: rgba(180, 83, 9, .3); }
+.mix { background: var(--mist); color: var(--navy); border-color: var(--line); }
+.card h3 { font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 56px; line-height: 1.12; margin-top: 22px; }
+.card p { font-size: 34px; color: var(--slate); margin-top: 12px; }
+
+/* Teléfono con captura real que se desplaza */
+.phone { position: absolute; width: 600px; height: 1240px; border-radius: 70px; background: #0B1A2E; padding: 22px;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, .35); }
+.phone .screen { width: 100%; height: 100%; border-radius: 50px; overflow: hidden; background: #fff; position: relative; }
+.phone img { width: 100%; display: block; animation: scroll var(--dur) cubic-bezier(.45, 0, .25, 1) var(--d) both; }
+@keyframes scroll { from { transform: translateY(0); } to { transform: translateY(var(--y)); } }
+
+/* Pasos */
+.step { display: flex; gap: 34px; align-items: flex-start; margin-top: 44px; }
+.num { flex: none; width: 92px; height: 92px; border-radius: 50%; background: var(--teal); color: #fff; font-size: 48px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.step h4 { font-size: 50px; line-height: 1.2; font-weight: 600; }
+.step p { font-size: 36px; line-height: 1.35; color: var(--slate); margin-top: 6px; }
+
+/* Interacción */
+.rx { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 30px; }
+.rbtn { border: 2px solid var(--line); border-radius: 999px; padding: 18px 30px; font-size: 32px; font-weight: 600; display: flex; gap: 16px; align-items: center; background: #fff; }
+.rbtn.on { background: var(--teal-tint); border-color: rgba(15, 118, 110, .45); color: var(--teal-strong); }
+.count { font-variant-numeric: tabular-nums; }
+.bubble { background: var(--mist); border-radius: 26px 26px 26px 8px; padding: 30px 36px; font-size: 36px; line-height: 1.35; margin-top: 26px; }
+.bubble.reply { margin-left: 90px; background: var(--teal-tint); border-radius: 26px 26px 8px 26px; }
+.who { font-size: 28px; font-weight: 700; color: var(--slate); margin-bottom: 8px; }
+.toast { display: flex; gap: 26px; align-items: center; background: var(--ink); color: #fff; border-radius: 26px; padding: 30px 36px; font-size: 36px; margin-top: 50px; box-shadow: 0 20px 60px rgba(15, 36, 64, .3); }
+.bell { flex: none; width: 76px; height: 76px; border-radius: 50%; background: var(--teal); display: flex; align-items: center; justify-content: center; }
+
+/* Temas de guías */
+.topics { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 40px; }
+.topic { background: rgba(255, 255, 255, .1); border: 2px solid rgba(255, 255, 255, .22); color: #fff; border-radius: 999px; padding: 16px 30px; font-size: 34px; font-weight: 600; }
+
+/* Garantías */
+.promise { display: flex; gap: 32px; align-items: center; font-size: 52px; line-height: 1.25; margin-top: 56px; }
+.tick { flex: none; width: 84px; height: 84px; border-radius: 50%; background: rgba(95, 211, 197, .16); border: 3px solid #5FD3C5; display: flex; align-items: center; justify-content: center; }
+
+/* Llamado a la acción */
+.cta { display: inline-flex; align-items: center; gap: 22px; background: var(--teal); color: #fff; font-size: 60px; font-weight: 700; padding: 40px 64px; border-radius: 22px; }
+.url { font-size: 50px; font-weight: 600; color: #5FD3C5; margin-top: 40px; }
+.pulse { animation: pulse 1.6s ease-in-out var(--d) infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.045); } }
+
+.bar { position: absolute; left: 0; bottom: 0; height: 12px; background: var(--teal); width: 100%; transform-origin: left; animation: bar 57s linear 0s both; }
+@keyframes bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#0F2440"/><rect x="7" y="10" width="18" height="3" rx="1.5" fill="#fff"/><rect x="7" y="16" width="11" height="3" rx="1.5" fill="#0F766E"/><rect x="7" y="22" width="14" height="3" rx="1.5" fill="#fff"/></symbol>
+  <symbol id="logo-dark" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#fff"/><rect x="7" y="10" width="18" height="3" rx="1.5" fill="#0F2440"/><rect x="7" y="16" width="11" height="3" rx="1.5" fill="#0F766E"/><rect x="7" y="22" width="14" height="3" rx="1.5" fill="#0F2440"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#5FD3C5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<!-- 1 · Gancho (0–5 s) -->
+<section class="scene dark" style="--s:0s; --e:4.6s">
+  <div class="brand fade" style="--d:.2s"><svg><use href="#logo-dark"/></svg>VozLaboral</div>
+  <h1>
+    <span class="up" style="display:block; --d:.3s">Antes de aceptar</span>
+    <span class="up" style="display:block; --d:.7s">un trabajo,</span>
+    <span class="up" style="display:block; --d:1.4s">¿no te gustaría</span>
+    <span class="up" style="display:block; --d:1.8s">saber cómo es</span>
+    <span class="up hl" style="display:block; --d:2.3s">por dentro?</span>
+  </h1>
+</section>
+
+<!-- 2 · Problema (5–10 s) -->
+<section class="scene light" style="--s:4.6s; --e:9.6s">
+  <p class="kicker up" style="--d:4.9s">Lo que nadie te cuenta</p>
+  <div style="margin-top:50px">
+    <div><span class="q left" style="--d:5.3s">¿Pagan a tiempo?</span></div>
+    <div><span class="q left" style="--d:5.8s">¿Respetan los turnos?</span></div>
+    <div><span class="q left" style="--d:6.3s">¿Pagan las horas extra?</span></div>
+    <div><span class="q left" style="--d:6.8s">¿Cómo tratan a la gente?</span></div>
+  </div>
+  <h2 class="up" style="margin-top:60px; --d:7.6s">Eso lo saben <span class="hl">quienes trabajan ahí.</span></h2>
+</section>
+
+<!-- 3 · Presentación (10–14,5 s) -->
+<section class="scene dark" style="--s:9.6s; --e:14.4s; align-items:center; text-align:center">
+  <svg class="pop" style="width:220px; height:220px; --d:9.9s"><use href="#logo-dark"/></svg>
+  <h1 class="up" style="margin-top:50px; font-size:150px; --d:10.4s">VozLaboral</h1>
+  <p class="lead up" style="margin-top:36px; --d:11s">Experiencias de trabajadores en empresas de Colombia, contadas por ellos mismos.</p>
+</section>
+
+<!-- 4 · Lo bueno, lo malo y lo mixto (14,5–21,5 s) -->
+<section class="scene mist" style="--s:14.4s; --e:21.4s; justify-content:flex-start; padding-top:170px">
+  <p class="kicker up" style="--d:14.7s">No solo quejas</p>
+  <h2 class="up" style="margin-top:24px; --d:15s">Lo bueno, lo malo y <span class="hl">lo mixto.</span></h2>
+  <div class="card left" style="--d:16s">
+    <span class="chip pos"><b>+</b> Experiencia positiva</span>
+    <h3>Pagan puntual y capacitan bien</h3>
+    <p>Salario y pagos · Bogotá</p>
+  </div>
+  <div class="card left" style="--d:16.8s">
+    <span class="chip mix"><b>±</b> Experiencia mixta</span>
+    <h3>Buen equipo, pero los turnos son pesados</h3>
+    <p>Jornadas y descansos · Medellín</p>
+  </div>
+  <div class="card left" style="--d:17.6s">
+    <span class="chip neg"><b>−</b> Experiencia negativa</span>
+    <h3>Las horas extra no se pagaban</h3>
+    <p>Salario y pagos · Cali</p>
+  </div>
+  <p class="small fade" style="margin-top:30px; --d:18.4s">Ejemplos ilustrativos.</p>
+</section>
+
+<!-- 5 · Cómo funciona (21,5–31 s) -->
+<section class="scene light" style="--s:21.4s; --e:31s; justify-content:flex-start; padding-top:170px">
+  <p class="kicker up" style="--d:21.7s">Cómo funciona</p>
+  <h2 class="up" style="margin-top:24px; --d:22s">Cuéntalo en minutos</h2>
+  <div class="step up" style="--d:22.8s"><div class="num">1</div><div><h4>Busca la empresa</h4><p>Por su nombre, sigla o NIT.</p></div></div>
+  <div class="step up" style="--d:23.8s"><div class="num">2</div><div><h4>Cuenta cómo te fue</h4><p>Con un alias, o sin crear cuenta.<br>Tu nombre y tu correo no aparecen.</p></div></div>
+  <div class="step up" style="--d:24.8s"><div class="num">3</div><div><h4>La moderación la revisa</h4><p>Antes de publicarla, para quitar datos personales.</p></div></div>
+  <div class="phone up" style="left:240px; top:1110px; height:1240px; --d:25.6s">
+    <div class="screen"><img src="capturas/compartir.jpg" alt="" style="--d:26.4s; --dur:4.2s; --y:-1500px"></div>
+  </div>
+</section>
+
+<!-- 6 · Interacción (31–38,5 s) -->
+<section class="scene mist" style="--s:31s; --e:38.4s; justify-content:flex-start; padding-top:170px">
+  <p class="kicker up" style="--d:31.3s">Una comunidad</p>
+  <h2 class="up" style="margin-top:24px; --d:31.6s">Reacciona, comenta y <span class="hl">responde.</span></h2>
+  <div class="card up" style="--d:32.3s">
+    <span class="chip neg"><b>−</b> Experiencia negativa</span>
+    <h3>Turnos dobles seguidos</h3>
+    <div class="rx">
+      <span class="rbtn on pop" style="--d:33s">Me pasó igual <span class="count" data-from="11" data-to="12" data-at="33.4">11</span></span>
+      <span class="rbtn pop" style="--d:33.3s">Me sirvió <span class="count" data-from="7" data-to="8" data-at="33.8">7</span></span>
+      <span class="rbtn on pop" style="--d:33.6s">Gracias <span class="count" data-from="20" data-to="21" data-at="34.1">20</span></span>
+    </div>
+    <div class="bubble up" style="--d:34.4s"><div class="who">Turno_Tarde</div>A mí también me pasó. Lo hablé con el inspector de trabajo.</div>
+    <div class="bubble reply up" style="--d:35.2s"><div class="who">Bodega_Norte · autora</div>¡Gracias! No sabía que podía hacerlo.</div>
+  </div>
+  <div class="toast up" style="--d:36.1s">
+    <span class="bell"><svg width="40" height="40" viewBox="0 0 24 24"><path d="M12 3a6 6 0 00-6 6v3.5L4.5 15h15L18 12.5V9a6 6 0 00-6-6zm-2 14a2 2 0 004 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <span>Con una cuenta te avisamos cuando alguien reacciona o comenta tu experiencia.</span>
+  </div>
+</section>
+
+<!-- 7 · Tus derechos (38,5–46 s) -->
+<section class="scene dark" style="--s:38.4s; --e:45.8s; justify-content:flex-start; padding-top:170px">
+  <p class="kicker up" style="--d:38.7s">Tus derechos</p>
+  <h2 class="up" style="margin-top:24px; --d:39s">24 guías claras, <span class="hl">con su fuente oficial.</span></h2>
+  <div class="topics">
+    <span class="topic pop" style="--d:39.8s">Liquidación</span>
+    <span class="topic pop" style="--d:40s">Prima</span>
+    <span class="topic pop" style="--d:40.2s">Vacaciones</span>
+    <span class="topic pop" style="--d:40.4s">Despido</span>
+    <span class="topic pop" style="--d:40.6s">Horas extra</span>
+    <span class="topic pop" style="--d:40.8s">Acoso laboral</span>
+    <span class="topic pop" style="--d:41s">Maternidad</span>
+    <span class="topic pop" style="--d:41.2s">Salario mínimo</span>
+  </div>
+  <div class="phone up" style="left:240px; top:1000px; --d:41.4s">
+    <div class="screen"><img src="capturas/guia.jpg" alt="" style="--d:42s; --dur:3.6s; --y:-1300px"></div>
+  </div>
+</section>
+
+<!-- 8 · Garantías (46–51 s) -->
+<section class="scene dark" style="--s:45.8s; --e:50.8s">
+  <p class="kicker up" style="--d:46.1s">Hecho con cuidado</p>
+  <div class="promise up" style="--d:46.5s"><span class="tick"><svg width="46" height="46"><use href="#check"/></svg></span>Tu nombre y tu correo nunca se publican.</div>
+  <div class="promise up" style="--d:47.3s"><span class="tick"><svg width="46" height="46"><use href="#check"/></svg></span>Cada relato se revisa antes de publicarse.</div>
+  <div class="promise up" style="--d:48.1s"><span class="tick"><svg width="46" height="46"><use href="#check"/></svg></span>Sin puntuaciones ni rankings: relatos reales.</div>
+</section>
+
+<!-- 9 · Llamado a la acción (51–57 s) -->
+<section class="scene dark" style="--s:50.8s; --e:99s; align-items:center; text-align:center">
+  <svg class="pop" style="width:150px; height:150px; --d:51s"><use href="#logo-dark"/></svg>
+  <h2 class="up" style="margin-top:50px; --d:51.3s">Tu experiencia puede <span class="hl">ayudar a otra persona.</span></h2>
+  <p class="lead up" style="margin-top:40px; --d:52s">Busca tu empresa, cuenta cómo te fue y conoce tus derechos.</p>
+  <div class="up" style="margin-top:70px; --d:52.8s"><span class="cta pulse" style="--d:53.6s">Entra a VozLaboral</span></div>
+  <p class="url up" id="url" style="--d:53.4s">Enlace en la descripción</p>
+  <p class="small fade" style="margin-top:50px; --d:54s">Es gratis · Puedes participar sin dar tu nombre</p>
+</section>
+
+<div class="bar"></div>
+
+<script>
+// Dirección que aparece al final: promo.html?url=vozlaboral.co
+const url = new URLSearchParams(location.search).get('url');
+if (url) document.getElementById('url').textContent = url;
+
+// Contadores de reacciones: suben de 11 a 12, etc., en el segundo indicado.
+function counters(t) {
+  document.querySelectorAll('.count').forEach((el) => {
+    el.textContent = t >= Number(el.dataset.at) ? el.dataset.to : el.dataset.from;
+  });
+}
+
+// render.cjs llama a seek(segundos) en cada cuadro.
+window.seek = (t) => {
+  for (const a of document.getAnimations()) { a.pause(); a.currentTime = t * 1000; }
+  counters(t);
+};
+// En vivo, los contadores siguen el reloj de la página.
+const t0 = performance.now();
+(function tick() { if (!window.__rendering) { counters((performance.now() - t0) / 1000); requestAnimationFrame(tick); } })();
+</script>
+</body>
+</html>
