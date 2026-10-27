@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { brand } from '../config/brand';
 import type { ExperienceStatus } from '../lib/api';
 import { PageHeader, StatusChip, statusHint } from '../components/ui';
+import { PromoVideoInline } from '../components/PromoVideo';
 
 const principles = [
   { title: 'Lo bueno y lo malo', text: 'Una empresa no es solo sus problemas. Publicamos experiencias buenas, malas y mixtas para que se vea el cuadro completo.' },
@@ -47,6 +48,23 @@ export default function About() {
         {brand.name} reúne experiencias de trabajo en empresas de {brand.country}, contadas por quienes las vivieron. Sirve para saber qué
         esperar de un empleo, reconocer lo que una empresa hace bien y señalar lo que debe mejorar.
       </PageHeader>
+
+      <section className="mt-12 grid items-center gap-10 rounded-lg bg-mist p-6 sm:p-10 md:grid-cols-[minmax(0,1fr)_18rem]" aria-labelledby="video">
+        <div>
+          <h2 id="video" className="text-3xl">{brand.name} en un minuto</h2>
+          <p className="mt-3 max-w-prose text-slate">
+            Qué es, cómo se comparte una experiencia, qué pueden hacer los demás y dónde están las guías de tus derechos. El video tiene sonido y
+            subtítulos.
+          </p>
+          <ul className="mt-5 list-disc space-y-2 pl-5 text-slate marker:text-teal">
+            <li>Busca la empresa o pide que la agreguen.</li>
+            <li>Cuenta cómo te fue con un alias, o sin cuenta.</li>
+            <li>Reacciona, comenta y aprende sobre tus derechos.</li>
+          </ul>
+          <Link to="/compartir" className="btn-primary mt-7">Compartir una experiencia</Link>
+        </div>
+        <PromoVideoInline />
+      </section>
 
       <section className="mt-14" aria-labelledby="principios">
         <h2 id="principios" className="text-3xl">En qué creemos</h2>

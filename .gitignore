@@ -17,3 +17,4 @@ supabase/importaciones/
 # Videos generados con video/render.cjs
 *.mp4
 video/*.png
+!public/video/*.mp4

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { listCategories, listExperiences, listLegalResources } from '../lib/api';
 import { readingMinutes } from '../lib/guide';
 import { ExperienceItem } from '../components/ExperienceItem';
+import { PromoVideoTeaser } from '../components/PromoVideo';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, useAsync } from '../components/ui';
 
 export default function Home() {
@@ -26,7 +27,7 @@ function Hero() {
   const [q, setQ] = useState('');
   return (
     <section className="bg-ink text-white">
-      <div className="page grid items-center gap-14 pb-20 pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pb-28 lg:pt-20">
+      <div className="page grid items-center gap-14 pb-20 pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pb-24 lg:pt-12">
         <div className="min-w-0">
           <h1 className="text-[2.5rem] font-medium leading-[2.875rem] tracking-[-0.01em] text-white sm:text-5xl lg:text-[4.25rem] lg:leading-[4.5rem]">
             Cómo es trabajar ahí, contado por quienes trabajan ahí.
@@ -36,7 +37,7 @@ function Hero() {
           </p>
           <form
             role="search"
-            className="mt-10 max-w-[36rem]"
+            className="mt-8 max-w-[36rem]"
             onSubmit={(e) => {
               e.preventDefault();
               navigate(`/empresas${q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ''}`);
@@ -63,6 +64,7 @@ function Hero() {
             </Link>
             . No necesitas cuenta.
           </p>
+          <PromoVideoTeaser className="mt-6 lg:hidden" />
         </div>
         <RedactionSpecimen />
       </div>
@@ -77,6 +79,7 @@ function RedactionSpecimen() {
   );
   return (
     <figure className="relative isolate min-w-0 lg:ml-6">
+      <PromoVideoTeaser className="mb-8 hidden lg:flex" />
       <div className="folio folio-stack p-6 sm:p-8">
         <div className="flex items-baseline justify-between gap-4 border-b border-line pb-4 text-sm text-slate">
           <span>Experiencia de ejemplo</span>

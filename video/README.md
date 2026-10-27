@@ -66,3 +66,20 @@ El video funciona sin sonido, como se ve la mayoría de los videos en redes. Si 
 > ¿Cómo es trabajar ahí, contado por quienes trabajan ahí? 👷‍♀️👨‍🍳 En VozLaboral puedes leer y contar experiencias buenas, malas y mixtas en empresas de Colombia, con un alias o sin crear cuenta. También hay guías de tus derechos laborales con su fuente oficial. Entra aquí: [enlace]
 >
 > #VozLaboral #TrabajoEnColombia #DerechosLaborales #Empleo
+
+## En la web
+
+La portada (tarjeta «Mira cómo funciona», que abre el video en una ventana) y la página «Cómo funciona» usan una versión liviana que está en `public/video/`:
+
+- `vozlaboral-presentacion.mp4`: 720 × 1280, unos 1,8 MB. Solo se descarga cuando alguien lo reproduce.
+- `vozlaboral-presentacion.jpg`: imagen de portada.
+- `vozlaboral-presentacion.es.vtt`: subtítulos con el texto de la locución.
+
+Para actualizarla después de volver a generar el video con voz:
+
+```bash
+ffmpeg -i vozlaboral-presentacion-con-voz.mp4 -vf scale=720:1280 -c:v libx264 -preset slow -crf 27 \
+  -pix_fmt yuv420p -c:a aac -b:a 96k -movflags +faststart public/video/vozlaboral-presentacion.mp4
+```
+
+Si cambian los tiempos de la locución, ajusta también los subtítulos.
