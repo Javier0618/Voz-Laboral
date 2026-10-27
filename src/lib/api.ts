@@ -117,6 +117,11 @@ export function listExperiences(params: { companyId?: string; category?: string;
   );
 }
 
+export async function getPublicExperience(id: string) {
+  const rows = await run<PublicExperience[]>(requireClient().rpc('get_public_experience', { p_id: id }));
+  return rows[0] ?? null;
+}
+
 // ---------------------------------------------------------------- interacción
 export async function getEngagement(ids: string[]) {
   if (!ids.length) return [] as Engagement[];

@@ -11,8 +11,8 @@ import { Comments, ReactionBar, useEngagement } from './Engagement';
 
 const PREVIEW = 600;
 
-export function ExperienceItem({ exp, showCompany = true }: { exp: PublicExperience; showCompany?: boolean }) {
-  const [expanded, setExpanded] = useState(false);
+export function ExperienceItem({ exp, showCompany = true, full = false }: { exp: PublicExperience; showCompany?: boolean; full?: boolean }) {
+  const [expanded, setExpanded] = useState(full);
   const [reporting, setReporting] = useState(false);
   const [engagement, setEngagement] = useEngagement(exp.id);
   const long = exp.body.length > PREVIEW;
@@ -31,9 +31,17 @@ export function ExperienceItem({ exp, showCompany = true }: { exp: PublicExperie
         <span className="text-slate">{formatPeriod(exp.period_start, exp.period_end)}</span>
         {exp.status === 'en_disputa' && <StatusChip status="en_disputa" />}
       </div>
-      <h3 id={`exp-${exp.id}`} className="mt-3 text-2xl leading-tight">
-        {exp.title || exp.category_name}
-      </h3>
+      {full ? (
+        <h1 id={`exp-${exp.id}`} className="mt-4 text-4xl font-medium leading-[1.1] tracking-[-0.01em] sm:text-5xl">
+          {exp.title || exp.category_name}
+        </h1>
+      ) : (
+        <h3 id={`exp-${exp.id}`} className="mt-3 text-2xl leading-tight">
+          <Link to={`/experiencias/${exp.id}`} className="hover:underline hover:decoration-teal/60 hover:underline-offset-4">
+            {exp.title || exp.category_name}
+          </Link>
+        </h3>
+      )}
       <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate">
         {showCompany && (
           <>
@@ -58,13 +66,16 @@ export function ExperienceItem({ exp, showCompany = true }: { exp: PublicExperie
         )}
         {exp.has_documents && <span className="text-slate">El autor indica que dispone de documentos</span>}
         {exp.published_at && (
-          <a href={`/empresas/${exp.company_slug}#e-${exp.id}`} className="text-slate hover:text-ink hover:underline">
+          <Link to={`/experiencias/${exp.id}`} className="text-slate hover:text-ink hover:underline">
             Publicada el {formatDate(exp.published_at)}
-          </a>
+          </Link>
         )}
-        <button type="button" className="ml-auto text-slate underline-offset-4 hover:text-danger hover:underline" onClick={() => setReporting(true)}>
-          Reportar
-        </button>
+        <span className="ml-auto flex items-center gap-x-5">
+          <ShareButton exp={exp} />
+          <button type="button" className="text-slate underline-offset-4 hover:text-danger hover:underline" onClick={() => setReporting(true)}>
+            Reportar
+          </button>
+        </span>
       </div>
       <ReactionBar experienceId={exp.id} engagement={engagement} onChange={setEngagement} />
       {engagement && (
@@ -73,10 +84,69 @@ export function ExperienceItem({ exp, showCompany = true }: { exp: PublicExperie
           enabled={engagement.comments_enabled}
           count={engagement.comments}
           onCountChange={(n) => setEngagement((e) => (e ? { ...e, comments: n } : e))}
+          startOpen={full}
         />
       )}
       <ReportDialog experienceId={exp.id} open={reporting} onClose={() => setReporting(false)} />
     </article>
+  );
+}
+
+export function experienceUrl(id: string) {
+  return `${window.location.origin}/experiencias/${id}`;
+}
+
+/** Compartir: menú nativo del teléfono si existe; si no, WhatsApp o copiar el enlace. */
+export function ShareButton({ exp, variant = 'link' }: { exp: PublicExperience; variant?: 'link' | 'button' }) {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const url = experienceUrl(exp.id);
+  const title = `${exp.title || exp.category_name} · ${exp.company_name}`;
+  const message = `Mira esta experiencia sobre ${exp.company_name} en VozLaboral: ${url}`;
+
+  async function share() {
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch {
+        /* cancelado o no disponible: se muestran las otras opciones */
+      }
+    }
+    setOpen((v) => !v);
+  }
+
+  return (
+    <span className="relative inline-block">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={share}
+        className={variant === 'button' ? 'btn-secondary' : 'text-slate underline-offset-4 hover:text-ink hover:underline'}
+      >
+        Compartir
+      </button>
+      {open && (
+        <span className="absolute right-0 top-full z-20 mt-2 flex w-56 flex-col rounded-lg border border-line bg-paper p-2 text-sm shadow-lg">
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(message)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded px-3 py-2 text-ink hover:bg-mist"
+          >
+            Enviar por WhatsApp<span className="sr-only"> (se abre en otra pestaña)</span>
+          </a>
+          <button
+            type="button"
+            className="rounded px-3 py-2 text-left text-ink hover:bg-mist"
+            onClick={() => navigator.clipboard?.writeText(url).then(() => setCopied(true)).catch(() => setCopied(false))}
+          >
+            {copied ? 'Enlace copiado' : 'Copiar enlace'}
+          </button>
+          <span role="status" className="sr-only">{copied ? 'Enlace copiado' : ''}</span>
+        </span>
+      )}
+    </span>
   );
 }
 

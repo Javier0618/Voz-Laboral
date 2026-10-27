@@ -75,7 +75,7 @@ export default function Tracking() {
                 ))}
               </dl>
               <Comments experienceId={data.id} enabled count={data.comments_count} startOpen />
-              <Link to={`/empresas/${data.company_slug}#e-${data.id}`} className="btn-secondary mt-6">Ver publicada</Link>
+              <Link to={`/experiencias/${data.id}`} className="btn-secondary mt-6">Ver publicada</Link>
             </>
           ) : (
             <p className="mt-8 max-w-prose text-sm text-slate">

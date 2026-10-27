@@ -10,6 +10,7 @@ import Rights, { RightsArticle } from './pages/Rights';
 import Share from './pages/Share';
 import Tracking from './pages/Tracking';
 import About from './pages/About';
+import ExperienceDetail from './pages/ExperienceDetail';
 import Account, { NewPasswordPage } from './pages/Account';
 import Claim from './pages/Claim';
 import PolicyPage, { NotFound } from './pages/Policies';
@@ -27,6 +28,7 @@ export function AppRoutes() {
         <Route path="empresas/:slug" element={<CompanyProfile />} />
         <Route path="empresas/:slug/reclamacion" element={<Claim />} />
         <Route path="experiencias" element={<Experiences />} />
+        <Route path="experiencias/:id" element={<ExperienceDetail />} />
         <Route path="derechos" element={<Rights />} />
         <Route path="derechos/:slug" element={<RightsArticle />} />
         <Route path="compartir" element={<Share />} />
