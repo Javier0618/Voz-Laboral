@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guideOutline, parseGuide, parseInline, readingMinutes } from '../../src/lib/guide';
+import { guideOutline, parseGuide, parseInline, plainText, readingMinutes } from '../../src/lib/guide';
 
 describe('formato de las guías', () => {
   it('separa subtítulos, listas y párrafos', () => {
@@ -71,6 +71,17 @@ describe('formato enriquecido de las guías', () => {
     ]);
     expect(parseInline('[x](javascript:alert(1))')).toEqual([{ type: 'text', text: '[x](javascript:alert(1))' }]);
     expect(parseInline('[x](http://inseguro.test)')[0].type).toBe('text');
+  });
+
+  it('reconoce enlaces internos a otras guías y rechaza rutas a otros sitios', () => {
+    expect(parseInline('Lee [la prima](/derechos/prima-de-servicios#cuando).')).toEqual([
+      { type: 'text', text: 'Lee ' },
+      { type: 'link', text: 'la prima', href: '/derechos/prima-de-servicios#cuando', internal: true },
+      { type: 'text', text: '.' },
+    ]);
+    expect(parseInline('[x](//otro.test)')[0].type).toBe('text');
+    expect(parseInline('[x](/\\otro.test)')[0].type).toBe('text');
+    expect(plainText('[la prima](/derechos/prima-de-servicios)')).toBe('la prima');
   });
 
   it('genera el índice con identificadores únicos y sin tildes', () => {

@@ -1,13 +1,16 @@
 import { Fragment } from 'react';
+import { Link } from 'react-router-dom';
 import { headingIds, parseGuide, parseInline } from '../lib/guide';
 
-/** Texto con **negrita** y enlaces https. Nunca usa HTML crudo. */
+/** Texto con **negrita**, enlaces https y enlaces internos. Nunca usa HTML crudo. */
 function Inline({ text }: { text: string }) {
   return (
     <>
       {parseInline(text).map((n, i) =>
         n.type === 'strong' ? (
           <strong key={i} className="font-semibold">{n.text}</strong>
+        ) : n.type === 'link' && n.internal ? (
+          <Link key={i} to={n.href} className="btn-link font-normal">{n.text}</Link>
         ) : n.type === 'link' ? (
           <a key={i} href={n.href} target="_blank" rel="noopener noreferrer" className="btn-link font-normal">
             {n.text}

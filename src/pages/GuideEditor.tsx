@@ -176,6 +176,7 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
                     <dt><code>&gt; texto</code></dt><dd className="text-slate">Recuadro «Importante» para una advertencia o un dato clave.</dd>
                     <dt><code>**texto**</code></dt><dd className="text-slate">Negrita.</dd>
                     <dt><code>[texto](https://…)</code></dt><dd className="text-slate">Enlace a una fuente oficial. Solo se aceptan direcciones https.</dd>
+                    <dt><code>[texto](/derechos/slug)</code></dt><dd className="text-slate">Enlace a otra guía de VozLaboral. Usa el slug que aparece en su dirección.</dd>
                   </dl>
                 </details>
                 <label htmlFor="guia-contenido" className="sr-only">Contenido de la guía</label>

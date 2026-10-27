@@ -41,7 +41,7 @@ Evita invitar a escribir sobre una empresa concreta para atacarla: la plataforma
 ## Antes de abrir al público
 
 - [ ] Migraciones 1400, 1500 y 1600 aplicadas en Supabase.
-- [ ] Guías revisadas por un abogado y publicadas desde Moderación → Guías.
+- [ ] Guías revisadas por un abogado y publicadas desde Moderación → Guías, incluidas las 8 de la parte 3 y los cambios de `guias-derechos-2026-actualizacion.sql`.
 - [ ] CAPTCHA en el envío sin cuenta y en el registro (ver `checklist-seguridad.md`).
 - [ ] SMTP propio para los correos de Supabase Auth (confirmación y recuperación de contraseña).
 - [ ] En Supabase Auth, la *Site URL* y las *Redirect URLs* apuntan al dominio definitivo.
