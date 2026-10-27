@@ -26,7 +26,7 @@ Necesita Playwright con Chromium y ffmpeg. Tarda unos 3 minutos.
 | 5–10 | Problema | ¿Pagan a tiempo? ¿Respetan los turnos? ¿Pagan las horas extra? ¿Cómo tratan a la gente? |
 | 10–14 | Marca | VozLaboral: experiencias de trabajadores en empresas de Colombia |
 | 14–21 | Tono | Lo bueno, lo malo y lo mixto (tres tarjetas de ejemplo) |
-| 21–31 | Cómo funciona | Busca la empresa · Cuenta cómo te fue · La moderación la revisa |
+| 21–31 | Cómo funciona | Busca la empresa (si no aparece, pide que la agreguen) · Cuenta cómo te fue · La moderación la revisa |
 | 31–38 | Comunidad | Reacciona, comenta y responde · Avisos con una cuenta |
 | 38–46 | Derechos | 24 guías claras con su fuente oficial |
 | 46–51 | Garantías | Nombre y correo nunca se publican · Revisión previa · Sin rankings |
@@ -36,13 +36,13 @@ Las tarjetas de experiencias son ejemplos ilustrativos y así lo dice el video. 
 
 ## Guion de voz (opcional)
 
-El video funciona sin sonido, como se ve la mayoría de los videos en redes. Si quieres grabar una voz, este guion sigue las escenas (unas 130 palabras):
+El video funciona sin sonido, como se ve la mayoría de los videos en redes. Si quieres grabar una voz, este guion sigue las escenas (unas 140 palabras):
 
 > ¿Antes de aceptar un trabajo, no te gustaría saber cómo es por dentro? Si pagan a tiempo, si respetan los turnos, cómo tratan a la gente. Eso lo saben quienes trabajan ahí.
 >
 > VozLaboral reúne experiencias de trabajadores en empresas de Colombia. Lo bueno, lo malo y lo mixto.
 >
-> Buscas la empresa, cuentas cómo te fue con un alias, o sin crear cuenta, y la moderación la revisa antes de publicarla. Tu nombre y tu correo nunca aparecen.
+> Buscas la empresa, y si no aparece, pides que la agreguen. Cuentas cómo te fue con un alias, o sin crear cuenta, y la moderación la revisa antes de publicarla. Tu nombre y tu correo nunca aparecen.
 >
 > Los demás pueden reaccionar, comentar y responder. Y si tienes cuenta, te avisamos.
 >
