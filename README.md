@@ -84,6 +84,7 @@ Sin variables de Supabase la app arranca igualmente y muestra un aviso de config
    Genera `supabase/importaciones/empresas_<año>_parte_N.sql` (2.000 empresas por archivo). Ejecútalos en orden en el SQL Editor. Son idempotentes: repetirlos no duplica. El NIT se guarda en `company_private_data` y nunca es público. Las razones sociales idénticas en el mismo departamento se omiten para no crear perfiles indistinguibles; revísalas a mano. Estos archivos no se suben al repositorio.
 8. **Guías de «Tus derechos»:** `supabase/contenido/guias-derechos-2026.sql` y `supabase/contenido/guias-derechos-2026-parte-2.sql` (vacaciones, cesantías, prima, despido, incapacidad y licencias de maternidad y paternidad) cargan 16 guías. La primera parte carga 10 guías redactadas a partir del texto oficial de la Secretaría del Senado (Código Sustantivo del Trabajo, Constitución, Leyes 1010 de 2006 y 2101 de 2021). Quedan como «pendiente de verificación», no públicas; se publican desde Moderación → Guías tras la revisión de un abogado.
 9. **Tareas programadas:** ver [`docs/retencion.md`](docs/retencion.md).
+10. **Antes de abrir al público:** sigue la lista de [`docs/lanzamiento.md`](docs/lanzamiento.md), que incluye textos de invitación.
 
 ## Pruebas
 
@@ -113,7 +114,7 @@ src/pages/             páginas (Admin.tsx se carga aparte)
 src/content/           borradores de políticas
 tests/db/              pruebas de seguridad contra Postgres
 tests/unit, tests/ui   validación y recorridos de interfaz
-docs/                  decisiones, conservación y checklists
+docs/                  decisiones, conservación, checklists y kit de lanzamiento (lanzamiento.md)
 ```
 
 ## Cambiar la identidad visual
