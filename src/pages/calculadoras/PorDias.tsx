@@ -4,7 +4,7 @@ import { VALORES_2026 } from '../../lib/liquidacion';
 import { calcularPorDias, type Turno } from '../../lib/nomina';
 import { PageHeader } from '../../components/ui';
 import {
-  CalendarioTurnos, ComoSeCalcula, DesprendibleView, MoneyInput, NumberInput, PeriodoFields, periodoActual, pesos, rangoPeriodo, turnosLista,
+  CalendarioTurnos, ComoSeCalcula, DesprendibleView, ExplicacionDescanso, MoneyInput, NumberInput, PeriodoFields, periodoActual, pesos, rangoPeriodo, turnosLista,
   type Turnos,
 } from '../../components/nomina';
 import { periodoTitulo } from './Administrativos';
@@ -53,7 +53,7 @@ export default function PorDias() {
 
           <section aria-labelledby="dias-titulo" className="space-y-3">
             <h2 id="dias-titulo" className="font-sans text-base font-semibold">Días que trabajaste</h2>
-            <p className="text-sm text-slate">Toca cada día trabajado y confirma la hora de entrada, salida y descanso. Llevas {lista.length} {lista.length === 1 ? 'día' : 'días'}.</p>
+            <p className="text-sm text-slate">Toca cada día trabajado y confirma la hora de entrada, salida y descanso (el almuerzo no cuenta como trabajo). Llevas {lista.length} {lista.length === 1 ? 'día' : 'días'}.</p>
             <CalendarioTurnos fechas={rango.fechas} turnos={turnos} onChange={setTurnos} plantilla={plantilla} />
           </section>
 
@@ -91,6 +91,7 @@ export default function PorDias() {
           Cada día marcado se paga con tu valor por día. Si te pagan un salario mensual, el valor del día es ese salario dividido entre 30. El
           valor de la hora es el del día dividido entre las horas de tu jornada.
         </p>
+        <ExplicacionDescanso />
         <h3>Recargos y horas extra</h3>
         <p>
           Las horas de noche (de 7:00 p. m. a 6:00 a. m.) pagan un 35 % más; las de domingo o festivo, un 90 % más desde julio de 2026; y lo

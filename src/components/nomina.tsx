@@ -272,7 +272,7 @@ function EditorTurno({ fecha: f, valor, plantilla, onClose, onSave }: { fecha: s
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label="Entrada">{(p) => <input {...p} type="time" className="input" value={t.entrada} onChange={(e) => setT({ ...t, entrada: e.target.value })} />}</Field>
         <Field label="Salida">{(p) => <input {...p} type="time" className="input" value={t.salida} onChange={(e) => setT({ ...t, salida: e.target.value })} />}</Field>
-        <Field label="Descanso">{(p) => <input {...p} inputMode="numeric" className="input" value={t.descansoMin || ''} placeholder="0 min" onChange={(e) => setT({ ...t, descansoMin: Number(e.target.value.replace(/\D/g, '')) || 0 })} />}</Field>
+        <Field label="Descanso (min)" hint="Almuerzo o pausa: no cuenta como trabajo.">{(p) => <input {...p} inputMode="numeric" className="input" value={t.descansoMin || ''} placeholder="0" onChange={(e) => setT({ ...t, descansoMin: Number(e.target.value.replace(/\D/g, '')) || 0 })} />}</Field>
       </div>
       {cruza && <p className="mt-2 text-sm text-slate">Sales al día siguiente ({sumarDias(f, 1).slice(8)}).</p>}
       <div className="mt-6 flex flex-wrap justify-end gap-3">
@@ -285,3 +285,21 @@ function EditorTurno({ fecha: f, valor, plantilla, onClose, onSave }: { fecha: s
 }
 
 export const turnosLista = (t: Turnos): Turno[] => Object.values(t).filter((x): x is Turno => x !== 'descanso');
+
+/** Explicación del descanso dentro de la jornada (CST, art. 167), para «Cómo se calcula». */
+export function ExplicacionDescanso() {
+  return (
+    <>
+      <h3>El almuerzo no cuenta como tiempo de trabajo</h3>
+      <p>
+        La jornada debe repartirse en al menos dos partes, con un descanso en medio, y ese descanso no se cuenta en la jornada (CST, art.
+        167). Por eso, si entras a las 8:00 a. m., sales a las 5:00 p. m. y tienes una hora de almuerzo, trabajas 8 horas, no 9. La
+        calculadora resta los minutos de descanso que escribas en cada turno.
+      </p>
+      <p>
+        Si durante ese tiempo sigues trabajando, contestando el teléfono o tienes que quedarte disponible en tu puesto, no es un descanso
+        real: no lo restes y guarda pruebas de esa situación.
+      </p>
+    </>
+  );
+}

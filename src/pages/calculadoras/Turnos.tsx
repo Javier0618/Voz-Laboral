@@ -8,7 +8,7 @@ import {
 } from '../../lib/nomina';
 import { Field, PageHeader } from '../../components/ui';
 import {
-  CalendarioTurnos, ComoSeCalcula, DesprendibleView, MoneyInput, NovedadesFields, NumberInput, OtrosFields, PeriodoFields, periodoActual,
+  CalendarioTurnos, ComoSeCalcula, DesprendibleView, ExplicacionDescanso, MoneyInput, NovedadesFields, NumberInput, OtrosFields, PeriodoFields, periodoActual,
   pesos, rangoPeriodo, turnosLista, type Turnos,
 } from '../../components/nomina';
 import { periodoTitulo } from './Administrativos';
@@ -123,6 +123,7 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
           <li>Dominical o festiva: domingos y los 18 festivos de Colombia, que la calculadora conoce para cada año (Ley 51 de 1983).</li>
           <li>Extra: según cómo cuente tu empresa, lo que pasa de tu jornada diaria o del total de horas del período.</li>
         </ul>
+        <ExplicacionDescanso />
         <h3>Ordinaria o extra</h3>
         <p>
           La ley fija 42 horas semanales (CST, art. 161) y permite turnos sucesivos y jornadas flexibles que reparten las horas de forma
@@ -141,7 +142,7 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
         <h3>Lo que no calcula</h3>
         <p>
           El descanso compensatorio por trabajar domingos de forma habitual, la retención en la fuente y los acuerdos particulares de tu
-          empresa. El descanso de cada turno se descuenta a mitad del turno.
+          empresa. El descanso de cada turno se resta a mitad del turno: si tu pausa es en otra hora, el reparto entre horas de día y de noche puede variar un poco.
         </p>
       </ComoSeCalcula>
     </div>
@@ -201,7 +202,7 @@ function GeneradorSemanal({ fechas, onApply }: { fechas: string[]; onApply: (t: 
       <div className="grid gap-3 sm:grid-cols-3">
         <Field label="Entrada">{(p) => <input {...p} type="time" className="input" value={h.entrada} onChange={(e) => setH({ ...h, entrada: e.target.value })} />}</Field>
         <Field label="Salida">{(p) => <input {...p} type="time" className="input" value={h.salida} onChange={(e) => setH({ ...h, salida: e.target.value })} />}</Field>
-        <Field label="Almuerzo (min)">{(p) => <input {...p} inputMode="numeric" className="input" value={h.descanso || ''} onChange={(e) => setH({ ...h, descanso: Number(e.target.value.replace(/\D/g, '')) || 0 })} />}</Field>
+        <Field label="Almuerzo (min)" hint="No cuenta como trabajo (CST, art. 167).">{(p) => <input {...p} inputMode="numeric" className="input" value={h.descanso || ''} onChange={(e) => setH({ ...h, descanso: Number(e.target.value.replace(/\D/g, '')) || 0 })} />}</Field>
       </div>
       <button type="button" className="btn-primary" onClick={aplicar}>Llenar el calendario</button>
     </div>
