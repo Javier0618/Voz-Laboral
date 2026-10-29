@@ -159,8 +159,8 @@ function Desprendible({ r }: { r: ResultadoLiquidacion }) {
         {r.avisos.map((a) => <p key={a} className="text-sm text-slate">{a}</p>)}
         <Alert tone="warning" title="Es una estimación, no tu liquidación oficial">
           Usa convención 30/360, supone que las prestaciones de años anteriores ya te las pagaron o consignaron y no contempla todos los casos
-          especiales. Si tu empleador no te paga al terminar el contrato, consulta la guía{' '}
-          <Link to="/derechos/pago-del-salario" className="btn-link">Cuándo y cómo deben pagarte el salario</Link>.
+          especiales. Para entender cada concepto y qué hacer si no te pagan, lee la guía{' '}
+          <Link to="/derechos/liquidacion-al-terminar-el-contrato" className="btn-link">Liquidación al terminar el contrato</Link>.
         </Alert>
       </div>
     </div>
