@@ -3,6 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { esDominicalOFestivo, festivos, fecha as aFecha, sumarDias } from '../lib/festivos';
 import type { Desprendible as DesprendibleT, Novedades, OtrosConceptos, Turno } from '../lib/nomina';
 import { Alert, Dialog, Field } from './ui';
+import { conArticulosCst, TextoCst } from './ArticulosCst';
 
 export const pesos = (n: number) => `${n < 0 ? '−' : ''}$${Math.abs(Math.round(n)).toLocaleString('es-CO')}`;
 const soloDigitos = (s: string) => s.replace(/\D/g, '');
@@ -154,7 +155,7 @@ export function DesprendibleView({ titulo, d, extra }: { titulo: string; d: Desp
         </div>
       </dl>
       <div className="mt-6 space-y-3">
-        {d.avisos.map((a) => <p key={a} className="text-sm text-slate">{a}</p>)}
+        {d.avisos.map((a) => <p key={a} className="text-sm text-slate"><TextoCst texto={a} /></p>)}
         <Alert tone="warning" title="Es una estimación, no tu desprendible oficial">
           Compárala con el de tu empresa. Las diferencias pueden venir de las fechas de corte, de cómo tu empresa cuenta las horas extra o de
           datos que falten.
@@ -177,7 +178,7 @@ function Bloque({ titulo, lineas, negativo }: { titulo: string; lineas: Desprend
               <span className="tabular-nums">{negativo ? '−' : ''}{pesos(l.valor)}</span>
             </div>
             {(l.detalle || l.norma) && (
-              <p className="mt-1 text-sm text-slate">{[l.detalle, l.norma].filter(Boolean).join('. ')}</p>
+              <p className="mt-1 text-sm text-slate"><TextoCst texto={[l.detalle, l.norma].filter(Boolean).join('. ')} /></p>
             )}
           </li>
         ))}
@@ -191,7 +192,7 @@ export function ComoSeCalcula({ children }: { children: ReactNode }) {
     <section aria-labelledby="como-se-calcula" className="mt-16 border-t border-ink/80 pt-8">
       <h2 id="como-se-calcula" className="text-3xl">Cómo se calcula</h2>
       <div className="mt-5 max-w-prose space-y-4 text-[1.0625rem] leading-7 [&_h3]:mt-6 [&_h3]:font-sans [&_h3]:text-lg [&_h3]:font-semibold [&_li]:ml-5 [&_li]:list-disc">
-        {children}
+        {conArticulosCst(children)}
       </div>
     </section>
   );
@@ -288,7 +289,7 @@ export const turnosLista = (t: Turnos): Turno[] => Object.values(t).filter((x): 
 
 /** Explicación del descanso dentro de la jornada (CST, art. 167), para «Cómo se calcula». */
 export function ExplicacionDescanso() {
-  return (
+  return conArticulosCst(
     <>
       <h3>El almuerzo no cuenta como tiempo de trabajo</h3>
       <p>

@@ -206,6 +206,10 @@ export function listLegalResources() {
   );
 }
 
+export function listPublishedGuideSlugs() {
+  return run<{ slug: string }[]>(requireClient().from('legal_resources').select('slug').eq('status', 'publicado'));
+}
+
 export function registerGuideView(slug: string) {
   return run(requireClient().rpc('register_guide_view', { p_slug: slug }));
 }

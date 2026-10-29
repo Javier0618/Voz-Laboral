@@ -5,6 +5,7 @@ import {
   type DatosLiquidacion, type MotivoRetiro, type ResultadoLiquidacion, type TipoContrato,
 } from '../lib/liquidacion';
 import { Alert, Field, PageHeader } from '../components/ui';
+import { TextoCst } from '../components/ArticulosCst';
 
 const pesos = (n: number) => `$${n.toLocaleString('es-CO')}`;
 const soloDigitos = (s: string) => s.replace(/\D/g, '');
@@ -156,7 +157,7 @@ function Desprendible({ r }: { r: ResultadoLiquidacion }) {
         </div>
       </dl>
       <div className="mt-6 space-y-3">
-        {r.avisos.map((a) => <p key={a} className="text-sm text-slate">{a}</p>)}
+        {r.avisos.map((a) => <p key={a} className="text-sm text-slate"><TextoCst texto={a} /></p>)}
         <Alert tone="warning" title="Es una estimación, no tu liquidación oficial">
           Usa convención 30/360, supone que las prestaciones de años anteriores ya te las pagaron o consignaron y no contempla todos los casos
           especiales. Para entender cada concepto y qué hacer si no te pagan, lee la guía{' '}
@@ -178,7 +179,7 @@ function Lista({ titulo, items, negativo }: { titulo: string; items: ResultadoLi
               <span className="font-semibold">{c.nombre}</span>
               <span className="tabular-nums">{negativo ? '−' : ''}{pesos(c.valor)}</span>
             </div>
-            <p className="mt-1 text-sm text-slate">{c.detalle}. <span className="whitespace-nowrap">{c.norma}</span></p>
+            <p className="mt-1 text-sm text-slate">{c.detalle}. <span className="whitespace-nowrap"><TextoCst texto={c.norma} /></span></p>
           </li>
         ))}
       </ul>

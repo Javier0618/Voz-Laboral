@@ -256,7 +256,7 @@ export function RightsArticle() {
 
       <div className="page grid gap-12 py-12 lg:grid-cols-[minmax(0,1fr)_17rem]">
         <div className="min-w-0">
-          <GuideBody content={data.content} />
+          <GuideBody content={data.content} slug={data.slug} />
 
           {sources.length > 0 && (
             <section className="mt-14 max-w-prose border-t border-ink/80 pt-8" aria-labelledby="fuentes">
