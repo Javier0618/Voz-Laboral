@@ -8,7 +8,7 @@ const nav = [
   { to: '/empresas', label: 'Empresas' },
   { to: '/experiencias', label: 'Experiencias' },
   { to: '/derechos', label: 'Tus derechos' },
-  { to: '/liquidacion', label: 'Liquidación' },
+  { to: '/calculadoras', label: 'Calculadoras' },
   { to: '/como-funciona', label: 'Cómo funciona' },
 ];
 

@@ -20,6 +20,10 @@ import PolicyPage, { NotFound } from './pages/Policies';
 const Admin = lazy(() => import('./pages/Admin'));
 const GuideEditor = lazy(() => import('./pages/GuideEditor'));
 const Liquidacion = lazy(() => import('./pages/Liquidacion'));
+const CalculadorasIndex = lazy(() => import('./pages/calculadoras/Index'));
+const Administrativos = lazy(() => import('./pages/calculadoras/Administrativos'));
+const TurnosPage = lazy(() => import('./pages/calculadoras/Turnos'));
+const PorDias = lazy(() => import('./pages/calculadoras/PorDias'));
 
 export function AppRoutes() {
   return (
@@ -35,6 +39,12 @@ export function AppRoutes() {
         <Route path="derechos/:slug" element={<RightsArticle />} />
         <Route path="compartir" element={<Share />} />
         <Route path="liquidacion" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><Liquidacion /></Suspense>} />
+        <Route path="calculadoras" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><CalculadorasIndex /></Suspense>} />
+        <Route path="calculadoras/administrativos" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><Administrativos /></Suspense>} />
+        <Route path="calculadoras/operativos" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><TurnosPage tipo="operativos" /></Suspense>} />
+        <Route path="calculadoras/vigilantes" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><TurnosPage tipo="vigilantes" /></Suspense>} />
+        <Route path="calculadoras/por-dias" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><PorDias /></Suspense>} />
+        <Route path="calculadoras/liquidacion" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><Liquidacion /></Suspense>} />
         <Route path="cuenta" element={<Account />} />
         <Route path="seguimiento/:token" element={<Tracking />} />
         <Route path="como-funciona" element={<About />} />
