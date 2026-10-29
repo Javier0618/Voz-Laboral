@@ -19,6 +19,7 @@ import PolicyPage, { NotFound } from './pages/Policies';
 // El panel de moderación se carga aparte: no forma parte del área pública.
 const Admin = lazy(() => import('./pages/Admin'));
 const GuideEditor = lazy(() => import('./pages/GuideEditor'));
+const Liquidacion = lazy(() => import('./pages/Liquidacion'));
 
 export function AppRoutes() {
   return (
@@ -33,6 +34,7 @@ export function AppRoutes() {
         <Route path="derechos" element={<Rights />} />
         <Route path="derechos/:slug" element={<RightsArticle />} />
         <Route path="compartir" element={<Share />} />
+        <Route path="liquidacion" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><Liquidacion /></Suspense>} />
         <Route path="cuenta" element={<Account />} />
         <Route path="seguimiento/:token" element={<Tracking />} />
         <Route path="como-funciona" element={<About />} />
