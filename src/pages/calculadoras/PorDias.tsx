@@ -95,7 +95,8 @@ export default function PorDias() {
         <h3>Recargos y horas extra</h3>
         <p>
           Las horas de noche (de 7:00 p. m. a 6:00 a. m.) pagan un 35 % más; las de domingo o festivo, un 90 % más desde julio de 2026; y lo
-          que pasa de tu jornada, como hora extra (CST, arts. 160, 168 y 179).
+          que pasa de tu jornada, como hora extra (CST, arts. 160, 168 y 179). Las horas extra no pueden pasar de 2 al día ni de 12 a la
+          semana (CST, art. 167A); si las pasas, el desprendible te avisa.
         </p>
         <h3>Auxilio de transporte</h3>
         <p>

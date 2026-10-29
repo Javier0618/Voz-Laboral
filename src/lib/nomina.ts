@@ -98,6 +98,8 @@ export interface ResultadoTurnos {
   horasTrabajadas: number;
   horasOrdinarias: number;
   turnos: number;
+  /** Días (fecha del turno) y semanas (su lunes) que pasan el límite de horas extra del CST, art. 167A. */
+  excesoLimite: { dias: string[]; semanas: string[] };
 }
 
 /**
@@ -111,8 +113,11 @@ export function calcularTurnos(turnos: Turno[], valorHora: number, extras: ModoE
   let acumulado = 0;
   const umbral = extras.modo === 'periodo' ? extras.horasUmbral * 60 : Infinity;
   const ordenados = [...turnos].sort((a, b) => (a.fecha + a.entrada).localeCompare(b.fecha + b.entrada));
+  const porDia = new Map<string, number>();
+  const porSemana = new Map<string, number>();
   for (const t of ordenados) {
     let enTurno = 0;
+    const lunes = sumarDias(t.fecha, -((new Date(`${t.fecha}T00:00:00`).getDay() + 6) % 7));
     for (const min of minutosDeTurno(t)) {
       enTurno++;
       acumulado++;
@@ -121,13 +126,31 @@ export function calcularTurnos(turnos: Turno[], valorHora: number, extras: ModoE
       const tipo: TipoHora | null = extra
         ? (min.festivo ? (min.nocturno ? 'HEDN' : 'HEDD') : min.nocturno ? 'HEN' : 'HED')
         : min.festivo ? (min.nocturno ? 'RDN' : 'RDD') : min.nocturno ? 'RN' : null;
+      if (extra) {
+        porDia.set(t.fecha, (porDia.get(t.fecha) ?? 0) + 1);
+        porSemana.set(lunes, (porSemana.get(lunes) ?? 0) + 1);
+      }
       if (!tipo) continue;
       horas[tipo] += 1 / 60;
       valores[tipo] += (valorHora * factorHora(tipo, min.fecha)) / 60;
     }
   }
   const extrasH = horas.HED + horas.HEN + horas.HEDD + horas.HEDN;
-  return { horas, valores, horasTrabajadas: total / 60, horasOrdinarias: total / 60 - extrasH, turnos: ordenados.length };
+  const pasan = (m: Map<string, number>, limiteH: number) => [...m].filter(([, min]) => min > limiteH * 60).map(([f]) => f);
+  return {
+    horas, valores, horasTrabajadas: total / 60, horasOrdinarias: total / 60 - extrasH, turnos: ordenados.length,
+    excesoLimite: { dias: pasan(porDia, 2), semanas: pasan(porSemana, 12) },
+  };
+}
+
+/** Aviso del límite de horas extra (CST, art. 167A, Ley 2466 de 2025), o null si no se pasa. */
+export function avisoLimiteExtras({ dias, semanas }: ResultadoTurnos['excesoLimite']): string | null {
+  if (!dias.length && !semanas.length) return null;
+  const partes = [
+    dias.length ? `${dias.length} ${dias.length === 1 ? 'día' : 'días'} con más de 2 horas extra` : '',
+    semanas.length ? `${semanas.length} ${semanas.length === 1 ? 'semana' : 'semanas'} con más de 12` : '',
+  ].filter(Boolean).join(' y ');
+  return `Tienes ${partes}. La ley no permite pasar de 2 horas extra al día ni de 12 a la semana (CST, art. 167A). Aun así, toda hora extra trabajada se debe pagar. Los sectores de seguridad privada y salud están exceptuados.`;
 }
 
 /** Valor de horas escritas a mano (calculadora de administrativos), con los factores de la fecha indicada. */
@@ -287,6 +310,8 @@ export function calcularPorDias(d: DatosPorDias, v = VALORES_2026): Desprendible
   const dias = new Set(d.turnos.map((t) => t.fecha)).size;
   const valorHora = d.valorDia / d.horasJornada;
   const t = calcularTurnos(d.turnos, valorHora, { modo: 'diario', horasJornada: d.horasJornada });
+  const limite = avisoLimiteExtras(t.excesoLimite);
+  if (limite) avisos.push(limite);
   const devengados: Linea[] = [];
   const add = (l: Linea) => { if (l.valor) devengados.push(l); };
   add({ clave: 'jornadas', nombre: `Jornadas (${dias} días)`, valor: d.valorDia * dias, detalle: `${pesos(d.valorDia)} por día` });

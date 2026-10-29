@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { esDominicalOFestivo, festivos } from '../../src/lib/festivos';
 import {
-  calcularNomina, calcularPorDias, calcularTurnos, factorHora, fondoSolidaridad, horasVacias, inicioNocturno,
+  avisoLimiteExtras, calcularNomina, calcularPorDias, calcularTurnos, factorHora, fondoSolidaridad, horasVacias, inicioNocturno,
   novedadesVacias, otrosVacios, recargoDominical, valorarHoras, type DatosNomina,
 } from '../../src/lib/nomina';
 
@@ -76,6 +76,18 @@ describe('turnos', () => {
     const t = calcularTurnos(turnos, VH, { modo: 'periodo', horasUmbral: 20 });
     expect(r2(t.horas.HED)).toBe(4);
     expect(r2(t.horasOrdinarias)).toBe(20);
+  });
+
+  it('límite del art. 167A: más de 2 h extra al día o de 12 a la semana', () => {
+    const dia = (f: string) => ({ fecha: f, entrada: '06:00', salida: '18:00', descansoMin: 0 }); // 4 h extra con jornada de 8
+    const t = calcularTurnos(['2026-10-05', '2026-10-06', '2026-10-07', '2026-10-12'].map(dia), VH, { modo: 'diario', horasJornada: 8 });
+    expect(t.excesoLimite.dias).toHaveLength(4);
+    expect(t.excesoLimite.semanas).toEqual([]); // 12 h justas la semana del 5 de octubre, 4 la del 12
+    const t2 = calcularTurnos(['2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08'].map(dia), VH, { modo: 'diario', horasJornada: 8 });
+    expect(t2.excesoLimite.semanas).toEqual(['2026-10-05']);
+    expect(avisoLimiteExtras(t2.excesoLimite)).toContain('4 días con más de 2 horas extra y 1 semana con más de 12');
+    const ok = calcularTurnos([{ fecha: '2026-10-07', entrada: '06:00', salida: '16:00', descansoMin: 0 }], VH, { modo: 'diario', horasJornada: 8 });
+    expect(avisoLimiteExtras(ok.excesoLimite)).toBeNull();
   });
 
   it('descuenta el descanso del turno', () => {

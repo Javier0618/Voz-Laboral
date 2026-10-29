@@ -20,12 +20,18 @@ export default function Administrativos() {
   const rango = rangoPeriodo(periodo);
   const valorHora = salario / (horasMes || HORAS_MES_DEFECTO);
 
-  const resultado = useMemo(() => (salario > 0
-    ? calcularNomina({
+  const resultado = useMemo(() => {
+    if (salario <= 0) return null;
+    const r = calcularNomina({
       salarioMensual: salario, diasPeriodo: rango.diasNomina, fechaReferencia: rango.desde, horasMes: horasMes || HORAS_MES_DEFECTO,
       novedades, horasValoradas: { horas, valores: valorarHoras(horas, valorHora, rango.desde) }, otros,
-    })
-    : null), [salario, rango.diasNomina, rango.desde, horasMes, novedades, horas, valorHora, otros]);
+    });
+    // Sin fechas solo se puede comparar el total con 12 h por cada semana del período (CST, art. 167A).
+    const extrasH = horas.HED + horas.HEN + horas.HEDD + horas.HEDN;
+    const maximo = Math.round((12 * rango.diasNomina) / 7);
+    if (extrasH > maximo) r.avisos.unshift(`Escribiste ${extrasH} horas extra: en ${rango.diasNomina} días la ley permite como máximo unas ${maximo} (2 al día y 12 a la semana, CST, art. 167A). Aun así, toda hora extra trabajada se debe pagar. Los sectores de seguridad privada y salud están exceptuados.`);
+    return r;
+  }, [salario, rango.diasNomina, rango.desde, horasMes, novedades, horas, valorHora, otros]);
 
   return (
     <div className="page py-10">
@@ -88,6 +94,7 @@ export default function Administrativos() {
           <li>Hora extra diurna: la hora más el 25 %; nocturna: la hora más el 75 %.</li>
           <li>En domingo o festivo, la hora extra suma también el recargo dominical.</li>
         </ul>
+        <p>Las horas extra no pueden pasar de 2 al día ni de 12 a la semana (CST, art. 167A, Ley 2466 de 2025), salvo en seguridad privada y salud.</p>
         <p>Las horas de tu jornada normal que caen de noche o en festivo solo pagan el recargo, porque la hora ya está en tu salario.</p>
         <h3>Auxilio de transporte</h3>
         <p>

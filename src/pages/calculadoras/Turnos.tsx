@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { fecha as aFecha } from '../../lib/festivos';
 import { VALORES_2026 } from '../../lib/liquidacion';
 import {
-  calcularNomina, calcularTurnos, HORAS_MES_DEFECTO, novedadesVacias, otrosVacios, TIPOS_HORA, type ModoExtras, type Turno,
+  avisoLimiteExtras, calcularNomina, calcularTurnos, HORAS_MES_DEFECTO, novedadesVacias, otrosVacios, TIPOS_HORA, type ModoExtras, type Turno,
 } from '../../lib/nomina';
 import { Field, PageHeader } from '../../components/ui';
 import {
@@ -45,12 +45,14 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
   const valorHora = salario / HORAS_MES_DEFECTO;
   const lista = turnosLista(turnos);
   const resTurnos = calcularTurnos(lista, valorHora, extras);
-  const resultado = salario > 0
+  const limite = vig ? null : avisoLimiteExtras(resTurnos.excesoLimite);
+  const nomina = salario > 0
     ? calcularNomina({
       salarioMensual: salario, diasPeriodo: rango.diasNomina, fechaReferencia: rango.desde, horasMes: HORAS_MES_DEFECTO,
       novedades, horasValoradas: { horas: resTurnos.horas, valores: resTurnos.valores }, otros,
     })
     : null;
+  const resultado = nomina && limite ? { ...nomina, avisos: [limite, ...nomina.avisos] } : nomina;
 
   return (
     <div className="page py-10">
@@ -129,6 +131,13 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
           La ley fija 42 horas semanales (CST, art. 161) y permite turnos sucesivos y jornadas flexibles que reparten las horas de forma
           variable. En turnos de 12 horas, muchas empresas solo pagan horas extra cuando se superan 210 horas en el mes y antes pagan los
           recargos. Esa cifra es una práctica, no un umbral legal: si tu contrato dice otra cosa, ajústala.
+        </p>
+        <h3>Límite de horas extra</h3>
+        <p>
+          Las horas extra no pueden pasar de 2 al día ni de 12 a la semana (CST, art. 167A, Ley 2466 de 2025).
+          {vig
+            ? ' Ese límite no aplica al sector de seguridad (Ley 1920 de 2018) ni al de salud, por eso esta calculadora no avisa cuando lo pasas.'
+            : ' Si tus turnos lo pasan, el desprendible te avisa. Aun así, toda hora extra trabajada se debe pagar. Los sectores de seguridad privada y salud están exceptuados.'}
         </p>
         <h3>Valor de cada hora</h3>
         <p>La hora ordinaria vale tu salario dividido entre 210. Sobre ella se aplican:</p>
