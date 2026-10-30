@@ -3,6 +3,8 @@ import { useEffect, useMemo } from 'react';
 import { getLegalResource, listCategories, listLegalResources, registerGuideView, type Category, type LegalResource } from '../lib/api';
 import { formatDate, todayLocal } from '../lib/format';
 import { guideOutline, plainText, readingMinutes } from '../lib/guide';
+import { setPageMeta } from '../lib/meta';
+import { brand } from '../config/brand';
 import { GuideBody } from '../components/GuideBody';
 import { GuideCover } from '../components/GuideCover';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, useAsync } from '../components/ui';
@@ -13,7 +15,7 @@ const disclaimer =
 // La guía de «a dónde acudir» se destaca como ayuda inmediata si está publicada.
 const HELP_SLUG_PREFIX = 'a-donde-acudir';
 
-const normalize = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const normalize = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
 function categoryName(categories: Category[] | null | undefined, slug: string | null) {
   return categories?.find((c) => c.slug === slug)?.name ?? 'Temas generales';
@@ -64,6 +66,17 @@ export default function Rights() {
   const [params, setParams] = useSearchParams();
   const query = params.get('q') ?? '';
   const topic = params.get('tema') ?? '';
+
+  useEffect(() => {
+    setPageMeta({
+      title: `Tus derechos laborales · ${brand.name}`,
+      description:
+        'Guías claras sobre salario, jornada, contrato, acoso y a dónde acudir. Cada una cita su fuente oficial y la fecha en que se verificó.',
+      path: '/derechos',
+      type: 'website',
+    });
+    return () => setPageMeta(null);
+  }, []);
 
   const setFilter = (next: { q?: string; tema?: string }) => {
     const merged = { q: query, tema: topic, ...next };
@@ -203,7 +216,33 @@ export function RightsArticle() {
     if (data) countViewOncePerDay(slug);
   }, [data, slug]);
   useEffect(() => {
-    if (data) document.title = `${data.title} · VozLaboral`;
+    if (!data) return;
+    const path = `/derechos/${data.slug}`;
+    const pageUrl = typeof window !== 'undefined' ? `${window.location.origin}${path}` : path;
+    setPageMeta({
+      title: `${data.title} · ${brand.name}`,
+      description: data.summary,
+      image: data.cover_url,
+      path,
+      type: 'article',
+      jsonLd: {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: data.title,
+        description: data.summary,
+        dateModified: data.updated_at,
+        ...(data.last_verified_at ? { datePublished: data.last_verified_at } : {}),
+        inLanguage: 'es-CO',
+        mainEntityOfPage: pageUrl,
+        image: data.cover_url ? [data.cover_url] : undefined,
+        author: { '@type': 'Organization', name: brand.name },
+        publisher: {
+          '@type': 'Organization',
+          name: brand.name,
+        },
+      },
+    });
+    return () => setPageMeta(null);
   }, [data]);
 
   if (notConfigured) return <div className="page py-10"><ConfigNotice /></div>;
