@@ -1,13 +1,19 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { listCategories, listExperiences, listLegalResources } from '../lib/api';
 import { readingMinutes } from '../lib/guide';
+import { defaultHomeMeta, setPageMeta } from '../lib/meta';
 import { GuideCover } from '../components/GuideCover';
 import { ExperienceItem } from '../components/ExperienceItem';
 import { PromoVideoButton, PromoVideoTeaser, PromoVideoThumb } from '../components/PromoVideo';
 import { ConfigNotice, ErrorState, Loading, notConfigured, useAsync } from '../components/ui';
 
 export default function Home() {
+  useEffect(() => {
+    setPageMeta(defaultHomeMeta());
+    return () => setPageMeta(null);
+  }, []);
+
   const recent = useAsync(() => (notConfigured ? Promise.resolve([]) : listExperiences({ pageSize: 3 })), []);
   // Mientras no haya experiencias publicadas, la portada invita a ser de los
   // primeros y sube las guías, que ya tienen contenido.

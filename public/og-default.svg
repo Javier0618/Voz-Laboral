@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="628" viewBox="0 0 1200 628" role="img" aria-label="VozLaboral">
+  <rect width="1200" height="628" fill="#0F2440"/>
+  <circle cx="980" cy="120" r="220" fill="#1A3A5C" opacity="0.6"/>
+  <circle cx="180" cy="520" r="180" fill="#0D9488" opacity="0.25"/>
+  <rect x="72" y="200" width="8" height="120" rx="2" fill="#5FD3C5"/>
+  <text x="100" y="250" font-family="Georgia, 'Times New Roman', serif" font-size="64" fill="#FFFFFF" font-weight="500">VozLaboral</text>
+  <text x="100" y="320" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#B8C5D6">Cómo es trabajar ahí,</text>
+  <text x="100" y="360" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#B8C5D6">contado por quienes trabajan ahí.</text>
+  <text x="100" y="520" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#5FD3C5">Experiencias laborales en Colombia</text>
+</svg>

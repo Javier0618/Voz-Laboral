@@ -10,6 +10,9 @@ const DEFAULT_DESCRIPTION =
 
 const DEFAULT_TITLE = `${brand.name}: cómo es trabajar ahí, contado por quienes trabajan ahí`;
 
+/** Portada social por defecto (public/). Preferible WebP/PNG 1200×628 en producción. */
+export const DEFAULT_OG_IMAGE = '/og-default.svg';
+
 export type PageMeta = {
   title: string;
   description: string;
@@ -19,8 +22,8 @@ export type PageMeta = {
   path?: string | null;
   /** website | article */
   type?: 'website' | 'article';
-  /** JSON-LD serializable; null lo elimina */
-  jsonLd?: Record<string, unknown> | null;
+  /** JSON-LD: un objeto o @graph (p. ej. Article + BreadcrumbList) */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[] | null;
 };
 
 function absoluteUrl(pathOrUrl: string | null | undefined): string | undefined {
@@ -65,7 +68,7 @@ function setCanonical(href: string | undefined) {
   link.href = href;
 }
 
-function setJsonLd(data: Record<string, unknown> | null | undefined) {
+function setJsonLd(data: PageMeta['jsonLd']) {
   const id = 'vozlaboral-jsonld';
   let script = document.getElementById(id) as HTMLScriptElement | null;
   if (!data) {
@@ -78,7 +81,10 @@ function setJsonLd(data: Record<string, unknown> | null | undefined) {
     script.type = 'application/ld+json';
     document.head.appendChild(script);
   }
-  script.textContent = JSON.stringify(data);
+  const payload = Array.isArray(data)
+    ? { '@context': 'https://schema.org', '@graph': data }
+    : data;
+  script.textContent = JSON.stringify(payload);
 }
 
 /** Actualiza título, description, Open Graph, Twitter y opcionalmente JSON-LD. */
@@ -87,7 +93,8 @@ export function setPageMeta(meta: PageMeta | null) {
   const description = meta?.description ?? DEFAULT_DESCRIPTION;
   const type = meta?.type ?? 'website';
   const url = absoluteUrl(meta?.path ?? (typeof window !== 'undefined' ? window.location.pathname : undefined));
-  const image = absoluteUrl(meta?.image ?? undefined);
+  // Si la página no trae imagen, usamos la portada por defecto del sitio.
+  const image = absoluteUrl(meta?.image || DEFAULT_OG_IMAGE);
 
   document.title = title;
   setMetaByName('description', description);
@@ -103,7 +110,7 @@ export function setPageMeta(meta: PageMeta | null) {
     setMetaByName('twitter:image', image);
   }
 
-  setMetaByName('twitter:card', image ? 'summary_large_image' : 'summary');
+  setMetaByName('twitter:card', 'summary_large_image');
   setMetaByName('twitter:title', title);
   setMetaByName('twitter:description', description);
 
@@ -117,6 +124,7 @@ export function defaultHomeMeta(): PageMeta {
     description: DEFAULT_DESCRIPTION,
     path: '/',
     type: 'website',
+    image: DEFAULT_OG_IMAGE,
     jsonLd: {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
