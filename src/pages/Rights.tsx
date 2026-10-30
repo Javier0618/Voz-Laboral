@@ -4,6 +4,7 @@ import { getLegalResource, listCategories, listLegalResources, registerGuideView
 import { formatDate, todayLocal } from '../lib/format';
 import { guideOutline, plainText, readingMinutes } from '../lib/guide';
 import { GuideBody } from '../components/GuideBody';
+import { GuideCover } from '../components/GuideCover';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, useAsync } from '../components/ui';
 
 const disclaimer =
@@ -166,11 +167,13 @@ export default function Rights() {
               <ol className="mt-3 border-t border-ink/80">
                 {visible.map((g) => (
                   <li key={g.id} className="border-b border-line">
-                    <Link to={`/derechos/${g.slug}`} className="group grid gap-x-6 py-6 sm:grid-cols-[3.5rem_minmax(0,1fr)]">
+                    <Link to={`/derechos/${g.slug}`}
+                      className={`group grid gap-x-6 py-6 sm:grid-cols-[3.5rem_minmax(0,1fr)] ${g.cover_url ? 'md:grid-cols-[3.5rem_minmax(0,1fr)_11rem]' : ''}`}>
                       <span aria-hidden="true" className="hidden font-serif text-3xl leading-none text-teal/70 sm:block">
                         {String(guides.indexOf(g) + 1).padStart(2, '0')}
                       </span>
-                      <span>
+                      <GuideCover guide={g} className="mb-4 rounded sm:col-start-2 md:order-last md:col-start-3 md:mb-0 md:self-start" />
+                      <span className="sm:col-start-2 md:row-start-1">
                         <span className="block text-sm font-semibold text-teal-strong">{categoryName(categories.data, g.category_slug)}</span>
                         <span className="mt-1 block font-serif text-2xl leading-tight text-ink group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">
                           {g.title}
@@ -231,8 +234,18 @@ export function RightsArticle() {
             <span aria-hidden="true" className="mx-2">/</span>
             <Link to={`/derechos?tema=${data.category_slug ?? 'generales'}`} className="hover:text-ink hover:underline">{topicName}</Link>
           </nav>
-          <h1 className="mt-4 max-w-3xl text-4xl font-medium leading-[1.1] tracking-[-0.01em] sm:text-5xl">{data.title}</h1>
-          <p className="mt-5 max-w-prose text-lg leading-8 text-slate">{data.summary}</p>
+          <div className={data.cover_url ? 'mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:items-stretch xl:grid-cols-[minmax(0,1fr)_minmax(0,28rem)]' : 'mt-4'}>
+            <div>
+              <h1 className="max-w-3xl text-4xl font-medium leading-[1.1] tracking-[-0.01em] sm:text-5xl">{data.title}</h1>
+              <p className="mt-5 max-w-prose text-lg leading-8 text-slate">{data.summary}</p>
+            </div>
+            {/* En pantallas grandes la portada ocupa la misma altura que el título y el resumen. */}
+            {data.cover_url && (
+              <div className="relative overflow-hidden rounded-lg border border-line shadow-sm lg:min-h-[12rem]">
+                <GuideCover guide={data} className="lg:absolute lg:inset-0 lg:aspect-auto lg:h-full" />
+              </div>
+            )}
+          </div>
           <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-4 border-t border-ink/15 pt-5 text-sm">
             <div>
               <dt className="text-slate">Tema</dt>
@@ -329,11 +342,14 @@ export function RightsArticle() {
             <ul className="mt-6 grid gap-4 md:grid-cols-3">
               {related.map((g) => (
                 <li key={g.id}>
-                  <Link to={`/derechos/${g.slug}`} className="group flex h-full flex-col rounded-lg border border-line bg-paper p-5 hover:border-slate">
+                  <Link to={`/derechos/${g.slug}`} className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-paper hover:border-slate">
+                    <GuideCover guide={g} />
+                    <span className="flex flex-1 flex-col p-5">
                     <span className="text-sm font-semibold text-teal-strong">{categoryName(categories.data, g.category_slug)}</span>
                     <span className="mt-1 font-serif text-xl leading-snug group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">{g.title}</span>
                     <span className="mt-2 line-clamp-3 text-sm leading-6 text-slate">{g.summary}</span>
                     <span className="mt-auto pt-4 text-sm text-slate">Lectura de {readingMinutes(g.content)} min</span>
+                    </span>
                   </Link>
                 </li>
               ))}

@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { listCategories, listExperiences, listLegalResources } from '../lib/api';
 import { readingMinutes } from '../lib/guide';
+import { GuideCover } from '../components/GuideCover';
 import { ExperienceItem } from '../components/ExperienceItem';
 import { PromoVideoButton, PromoVideoTeaser, PromoVideoThumb } from '../components/PromoVideo';
 import { ConfigNotice, ErrorState, Loading, notConfigured, useAsync } from '../components/ui';
@@ -343,10 +344,13 @@ function Rights() {
         <ul className="mt-8 grid gap-4 md:grid-cols-3">
           {featured.map((g) => (
             <li key={g.id}>
-              <Link to={`/derechos/${g.slug}`} className="group flex h-full flex-col rounded-lg border border-line bg-paper p-6 transition-colors hover:border-slate">
-                <span className="font-serif text-xl leading-snug text-ink group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">{g.title}</span>
-                <span className="mt-2 line-clamp-3 text-sm leading-6 text-slate">{g.summary}</span>
-                <span className="mt-auto pt-5 text-sm font-semibold text-teal-strong">Leer guía · {readingMinutes(g.content)} min</span>
+              <Link to={`/derechos/${g.slug}`} className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-paper transition-colors hover:border-slate">
+                <GuideCover guide={g} />
+                <span className="flex flex-1 flex-col p-6">
+                  <span className="font-serif text-xl leading-snug text-ink group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">{g.title}</span>
+                  <span className="mt-2 line-clamp-3 text-sm leading-6 text-slate">{g.summary}</span>
+                  <span className="mt-auto pt-5 text-sm font-semibold text-teal-strong">Leer guía · {readingMinutes(g.content)} min</span>
+                </span>
               </Link>
             </li>
           ))}

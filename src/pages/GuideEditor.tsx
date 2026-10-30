@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import {
-  addGuideSource, deleteGuideSource, getGuide, guideViews, setGuideStatus, updateGuide, uploadGuideImage,
+  addGuideSource, deleteGuideSource, getGuide, guideViews, setGuideCover, setGuideStatus, updateGuide, uploadGuideImage,
   type GuideDetail, type GuideStatus,
 } from '../lib/adminApi';
 import { listCategories } from '../lib/api';
+import { prepareCoverImage } from '../lib/image';
 import { formatDate, todayLocal } from '../lib/format';
 import type { AppError } from '../lib/supabase';
 import { GuideBody } from '../components/GuideBody';
@@ -145,9 +146,9 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
             )}
           </Field>
 
-          <section aria-labelledby="contenido">
+          <section aria-labelledby="contenido-guia">
             <div className="flex flex-wrap items-end justify-between gap-3">
-              <h2 id="contenido" className="font-sans text-base font-semibold">Contenido</h2>
+              <h2 id="contenido-guia" className="font-sans text-base font-semibold">Contenido</h2>
               <div role="tablist" aria-label="Modo del editor" className="flex gap-1 border-b border-line">
                 {(['editar', 'vista'] as const).map((m) => (
                   <button key={m} type="button" role="tab" aria-selected={view === m}
@@ -213,7 +214,10 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
           {g.status === 'publicado' && dirty && <Alert tone="warning">Esta guía está publicada: los cambios serán visibles en cuanto los guardes.</Alert>}
         </div>
 
-        <Sources guide={g} onChange={onSaved} />
+        <div className="space-y-10">
+          <CoverPanel guide={g} onChange={onSaved} />
+          <Sources guide={g} onChange={onSaved} />
+        </div>
       </div>
 
       <ImageDialog open={imageOpen} slug={g.slug} onClose={() => setImageOpen(false)} onInsert={insertImage} />
@@ -223,6 +227,88 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
         La guía será visible para cualquier persona en Tus derechos.
       </ConfirmDialog>
     </div>
+  );
+}
+
+/** Imagen de portada: se ve en el listado de guías, en la portada y arriba de la guía. */
+function CoverPanel({ guide: g, onChange }: { guide: GuideDetail; onChange: () => void }) {
+  const [alt, setAlt] = useState(g.cover_alt);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const input = useRef<HTMLInputElement>(null);
+
+  async function run(task: () => Promise<void>, done: string) {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await task();
+      setNotice(done);
+      onChange();
+    } catch (err) {
+      setError((err as AppError).message ?? 'No se pudo guardar la portada.');
+    } finally {
+      setBusy(false);
+      if (input.current) input.current.value = '';
+    }
+  }
+
+  function upload(file: File | undefined) {
+    if (!file) return;
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+      setError('Usa una imagen PNG, JPG o WebP.');
+      return;
+    }
+    void run(async () => {
+      const prepared = await prepareCoverImage(file);
+      const url = await uploadGuideImage(g.slug, prepared);
+      await setGuideCover(g.id, { url, alt }, g.cover_url);
+    }, g.cover_url ? 'Portada reemplazada.' : 'Portada guardada.');
+  }
+
+  return (
+    <section aria-labelledby="portada-guia">
+      <h2 id="portada-guia" className="border-b border-ink/80 pb-3 font-sans text-base font-semibold">Imagen de portada</h2>
+      <p className="mt-3 text-sm text-slate">
+        Aparece en el listado de guías, en la portada del sitio y arriba de la guía. Se recorta en horizontal (1200 × 628) y se le quitan los
+        metadatos.
+      </p>
+      <div className="mt-4 overflow-hidden rounded border border-line bg-mist">
+        {g.cover_url ? (
+          <img src={g.cover_url} alt="" className="block aspect-[1200/628] w-full object-cover" />
+        ) : (
+          <div className="flex aspect-[1200/628] items-center justify-center px-4 text-center text-sm text-slate">Sin portada</div>
+        )}
+      </div>
+      <div className="mt-4">
+        <Field label="Descripción de la imagen" optional hint="Para lectores de pantalla. Déjala vacía si la imagen es solo decorativa.">
+          {(p) => <input {...p} className="input" value={alt} maxLength={200} onChange={(e) => setAlt(e.target.value)} />}
+        </Field>
+      </div>
+      <input ref={input} type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" id={`portada-${g.id}`}
+        onChange={(e) => upload(e.target.files?.[0])} disabled={busy} />
+      <div className="mt-4 flex flex-wrap gap-2">
+        <label htmlFor={`portada-${g.id}`} className={`btn-secondary cursor-pointer ${busy ? 'pointer-events-none opacity-60' : ''}`}>
+          {busy ? 'Guardando…' : g.cover_url ? 'Cambiar imagen' : 'Subir imagen'}
+        </label>
+        {g.cover_url && alt.trim() !== g.cover_alt && (
+          <button type="button" className="btn-secondary" disabled={busy}
+            onClick={() => run(() => setGuideCover(g.id, { url: g.cover_url, alt }, g.cover_url), 'Descripción guardada.')}>
+            Guardar descripción
+          </button>
+        )}
+        {g.cover_url && (
+          <button type="button" className="btn-secondary" disabled={busy}
+            onClick={() => run(() => setGuideCover(g.id, { url: null, alt: '' }, g.cover_url).then(() => setAlt('')), 'Portada quitada.')}>
+            Quitar
+          </button>
+        )}
+      </div>
+      <p className="mt-2 text-xs text-slate">PNG, JPG o WebP. No uses fotos de personas reconocibles ni documentos con datos personales.</p>
+      {error && <div className="mt-3"><Alert tone="error">{error}</Alert></div>}
+      {notice && <div className="mt-3"><Alert tone="success">{notice}</Alert></div>}
+    </section>
   );
 }
 
