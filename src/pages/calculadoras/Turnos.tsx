@@ -74,7 +74,7 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
             {vig
               ? <GeneradorRotacion fechas={rango.fechas} onApply={setTurnos} />
               : <GeneradorSemanal fechas={rango.fechas} onApply={setTurnos} />}
-            <CalendarioTurnos fechas={rango.fechas} turnos={turnos} onChange={setTurnos} plantilla={plantilla} />
+            <CalendarioTurnos fechas={rango.fechas} turnos={turnos} onChange={setTurnos} plantilla={plantilla} desglose={resTurnos.porFecha} />
             {resTurnos.turnos > 0 ? (
               <ResumenClasificacionHoras r={resTurnos} />
             ) : (
