@@ -68,7 +68,7 @@ export default function PorDias() {
           <fieldset className="space-y-3">
             <legend className="font-sans text-base font-semibold">Días trabajados</legend>
             <p className="text-sm text-slate">Toca cada día trabajado y confirma la hora de entrada, salida y descanso (el almuerzo no cuenta como trabajo). Llevas {lista.length} {lista.length === 1 ? 'día' : 'días'}.</p>
-            <CalendarioTurnos fechas={rango.fechas} turnos={turnos} onChange={setTurnos} plantilla={plantilla} />
+            <CalendarioTurnos fechas={rango.fechas} turnos={turnos} onChange={setTurnos} plantilla={plantilla} desglose={clasificacion?.porFecha} />
             {clasificacion ? (
               <ResumenClasificacionHoras r={clasificacion} />
             ) : (
