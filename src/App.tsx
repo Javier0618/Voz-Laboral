@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Loading } from './components/ui';
+import { CalcMeta } from './components/CalcMeta';
 import Home from './pages/Home';
 import Companies from './pages/Companies';
 import CompanyProfile from './pages/CompanyProfile';
@@ -25,6 +26,10 @@ const Administrativos = lazy(() => import('./pages/calculadoras/Administrativos'
 const TurnosPage = lazy(() => import('./pages/calculadoras/Turnos'));
 const PorDias = lazy(() => import('./pages/calculadoras/PorDias'));
 
+function LazyPage({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<div className="page py-10"><Loading /></div>}>{children}</Suspense>;
+}
+
 export function AppRoutes() {
   return (
     <Routes>
@@ -38,21 +43,21 @@ export function AppRoutes() {
         <Route path="derechos" element={<Rights />} />
         <Route path="derechos/:slug" element={<RightsArticle />} />
         <Route path="compartir" element={<Share />} />
-        <Route path="liquidacion" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><Liquidacion /></Suspense>} />
-        <Route path="calculadoras" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><CalculadorasIndex /></Suspense>} />
-        <Route path="calculadoras/administrativos" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><Administrativos /></Suspense>} />
-        <Route path="calculadoras/operativos" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><TurnosPage tipo="operativos" /></Suspense>} />
-        <Route path="calculadoras/vigilantes" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><TurnosPage tipo="vigilantes" /></Suspense>} />
-        <Route path="calculadoras/por-dias" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><PorDias /></Suspense>} />
-        <Route path="calculadoras/liquidacion" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><Liquidacion /></Suspense>} />
+        <Route path="liquidacion" element={<LazyPage><CalcMeta path="/liquidacion"><Liquidacion /></CalcMeta></LazyPage>} />
+        <Route path="calculadoras" element={<LazyPage><CalculadorasIndex /></LazyPage>} />
+        <Route path="calculadoras/administrativos" element={<LazyPage><Administrativos /></LazyPage>} />
+        <Route path="calculadoras/operativos" element={<LazyPage><CalcMeta path="/calculadoras/operativos"><TurnosPage tipo="operativos" /></CalcMeta></LazyPage>} />
+        <Route path="calculadoras/vigilantes" element={<LazyPage><CalcMeta path="/calculadoras/vigilantes"><TurnosPage tipo="vigilantes" /></CalcMeta></LazyPage>} />
+        <Route path="calculadoras/por-dias" element={<LazyPage><PorDias /></LazyPage>} />
+        <Route path="calculadoras/liquidacion" element={<LazyPage><CalcMeta path="/liquidacion"><Liquidacion /></CalcMeta></LazyPage>} />
         <Route path="cuenta" element={<Account />} />
         <Route path="seguimiento/:token" element={<Tracking />} />
         <Route path="como-funciona" element={<About />} />
         <Route path="avisos" element={<Notifications />} />
         <Route path="cuenta/nueva-contrasena" element={<NewPasswordPage />} />
         <Route path="politicas/:slug" element={<PolicyPage />} />
-        <Route path="moderacion" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><Admin /></Suspense>} />
-        <Route path="moderacion/guias/:id" element={<Suspense fallback={<div className="page py-10"><Loading /></div>}><GuideEditor /></Suspense>} />
+        <Route path="moderacion" element={<LazyPage><Admin /></LazyPage>} />
+        <Route path="moderacion/guias/:id" element={<LazyPage><GuideEditor /></LazyPage>} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
