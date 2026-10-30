@@ -44,7 +44,7 @@ export default function PorDias() {
 
       <div className="mt-10 grid gap-12 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <form className="space-y-8" onSubmit={(e) => e.preventDefault()} aria-label="Datos de la nómina por días">
-          <PeriodoFields value={periodo} onChange={setPeriodo} onlyMonth />
+          <PeriodoFields value={periodo} onChange={setPeriodo} quincenas={false} />
 
           <fieldset className="space-y-4">
             <legend className="font-sans text-base font-semibold">¿Cómo te pagan?</legend>
