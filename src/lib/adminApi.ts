@@ -163,14 +163,14 @@ export function setGuideStatus(id: string, status: GuideStatus, userId: string) 
 export interface GuideSource { id: string; label: string; publisher: string; url: string; accessed_at: string }
 export interface GuideDetail {
   id: string; slug: string; title: string; summary: string; content: string; category_slug: string | null;
-  status: GuideStatus; last_verified_at: string | null; updated_at: string;
+  status: GuideStatus; last_verified_at: string | null; updated_at: string; cover_url: string | null; cover_alt: string;
   legal_resource_sources: GuideSource[];
   legal_resource_stats: Stats;
 }
 export function getGuide(id: string) {
   return run<GuideDetail | null>(
     requireClient().from('legal_resources')
-      .select('id, slug, title, summary, content, category_slug, status, last_verified_at, updated_at, legal_resource_sources(id, label, publisher, url, accessed_at), legal_resource_stats(views, last_view_at)')
+      .select('id, slug, title, summary, content, category_slug, status, last_verified_at, updated_at, cover_url, cover_alt, legal_resource_sources(id, label, publisher, url, accessed_at), legal_resource_stats(views, last_view_at)')
       .eq('id', id).maybeSingle(),
   );
 }
@@ -193,6 +193,23 @@ export async function uploadGuideImage(guideSlug: string, file: File) {
   const { error } = await bucket.upload(path, file, { contentType: file.type, upsert: false });
   if (error) throw toAppError(error);
   return bucket.getPublicUrl(path).data.publicUrl;
+}
+
+/** Ruta dentro del bucket «guias» de una URL pública, o null si es de otro sitio. */
+function guideImagePath(url: string | null) {
+  const marker = '/storage/v1/object/public/guias/';
+  const i = url?.indexOf(marker) ?? -1;
+  return url && i >= 0 ? decodeURIComponent(url.slice(i + marker.length)) : null;
+}
+
+/** Guarda la portada de una guía (o la quita con url null) y borra el archivo anterior. */
+export async function setGuideCover(id: string, cover: { url: string | null; alt: string }, previousUrl: string | null) {
+  await run(requireClient().from('legal_resources').update({ cover_url: cover.url, cover_alt: cover.alt.trim() }).eq('id', id));
+  const old = guideImagePath(previousUrl);
+  if (old && previousUrl !== cover.url) {
+    // Si falla el borrado, el archivo queda huérfano pero la guía ya está bien.
+    await requireClient().storage.from('guias').remove([old]).catch(() => undefined);
+  }
 }
 
 const NEW_GUIDE_CONTENT = `## Qué dice la ley

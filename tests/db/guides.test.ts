@@ -96,3 +96,24 @@ describe('guías de derechos', () => {
     expect(await errorOf(insert(admin))).toMatch(/duplicate key|unique/);
   });
 });
+
+describe('portada de las guías', () => {
+  it('la administración guarda una portada https con su descripción', async () => {
+    await as(db, admin, () =>
+      db.query(`update public.legal_resources set cover_url = 'https://ejemplo.supabase.co/storage/v1/object/public/guias/pago/portada.webp', cover_alt = 'Billetes y un recibo' where slug = 'pago-del-salario'`),
+    );
+    const { rows } = await db.query<{ cover_url: string; cover_alt: string }>(`select cover_url, cover_alt from public.legal_resources where slug = 'pago-del-salario'`);
+    expect(rows[0]).toEqual({ cover_url: 'https://ejemplo.supabase.co/storage/v1/object/public/guias/pago/portada.webp', cover_alt: 'Billetes y un recibo' });
+  });
+
+  it('rechaza direcciones que no son https', async () => {
+    expect(await errorOf(as(db, admin, () => db.query(`update public.legal_resources set cover_url = 'javascript:alert(1)' where slug = 'pago-del-salario'`)))).toMatch(/cover_url_https/);
+    expect(await errorOf(as(db, admin, () => db.query(`update public.legal_resources set cover_url = 'http://inseguro.test/a.png' where slug = 'pago-del-salario'`)))).toMatch(/cover_url_https/);
+  });
+
+  it('un usuario sin rol no puede cambiar la portada', async () => {
+    await as(db, user, () => db.query(`update public.legal_resources set cover_url = null where slug = 'pago-del-salario'`));
+    const { rows } = await db.query<{ cover_url: string | null }>(`select cover_url from public.legal_resources where slug = 'pago-del-salario'`);
+    expect(rows[0].cover_url).not.toBeNull();
+  });
+});
