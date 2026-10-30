@@ -12,6 +12,7 @@ import {
   pesos, rangoPeriodo, turnosLista, type Turnos,
 } from '../../components/nomina';
 import { periodoTitulo } from './Administrativos';
+import { ResumenClasificacionHoras } from '../../components/ResumenClasificacionHoras';
 
 type Tipo = 'operativos' | 'vigilantes';
 
@@ -35,7 +36,6 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
   const rango = rangoPeriodo(periodo);
   const plantilla: Turno = vig ? { fecha: rango.desde, entrada: '06:00', salida: '18:00', descansoMin: 0 } : { fecha: rango.desde, entrada: '08:00', salida: '16:00', descansoMin: 60 };
 
-  // Al cambiar de período se descartan los turnos que quedan fuera.
   useEffect(() => {
     setTurnos((t) => Object.fromEntries(Object.entries(t).filter(([f]) => f >= rango.desde && f <= rango.hasta)));
   }, [rango.desde, rango.hasta]);
@@ -75,10 +75,11 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
               ? <GeneradorRotacion fechas={rango.fechas} onApply={setTurnos} />
               : <GeneradorSemanal fechas={rango.fechas} onApply={setTurnos} />}
             <CalendarioTurnos fechas={rango.fechas} turnos={turnos} onChange={setTurnos} plantilla={plantilla} />
-            <p className="text-sm text-slate">
-              {resTurnos.turnos} turnos, {resTurnos.horasTrabajadas.toLocaleString('es-CO', { maximumFractionDigits: 1 })} horas trabajadas, de las
-              cuales {(resTurnos.horasTrabajadas - resTurnos.horasOrdinarias).toLocaleString('es-CO', { maximumFractionDigits: 1 })} son extra.
-            </p>
+            {resTurnos.turnos > 0 ? (
+              <ResumenClasificacionHoras r={resTurnos} />
+            ) : (
+              <p className="text-sm text-slate">Marca turnos en el calendario para ver horas extra, diurnas/nocturnas y recargos.</p>
+            )}
           </section>
 
           <fieldset className="space-y-4 rounded border border-line p-4">
@@ -104,7 +105,7 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
 
         <section aria-live="polite" aria-label="Desprendible estimado" className="xl:sticky xl:top-6 xl:self-start">
           {resultado ? (
-            <DesprendibleView titulo={periodoTitulo(periodo)} d={resultado} extra={<DesgloseHoras r={resTurnos} />} />
+            <DesprendibleView titulo={periodoTitulo(periodo)} d={resultado} extra={<ResumenClasificacionHoras r={resTurnos} compact />} />
           ) : (
             <div className="rounded-md bg-mist px-6 py-10 sm:px-8">
               <p className="font-serif text-2xl">Tu desprendible aparecerá aquí</p>
@@ -155,24 +156,6 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
         </p>
       </ComoSeCalcula>
     </div>
-  );
-}
-
-function DesgloseHoras({ r }: { r: ReturnType<typeof calcularTurnos> }) {
-  const filas = TIPOS_HORA.filter((t) => r.horas[t.tipo] > 0.001);
-  if (!filas.length) return null;
-  return (
-    <section className="mt-5 rounded bg-mist p-4">
-      <h3 className="font-sans text-sm font-semibold">Horas clasificadas</h3>
-      <dl className="mt-2 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
-        {filas.map((t) => (
-          <div key={t.tipo} className="contents">
-            <dt className="text-slate">{t.nombre}</dt>
-            <dd className="tabular-nums">{r.horas[t.tipo].toLocaleString('es-CO', { maximumFractionDigits: 2 })} h</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
   );
 }
 
