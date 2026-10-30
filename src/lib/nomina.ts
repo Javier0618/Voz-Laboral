@@ -59,10 +59,10 @@ export const horasVacias = (): Horas => ({ RN: 0, RDD: 0, RDN: 0, HED: 0, HEN: 0
 // ---------------------------------------------------------------- turnos
 
 export interface Turno {
-  fecha: string; // día en que empieza el turno
-  entrada: string; // HH:MM
-  salida: string; // HH:MM; si es menor o igual que la entrada, termina al día siguiente
-  descansoMin: number; // minutos no laborados dentro del turno
+  fecha: string;
+  entrada: string;
+  salida: string;
+  descansoMin: number;
 }
 
 export type ModoExtras = { modo: 'diario'; horasJornada: number } | { modo: 'periodo'; horasUmbral: number };
@@ -72,14 +72,12 @@ const aMin = (hhmm: string) => {
   return h * 60 + m;
 };
 
-/** Minutos laborados de un turno, con la fecha y el tramo de cada minuto. */
 function minutosDeTurno(t: Turno): { fecha: string; nocturno: boolean; festivo: boolean }[] {
   const ini = aMin(t.entrada);
   let fin = aMin(t.salida);
   if (fin <= ini) fin += 1440;
   const dur = fin - ini;
   const descanso = Math.min(Math.max(0, t.descansoMin), dur);
-  // shortcut: el descanso se descuenta a mitad del turno; si tu pausa es en otra hora, el reparto día/noche puede variar.
   const pausaIni = ini + Math.floor((dur - descanso) / 2);
   const out: { fecha: string; nocturno: boolean; festivo: boolean }[] = [];
   for (let m = ini; m < fin; m++) {
@@ -93,12 +91,12 @@ function minutosDeTurno(t: Turno): { fecha: string; nocturno: boolean; festivo: 
 
 export interface ResultadoTurnos {
   horas: Horas;
-  /** Valor de cada tipo de hora, con el factor de la fecha en que se trabajó. */
   valores: Record<TipoHora, number>;
+  /** Horas por tipo atribuidas a cada día de inicio de turno (para el calendario). */
+  porFecha: Record<string, Horas>;
   horasTrabajadas: number;
   horasOrdinarias: number;
   turnos: number;
-  /** Días (fecha del turno) y semanas (su lunes) que pasan el límite de horas extra del CST, art. 167A. */
   excesoLimite: { dias: string[]; semanas: string[] };
 }
 
@@ -115,9 +113,11 @@ export function calcularTurnos(turnos: Turno[], valorHora: number, extras: ModoE
   const ordenados = [...turnos].sort((a, b) => (a.fecha + a.entrada).localeCompare(b.fecha + b.entrada));
   const porDia = new Map<string, number>();
   const porSemana = new Map<string, number>();
+  const porFecha: Record<string, Horas> = {};
   for (const t of ordenados) {
     let enTurno = 0;
     const lunes = sumarDias(t.fecha, -((new Date(`${t.fecha}T00:00:00`).getDay() + 6) % 7));
+    if (!porFecha[t.fecha]) porFecha[t.fecha] = horasVacias();
     for (const min of minutosDeTurno(t)) {
       enTurno++;
       acumulado++;
@@ -132,18 +132,18 @@ export function calcularTurnos(turnos: Turno[], valorHora: number, extras: ModoE
       }
       if (!tipo) continue;
       horas[tipo] += 1 / 60;
+      porFecha[t.fecha][tipo] += 1 / 60;
       valores[tipo] += (valorHora * factorHora(tipo, min.fecha)) / 60;
     }
   }
   const extrasH = horas.HED + horas.HEN + horas.HEDD + horas.HEDN;
   const pasan = (m: Map<string, number>, limiteH: number) => [...m].filter(([, min]) => min > limiteH * 60).map(([f]) => f);
   return {
-    horas, valores, horasTrabajadas: total / 60, horasOrdinarias: total / 60 - extrasH, turnos: ordenados.length,
+    horas, valores, porFecha, horasTrabajadas: total / 60, horasOrdinarias: total / 60 - extrasH, turnos: ordenados.length,
     excesoLimite: { dias: pasan(porDia, 2), semanas: pasan(porSemana, 12) },
   };
 }
 
-/** Aviso del límite de horas extra (CST, art. 167A, Ley 2466 de 2025), o null si no se pasa. */
 export function avisoLimiteExtras({ dias, semanas }: ResultadoTurnos['excesoLimite']): string | null {
   if (!dias.length && !semanas.length) return null;
   const partes = [
@@ -153,7 +153,6 @@ export function avisoLimiteExtras({ dias, semanas }: ResultadoTurnos['excesoLimi
   return `Tienes ${partes}. La ley no permite pasar de 2 horas extra al día ni de 12 a la semana (CST, art. 167A). Aun así, toda hora extra trabajada se debe pagar. Los sectores de seguridad privada y salud están exceptuados.`;
 }
 
-/** Valor de horas escritas a mano (calculadora de administrativos), con los factores de la fecha indicada. */
 export function valorarHoras(horas: Horas, valorHora: number, fechaISO: string): Record<TipoHora, number> {
   const v = horasVacias();
   (Object.keys(horas) as TipoHora[]).forEach((t) => (v[t] = horas[t] * valorHora * factorHora(t, fechaISO)));
@@ -200,11 +199,10 @@ export interface Desprendible {
 
 export interface DatosNomina {
   salarioMensual: number;
-  diasPeriodo: number; // 30 mensual, 15 quincena
-  fechaReferencia: string; // para recargos y avisos
+  diasPeriodo: number;
+  fechaReferencia: string;
   horasMes: number;
   novedades: Novedades;
-  /** Valor ya calculado de recargos y extras del período. */
   horasValoradas: { horas: Horas; valores: Record<TipoHora, number> };
   otros: OtrosConceptos;
 }
@@ -227,7 +225,6 @@ export function calcularNomina(d: DatosNomina, v = VALORES_2026): Desprendible {
   add({ clave: 'vacaciones', nombre: `Vacaciones (${dec(n.vacaciones)} días)`, valor: diario * n.vacaciones, detalle: 'Se pagan con el salario ordinario', norma: 'CST, art. 192' });
   add({ clave: 'permiso', nombre: `Permiso remunerado (${dec(n.permisoRemunerado)} días)`, valor: diario * n.permisoRemunerado, norma: 'CST, art. 57' });
   if (n.incapacidad > 0) {
-    // 2/3 del salario, sin bajar del mínimo diario; el empleador paga los dos primeros días y la EPS los siguientes.
     const valorDia = Math.max((diario * 2) / 3, v.salarioMinimo / 30);
     const empleador = Math.min(2, n.incapacidad);
     add({ clave: 'incapacidad_empleador', nombre: `Incapacidad, a cargo del empleador (${dec(empleador)} días)`, valor: valorDia * empleador, detalle: `${pesos(valorDia)} por día: 2/3 del salario, sin bajar del mínimo`, norma: 'CST, art. 227; Decreto 2943 de 2013' });
@@ -240,18 +237,16 @@ export function calcularNomina(d: DatosNomina, v = VALORES_2026): Desprendible {
 
   TIPOS_HORA.forEach(({ tipo, nombre }) => {
     const h = d.horasValoradas.horas[tipo];
-    if (h > 0) add({ clave: tipo, nombre: `${nombre} (${dec(h)} h)`, valor: d.horasValoradas.valores[tipo], detalle: `${dec(h)} h × ${pesos(valorHora)} × factor`, norma: tipo.startsWith('H') ? 'CST, arts. 168 y 179' : 'CST, arts. 168 y 179' });
+    if (h > 0) add({ clave: tipo, nombre: `${nombre} (${dec(h)} h)`, valor: d.horasValoradas.valores[tipo], detalle: `${dec(h)} h × ${pesos(valorHora)} × factor`, norma: 'CST, arts. 168 y 179' });
   });
 
   const recargosYExtras = Object.values(d.horasValoradas.valores).reduce((s, x) => s + x, 0);
-  // Auxilio de transporte: hasta 2 salarios mínimos, solo por días laborados (Decreto 1470 de 2025).
   const aplicaAuxilio = d.salarioMensual <= 2 * v.salarioMinimo;
   if (aplicaAuxilio) add({ clave: 'auxilio', nombre: `Auxilio de transporte (${dec(diasLaborados)} días)`, valor: (v.auxilioTransporte * diasLaborados) / 30, detalle: `${pesos(v.auxilioTransporte)} al mes`, norma: 'Decreto 1470 de 2025' });
   add({ clave: 'bonif_salariales', nombre: 'Bonificaciones y comisiones salariales', valor: d.otros.bonificacionesSalariales, norma: 'CST, art. 127' });
   add({ clave: 'auxilios_no_salariales', nombre: 'Otros auxilios no salariales', valor: d.otros.auxiliosNoSalariales });
   add({ clave: 'bonif_no_salariales', nombre: 'Bonificaciones no salariales', valor: d.otros.bonificacionesNoSalariales });
 
-  // Base de cotización: pagos salariales + exceso de los no salariales sobre el 40 % del total (Ley 1393 de 2010, art. 30).
   const salariales = devengados.filter((l) => !['auxilio', 'auxilios_no_salariales', 'bonif_no_salariales'].includes(l.clave)).reduce((s, l) => s + l.valor, 0);
   const noSalariales = d.otros.auxiliosNoSalariales + d.otros.bonificacionesNoSalariales;
   const excesoNoSalarial = Math.max(0, noSalariales - 0.4 * (salariales + noSalariales));
@@ -282,7 +277,6 @@ export function calcularNomina(d: DatosNomina, v = VALORES_2026): Desprendible {
   return { devengados: dev, deducciones: ded, totalDevengado, totalDeducciones, neto: totalDevengado - totalDeducciones, ibc: Math.round(ibc), excesoNoSalarial: Math.round(excesoNoSalarial), valorHora, aplicaAuxilio, avisos };
 }
 
-/** Porcentaje adicional al Fondo de Solidaridad Pensional según el ingreso mensual (Ley 100 de 1993, art. 27). */
 export function fondoSolidaridad(ibcMensual: number, smmlv: number): number {
   const veces = ibcMensual / smmlv;
   if (veces < 4) return 0;
@@ -327,7 +321,6 @@ export function calcularPorDias(d: DatosPorDias, v = VALORES_2026): Desprendible
   const deducciones: Linea[] = [];
   let ibc: number;
   if (d.cotizacion === 'semanas' && salariales < v.salarioMinimo && dias < 30) {
-    // Cotización por semanas: solo pensión, sobre 1 a 4 cuartos de salario mínimo (Decreto 2616 de 2013, arts. 5 y 6).
     const semanas = dias <= 7 ? 1 : dias <= 14 ? 2 : dias <= 21 ? 3 : 4;
     ibc = (v.salarioMinimo / 4) * semanas;
     deducciones.push({ clave: 'pension', nombre: `Pensión (4 % de ${semanas} cotización${semanas > 1 ? 'es' : ''} mínima${semanas > 1 ? 's' : ''} semanal${semanas > 1 ? 'es' : ''})`, valor: ibc * 0.04, detalle: `4 % de ${pesos(ibc)}`, norma: 'Decreto 2616 de 2013, art. 6' });
