@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { calcularPorDias, type Turno } from '../../lib/nomina';
+import { calcularPorDias, calcularTurnos, type Turno } from '../../lib/nomina';
 import { PageHeader } from '../../components/ui';
 import { setPageMeta } from '../../lib/meta';
 import { calculadoraPorPath, metaCalculadora } from '../../lib/calculadoras';
 import {
-  CalendarioTurnos, ComoSeCalcula, DesprendibleView, ExplicacionDescanso, MoneyInput, NumberInput, PeriodoFields, periodoActual, rangoPeriodo, turnosLista,
+  CalendarioTurnos, ComoSeCalcula, DesprendibleView, ExplicacionDescanso, MoneyInput, NumberInput, PeriodoFields, periodoActual, rangoPeriodo, ResumenClasificacionHoras, turnosLista,
   type Turnos,
 } from '../../components/nomina';
 import { periodoTitulo } from './Administrativos';
@@ -29,6 +29,9 @@ export default function PorDias() {
   const valorDia = forma === 'dia' ? valor : valor / 30;
   const plantilla: Turno = { fecha: rango.desde, entrada: '08:00', salida: '17:00', descansoMin: 60 };
   const lista = turnosLista(turnos).filter((t) => t.fecha >= rango.desde && t.fecha <= rango.hasta);
+  const clasificacion = lista.length > 0 && horasJornada > 0
+    ? calcularTurnos(lista, valorDia > 0 ? valorDia / horasJornada : 0, { modo: 'diario', horasJornada })
+    : null;
   const r = valorDia > 0 && horasJornada > 0
     ? calcularPorDias({ valorDia, horasJornada, turnos: lista, cotizacion, otrosIngresos, otrosDescuentos })
     : null;
@@ -65,6 +68,11 @@ export default function PorDias() {
             <legend className="font-sans text-base font-semibold">Días trabajados</legend>
             <p className="text-sm text-slate">Toca cada día trabajado y confirma la hora de entrada, salida y descanso (el almuerzo no cuenta como trabajo). Llevas {lista.length} {lista.length === 1 ? 'día' : 'días'}.</p>
             <CalendarioTurnos fechas={rango.fechas} turnos={turnos} onChange={setTurnos} plantilla={plantilla} />
+            {clasificacion ? (
+              <ResumenClasificacionHoras r={clasificacion} />
+            ) : (
+              <p className="text-sm text-slate">Marca días en el calendario para ver horas extra, diurnas/nocturnas y recargos.</p>
+            )}
           </fieldset>
 
           <fieldset className="space-y-3 rounded border border-line p-4">
@@ -86,7 +94,7 @@ export default function PorDias() {
         </form>
 
         <section aria-live="polite" aria-label="Desprendible estimado" className="lg:sticky lg:top-6 lg:self-start">
-          {r ? <DesprendibleView titulo={periodoTitulo({ ...periodo, periodicidad: 'mensual' })} d={r} /> : (
+          {r ? <DesprendibleView titulo={periodoTitulo({ ...periodo, periodicidad: 'mensual' })} d={r} extra={<ResumenClasificacionHoras r={r.horas} compact />} /> : (
             <div className="rounded-md bg-mist px-6 py-10 sm:px-8">
               <p className="font-serif text-2xl">Tu desprendible aparecerá aquí</p>
               <p className="mt-2 max-w-prose text-slate">Escribe cuánto te pagan y marca los días que trabajaste.</p>
