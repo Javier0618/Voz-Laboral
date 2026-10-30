@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { VALORES_2026 } from '../../lib/liquidacion';
 import { calcularPorDias, type Turno } from '../../lib/nomina';
 import { PageHeader } from '../../components/ui';
 import { setPageMeta } from '../../lib/meta';
 import { calculadoraPorPath, metaCalculadora } from '../../lib/calculadoras';
 import {
-  CalendarioTurnos, ComoSeCalcula, DesprendibleView, ExplicacionDescanso, MoneyInput, NumberInput, PeriodoFields, periodoActual, pesos, rangoPeriodo, turnosLista,
+  CalendarioTurnos, ComoSeCalcula, DesprendibleView, ExplicacionDescanso, MoneyInput, NumberInput, PeriodoFields, periodoActual, rangoPeriodo, turnosLista,
   type Turnos,
 } from '../../components/nomina';
 import { periodoTitulo } from './Administrativos';
