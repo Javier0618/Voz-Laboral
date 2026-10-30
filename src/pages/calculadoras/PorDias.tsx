@@ -5,9 +5,10 @@ import { PageHeader } from '../../components/ui';
 import { setPageMeta } from '../../lib/meta';
 import { calculadoraPorPath, metaCalculadora } from '../../lib/calculadoras';
 import {
-  CalendarioTurnos, ComoSeCalcula, DesprendibleView, ExplicacionDescanso, MoneyInput, NumberInput, PeriodoFields, periodoActual, rangoPeriodo, ResumenClasificacionHoras, turnosLista,
+  CalendarioTurnos, ComoSeCalcula, DesprendibleView, ExplicacionDescanso, MoneyInput, NumberInput, PeriodoFields, periodoActual, rangoPeriodo, turnosLista,
   type Turnos,
 } from '../../components/nomina';
+import { ResumenClasificacionHoras } from '../../components/ResumenClasificacionHoras';
 import { periodoTitulo } from './Administrativos';
 
 export default function PorDias() {
