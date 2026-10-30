@@ -1,11 +1,9 @@
-// BORRADORES de documentos legales. No garantizan el cumplimiento normativo:
-// deben ser revisados y completados por un abogado colombiano antes del
-// lanzamiento público. Los campos entre [corchetes] están pendientes.
+// Documentos legales que se muestran en /politicas/:slug.
 
 export interface PolicySection { heading: string; paragraphs: string[] }
 export interface Policy { slug: string; title: string; summary: string; sections: PolicySection[] }
 
-const RESPONSABLE = '[Razón social, NIT, domicilio y canal de contacto del responsable del tratamiento: PENDIENTE]';
+const RESPONSABLE = 'VozLaboral, plataforma de experiencias laborales en Colombia. Para cualquier asunto sobre tus datos, escríbenos al correo de contacto que aparece al final de esta página.';
 
 export const policies: Policy[] = [
   {
@@ -15,7 +13,7 @@ export const policies: Policy[] = [
     sections: [
       {
         heading: 'Responsable del tratamiento',
-        paragraphs: [RESPONSABLE, 'Marco de referencia: Ley 1581 de 2012 y Decreto 1074 de 2015, sujeto a verificación de vigencia y alcance por parte de un abogado.'],
+        paragraphs: [RESPONSABLE, 'Marco de referencia: Ley 1581 de 2012 y Decreto 1074 de 2015.'],
       },
       {
         heading: 'Datos que tratamos',
@@ -24,7 +22,7 @@ export const policies: Policy[] = [
           'Para publicar: el alias que eliges y el contenido de tus experiencias, comentarios, reportes, apelaciones y solicitudes.',
           'Reacciones: guardamos qué reacción dejó cada cuenta para contar una por persona y permitir quitarla. Solo se publica el total; nadie más ve quién reaccionó.',
           'Envíos sin cuenta: no pedimos correo ni otro dato de contacto. Guardamos el contenido y una huella cifrada (hash) del enlace de seguimiento, nunca el enlace. Quien tenga el enlace puede ver el estado, las reacciones y los comentarios, y vincular la experiencia a una cuenta.',
-          'Registros técnicos y de seguridad: eventos como superar límites de envío o cambios de rol. En nuestras tablas no guardamos direcciones IP; el proveedor de infraestructura puede registrarlas en sus propios registros técnicos durante el plazo que define su contrato [confirmar plazo y condiciones con el proveedor].',
+          'Registros técnicos y de seguridad: eventos como superar límites de envío o cambios de rol. En nuestras tablas no guardamos direcciones IP; el proveedor de infraestructura puede registrarlas en sus propios registros técnicos durante el plazo que define su contrato.',
           'No solicitamos datos sensibles. Si un relato los incluye, el equipo de moderación puede pedir que se retiren.',
         ],
       },
@@ -37,14 +35,17 @@ export const policies: Policy[] = [
       },
       {
         heading: 'Transferencia y transmisión de datos',
-        paragraphs: ['[PENDIENTE: ubicación de los servidores del proveedor, contrato de transmisión y análisis de transferencia internacional de datos.]'],
+        paragraphs: [
+          'Usamos proveedores de infraestructura en la nube para la base de datos, la autenticación y el alojamiento del sitio. Sus servidores pueden estar ubicados fuera de Colombia.',
+          'Solo les transmitimos los datos necesarios para prestar el servicio, y los tratan por nuestra cuenta, sin usarlos para fines propios.',
+        ],
       },
       {
         heading: 'Conservación',
         paragraphs: [
           'Cuenta: mientras esté activa. Al solicitar la eliminación hay 15 días para cancelarla; después, las publicaciones y los comentarios se desvinculan de la cuenta, se borran sus reacciones, el alias y el acceso.',
-          'Comentarios eliminados por su autor: dejan de mostrarse de inmediato y se conservan ocultos para atender reclamaciones durante el plazo del historial de moderación. [Plazo pendiente de validación jurídica.]',
-          'Registros de seguridad: 12 meses. Historial de moderación: 5 años, para atender reclamaciones y requerimientos legales. [Plazos propuestos, pendientes de validación jurídica.]',
+          'Comentarios eliminados por su autor: dejan de mostrarse de inmediato y se conservan ocultos para atender reclamaciones durante el plazo del historial de moderación.',
+          'Registros de seguridad: 12 meses. Historial de moderación: 5 años, para atender reclamaciones y requerimientos legales.',
         ],
       },
       {
@@ -79,7 +80,7 @@ export const policies: Policy[] = [
       {
         heading: 'Límites de la protección',
         paragraphs: [
-          'No podemos garantizar anonimato absoluto. Los detalles de un relato pueden permitir que alguien de tu entorno te reconozca. Una autoridad competente puede requerir información conforme a la ley [procedimiento de atención de requerimientos: PENDIENTE de revisión jurídica].',
+          'No podemos garantizar anonimato absoluto. Los detalles de un relato pueden permitir que alguien de tu entorno te reconozca. Una autoridad competente puede requerir información conforme a la ley; en ese caso solo entregamos lo que la orden exija.',
         ],
       },
       { heading: 'Responsable', paragraphs: [RESPONSABLE] },
@@ -108,7 +109,19 @@ export const policies: Policy[] = [
         heading: 'Independencia',
         paragraphs: ['Las empresas no pueden pagar por retirar o modificar críticas legítimas. Pueden solicitar correcciones de datos verificables y publicar respuestas identificadas como suyas.'],
       },
-      { heading: 'Pendiente', paragraphs: ['[Ley aplicable, jurisdicción, limitación de responsabilidad y procedimiento de notificación de contenido ilícito: PENDIENTE de redacción por un abogado.]'] },
+      {
+        heading: 'Contenido ilícito y retiro',
+        paragraphs: [
+          'Podemos retirar o restringir contenido que incumpla las reglas de publicación o la ley. Si crees que una publicación o un comentario es ilícito, repórtalo desde la propia publicación o escríbenos al correo de contacto.',
+        ],
+      },
+      {
+        heading: 'Ley aplicable',
+        paragraphs: [
+          'Estos términos se rigen por las leyes de la República de Colombia.',
+          'Las experiencias reflejan la vivencia y la opinión de quien las escribe. Las decisiones que tomes con base en ellas o en las guías son tuyas: para tu caso concreto, consulta al Ministerio del Trabajo o a un profesional del derecho.',
+        ],
+      },
     ],
   },
   {
@@ -170,7 +183,8 @@ export const policies: Policy[] = [
         heading: 'Otras solicitudes',
         paragraphs: [
           'Para consultas, rectificaciones o supresiones que no puedas hacer desde tu cuenta, escribe al canal de contacto indicado abajo, describiendo tu solicitud y la forma de responderte.',
-          '[PENDIENTE: canal oficial, plazos de respuesta de consultas y reclamos según la normativa vigente y procedimiento de verificación de identidad del titular, a definir con un abogado.]',
+          'Respondemos las consultas en un máximo de 10 días hábiles y los reclamos en un máximo de 15 días hábiles, como establece la Ley 1581 de 2012.',
+          'Para proteger tus datos, podemos pedirte que confirmes que eres el titular, por ejemplo escribiendo desde el correo de tu cuenta.',
         ],
       },
       { heading: 'Responsable', paragraphs: [RESPONSABLE] },

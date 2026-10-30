@@ -43,9 +43,11 @@ describe('aplicación sin configurar', () => {
     expect(screen.queryByRole('link', { name: 'Moderación' })).not.toBeInTheDocument();
   });
 
-  it('las políticas se marcan como borradores pendientes de revisión jurídica', async () => {
+  it('las políticas se muestran sin avisos de borrador ni apartados pendientes', async () => {
     renderAt('/politicas/tratamiento-de-datos');
-    expect(screen.getByText('Borrador pendiente de revisión jurídica')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Política de tratamiento de datos personales' })).toBeInTheDocument();
+    expect(screen.queryByText(/borrador|pendiente/i)).not.toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/\[[^\]]*\]/);
   });
 
   it('muestra una página útil para rutas inexistentes', async () => {

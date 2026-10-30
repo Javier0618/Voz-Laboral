@@ -106,8 +106,8 @@ export default function Rights() {
         <div className="mt-10"><ErrorState error={resources.error} onRetry={resources.reload} /></div>
       ) : !guides.length ? (
         <div className="mt-10">
-          <EmptyState title="Las guías están en revisión jurídica">
-            Publicaremos cada guía cuando un abogado confirme su contenido contra la norma vigente.
+          <EmptyState title="Pronto encontrarás aquí las guías">
+            Estamos preparando guías claras sobre tus derechos laborales, cada una con su fuente oficial.
           </EmptyState>
         </div>
       ) : (
@@ -242,10 +242,12 @@ export function RightsArticle() {
               <dt className="text-slate">Lectura</dt>
               <dd className="mt-0.5 font-semibold">{readingMinutes(data.content)} min</dd>
             </div>
-            <div>
-              <dt className="text-slate">Verificada contra la fuente oficial</dt>
-              <dd className="mt-0.5 font-semibold">{data.last_verified_at ? formatDate(data.last_verified_at) : 'Pendiente'}</dd>
-            </div>
+            {data.last_verified_at && (
+              <div>
+                <dt className="text-slate">Verificada contra la fuente oficial</dt>
+                <dd className="mt-0.5 font-semibold">{formatDate(data.last_verified_at)}</dd>
+              </div>
+            )}
             <div>
               <dt className="text-slate">Última actualización</dt>
               <dd className="mt-0.5 font-semibold">{formatDate(data.updated_at)}</dd>

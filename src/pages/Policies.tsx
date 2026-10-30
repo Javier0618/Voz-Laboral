@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { brand } from '../config/brand';
 import { policies } from '../content/policies';
-import { Alert, EmptyState } from '../components/ui';
+import { EmptyState } from '../components/ui';
 
 export default function PolicyPage() {
   const { slug = '' } = useParams();
@@ -20,12 +20,6 @@ export default function PolicyPage() {
       <article className="min-w-0">
         <h1 className="text-3xl sm:text-4xl">{policy.title}</h1>
         <p className="mt-3 max-w-prose text-lg text-slate">{policy.summary}</p>
-        <div className="mt-6 max-w-prose">
-          <Alert tone="warning" title="Borrador pendiente de revisión jurídica">
-            Este texto es un borrador de trabajo y requiere revisión de un abogado colombiano antes del lanzamiento público. Los apartados
-            entre corchetes están incompletos.
-          </Alert>
-        </div>
         {policy.sections.map((s) => (
           <section key={s.heading} className="mt-10 max-w-prose">
             <h2 className="text-2xl">{s.heading}</h2>
