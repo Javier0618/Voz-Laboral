@@ -3,7 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { esDominicalOFestivo, festivos, fecha as aFecha, sumarDias } from '../lib/festivos';
 import type { Desprendible as DesprendibleT, Horas, Novedades, OtrosConceptos, TipoHora, Turno } from '../lib/nomina';
 import { Alert, Dialog, Field } from './ui';
-import { conArticulosCst, TextoCst } from './ArticulosCst';
+import { TextoCst } from './ArticulosCst';
 
 export const pesos = (n: number) => `${n < 0 ? '−' : ''}$${Math.abs(Math.round(n)).toLocaleString('es-CO')}`;
 const soloDigitos = (s: string) => s.replace(/\D/g, '');
@@ -98,8 +98,8 @@ export function PeriodoFields({ value, onChange, quincenas = true }: { value: Pe
   );
 }
 
-export function NovedadesFields({ value, onChange }: { value: import('../lib/nomina').Novedades; onChange: (v: import('../lib/nomina').Novedades) => void }) {
-  const set = (k: keyof typeof value, n: number) => onChange({ ...value, [k]: n });
+export function NovedadesFields({ value, onChange }: { value: Novedades; onChange: (v: Novedades) => void }) {
+  const set = (k: keyof Novedades, n: number) => onChange({ ...value, [k]: n });
   return (
     <fieldset className="space-y-3 rounded border border-line p-4">
       <legend className="px-1 font-sans text-base font-semibold">Novedades del período (días)</legend>
@@ -114,8 +114,8 @@ export function NovedadesFields({ value, onChange }: { value: import('../lib/nom
   );
 }
 
-export function OtrosFields({ value, onChange }: { value: import('../lib/nomina').OtrosConceptos; onChange: (v: import('../lib/nomina').OtrosConceptos) => void }) {
-  const set = (k: keyof typeof value, n: number) => onChange({ ...value, [k]: n });
+export function OtrosFields({ value, onChange }: { value: OtrosConceptos; onChange: (v: OtrosConceptos) => void }) {
+  const set = (k: keyof OtrosConceptos, n: number) => onChange({ ...value, [k]: n });
   return (
     <fieldset className="space-y-3 rounded border border-line p-4">
       <legend className="px-1 font-sans text-base font-semibold">Otros conceptos</legend>
@@ -211,7 +211,11 @@ function Bloque({ titulo, lineas, negativo }: { titulo: string; lineas: Desprend
           <li key={l.clave} className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-0.5 text-sm">
             <span className="font-medium text-ink">{l.nombre}</span>
             <span className="tabular-nums">{negativo ? '−' : ''}{pesos(l.valor)}</span>
-            {l.detalle && <span className="col-span-2 text-xs text-slate">{conArticulosCst(l.detalle)}{l.norma ? `. ${l.norma}` : ''}</span>}
+            {(l.detalle || l.norma) && (
+              <span className="col-span-2 text-xs text-slate">
+                <TextoCst texto={[l.detalle, l.norma].filter(Boolean).join('. ') } />
+              </span>
+            )}
           </li>
         ))}
       </ul>
