@@ -1,5 +1,8 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { VALORES_2026 } from '../../lib/liquidacion';
+import { setPageMeta } from '../../lib/meta';
+import { brand } from '../../config/brand';
 import { PageHeader } from '../../components/ui';
 import { pesos } from '../../components/nomina';
 
@@ -12,6 +15,17 @@ const calculadoras = [
 ];
 
 export default function CalculadorasIndex() {
+  useEffect(() => {
+    setPageMeta({
+      title: `Calculadoras laborales · ${brand.name}`,
+      description:
+        'Estima tu nómina y tu liquidación en Colombia. Horas extra, recargos, cesantías y más. Tus datos no salen del navegador.',
+      path: '/calculadoras',
+      type: 'website',
+    });
+    return () => setPageMeta(null);
+  }, []);
+
   return (
     <div className="page py-10">
       <PageHeader title="Calculadoras laborales">

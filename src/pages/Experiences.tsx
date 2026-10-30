@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { listCategories, listExperiences, PAGE_SIZE } from '../lib/api';
 import { plural } from '../lib/format';
+import { setPageMeta } from '../lib/meta';
+import { brand } from '../config/brand';
 import { ExperienceItem } from '../components/ExperienceItem';
 import { CompanyPicker } from '../components/CompanyPicker';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, Pagination, useAsync } from '../components/ui';
@@ -18,6 +20,17 @@ export default function Experiences() {
   const toYear = params.get('hasta') ?? '';
   const page = Math.max(1, Number(params.get('pagina') ?? 1) || 1);
   const [companyName, setCompanyName] = useState('');
+
+  useEffect(() => {
+    setPageMeta({
+      title: `Experiencias laborales · ${brand.name}`,
+      description:
+        'Experiencias buenas, malas y mixtas sobre empresas de Colombia, publicadas tras moderación y contadas con un alias.',
+      path: '/experiencias',
+      type: 'website',
+    });
+    return () => setPageMeta(null);
+  }, []);
 
   const categories = useAsync(() => (notConfigured ? Promise.resolve([]) : listCategories()), []);
   const list = useAsync(

@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PAGE_SIZE, searchCompanies } from '../lib/api';
 import { formatDate, plural } from '../lib/format';
+import { setPageMeta } from '../lib/meta';
+import { brand } from '../config/brand';
 import { Alert, ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, Pagination, useAsync } from '../components/ui';
 import { SuggestCompanyDialog } from '../components/SuggestCompanyDialog';
 
@@ -15,6 +17,17 @@ export default function Companies() {
 
   const [draft, setDraft] = useState({ q, city, sector });
   const [suggesting, setSuggesting] = useState(false);
+
+  useEffect(() => {
+    setPageMeta({
+      title: `Empresas · ${brand.name}`,
+      description:
+        'Busca empresas de Colombia por nombre, sigla o NIT. Lee experiencias laborales contadas con un alias y sugiere empresas que falten en el catálogo.',
+      path: '/empresas',
+      type: 'website',
+    });
+    return () => setPageMeta(null);
+  }, []);
 
   const { data, loading, error, reload } = useAsync(
     () => (notConfigured ? Promise.resolve([]) : searchCompanies({ query: q, city, sector, order, page })),

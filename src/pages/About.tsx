@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { brand } from '../config/brand';
 import type { ExperienceStatus } from '../lib/api';
+import { setPageMeta } from '../lib/meta';
 import { PageHeader, StatusChip, statusHint } from '../components/ui';
 import { PromoVideoInline } from '../components/PromoVideo';
 
@@ -39,7 +40,13 @@ const faqs = [
 
 export default function About() {
   useEffect(() => {
-    document.title = `Quiénes somos y cómo moderamos · ${brand.name}`;
+    setPageMeta({
+      title: `Quiénes somos y cómo moderamos · ${brand.name}`,
+      description: `${brand.name} reúne experiencias de trabajo en empresas de ${brand.country}, contadas por quienes las vivieron. Cómo moderamos y qué protegemos.`,
+      path: '/como-funciona',
+      type: 'website',
+    });
+    return () => setPageMeta(null);
   }, []);
 
   return (
