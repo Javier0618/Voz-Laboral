@@ -3,16 +3,9 @@ import { Link } from 'react-router-dom';
 import { VALORES_2026 } from '../../lib/liquidacion';
 import { setPageMeta } from '../../lib/meta';
 import { brand } from '../../config/brand';
+import { CALCULADORAS } from '../../lib/calculadoras';
 import { PageHeader } from '../../components/ui';
 import { pesos } from '../../components/nomina';
-
-const calculadoras = [
-  { to: '/calculadoras/administrativos', titulo: 'Nómina para cargos administrativos', texto: 'Salario fijo mensual o quincenal. Escribes tus horas extra, recargos y novedades.' },
-  { to: '/calculadoras/operativos', titulo: 'Nómina para cargos operativos', texto: 'Turnos 5×2, 6×1, mixtos o de noche. Armas tu calendario y la calculadora clasifica cada hora.' },
-  { to: '/calculadoras/vigilantes', titulo: 'Nómina para vigilantes', texto: 'Rotaciones de 12 horas 2×2, 3×3 y 4×2, con recargos nocturnos, dominicales y festivos.' },
-  { to: '/calculadoras/por-dias', titulo: 'Nómina por días', texto: 'Para quien trabaja algunos días del mes o cobra por jornada, con cotización ordinaria o por semanas.' },
-  { to: '/liquidacion', titulo: 'Liquidación al terminar el contrato', texto: 'Cesantías, intereses, prima, vacaciones e indemnización por despido sin justa causa.' },
-];
 
 export default function CalculadorasIndex() {
   useEffect(() => {
@@ -33,12 +26,12 @@ export default function CalculadorasIndex() {
         este navegador.
       </PageHeader>
       <ul className="mt-2">
-        {calculadoras.map((c) => (
-          <li key={c.to} className="border-b border-line">
-            <Link to={c.to} className="group grid gap-1 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8">
+        {CALCULADORAS.map((c) => (
+          <li key={c.path} className="border-b border-line">
+            <Link to={c.path} className="group grid gap-1 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8">
               <span>
-                <span className="block font-serif text-2xl text-ink group-hover:text-teal-strong group-hover:underline group-hover:underline-offset-4">{c.titulo}</span>
-                <span className="mt-1 block text-slate">{c.texto}</span>
+                <span className="block font-serif text-2xl text-ink group-hover:text-teal-strong group-hover:underline group-hover:underline-offset-4">{c.title}</span>
+                <span className="mt-1 block text-slate">{c.description}</span>
               </span>
               <span className="btn-secondary justify-self-start">Abrir</span>
             </Link>
