@@ -40,6 +40,20 @@ export const CALCULADORAS: CalculadoraInfo[] = [
     match: ['por dia', 'por día', 'jornal', 'medio tiempo', 'dias trabaj', 'días trabaj', 'obra labor'],
   },
   {
+    path: '/calculadoras/prima',
+    title: 'Prima de servicios (Junio y Diciembre)',
+    description:
+      'Calcula tu prima semestral con salario básico, recargos variables y auxilio de transporte en Colombia.',
+    match: ['prima', 'semestre', 'junio', 'diciembre', 'prestaciones', 'salario'],
+  },
+  {
+    path: '/calculadoras/prestacion-servicios',
+    title: 'Contrato por prestación de servicios (OPS e Independientes)',
+    description:
+      'Estima aportes de seguridad social (salud, pensión, ARL en PILA) y retención en la fuente sobre honorarios.',
+    match: ['prestacion de servicios', 'honorarios', 'ops', 'independiente', 'cuenta de cobro', 'pila', 'contratista'],
+  },
+  {
     path: '/liquidacion',
     title: 'Liquidación al terminar el contrato',
     description:

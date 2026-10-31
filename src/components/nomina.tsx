@@ -4,6 +4,8 @@ import { esDominicalOFestivo, festivos, fecha as aFecha, sumarDias } from '../li
 import type { Desprendible as DesprendibleT, Horas, Novedades, OtrosConceptos, TipoHora, Turno } from '../lib/nomina';
 import { Alert, Dialog, Field } from './ui';
 import { TextoCst } from './ArticulosCst';
+import { CalcSharePrompt } from './CalcSharePrompt';
+import { PrintButton } from './PrintButton';
 
 export const pesos = (n: number) => `${n < 0 ? '−' : ''}$${Math.abs(Math.round(n)).toLocaleString('es-CO')}`;
 const soloDigitos = (s: string) => s.replace(/\D/g, '');
@@ -173,7 +175,10 @@ export function DesprendibleView({ titulo, d, extra }: { titulo: string; d: Desp
   return (
     <div className="folio p-6 sm:p-8">
       <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-line pb-4 text-sm text-slate">
-        <span>{titulo}</span>
+        <div className="flex items-center gap-3">
+          <span>{titulo}</span>
+          <PrintButton />
+        </div>
         <span>Valor hora: {pesos(d.valorHora)}</span>
       </div>
       {extra}
@@ -196,6 +201,11 @@ export function DesprendibleView({ titulo, d, extra }: { titulo: string; d: Desp
           Compárala con el de tu empresa. Las diferencias pueden venir de las fechas de corte, de cómo tu empresa cuenta las horas extra o de
           otros conceptos que no están aquí.
         </Alert>
+        <CalcSharePrompt
+          categoria="salario-y-pagos"
+          motivo="¿Tu empresa no te paga las horas extra o los recargos que corresponden?"
+          mensaje="Comparte tu experiencia sin dar tu nombre y ayuda a visibilizar las condiciones de trabajo reales."
+        />
       </div>
     </div>
   );
