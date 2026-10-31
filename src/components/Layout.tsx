@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { brand } from '../config/brand';
+import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '../auth/AuthProvider';
 import { NotificationBell } from './NotificationBell';
 
@@ -112,7 +113,6 @@ export function Layout() {
   const location = useLocation();
 
   useEffect(() => setOpen(false), [location.pathname]);
-  // Al cambiar de página, el foco vuelve al contenido principal.
   useEffect(() => {
     document.getElementById('contenido')?.focus({ preventScroll: true });
     window.scrollTo(0, 0);
@@ -123,7 +123,7 @@ export function Layout() {
       <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-paper focus:px-4 focus:py-2 focus:shadow">
         Saltar al contenido
       </a>
-      <header className="bg-ink">
+      <header className="bg-brand">
         <div className="page flex h-16 items-center justify-between gap-4">
           <Link to="/" aria-label={`${brand.name}, inicio`}>
             <Logo />
@@ -134,6 +134,7 @@ export function Layout() {
             ))}
           </nav>
           <div className="hidden items-center gap-1 lg:flex">
+            <ThemeToggle />
             {session && <NotificationBell />}
             {session ? <AccountMenu /> : <NavLink to="/cuenta" className={navClass}>Iniciar sesión</NavLink>}
             <Link to="/compartir" className="btn ml-2 whitespace-nowrap bg-white text-ink hover:bg-teal-tint">
@@ -141,6 +142,7 @@ export function Layout() {
             </Link>
           </div>
           <div className="flex items-center gap-1 lg:hidden">
+          <ThemeToggle />
           {session && <NotificationBell />}
           <button
             type="button"
@@ -179,7 +181,7 @@ export function Layout() {
 
 function Footer() {
   return (
-    <footer className="mt-20 bg-ink text-white">
+    <footer className="mt-20 bg-brand text-white">
       <div className="page grid gap-10 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <p className="font-serif text-xl font-semibold">{brand.name}</p>
