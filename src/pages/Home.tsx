@@ -23,10 +23,10 @@ export default function Home() {
       {notConfigured && (
         <div className="page mt-10"><ConfigNotice /></div>
       )}
-      {/* Orden: derechos → experiencias → calculadoras → resto */}
+      {/* Orden: guías → calculadoras → experiencias → cómo funciona → qué puedes contar → identidad */}
       <Rights />
-      {empty ? <FirstExperiences /> : <RecentExperiences {...recent} />}
       <CalculatorsPreview />
+      {empty ? <FirstExperiences /> : <RecentExperiences {...recent} />}
       <HowItWorks />
       <Categories />
       <Identity />
@@ -43,14 +43,14 @@ function Hero() {
         <div className="min-w-0">
           <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-white/70">Para trabajadores en Colombia</p>
           <h1 className="text-[2.5rem] font-medium leading-[2.875rem] tracking-[-0.01em] text-white sm:text-5xl lg:text-[4.25rem] lg:leading-[4.5rem]">
-            Conoce tus derechos laborales.
+            Guías laborales claras para trabajadores.
           </h1>
           <p className="mt-6 max-w-[36rem] text-lg leading-8 text-white/80">
-            Guías claras sobre la ley, calculadoras de nómina y experiencias reales de quienes trabajan en empresas de Colombia — con alias, sin publicar tu nombre.
+            Lee guías sobre derechos y deberes según la ley colombiana, usa calculadoras de nómina y conoce experiencias reales de quienes trabajan en empresas — con alias, sin publicar tu nombre.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/derechos" className="btn min-h-[52px] bg-white px-7 text-base text-ink hover:bg-teal-tint">
-              Ver guías de derechos
+              Ver guías laborales
             </Link>
             <Link to="/calculadoras" className="btn min-h-[52px] border border-white/40 px-7 text-base text-white hover:border-white hover:bg-white/10">
               Calculadoras
@@ -332,13 +332,13 @@ function Rights() {
   const guides = useAsync(() => (notConfigured ? Promise.resolve([]) : listLegalResources()), []);
   const featured = (guides.data ?? []).slice(0, 6);
   return (
-    <section className="page mt-20" aria-labelledby="derechos-inicio">
+    <section className="page mt-20" aria-labelledby="guias-inicio">
       <div className="grid gap-6 border-t border-ink/80 pt-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12">
         <div>
-          <h2 id="derechos-inicio" className="text-3xl">Conoce tus derechos laborales</h2>
+          <h2 id="guias-inicio" className="text-3xl">Guías laborales</h2>
           <p className="mt-3 max-w-prose text-slate">
-            Guías de información general con su fuente oficial y la fecha de su última revisión. No sustituyen la orientación del Ministerio
-            del Trabajo, de un inspector de trabajo ni de un abogado.
+            Guías para conocer tus derechos y deberes según la ley colombiana. Cada una resume la norma, cita su fuente oficial y la fecha
+            de revisión. Son orientativas: no sustituyen al Ministerio del Trabajo ni a un abogado.
           </p>
         </div>
         <Link to="/derechos" className="btn-primary justify-self-start px-6">Ver todas las guías</Link>
