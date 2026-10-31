@@ -18,8 +18,10 @@ export default function Experiences() {
   const companyId = params.get('empresa') ?? '';
   const fromYear = params.get('desde') ?? '';
   const toYear = params.get('hasta') ?? '';
+  const searchQuery = params.get('q') ?? '';
   const page = Math.max(1, Number(params.get('pagina') ?? 1) || 1);
   const [companyName, setCompanyName] = useState('');
+  const [queryInput, setQueryInput] = useState(searchQuery);
 
   useEffect(() => {
     setPageMeta({
@@ -37,10 +39,21 @@ export default function Experiences() {
     () => (notConfigured ? Promise.resolve([]) : listExperiences({ category, tone, companyId, fromYear, toYear, page })),
     [category, tone, companyId, fromYear, toYear, page],
   );
-  const total = list.data?.[0]?.total_count ?? 0;
+
+  const filteredData = list.data?.filter((exp) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      exp.body.toLowerCase().includes(q) ||
+      (exp.title && exp.title.toLowerCase().includes(q)) ||
+      exp.company_name.toLowerCase().includes(q)
+    );
+  });
+
+  const total = searchQuery.trim() ? (filteredData?.length ?? 0) : (list.data?.[0]?.total_count ?? 0);
 
   function set(next: Record<string, string>) {
-    const merged: Record<string, string> = { categoria: category, tono: tone, empresa: companyId, desde: fromYear, hasta: toYear, pagina: '', ...next };
+    const merged: Record<string, string> = { q: searchQuery, categoria: category, tono: tone, empresa: companyId, desde: fromYear, hasta: toYear, pagina: '', ...next };
     setParams(Object.fromEntries(Object.entries(merged).filter(([, v]) => v)));
   }
 
@@ -55,7 +68,29 @@ export default function Experiences() {
         <div className="mt-8"><ConfigNotice /></div>
       ) : (
         <div className="mt-8 grid gap-10 lg:grid-cols-[17rem_1fr]">
-          <form className="space-y-5" onSubmit={(e) => e.preventDefault()} aria-label="Filtros">
+          <form
+            className="space-y-5"
+            onSubmit={(e) => {
+              e.preventDefault();
+              set({ q: queryInput.trim() });
+            }}
+            aria-label="Filtros"
+          >
+            <div>
+              <label htmlFor="f-q" className="label">Buscar en los relatos</label>
+              <div className="flex gap-2">
+                <input
+                  id="f-q"
+                  type="search"
+                  className="input"
+                  placeholder="Ej. horario, acoso, salario..."
+                  value={queryInput}
+                  onChange={(e) => setQueryInput(e.target.value)}
+                />
+                <button type="submit" className="btn-secondary px-3">Buscar</button>
+              </div>
+            </div>
+
             <fieldset>
               <legend className="label">Tipo de experiencia</legend>
               <div className="mt-1 flex flex-wrap gap-2">
@@ -122,13 +157,13 @@ export default function Experiences() {
               <Loading />
             ) : list.error ? (
               <div className="mt-6"><ErrorState error={list.error} onRetry={list.reload} /></div>
-            ) : list.data && list.data.length > 0 ? (
-              <div className="max-w-3xl">{list.data.map((exp) => <ExperienceItem key={exp.id} exp={exp} />)}</div>
+            ) : filteredData && filteredData.length > 0 ? (
+              <div className="max-w-3xl">{filteredData.map((exp) => <ExperienceItem key={exp.id} exp={exp} />)}</div>
             ) : (
               <div className="mt-6">
-                {category || companyId || fromYear || toYear ? (
-                  <EmptyState title="No hay experiencias con estos filtros" action={<button type="button" className="btn-secondary" onClick={() => setParams({})}>Quitar filtros</button>}>
-                    Prueba con otra categoría o amplía el periodo.
+                {category || companyId || fromYear || toYear || searchQuery ? (
+                  <EmptyState title="No hay experiencias con estos filtros" action={<button type="button" className="btn-secondary" onClick={() => { setParams({}); setQueryInput(''); }}>Quitar filtros</button>}>
+                    Prueba con otra búsqueda o amplía los criterios.
                   </EmptyState>
                 ) : (
                   <EmptyState title="Todavía no hay experiencias publicadas" action={<Link to="/compartir" className="btn-primary">Compartir una experiencia</Link>}>
