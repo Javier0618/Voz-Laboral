@@ -1,4 +1,4 @@
-// Editor de una guía de «Tus derechos», solo para administración. La base de
+// Editor de una guía laboral («Guías»), solo para administración. La base de
 // datos impone los permisos: este panel solo los refleja.
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -12,6 +12,7 @@ import { prepareCoverImage } from '../lib/image';
 import { formatDate, todayLocal } from '../lib/format';
 import type { AppError } from '../lib/supabase';
 import { GuideBody } from '../components/GuideBody';
+import { GUIDE_TEMPLATE } from '../lib/guideTemplate';
 import { Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, useAsync } from '../components/ui';
 
 const statusLabel: Record<GuideStatus, string> = {
@@ -28,7 +29,6 @@ export default function GuideEditor() {
   if (!isAdmin) return <div className="page py-10"><Alert tone="warning" title="Acceso restringido">Solo la administración puede editar guías.</Alert></div>;
   if (guide.error) return <div className="page py-10"><ErrorState error={guide.error} onRetry={guide.reload} /></div>;
   if (!guide.data) return <div className="page py-10"><EmptyState title="No encontramos esta guía" action={<Link to="/moderacion" className="btn-primary">Volver a Moderación</Link>} /></div>;
-  // key por id: al recargar tras guardar no se vuelve a montar y el aviso de confirmación sigue visible.
   return <Editor key={guide.data.id} guide={guide.data} onSaved={guide.reload} />;
 }
 
@@ -48,7 +48,6 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
   const dirty = form.title !== g.title || form.summary !== g.summary || form.content !== g.content || form.category_slug !== (g.category_slug ?? '');
   const { views, lastViewAt } = guideViews(g.legal_resource_stats);
 
-  // Evita perder cambios al cerrar o recargar la pestaña.
   useEffect(() => {
     if (!dirty) return;
     const warn = (e: BeforeUnloadEvent) => e.preventDefault();
@@ -165,6 +164,19 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
                   <button type="button" className="btn-secondary" onClick={() => { caret.current = textarea.current?.selectionStart ?? null; setImageOpen(true); }}>
                     Insertar imagen
                   </button>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    title="Rellena el contenido con la estructura editorial recomendada"
+                    onClick={() => {
+                      const t = form.content.trim();
+                      if (t && !window.confirm('¿Reemplazar el contenido actual por la plantilla editorial?')) return;
+                      setForm({ ...form, content: GUIDE_TEMPLATE });
+                      setView('editar');
+                    }}
+                  >
+                    Insertar plantilla
+                  </button>
                   <p className="text-sm text-slate">Separa los bloques con una línea en blanco.</p>
                 </div>
                 <details className="mb-3 rounded border border-line bg-mist px-4 py-3 text-sm">
@@ -174,7 +186,7 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
                     <dt><code>### Título</code></dt><dd className="text-slate">Subtítulo menor dentro de una sección.</dd>
                     <dt><code>- texto</code></dt><dd className="text-slate">Lista con viñetas (una línea por punto).</dd>
                     <dt><code>1. texto</code></dt><dd className="text-slate">Lista numerada, para pasos en orden.</dd>
-                    <dt><code>&gt; texto</code></dt><dd className="text-slate">Recuadro «Importante» para una advertencia o un dato clave.</dd>
+                    <dt><code>> texto</code></dt><dd className="text-slate">Recuadro «Importante» para una advertencia o un dato clave.</dd>
                     <dt><code>**texto**</code></dt><dd className="text-slate">Negrita.</dd>
                     <dt><code>[texto](https://…)</code></dt><dd className="text-slate">Enlace a una fuente oficial. Solo se aceptan direcciones https.</dd>
                     <dt><code>[texto](/derechos/slug)</code></dt><dd className="text-slate">Enlace a otra guía de VozLaboral. Usa el slug que aparece en su dirección.</dd>
@@ -224,7 +236,7 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
       <ConfirmDialog open={publishing} onClose={() => setPublishing(false)} title="¿Publicar esta guía?" confirmLabel="Publicar guía" tone="primary" busy={busy}
         onConfirm={() => changeStatus('publicado')}>
         Confirma que un abogado revisó el contenido contra las fuentes oficiales citadas. {dirty && 'Antes se guardarán tus cambios. '}
-        La guía será visible para cualquier persona en Tus derechos.
+        La guía será visible para cualquier persona en Guías.
       </ConfirmDialog>
     </div>
   );
@@ -289,7 +301,7 @@ function CoverPanel({ guide: g, onChange }: { guide: GuideDetail; onChange: () =
       <input ref={input} type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" id={`portada-${g.id}`}
         onChange={(e) => upload(e.target.files?.[0])} disabled={busy} />
       <div className="mt-4 flex flex-wrap gap-2">
-        <label htmlFor={`portada-${g.id}`} className={`btn-secondary cursor-pointer ${busy ? 'pointer-events-none opacity-60' : ''}`}>
+        <label htmlFor={`portada-${g.id}`} className={`btn-secondary cursor-pointer ${busy ? 'pointer-events-none opacity-60' : ''`}>
           {busy ? 'Guardando…' : g.cover_url ? 'Cambiar imagen' : 'Subir imagen'}
         </label>
         {g.cover_url && alt.trim() !== g.cover_alt && (
@@ -348,13 +360,13 @@ function ImageDialog({ open, slug, onClose, onInsert }: { open: boolean; slug: s
         <Field label="Imagen" error={errors.file} hint="PNG, JPG o WebP de hasta 2 MB. No uses documentos con datos personales.">
           {(p) => <input {...p} type="file" accept="image/png,image/jpeg,image/webp" className="block w-full text-sm" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />}
         </Field>
-        <Field label="Descripción de la imagen" error={errors.alt}>
-          {(p) => <input {...p} className="input" value={alt} onChange={(e) => setAlt(e.target.value)} maxLength={200} />}
+        <Field label="Descripción" error={errors.alt}>
+          {(p) => <input {...p} className="input" value={alt} onChange={(e) => setAlt(e.target.value)} placeholder="Ej.: Tabla de recargos dominicales" />}
         </Field>
         {error && <Alert tone="error">{error}</Alert>}
-        <div className="flex justify-end gap-3">
-          <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
+        <div className="flex flex-wrap gap-2">
           <button type="submit" className="btn-primary" disabled={busy}>{busy ? 'Subiendo…' : 'Subir e insertar'}</button>
+          <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
         </div>
       </form>
     </Dialog>
@@ -362,23 +374,19 @@ function ImageDialog({ open, slug, onClose, onInsert }: { open: boolean; slug: s
 }
 
 function Sources({ guide: g, onChange }: { guide: GuideDetail; onChange: () => void }) {
-  const today = todayLocal();
-  const empty = { label: '', publisher: 'Secretaría General del Senado de la República', url: '', accessed_at: today };
-  const [form, setForm] = useState(empty);
-  const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [removing, setRemoving] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState({ label: '', url: '', publisher: '', accessed_at: todayLocal() });
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
-    if (form.label.trim().length < 3 || form.publisher.trim().length < 2 || !/^https?:\/\/\S+$/.test(form.url.trim())) {
-      return setError('Completa el nombre de la fuente, quién la publica y una dirección que empiece por http:// o https://');
-    }
     setBusy(true);
     setError(null);
     try {
-      await addGuideSource(g.id, { label: form.label.trim(), publisher: form.publisher.trim(), url: form.url.trim(), accessed_at: form.accessed_at });
-      setForm(empty);
+      await addGuideSource(g.id, form);
+      setOpen(false);
+      setForm({ label: '', url: '', publisher: '', accessed_at: todayLocal() });
       onChange();
     } catch (err) {
       setError((err as AppError).message);
@@ -388,10 +396,11 @@ function Sources({ guide: g, onChange }: { guide: GuideDetail; onChange: () => v
   }
 
   async function remove(id: string) {
+    if (!window.confirm('¿Quitar esta fuente?')) return;
     setBusy(true);
+    setError(null);
     try {
       await deleteGuideSource(id);
-      setRemoving(null);
       onChange();
     } catch (err) {
       setError((err as AppError).message);
@@ -401,34 +410,37 @@ function Sources({ guide: g, onChange }: { guide: GuideDetail; onChange: () => v
   }
 
   return (
-    <aside aria-labelledby="fuentes" className="space-y-5 lg:border-l lg:border-line lg:pl-8">
-      <h2 id="fuentes" className="border-b border-ink/80 pb-3 font-sans text-base font-semibold">Fuentes oficiales</h2>
+    <section aria-labelledby="fuentes-guia">
+      <h2 id="fuentes-guia" className="border-b border-ink/80 pb-3 font-sans text-base font-semibold">Fuentes oficiales</h2>
+      <p className="mt-3 text-sm text-slate">Cita al menos una fuente oficial antes de publicar.</p>
+      {error && <div className="mt-3"><Alert tone="error">{error}</Alert></div>}
       {g.legal_resource_sources.length === 0 ? (
-        <p className="text-sm text-slate">Sin fuentes. Una guía no se puede publicar sin al menos una.</p>
+        <p className="mt-4 text-sm text-slate">Aún no hay fuentes.</p>
       ) : (
-        <ul className="space-y-4 text-sm">
+        <ul className="mt-4 space-y-3">
           {g.legal_resource_sources.map((s) => (
-            <li key={s.id} className="border-b border-line pb-4">
-              <a href={s.url} target="_blank" rel="noopener noreferrer" className="btn-link">{s.label}</a>
-              <span className="block text-slate">{s.publisher}. Consultada el {formatDate(s.accessed_at)}</span>
-              <button type="button" className="mt-1 text-danger underline-offset-4 hover:underline" onClick={() => setRemoving(s.id)}>Quitar</button>
+            <li key={s.id} className="rounded border border-line p-3 text-sm">
+              <a href={s.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-ink hover:underline">{s.label}</a>
+              <p className="text-slate">{s.publisher} · consultada el {formatDate(s.accessed_at)}</p>
+              <button type="button" className="btn-link mt-1 text-sm" disabled={busy} onClick={() => remove(s.id)}>Quitar</button>
             </li>
           ))}
         </ul>
       )}
-      <form onSubmit={add} noValidate className="space-y-3 rounded bg-mist p-4">
-        <p className="text-sm font-semibold">Añadir fuente</p>
-        <Field label="Nombre">{(p) => <input {...p} className="input" placeholder="Código Sustantivo del Trabajo, art. 57" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} />}</Field>
-        <Field label="Publicada por">{(p) => <input {...p} className="input" value={form.publisher} onChange={(e) => setForm({ ...form, publisher: e.target.value })} />}</Field>
-        <Field label="Dirección">{(p) => <input {...p} type="url" className="input" placeholder="http://www.secretariasenado.gov.co/…" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} />}</Field>
-        <Field label="Fecha de consulta">{(p) => <input {...p} type="date" className="input" max={today} value={form.accessed_at} onChange={(e) => setForm({ ...form, accessed_at: e.target.value })} />}</Field>
-        {error && <Alert tone="error">{error}</Alert>}
-        <button type="submit" className="btn-secondary w-full" disabled={busy}>Añadir fuente</button>
-      </form>
-      <ConfirmDialog open={removing !== null} onClose={() => setRemoving(null)} title="¿Quitar esta fuente?" confirmLabel="Quitar fuente" busy={busy}
-        onConfirm={() => removing && remove(removing)}>
-        La guía dejará de citarla. Si es la única fuente de una guía publicada, retírala antes para revisión.
-      </ConfirmDialog>
-    </aside>
+      {open ? (
+        <form onSubmit={add} className="mt-4 space-y-3 rounded border border-line p-4">
+          <Field label="Etiqueta">{(p) => <input {...p} className="input" required value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} />}</Field>
+          <Field label="URL">{(p) => <input {...p} className="input" type="url" required value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} />}</Field>
+          <Field label="Editorial o entidad">{(p) => <input {...p} className="input" required value={form.publisher} onChange={(e) => setForm({ ...form, publisher: e.target.value })} />}</Field>
+          <Field label="Fecha de consulta">{(p) => <input {...p} className="input" type="date" required value={form.accessed_at} onChange={(e) => setForm({ ...form, accessed_at: e.target.value })} />}</Field>
+          <div className="flex gap-2">
+            <button type="submit" className="btn-primary" disabled={busy}>Añadir</button>
+            <button type="button" className="btn-secondary" onClick={() => setOpen(false)}>Cancelar</button>
+          </div>
+        </form>
+      ) : (
+        <button type="button" className="btn-secondary mt-4" onClick={() => setOpen(true)}>Añadir fuente</button>
+      )}
+    </section>
   );
 }
