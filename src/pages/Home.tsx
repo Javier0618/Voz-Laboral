@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { listCategories, listExperiences, listLegalResources } from '../lib/api';
+import { CALCULADORAS } from '../lib/calculadoras';
 import { readingMinutes } from '../lib/guide';
 import { defaultHomeMeta, setPageMeta } from '../lib/meta';
 import { GuideCover } from '../components/GuideCover';
@@ -15,8 +16,6 @@ export default function Home() {
   }, []);
 
   const recent = useAsync(() => (notConfigured ? Promise.resolve([]) : listExperiences({ pageSize: 3 })), []);
-  // Mientras no haya experiencias publicadas, la portada invita a ser de los
-  // primeros y sube las guías, que ya tienen contenido.
   const empty = !recent.loading && !recent.error && recent.data?.length === 0;
   return (
     <>
@@ -24,23 +23,13 @@ export default function Home() {
       {notConfigured && (
         <div className="page mt-10"><ConfigNotice /></div>
       )}
-      {empty ? (
-        <>
-          <FirstExperiences />
-          <Rights />
-          <HowItWorks />
-          <Categories />
-          <Identity />
-        </>
-      ) : (
-        <>
-          <RecentExperiences {...recent} />
-          <Categories />
-          <HowItWorks />
-          <Identity />
-          <Rights />
-        </>
-      )}
+      {/* Orden: derechos → experiencias → calculadoras → resto */}
+      <Rights />
+      {empty ? <FirstExperiences /> : <RecentExperiences {...recent} />}
+      <CalculatorsPreview />
+      <HowItWorks />
+      <Categories />
+      <Identity />
     </>
   );
 }
@@ -49,15 +38,24 @@ function Hero() {
   const navigate = useNavigate();
   const [q, setQ] = useState('');
   return (
-    <section className="bg-ink text-white">
+    <section className="bg-brand text-white">
       <div className="page grid items-center gap-14 pb-20 pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pb-24 lg:pt-12">
         <div className="min-w-0">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-white/70">Para trabajadores en Colombia</p>
           <h1 className="text-[2.5rem] font-medium leading-[2.875rem] tracking-[-0.01em] text-white sm:text-5xl lg:text-[4.25rem] lg:leading-[4.5rem]">
-            Cómo es trabajar ahí, contado por quienes trabajan ahí.
+            Conoce tus derechos laborales.
           </h1>
-          <p className="mt-6 max-w-[34rem] text-lg leading-8 text-white/80">
-            Experiencias buenas, malas y mixtas en empresas de Colombia. Se publican con un alias: tu nombre y tu correo no aparecen.
+          <p className="mt-6 max-w-[36rem] text-lg leading-8 text-white/80">
+            Guías claras sobre la ley, calculadoras de nómina y experiencias reales de quienes trabajan en empresas de Colombia — con alias, sin publicar tu nombre.
           </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/derechos" className="btn min-h-[52px] bg-white px-7 text-base text-ink hover:bg-teal-tint">
+              Ver guías de derechos
+            </Link>
+            <Link to="/calculadoras" className="btn min-h-[52px] border border-white/40 px-7 text-base text-white hover:border-white hover:bg-white/10">
+              Calculadoras
+            </Link>
+          </div>
           <form
             role="search"
             className="mt-8 max-w-[36rem]"
@@ -81,11 +79,11 @@ function Hero() {
             </div>
           </form>
           <p className="mt-6 text-white/75">
-            ¿Trabajas o trabajaste en una empresa?{' '}
+            ¿Quieres contar cómo te fue en el trabajo?{' '}
             <Link to="/compartir" className="font-semibold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white">
-              Cuenta cómo te fue
+              Comparte tu experiencia
             </Link>
-            . No necesitas cuenta.
+            {' '}con un alias. No necesitas cuenta.
           </p>
           <PromoVideoTeaser className="mt-6 lg:hidden" />
         </div>
@@ -179,7 +177,7 @@ function FirstExperiences() {
       </SectionHeading>
       <ul className="mt-8 grid gap-4 md:grid-cols-3">
         <li>
-          <Link to="/compartir" className={`${card} border-ink bg-ink text-white hover:bg-navy`}>
+          <Link to="/compartir" className={`${card} border-brand bg-brand text-white hover:bg-navy`}>
             <span className="font-serif text-2xl leading-snug">Cuenta cómo te fue</span>
             <span className="mt-2 text-white/80">En unos minutos, con un alias o sin crear cuenta. La moderación la revisa antes de publicarla.</span>
             <span className="mt-auto pt-6 font-semibold text-[#5FD3C5]">Compartir mi experiencia →</span>
@@ -274,11 +272,10 @@ function HowItWorks() {
       <div className="page py-16 sm:py-20">
         <SectionHeading id="como-funciona" title="Cómo funciona" action={<Link to="/como-funciona" className="btn-link">Cómo moderamos</Link>} />
         <ol className="relative mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
-          {/* Línea de tiempo: une los tres pasos en escritorio. */}
           <span aria-hidden="true" className="absolute left-5 right-5 top-5 hidden h-px bg-ink/25 md:block" />
           {steps.map((s, i) => (
             <li key={s.title} className="relative flex gap-5 md:block">
-              <span className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink font-serif text-lg text-white">
+              <span className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand font-serif text-lg text-white">
                 {i + 1}
               </span>
               <div className="md:mt-6">
@@ -319,7 +316,7 @@ function Identity() {
             <ul className="mt-2">
               {hidden.map((v) => (
                 <li key={v} className="flex items-center gap-3 border-b border-line py-3">
-                  <span aria-hidden="true" className="h-2.5 w-6 shrink-0 rounded-[2px] bg-ink" />
+                  <span aria-hidden="true" className="h-2.5 w-6 shrink-0 rounded-[2px] bg-brand" />
                   {v}
                 </li>
               ))}
@@ -333,7 +330,7 @@ function Identity() {
 
 function Rights() {
   const guides = useAsync(() => (notConfigured ? Promise.resolve([]) : listLegalResources()), []);
-  const featured = (guides.data ?? []).slice(0, 3);
+  const featured = (guides.data ?? []).slice(0, 6);
   return (
     <section className="page mt-20" aria-labelledby="derechos-inicio">
       <div className="grid gap-6 border-t border-ink/80 pt-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12">
@@ -347,7 +344,7 @@ function Rights() {
         <Link to="/derechos" className="btn-primary justify-self-start px-6">Ver todas las guías</Link>
       </div>
       {featured.length > 0 && (
-        <ul className="mt-8 grid gap-4 md:grid-cols-3">
+        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((g) => (
             <li key={g.id}>
               <Link to={`/derechos/${g.slug}`} className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-paper transition-colors hover:border-slate">
@@ -362,6 +359,34 @@ function Rights() {
           ))}
         </ul>
       )}
+    </section>
+  );
+}
+
+function CalculatorsPreview() {
+  const featured = CALCULADORAS.slice(0, 4);
+  return (
+    <section className="page mt-20" aria-labelledby="calculadoras-inicio">
+      <div className="grid gap-6 border-t border-ink/80 pt-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12">
+        <div>
+          <h2 id="calculadoras-inicio" className="text-3xl">Calculadoras laborales</h2>
+          <p className="mt-3 max-w-prose text-slate">
+            Estima nómina, recargos, prima, cesantías o liquidación. Son orientativas: compáralas siempre con el desprendible de tu empresa.
+          </p>
+        </div>
+        <Link to="/calculadoras" className="btn-secondary justify-self-start px-6">Ver todas</Link>
+      </div>
+      <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+        {featured.map((c) => (
+          <li key={c.path}>
+            <Link to={c.path} className="group flex h-full flex-col rounded-lg border border-line bg-paper p-6 transition-colors hover:border-slate">
+              <span className="font-serif text-xl leading-snug text-ink group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">{c.title}</span>
+              <span className="mt-2 line-clamp-2 text-sm leading-6 text-slate">{c.description}</span>
+              <span className="mt-auto pt-5 text-sm font-semibold text-teal-strong">Abrir calculadora →</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
