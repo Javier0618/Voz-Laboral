@@ -39,10 +39,10 @@ function HelpAside({ guides }: { guides: LegalResource[] }) {
   const help = guides.find((g) => g.slug.startsWith(HELP_SLUG_PREFIX));
   return (
     <aside className="space-y-6 lg:sticky lg:top-6" aria-label="Ayuda">
-      <div className="rounded-lg bg-ink p-6 text-white">
+      <div className="rounded-lg bg-brand p-6 text-white">
         <h2 className="font-serif text-xl text-white">¿Necesitas ayuda ahora?</h2>
         <p className="mt-2 text-sm leading-6 text-white/80">
-          Estas guías explican tus derechos en general. Para actuar en un caso concreto, acude a las autoridades del trabajo.
+          Estas guías explican derechos y deberes laborales en general. Para actuar en un caso concreto, acude a las autoridades del trabajo.
         </p>
         {help && (
           <Link to={`/derechos/${help.slug}`} className="btn mt-4 w-full bg-white text-ink hover:bg-teal-tint">
@@ -69,9 +69,9 @@ export default function Rights() {
 
   useEffect(() => {
     setPageMeta({
-      title: `Tus derechos laborales · ${brand.name}`,
+      title: `Guías laborales · ${brand.name}`,
       description:
-        'Guías claras sobre salario, jornada, contrato, acoso y a dónde acudir. Cada una cita su fuente oficial y la fecha en que se verificó.',
+        'Guías laborales para conocer tus derechos y deberes según la ley colombiana: salario, jornada, contrato, seguridad social y a dónde acudir. Cada una cita su fuente oficial.',
       path: '/derechos',
       type: 'website',
     });
@@ -106,9 +106,10 @@ export default function Rights() {
 
   return (
     <div className="page py-10">
-      <PageHeader title="Tus derechos laborales">
-        Guías claras sobre los temas que más aparecen en las experiencias: salario, jornada, contrato, acoso y a dónde acudir. Cada una cita
-        su fuente oficial y la fecha en que se verificó.
+      <PageHeader title="Guías laborales">
+        Guías para conocer tus derechos y deberes laborales según la ley colombiana: salario, jornada, horas extra, contrato, prestaciones,
+        seguridad social y a dónde acudir. Cada una resume la norma con claridad, cita su fuente oficial y la fecha en que se verificó. Son
+        orientativas: no sustituyen al Ministerio del Trabajo ni a un abogado.
       </PageHeader>
 
       {notConfigured ? (
@@ -120,7 +121,7 @@ export default function Rights() {
       ) : !guides.length ? (
         <div className="mt-10">
           <EmptyState title="Pronto encontrarás aquí las guías">
-            Estamos preparando guías claras sobre tus derechos laborales, cada una con su fuente oficial.
+            Estamos preparando guías laborales claras sobre derechos y deberes según la ley colombiana, cada una con su fuente oficial.
           </EmptyState>
         </div>
       ) : (
@@ -149,7 +150,7 @@ export default function Rights() {
                         aria-pressed={active}
                         onClick={() => setFilter({ tema: t.slug })}
                         className={`min-h-[40px] rounded-full border px-4 text-sm font-semibold transition-colors ${
-                          active ? 'border-ink bg-ink text-white' : 'border-line bg-paper text-ink hover:border-slate'
+                          active ? 'border-brand bg-brand text-white' : 'border-line bg-paper text-ink hover:border-slate'
                         }`}
                       >
                         {t.name}
@@ -243,7 +244,7 @@ export function RightsArticle() {
         {
           '@type': 'BreadcrumbList',
           itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Tus derechos', item: origin ? `${origin}/derechos` : '/derechos' },
+            { '@type': 'ListItem', position: 1, name: 'Guías', item: origin ? `${origin}/derechos` : '/derechos' },
             { '@type': 'ListItem', position: 2, name: topicLabel, item: origin ? `${origin}${temaPath}` : temaPath },
             { '@type': 'ListItem', position: 3, name: data.title, item: pageUrl },
           ],
@@ -277,7 +278,7 @@ export function RightsArticle() {
       <header className="border-b border-line bg-mist">
         <div className="page py-10 sm:py-14">
           <nav aria-label="Ruta de navegación" className="text-sm text-slate print:hidden">
-            <Link to="/derechos" className="hover:text-ink hover:underline">Tus derechos</Link>
+            <Link to="/derechos" className="hover:text-ink hover:underline">Guías</Link>
             <span aria-hidden="true" className="mx-2">/</span>
             <Link to={`/derechos?tema=${data.category_slug ?? 'generales'}`} className="hover:text-ink hover:underline">{topicName}</Link>
           </nav>
@@ -342,7 +343,7 @@ export function RightsArticle() {
 
           <p className="mt-10 max-w-prose rounded border-l-4 border-navy/30 bg-mist px-4 py-3 text-sm leading-6">{data.disclaimer}</p>
 
-          <section className="mt-12 max-w-prose rounded-lg bg-ink p-6 text-white sm:p-8 print:hidden" aria-labelledby="cta-guia">
+          <section className="mt-12 max-w-prose rounded-lg bg-brand p-6 text-white sm:p-8 print:hidden" aria-labelledby="cta-guia">
             <h2 id="cta-guia" className="font-serif text-2xl text-white">¿Viviste algo así en tu trabajo?</h2>
             <p className="mt-2 text-white/80">Lee lo que han contado otras personas sobre este tema o comparte tu experiencia con un alias.</p>
             <div className="mt-5 flex flex-wrap gap-3">
@@ -389,13 +390,11 @@ export function RightsArticle() {
             <ul className="mt-6 grid gap-4 md:grid-cols-3">
               {related.map((g) => (
                 <li key={g.id}>
-                  <Link to={`/derechos/${g.slug}`} className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-paper hover:border-slate">
+                  <Link to={`/derechos/${g.slug}`} className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-paper transition-colors hover:border-slate">
                     <GuideCover guide={g} />
                     <span className="flex flex-1 flex-col p-5">
-                      <span className="text-sm font-semibold text-teal-strong">{categoryName(categories.data, g.category_slug)}</span>
-                      <span className="mt-1 font-serif text-xl leading-snug group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">{g.title}</span>
-                      <span className="mt-2 line-clamp-3 text-sm leading-6 text-slate">{g.summary}</span>
-                      <span className="mt-auto pt-4 text-sm text-slate">Lectura de {readingMinutes(g.content)} min</span>
+                      <span className="font-serif text-lg leading-snug text-ink group-hover:underline">{g.title}</span>
+                      <span className="mt-2 line-clamp-2 text-sm text-slate">{g.summary}</span>
                     </span>
                   </Link>
                 </li>
@@ -409,12 +408,12 @@ export function RightsArticle() {
 }
 
 function countViewOncePerDay(slug: string) {
-  const key = `vozlaboral:visita:${slug}:${todayLocal()}`;
   try {
-    if (localStorage.getItem(key)) return;
-    localStorage.setItem(key, '1');
+    const key = `vl-guide-view:${slug}:${todayLocal()}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, '1');
+    void registerGuideView(slug);
   } catch {
-    /* sin almacenamiento: se cuenta igualmente */
+    void registerGuideView(slug);
   }
-  registerGuideView(slug).catch(() => undefined);
 }
