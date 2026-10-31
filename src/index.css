@@ -20,7 +20,27 @@
   --amber-tint: 254 243 226;
   --danger: 180 35 24;      /* #B42318 errores */
   --danger-tint: 253 236 234;
+  --surface-brand: 15 36 64; /* cabecera y pie, siempre oscuros */
   color-scheme: light;
+}
+
+/* Modo oscuro: fondos y textos invertidos; la marca (cabecera) se mantiene. */
+.dark {
+  --ink: 232 238 246;
+  --navy: 160 185 210;
+  --teal: 45 175 165;
+  --teal-strong: 60 195 185;
+  --teal-tint: 18 42 48;
+  --paper: 12 18 28;
+  --mist: 20 30 42;
+  --line: 42 56 74;
+  --slate: 155 170 190;
+  --amber: 245 158 11;
+  --amber-tint: 55 40 12;
+  --danger: 248 113 113;
+  --danger-tint: 55 22 22;
+  --surface-brand: 8 16 28;
+  color-scheme: dark;
 }
 
 @layer base {
@@ -41,11 +61,15 @@
     border-radius: 4px;
   }
   /* Sobre fondo tinta el foco verde azulado no contrasta: se usa blanco. */
-  .bg-ink :focus-visible {
+  .bg-ink :focus-visible,
+  .bg-brand :focus-visible {
     outline-color: #fff;
   }
   ::selection {
     background: rgb(var(--teal-tint));
+  }
+  .dark ::selection {
+    background: rgb(var(--teal) / 0.35);
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -59,7 +83,6 @@
   .page {
     @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
   }
-  /* Texto de los relatos: serif con interlineado generoso. */
   .testimony {
     @apply max-w-prose font-serif text-[1.0625rem] leading-[1.75rem] text-ink;
     white-space: pre-line;
@@ -91,7 +114,6 @@
   .field-error {
     @apply mt-1 text-sm font-medium text-danger;
   }
-  /* Folio: hoja de papel con margen de expediente. Soporte de los relatos. */
   .folio {
     @apply relative rounded-[3px] bg-paper text-ink;
     box-shadow: 0 1px 0 rgb(var(--line)), 0 18px 40px -24px rgb(var(--ink) / 0.45);
@@ -103,16 +125,13 @@
     content: '';
     @apply absolute bottom-0 left-0 top-0 w-px bg-teal/40;
   }
-  /* Hoja de debajo: sugiere un expediente con más folios. */
   .folio-stack::before {
     content: '';
     @apply absolute inset-0 -z-10 translate-x-2 translate-y-2 rounded-[3px] bg-white/15;
   }
-  /* Barra de censura: el elemento visual distintivo de la marca. */
   .redacted {
     @apply inline-block h-[0.95em] max-w-full translate-y-[0.12em] rounded-[2px] bg-ink align-baseline;
   }
-  /* Único movimiento automático del sitio: las barras se trazan al cargar la portada. */
   .vl-redact {
     transform-origin: left center;
     animation: vl-redact 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
