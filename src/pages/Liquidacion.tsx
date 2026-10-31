@@ -6,6 +6,8 @@ import {
 } from '../lib/liquidacion';
 import { Alert, Field, PageHeader } from '../components/ui';
 import { TextoCst } from '../components/ArticulosCst';
+import { CalcSharePrompt } from '../components/CalcSharePrompt';
+import { PrintButton } from '../components/PrintButton';
 
 const pesos = (n: number) => `$${n.toLocaleString('es-CO')}`;
 const soloDigitos = (s: string) => s.replace(/\D/g, '');
@@ -142,8 +144,11 @@ export default function Liquidacion() {
 function Desprendible({ r }: { r: ResultadoLiquidacion }) {
   return (
     <div className="folio p-6 sm:p-8">
-      <div className="flex items-baseline justify-between gap-4 border-b border-line pb-4 text-sm text-slate">
-        <span>Liquidación estimada</span>
+      <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-line pb-4 text-sm text-slate">
+        <div className="flex items-center gap-3">
+          <span>Liquidación estimada</span>
+          <PrintButton />
+        </div>
         <span>{r.diasLaborados.toLocaleString('es-CO')} días laborados</span>
       </div>
       <Lista titulo="Lo que te deben pagar" items={r.conceptos} />
@@ -163,6 +168,11 @@ function Desprendible({ r }: { r: ResultadoLiquidacion }) {
           especiales. Para entender cada concepto y qué hacer si no te pagan, lee la guía{' '}
           <Link to="/derechos/liquidacion-al-terminar-el-contrato" className="btn-link">Liquidación al terminar el contrato</Link>.
         </Alert>
+        <CalcSharePrompt
+          categoria="salario-y-pagos"
+          motivo="¿Tu empresa no te pagó la liquidación completa o demoró los pagos?"
+          mensaje="Tu testimonio ayuda a que otras personas conozcan el cumplimiento laboral real de la empresa."
+        />
       </div>
     </div>
   );

@@ -18,6 +18,8 @@ interface Draft {
   periodStart: string;
   periodEnd: string;
   relationship: '' | 'actual' | 'anterior' | 'prefiero_no_decir';
+  roleTag?: string;
+  workMode?: '' | 'presencial' | 'remoto' | 'hibrido';
   title: string;
   body: string;
   hasDocuments: boolean;
@@ -25,7 +27,7 @@ interface Draft {
 }
 
 const emptyDraft: Draft = {
-  company: null, tone: '', category: '', periodStart: '', periodEnd: '', relationship: '', title: '', body: '', hasDocuments: false, rulesAccepted: false,
+  company: null, tone: '', category: '', periodStart: '', periodEnd: '', relationship: '', roleTag: '', workMode: '', title: '', body: '', hasDocuments: false, rulesAccepted: false,
 };
 
 // El borrador vive en sessionStorage: sobrevive a una recarga o a un error,
@@ -122,7 +124,15 @@ function ExperienceForm({ anonymous = false, onSent }: { anonymous?: boolean; on
   const [params] = useSearchParams();
   const editId = params.get('editar');
   const presetCompany = params.get('empresa');
-  const [draft, setDraft] = useState<Draft>(() => (editId ? emptyDraft : loadDraft()));
+  const presetCategory = params.get('categoria');
+  const [draft, setDraft] = useState<Draft>(() => {
+    if (editId) return emptyDraft;
+    const initial = loadDraft();
+    if (presetCategory && !initial.category) {
+      return { ...initial, category: presetCategory };
+    }
+    return initial;
+  });
   const [step, setStep] = useState<'form' | 'preview' | 'done'>('form');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<AppError | null>(null);
@@ -159,6 +169,12 @@ function ExperienceForm({ anonymous = false, onSent }: { anonymous?: boolean; on
   }, [editId]);
 
   useEffect(() => {
+    if (presetCategory && !draft.category && !editId) {
+      setDraft((d) => ({ ...d, category: presetCategory }));
+    }
+  }, [presetCategory, draft.category, editId]);
+
+  useEffect(() => {
     if (!presetCompany || editId || draft.company) return;
     getCompanyById(presetCompany)
       .then((c) => c && setDraft((d) => ({ ...d, company: { id: c.id, name: c.trade_name, detail: `${c.sector}. ${c.city}, ${c.department}` } })))
@@ -174,6 +190,16 @@ function ExperienceForm({ anonymous = false, onSent }: { anonymous?: boolean; on
   const categoryName = categories.data?.find((c) => c.slug === draft.category)?.name ?? '';
 
   function toInput(): unknown {
+    let finalBody = draft.body.trim();
+    const details = [
+      draft.workMode ? `Modalidad: ${draft.workMode === 'remoto' ? 'Trabajo remoto' : draft.workMode === 'hibrido' ? 'Híbrido' : 'Presencial'}` : '',
+      draft.roleTag?.trim() ? `Área o cargo: ${draft.roleTag.trim()}` : '',
+    ].filter(Boolean);
+
+    if (details.length && !finalBody.includes('---')) {
+      finalBody = `${finalBody}\n\n---\n*${details.join(' · ')}*`;
+    }
+
     return {
       companyId: draft.company?.id ?? '',
       tone: draft.tone || undefined,
@@ -182,7 +208,7 @@ function ExperienceForm({ anonymous = false, onSent }: { anonymous?: boolean; on
       periodEnd: draft.periodEnd,
       relationship: draft.relationship || undefined,
       title: draft.title.trim(),
-      body: draft.body,
+      body: finalBody,
       hasDocuments: draft.hasDocuments,
       rulesAccepted: draft.rulesAccepted,
     };
@@ -373,6 +399,22 @@ function ExperienceForm({ anonymous = false, onSent }: { anonymous?: boolean; on
           </div>
           {errors.relationship && <p className="field-error">{errors.relationship}</p>}
         </fieldset>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Área o cargo aproximado" optional hint="Por ejemplo: Asesor comercial, Operario, Auxiliar. Sin nombres propios.">
+            {(p) => <input {...p} className="input" placeholder="Ej. Ventas / Analista" value={draft.roleTag || ''} onChange={(e) => set('roleTag', e.target.value)} />}
+          </Field>
+          <Field label="Modalidad de trabajo" optional>
+            {(p) => (
+              <select {...p} className="input" value={draft.workMode || ''} onChange={(e) => set('workMode', e.target.value as Draft['workMode'])}>
+                <option value="">No especificar</option>
+                <option value="presencial">Presencial</option>
+                <option value="remoto">100 % remoto</option>
+                <option value="hibrido">Híbrido</option>
+              </select>
+            )}
+          </Field>
+        </div>
 
         <Field label="Título" optional error={errors.title} hint="Un resumen breve. Sin nombres de personas.">
           {(p) => <input {...p} className="input" maxLength={120} value={draft.title} onChange={(e) => set('title', e.target.value)} />}

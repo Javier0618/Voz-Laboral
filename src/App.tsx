@@ -25,6 +25,8 @@ const CalculadorasIndex = lazy(() => import('./pages/calculadoras/Index'));
 const Administrativos = lazy(() => import('./pages/calculadoras/Administrativos'));
 const TurnosPage = lazy(() => import('./pages/calculadoras/Turnos'));
 const PorDias = lazy(() => import('./pages/calculadoras/PorDias'));
+const PrimaPage = lazy(() => import('./pages/calculadoras/Prima'));
+const PrestacionServiciosPage = lazy(() => import('./pages/calculadoras/PrestacionServicios'));
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<div className="page py-10"><Loading /></div>}>{children}</Suspense>;
@@ -49,6 +51,8 @@ export function AppRoutes() {
         <Route path="calculadoras/operativos" element={<LazyPage><CalcMeta path="/calculadoras/operativos"><TurnosPage tipo="operativos" /></CalcMeta></LazyPage>} />
         <Route path="calculadoras/vigilantes" element={<LazyPage><CalcMeta path="/calculadoras/vigilantes"><TurnosPage tipo="vigilantes" /></CalcMeta></LazyPage>} />
         <Route path="calculadoras/por-dias" element={<LazyPage><PorDias /></LazyPage>} />
+        <Route path="calculadoras/prima" element={<LazyPage><CalcMeta path="/calculadoras/prima"><PrimaPage /></CalcMeta></LazyPage>} />
+        <Route path="calculadoras/prestacion-servicios" element={<LazyPage><CalcMeta path="/calculadoras/prestacion-servicios"><PrestacionServiciosPage /></CalcMeta></LazyPage>} />
         <Route path="calculadoras/liquidacion" element={<LazyPage><CalcMeta path="/liquidacion"><Liquidacion /></CalcMeta></LazyPage>} />
         <Route path="cuenta" element={<Account />} />
         <Route path="seguimiento/:token" element={<Tracking />} />
