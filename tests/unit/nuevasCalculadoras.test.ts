@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { calcularPrima } from '../../src/lib/prima';
 import { calcularHonorarios } from '../../src/lib/honorarios';
+import { calcularCesantias } from '../../src/lib/cesantias';
+import { calcularSalarioNeto, calcularRetencionFuente } from '../../src/lib/salarioNeto';
 import { VALORES_2026 } from '../../src/lib/liquidacion';
 
 describe('Cálculo de Prima de Servicios', () => {
@@ -73,5 +75,73 @@ describe('Cálculo de Honorarios e Independientes (Prestación de Servicios)', (
     });
 
     expect(res.ibc).toBe(VALORES_2026.salarioMinimo);
+  });
+});
+
+describe('Cálculo de Cesantías e Intereses', () => {
+  it('calcula cesantías e intereses para un año completo (360 días)', () => {
+    const res = calcularCesantias({
+      salarioBase: 2_000_000,
+      promedioVariables: 0,
+      diasTrabajadosAnio: 360,
+      incluyeAuxilioTransporte: false,
+    });
+
+    expect(res.cesantias).toBe(2_000_000);
+    expect(res.interesesCesantias).toBe(240_000); // 12% anual
+    expect(res.total).toBe(2_240_000);
+  });
+
+  it('calcula proporcionalmente a los días trabajados', () => {
+    const res = calcularCesantias({
+      salarioBase: 1_200_000,
+      promedioVariables: 0,
+      diasTrabajadosAnio: 180,
+      incluyeAuxilioTransporte: false,
+    });
+
+    expect(res.cesantias).toBe(600_000);
+    expect(res.interesesCesantias).toBe(36_000); // (600.000 * 180 * 0.12) / 360
+  });
+});
+
+describe('Cálculo de Salario Neto y Retención', () => {
+  it('no descuenta retención para ingresos gravables por debajo de 95 UVT', () => {
+    const ret = calcularRetencionFuente(3_000_000); // Menor a 95 UVT (~4.9M)
+    expect(ret).toBe(0);
+  });
+
+  it('calcula salario neto descontando salud y pensión (4% cada uno) e incluyendo auxilio si aplica', () => {
+    // 3.000.000 está por debajo de 2 SMMLV (2 * 1.750.905 = 3.501.810), por lo que tiene auxilio (249.095)
+    const res = calcularSalarioNeto({
+      salarioBruto: 3_000_000,
+    });
+
+    expect(res.descuentoSalud).toBe(120_000);
+    expect(res.descuentoPension).toBe(120_000);
+    expect(res.retencionFuente).toBe(0);
+    // 3.000.000 + 249.095 (auxilio) - 240.000 (descuentos) = 3.009.095
+    expect(res.salarioNeto).toBe(3_009_095);
+  });
+
+  it('calcula salario neto sin auxilio para salarios superiores a 2 SMMLV', () => {
+    const res = calcularSalarioNeto({
+      salarioBruto: 4_000_000,
+    });
+
+    expect(res.auxilioTransporte).toBe(0);
+    expect(res.descuentoSalud).toBe(160_000);
+    expect(res.descuentoPension).toBe(160_000);
+    expect(res.retencionFuente).toBe(0);
+    expect(res.salarioNeto).toBe(3_680_000); // 4M - 320k
+  });
+
+  it('aplica auxilio de transporte para salarios de hasta 2 SMMLV', () => {
+    const res = calcularSalarioNeto({
+      salarioBruto: VALORES_2026.salarioMinimo,
+    });
+
+    expect(res.auxilioTransporte).toBe(VALORES_2026.auxilioTransporte);
+    expect(res.salarioNeto).toBeGreaterThan(VALORES_2026.salarioMinimo);
   });
 });

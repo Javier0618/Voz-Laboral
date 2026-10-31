@@ -135,6 +135,29 @@ export default function CompanyProfile() {
             </p>
           </section>
 
+          {/* Herramientas recomendadas para trabajadores de esta empresa */}
+          <section aria-labelledby="calc-empresa" className="rounded-lg bg-mist p-5 text-sm">
+            <h2 id="calc-empresa" className="font-sans text-base font-semibold text-ink">Calculadoras útiles si trabajas aquí</h2>
+            <p className="mt-1 text-slate text-xs">Verifica si tus pagos corresponden con la normativa laboral vigente:</p>
+            <ul className="mt-3 space-y-2">
+              <li>
+                <Link to="/liquidacion" className="font-semibold text-teal-strong hover:underline block">
+                  → Liquidación de contrato e indemnización
+                </Link>
+              </li>
+              <li>
+                <Link to="/calculadoras/prima" className="font-semibold text-teal-strong hover:underline block">
+                  → Prima de servicios (semestral)
+                </Link>
+              </li>
+              <li>
+                <Link to="/calculadoras/administrativos" className="font-semibold text-teal-strong hover:underline block">
+                  → Recargos nocturnos y horas extra
+                </Link>
+              </li>
+            </ul>
+          </section>
+
           {p.open_claims > 0 && (
             <section className="rounded border border-amber/40 bg-amber-tint p-4 text-sm">
               <h2 className="font-sans text-sm font-semibold">Reclamaciones en estudio</h2>

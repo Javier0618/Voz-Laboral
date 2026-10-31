@@ -47,6 +47,20 @@ export const CALCULADORAS: CalculadoraInfo[] = [
     match: ['prima', 'semestre', 'junio', 'diciembre', 'prestaciones', 'salario'],
   },
   {
+    path: '/calculadoras/cesantias',
+    title: 'Cesantías e Intereses de cesantías',
+    description:
+      'Estima lo que debe consignar tu empresa al fondo antes del 14 de febrero y los intereses en enero.',
+    match: ['cesantia', 'cesantía', 'cesantias', 'intereses', 'fondo', 'febrero', 'ahorro'],
+  },
+  {
+    path: '/calculadoras/salario-neto',
+    title: 'Salario neto vs. bruto (Oferta laboral)',
+    description:
+      'Descubre cuánto entra realmente a tu bolsillo tras salud, pensión, fondo de solidaridad y retención en la fuente.',
+    match: ['salario neto', 'sueldo neto', 'cuanto me queda', 'retencion', 'oferta', 'bruto', 'impuesto'],
+  },
+  {
     path: '/calculadoras/prestacion-servicios',
     title: 'Contrato por prestación de servicios (OPS e Independientes)',
     description:

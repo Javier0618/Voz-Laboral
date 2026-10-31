@@ -26,6 +26,8 @@ const Administrativos = lazy(() => import('./pages/calculadoras/Administrativos'
 const TurnosPage = lazy(() => import('./pages/calculadoras/Turnos'));
 const PorDias = lazy(() => import('./pages/calculadoras/PorDias'));
 const PrimaPage = lazy(() => import('./pages/calculadoras/Prima'));
+const CesantiasPage = lazy(() => import('./pages/calculadoras/Cesantias'));
+const SalarioNetoPage = lazy(() => import('./pages/calculadoras/SalarioNeto'));
 const PrestacionServiciosPage = lazy(() => import('./pages/calculadoras/PrestacionServicios'));
 
 function LazyPage({ children }: { children: React.ReactNode }) {
@@ -52,6 +54,8 @@ export function AppRoutes() {
         <Route path="calculadoras/vigilantes" element={<LazyPage><CalcMeta path="/calculadoras/vigilantes"><TurnosPage tipo="vigilantes" /></CalcMeta></LazyPage>} />
         <Route path="calculadoras/por-dias" element={<LazyPage><PorDias /></LazyPage>} />
         <Route path="calculadoras/prima" element={<LazyPage><CalcMeta path="/calculadoras/prima"><PrimaPage /></CalcMeta></LazyPage>} />
+        <Route path="calculadoras/cesantias" element={<LazyPage><CalcMeta path="/calculadoras/cesantias"><CesantiasPage /></CalcMeta></LazyPage>} />
+        <Route path="calculadoras/salario-neto" element={<LazyPage><CalcMeta path="/calculadoras/salario-neto"><SalarioNetoPage /></CalcMeta></LazyPage>} />
         <Route path="calculadoras/prestacion-servicios" element={<LazyPage><CalcMeta path="/calculadoras/prestacion-servicios"><PrestacionServiciosPage /></CalcMeta></LazyPage>} />
         <Route path="calculadoras/liquidacion" element={<LazyPage><CalcMeta path="/liquidacion"><Liquidacion /></CalcMeta></LazyPage>} />
         <Route path="cuenta" element={<Account />} />
