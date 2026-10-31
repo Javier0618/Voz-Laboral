@@ -7,7 +7,7 @@ import { NotificationBell } from './NotificationBell';
 
 // `wide`: en pantallas medianas se omite de la barra (sigue en el menú móvil y en el pie).
 const nav = [
-  { to: '/derechos', label: 'Tus derechos' },
+  { to: '/derechos', label: 'Guías' },
   { to: '/experiencias', label: 'Experiencias' },
   { to: '/calculadoras', label: 'Calculadoras' },
   { to: '/empresas', label: 'Empresas' },
@@ -186,7 +186,7 @@ function Footer() {
         <div>
           <p className="font-serif text-xl font-semibold">{brand.name}</p>
           <p className="mt-3 max-w-sm text-sm text-white/75">
-            Guías sobre derechos laborales en {brand.country}, experiencias reales con alias y calculadoras de nómina. No somos una
+            Guías laborales sobre derechos y deberes en {brand.country}, experiencias reales con alias y calculadoras de nómina. No somos una
             autoridad: la información es orientativa y publicar una experiencia no prueba que los hechos sean ciertos.
           </p>
         </div>
