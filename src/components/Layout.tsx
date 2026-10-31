@@ -7,10 +7,10 @@ import { NotificationBell } from './NotificationBell';
 
 // `wide`: en pantallas medianas se omite de la barra (sigue en el menú móvil y en el pie).
 const nav = [
-  { to: '/empresas', label: 'Empresas' },
-  { to: '/experiencias', label: 'Experiencias' },
   { to: '/derechos', label: 'Tus derechos' },
+  { to: '/experiencias', label: 'Experiencias' },
   { to: '/calculadoras', label: 'Calculadoras' },
+  { to: '/empresas', label: 'Empresas' },
   { to: '/como-funciona', label: 'Cómo funciona', wide: true },
 ];
 
@@ -20,9 +20,9 @@ export function Logo() {
     <span className="flex items-center gap-2.5">
       <svg aria-hidden="true" width="30" height="30" viewBox="0 0 32 32">
         <rect x="4" y="2" width="24" height="28" rx="2" fill="#fff" />
-        <rect x="9" y="9" width="14" height="2.5" rx="1" fill="rgb(var(--ink))" />
+        <rect x="9" y="9" width="14" height="2.5" rx="1" fill="rgb(var(--surface-brand))" />
         <rect x="9" y="15" width="9" height="2.5" rx="1" fill="rgb(var(--teal))" />
-        <rect x="9" y="21" width="12" height="2.5" rx="1" fill="rgb(var(--ink))" />
+        <rect x="9" y="21" width="12" height="2.5" rx="1" fill="rgb(var(--surface-brand))" />
       </svg>
       <span className="font-serif text-[1.4375rem] font-semibold tracking-tight text-white">{brand.name}</span>
     </span>
@@ -186,8 +186,8 @@ function Footer() {
         <div>
           <p className="font-serif text-xl font-semibold">{brand.name}</p>
           <p className="mt-3 max-w-sm text-sm text-white/75">
-            Experiencias laborales buenas, malas y mixtas en {brand.country}, contadas con un alias. No somos una autoridad: publicar una
-            experiencia no prueba que los hechos sean ciertos.
+            Guías sobre derechos laborales en {brand.country}, experiencias reales con alias y calculadoras de nómina. No somos una
+            autoridad: la información es orientativa y publicar una experiencia no prueba que los hechos sean ciertos.
           </p>
         </div>
         <div>
