@@ -6,9 +6,9 @@ import { brand } from '../config/brand';
 // prerender o middleware en el hosting.
 
 const DEFAULT_DESCRIPTION =
-  'Experiencias laborales buenas, malas y mixtas en empresas de Colombia, contadas con un alias.';
+  'Guías sobre derechos laborales en Colombia, experiencias de trabajadores contadas con alias y calculadoras de nómina. Información clara, orientativa.';
 
-const DEFAULT_TITLE = `${brand.name}: cómo es trabajar ahí, contado por quienes trabajan ahí`;
+const DEFAULT_TITLE = `${brand.name}: derechos laborales, experiencias y calculadoras en Colombia`;
 
 /** Portada social por defecto (public/). Preferible WebP/PNG 1200×628 en producción. */
 export const DEFAULT_OG_IMAGE = '/og-default.svg';
@@ -35,27 +35,27 @@ function absoluteUrl(pathOrUrl: string | null | undefined): string | undefined {
 }
 
 function setMetaByName(name: string, content: string) {
-  let tag = document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
-  if (!tag) {
-    tag = document.createElement('meta');
-    tag.name = name;
-    document.head.appendChild(tag);
+  let el = document.querySelector(`meta[name="${name}"]`);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute('name', name);
+    document.head.appendChild(el);
   }
-  tag.content = content;
+  el.setAttribute('content', content);
 }
 
 function setMetaByProperty(property: string, content: string) {
-  let tag = document.querySelector<HTMLMetaElement>(`meta[property="${property}"]`);
-  if (!tag) {
-    tag = document.createElement('meta');
-    tag.setAttribute('property', property);
-    document.head.appendChild(tag);
+  let el = document.querySelector(`meta[property="${property}"]`);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute('property', property);
+    document.head.appendChild(el);
   }
-  tag.content = content;
+  el.setAttribute('content', content);
 }
 
 function setCanonical(href: string | undefined) {
-  let link = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
   if (!href) {
     link?.remove();
     return;
@@ -69,53 +69,40 @@ function setCanonical(href: string | undefined) {
 }
 
 function setJsonLd(data: PageMeta['jsonLd']) {
-  const id = 'vozlaboral-jsonld';
-  let script = document.getElementById(id) as HTMLScriptElement | null;
-  if (!data) {
-    script?.remove();
-    return;
-  }
-  if (!script) {
-    script = document.createElement('script');
-    script.id = id;
-    script.type = 'application/ld+json';
-    document.head.appendChild(script);
-  }
-  const payload = Array.isArray(data)
-    ? { '@context': 'https://schema.org', '@graph': data }
-    : data;
-  script.textContent = JSON.stringify(payload);
+  const id = 'vl-jsonld';
+  document.getElementById(id)?.remove();
+  if (!data) return;
+  const script = document.createElement('script');
+  script.id = id;
+  script.type = 'application/ld+json';
+  script.textContent = JSON.stringify(data);
+  document.head.appendChild(script);
 }
 
-/** Actualiza título, description, Open Graph, Twitter y opcionalmente JSON-LD. */
 export function setPageMeta(meta: PageMeta | null) {
-  const title = meta?.title ?? brand.name;
-  const description = meta?.description ?? DEFAULT_DESCRIPTION;
-  const type = meta?.type ?? 'website';
-  const url = absoluteUrl(meta?.path ?? (typeof window !== 'undefined' ? window.location.pathname : undefined));
-  // Si la página no trae imagen, usamos la portada por defecto del sitio.
-  const image = absoluteUrl(meta?.image || DEFAULT_OG_IMAGE);
-
-  document.title = title;
-  setMetaByName('description', description);
-
-  setMetaByProperty('og:type', type);
-  setMetaByProperty('og:site_name', brand.name);
-  setMetaByProperty('og:title', title);
-  setMetaByProperty('og:description', description);
-  setMetaByProperty('og:locale', 'es_CO');
-  if (url) setMetaByProperty('og:url', url);
-  if (image) {
-    setMetaByProperty('og:image', image);
-    setMetaByName('twitter:image', image);
+  if (!meta) {
+    document.title = DEFAULT_TITLE;
+    setMetaByName('description', DEFAULT_DESCRIPTION);
+    setMetaByProperty('og:title', DEFAULT_TITLE);
+    setMetaByProperty('og:description', DEFAULT_DESCRIPTION);
+    setMetaByProperty('og:type', 'website');
+    setMetaByName('twitter:title', DEFAULT_TITLE);
+    setMetaByName('twitter:description', DEFAULT_DESCRIPTION);
+    setCanonical(undefined);
+    setJsonLd(null);
+    return;
   }
-
-  setMetaByName('twitter:card', 'summary_large_image');
-  setMetaByName('twitter:title', title);
-  setMetaByName('twitter:description', description);
-
-  setCanonical(url);
-  setJsonLd(meta?.jsonLd ?? null);
+  document.title = meta.title;
+  setMetaByName('description', meta.description);
+  setMetaByProperty('og:title', meta.title);
+  setMetaByProperty('og:description', meta.description);
+  setMetaByProperty('og:type', meta.type ?? 'website');
+  if (meta.image) setMetaByProperty('og:image', absoluteUrl(meta.image) ?? meta.image);
+  setMetaByName('twitter:title', meta.title);
+  setMetaByName('twitter:description', meta.description);
+  if (meta.image) setMetaByName('twitter:image', absoluteUrl(meta.image) ?? meta.image);
+  if (meta.path) setCanonical(absoluteUrl(meta.path));
+  setJsonLd(meta.jsonLd ?? null);
 }
 
 export function defaultHomeMeta(): PageMeta {
