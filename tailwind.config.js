@@ -2,11 +2,13 @@
  *  así la identidad visual se cambia en un solo lugar. */
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
         ink: 'rgb(var(--ink) / <alpha-value>)',
+        brand: 'rgb(var(--surface-brand) / <alpha-value>)',
         navy: 'rgb(var(--navy) / <alpha-value>)',
         teal: { DEFAULT: 'rgb(var(--teal) / <alpha-value>)', strong: 'rgb(var(--teal-strong) / <alpha-value>)', tint: 'rgb(var(--teal-tint) / <alpha-value>)' },
         paper: 'rgb(var(--paper) / <alpha-value>)',
@@ -21,7 +23,6 @@ export default {
         sans: ['"Instrument Sans Variable"', 'system-ui', 'sans-serif'],
       },
       fontSize: {
-        // Escala de tercera mayor (1.25) sobre 16 px.
         xs: ['0.8125rem', { lineHeight: '1.25rem' }],
         sm: ['0.9375rem', { lineHeight: '1.5rem' }],
         base: ['1.0625rem', { lineHeight: '1.75rem' }],
