@@ -1,6 +1,6 @@
 # Sistema editorial — VozLaboral
 
-Objetivo: publicar **guías laborales** claras para trabajadores en Colombia, con ritmo sostenido y calidad uniforme.
+Objetivo: publicar **guías laborales** claras para trabajadores en Colombia sobre **todo lo relacionado con el trabajo**: reformas, contrato, jornada, salud, dignidad, trámites y pagos. No solo nómina.
 
 Jerarquía del producto: **Guías → Experiencias → Calculadoras**.
 
@@ -8,7 +8,9 @@ Jerarquía del producto: **Guías → Experiencias → Calculadoras**.
 
 ## 1. Plantilla de guía (obligatoria)
 
-Cada guía nueva debe seguir esta estructura (bloques separados por línea en blanco). El editor puede insertarla con **Insertar plantilla**.
+Cada guía nueva debe seguir esta estructura (bloques separados por línea en blanco).
+
+**Dónde está el botón:** Moderación → abrir una guía → pestaña **Editar** (no «Vista previa») → junto a «Insertar imagen» aparece **Insertar plantilla de guía**.
 
 ```
 ## Qué dice la ley
@@ -34,7 +36,7 @@ Cómo se aplica en el día a día del trabajador. Ejemplos concretos (montos, ho
 
 ## Herramientas y lecturas relacionadas
 
-- [Calculadora relevante](/calculadoras/…)
+- [Calculadora relevante](/calculadoras/…)  (solo si aporta)
 - [Otra guía](/derechos/slug)
 ```
 
@@ -42,7 +44,7 @@ Cómo se aplica en el día a día del trabajador. Ejemplos concretos (montos, ho
 
 | Campo | Criterio |
 |-------|----------|
-| Título | 5–160 caracteres; específico («Recargo dominical y festivo») |
+| Título | 5–160 caracteres; específico |
 | Resumen | 20–400 caracteres; qué aprenderá el lector |
 | Tema (categoría) | Obligatorio |
 | Fuentes oficiales | Al menos una URL https + editorial + fecha de consulta |
@@ -53,103 +55,81 @@ Cómo se aplica en el día a día del trabajador. Ejemplos concretos (montos, ho
 
 ## 2. Taxonomía (temas)
 
-Usar las categorías de la base cuando existan. Agrupación editorial recomendada:
+VozLaboral habla de **trabajo y trabajadores en general**, no solo de nómina.
 
 | Grupo editorial | Temas típicos |
 |-----------------|---------------|
-| **Jornada y recargos** | Horas extra, nocturno, dominical, festivos, límites |
-| **Salario y pagos** | Salario mínimo, auxilio de transporte, descuentos, neto vs bruto |
+| **Reformas y novedades** | Reforma laboral, jornada de 42 h, cambios de recargos, decretos del año |
+| **Jornada y descanso** | Horas extra, nocturno, dominical, festivos, límites, teletrabajo |
+| **Salario y pagos** | Mínimo, auxilio, descuentos, forma y oportunidad de pago |
 | **Prestaciones** | Prima, cesantías, intereses, vacaciones |
 | **Terminación** | Liquidación, despido, renuncia, justas causas |
-| **Seguridad social y salud** | EPS, ARL, incapacidad, accidente de trabajo |
-| **Contrato** | Término fijo/indefinido, OPS, periodo de prueba |
-| **Trámites** | Derecho de petición, Ministerio del Trabajo, inspección |
-| **Novedades** | Cambios normativos 2025–2027, reforma laboral (resumen actualizado) |
+| **Contrato y vínculo** | Fijo/indefinido, OPS vs laboral, aprendizaje, periodo de prueba |
+| **Salud y seguridad** | ARL, accidente, enfermedad laboral, riesgo psicosocial, salud mental |
+| **Igualdad y dignidad** | Discriminación, acoso laboral, acoso sexual, estabilidad reforzada |
+| **Derechos colectivos** | Sindicato, asociación, negociación, huelga |
+| **Trámites y defensa** | Petición, Ministerio, inspección, tutela (orientación general) |
+| **Sectores** | Trabajo doméstico, vigilancia, salud, plataformas (cuando aplique) |
 
-Una guía = un tema concreto. Evitar “todo sobre el salario” en un solo artículo.
+Una guía = un tema concreto. El salario importa, pero **no monopoliza** el calendario.
 
 ---
 
-## 3. Calendario prioritario (primeras 10)
+## 3. Calendario prioritario
 
-Publicar o reforzar **una cada 7–10 días**. Orden por impacto de búsqueda y utilidad:
+Las ~24 guías actuales ya cubren mucho de nómina y contrato. El hueco está en **reformas, formas de trabajar, dignidad y defensa**.
 
-| # | Tema | Slug sugerido | Calculadora relacionada |
-|---|------|---------------|-------------------------|
-| 1 | Recargo dominical y festivo | `recargo-dominical-y-festivo` | Turnos / Administrativos |
-| 2 | Horas extra y límites legales | `horas-extra-y-limites` | Turnos / Por días |
-| 3 | Liquidación al terminar el contrato | `liquidacion-al-terminar` | `/liquidacion` |
-| 4 | Auxilio de transporte | `auxilio-de-transporte` | — |
-| 5 | Incapacidad: quién paga | `incapacidad-quien-paga` | — |
-| 6 | Derecho de petición y a dónde acudir | (ya existe: reforzar) | — |
-| 7 | Accidente de trabajo y enfermedad laboral | (ya existe: reforzar) | — |
-| 8 | Contrato a término fijo vs indefinido | `contrato-fijo-vs-indefinido` | — |
-| 9 | Prima, cesantías e intereses (calendario del año) | `prima-cesantias-intereses` | Prima / Cesantías |
-| 10 | Qué cambió en la norma reciente (resumen) | `novedades-laborales-2026` | — |
+Publicar **una guía nueva o una reescritura fuerte cada 7–10 días**.
 
-Al reforzar una guía existente: actualizar verificación, fuentes, portada y enlaces a calculadoras.
+### A crear (prioridad alta)
+
+| # | Tema | Eje |
+|---|------|-----|
+| 1 | Qué cambió con la reforma laboral reciente | Reformas |
+| 2 | Jornada de 42 horas: cómo se aplica | Reformas |
+| 3 | Teletrabajo, remoto e híbrido | Formas de trabajar |
+| 4 | OPS vs. contrato laboral | Contrato |
+| 5 | Sindicatos, asociación y huelga | Colectivos |
+| 6 | Discriminación: ley y denuncia | Igualdad |
+| 7 | Salud mental y riesgo psicosocial | Salud |
+| 8 | Trabajo doméstico: derechos | Sectores |
+| 9 | Contrato de aprendizaje SENA | Contrato |
+| 10 | Inspección de trabajo | Trámites |
+
+### Ya publicadas (reforzar cuando cambie la norma o falte portada)
+
+A dónde acudir · Accidente de trabajo · Acoso laboral · Tipos de contrato · Jornada y recargos · Dominical · Liquidación · Despido · Prima · Incapacidad · etc.
 
 ---
 
 ## 4. Flujo de publicación
 
 ```
-Borrador en Moderación → Editor
-  → Insertar plantilla / escribir
-  → Fuentes oficiales
+Moderación → Nueva guía o abrir borrador
+  → Pestaña Editar → Insertar plantilla de guía
+  → Completar secciones + fuentes oficiales
   → Portada 1200×628
-  → Vista previa
-  → Guardar
-  → Publicar (solo si fuentes y contenido revisados)
+  → Vista previa → Guardar → Publicar
 ```
 
-Checklist al pulsar **Publicar**:
-
-- [ ] Lenguaje claro, Colombia, sin jerga innecesaria
-- [ ] Norma o fuente citada (artículo / entidad)
-- [ ] Al menos una fuente oficial con URL
-- [ ] Secciones de la plantilla cubiertas (o justificado si no aplican)
-- [ ] Enlace a calculadora u otra guía cuando aporte
-- [ ] Portada o decisión consciente de no usarla
-- [ ] Resumen SEO útil (qué resuelve la guía)
-
-Retirar con **Retirar para revisar** si cambia la norma o hay error.
+Checklist al publicar: lenguaje claro, fuente oficial, secciones cubiertas, portada si es posible, resumen útil para SEO.
 
 ---
 
 ## 5. Criterios de calidad
 
-**Sí**
+**Sí:** frases cortas; distinguir ley vs. práctica; fecha de verificación; disclaimer orientativo.
 
-- Frases cortas; ejemplos en pesos o días
-- Distinguir “lo que dice la ley” de “lo que suele pasar en la empresa”
-- Fecha de verificación visible
-- Disclaimer de orientación general
+**No:** prometer resultados legales; copiar textos legales largos sin explicar; mezclar OPS y laboral sin aclarar.
 
-**No**
-
-- Prometer resultados legales
-- Copiar textos legales largos sin explicar
-- Afirmar montos de salario mínimo sin año
-- Mezclar OPS y contrato laboral sin aclarar
-
-Revisión sugerida: cada **6 meses** o cuando cambie la norma.
+Revisión: cada **6 meses** o cuando cambie la norma.
 
 ---
 
 ## 6. Relación con el resto del sitio
 
-- Desde la guía: bloque de calculadoras relacionadas (ya en código).
-- Desde la calculadora: enlace “Cómo se calcula” → guía.
-- Experiencias: CTA al final de la guía, no al inicio.
-
----
-
-## 7. Ritmo editorial sugerido
-
-| Semana | Acción |
-|--------|--------|
-| Impar | Publicar o reescribir 1 guía prioritaria |
-| Par | Actualizar fuentes de 1–2 guías viejas + portadas |
+- Guía → calculadoras solo si el tema es de montos.
+- Calculadora → guía de la norma.
+- Experiencias: CTA al final de la guía.
 
 Documento vivo: actualizar este archivo cuando cambie la taxonomía o el calendario.
