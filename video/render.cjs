@@ -1,6 +1,6 @@
 // Graba promo.html cuadro por cuadro y arma el MP4 con ffmpeg.
 // Uso:
-//   node video/render.cjs [salida.mp4] [--url vozlaboral.co] [--fps 30] [--frames 0,120,300]
+//   node video/render.cjs [salida.mp4] [--url tuvozlaboral.com] [--fps 30] [--frames 0,120,300]
 // Con --frames solo guarda esos cuadros como PNG, para revisar el diseño.
 // Requiere Playwright (Chromium) y ffmpeg instalados.
 const { chromium } = require('playwright');

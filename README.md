@@ -62,10 +62,11 @@ Sin variables de Supabase la app arranca igualmente y muestra un aviso de config
 | `VITE_SUPABASE_URL` | URL del proyecto (Settings → API) |
 | `VITE_SUPABASE_ANON_KEY` | Clave pública `anon` / *publishable*. Su seguridad depende de RLS. |
 | `VITE_CONTACT_EMAIL` | Correo público de contacto (opcional) |
-| `VITE_UMAMI_URL` | Dirección de tu instancia de Umami, por ejemplo `https://estadisticas.tu-dominio.co` (opcional; sin ella no se mide nada) |
+| `VITE_UMAMI_URL` | Dirección de tu instancia de Umami, por ejemplo `https://estadisticas.tuvozlaboral.com` (opcional; sin ella no se mide nada) |
 | `VITE_UMAMI_WEBSITE_ID` | «Website ID» que da Umami al añadir el sitio (opcional) |
 | `VITE_UMAMI_DOMAINS` | Dominio público, para que solo se cuenten visitas reales y no las de pruebas en local (opcional) |
-| `SITE_URL` | Dominio público, por ejemplo `https://vozlaboral.co`. Solo se usa al compilar para generar `sitemap.xml` y `robots.txt`. En Netlify se toma la variable `URL` y en Vercel `VERCEL_PROJECT_PRODUCTION_URL` si no la defines. |
+| `SITE_URL` | Dominio público para generar `sitemap.xml` y `robots.txt` al compilar. Si no la defines, se usa `https://tuvozlaboral.com`. |
+| `VITE_SITE_URL` | Dominio público para la dirección canónica y las vistas previas al compartir. Por defecto, `https://tuvozlaboral.com`; cámbialo solo para un entorno de pruebas. |
 
 **Nunca** pongas la clave `service_role` en variables `VITE_*`: quedarían expuestas en el navegador.
 
@@ -75,7 +76,7 @@ Sin variables de Supabase la app arranca igualmente y muestra un aviso de config
    - Supabase CLI: `supabase link --project-ref <ref>` y después `supabase db push`.
    - SQL Editor del panel: pega y ejecuta cada archivo en orden numérico.
 2. **Auth → Providers → Email**: activa *Confirm email*.
-3. **Auth → URL Configuration**: define *Site URL* y añade a *Redirect URLs* `https://tu-dominio/cuenta` y `https://tu-dominio/cuenta/nueva-contrasena` (en local, `http://localhost:5173/...`).
+3. **Auth → URL Configuration**: define *Site URL* como `https://tuvozlaboral.com` y añade a *Redirect URLs* `https://tuvozlaboral.com/cuenta` y `https://tuvozlaboral.com/cuenta/nueva-contrasena` (en local, `http://localhost:5173/...`). Sin esto, los correos de confirmación y de recuperación de contraseña no llevan de vuelta al sitio.
 4. **Auth → Policies / Security**: contraseña mínima de 10 caracteres y protección de contraseñas filtradas. Recomendado: CAPTCHA y SMTP propio.
 5. **Primer administrador.** Regístrate desde la app, confirma el correo, elige un alias y después ejecuta en el SQL Editor:
 

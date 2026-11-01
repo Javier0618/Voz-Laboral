@@ -5,5 +5,8 @@ export const brand = {
   name: 'VozLaboral',
   tagline: 'Guías laborales claras para trabajadores en Colombia: derechos, reformas y cambios en el trabajo, con experiencias reales y calculadoras',
   country: 'Colombia',
+  /** Dominio público. Se usa para la dirección canónica, las vistas previas al compartir y el sitemap. */
+  siteUrl: ((import.meta.env.VITE_SITE_URL as string | undefined) || 'https://tuvozlaboral.com').replace(/\/$/, ''),
+  domain: 'tuvozlaboral.com',
   contactEmail: import.meta.env.VITE_CONTACT_EMAIL ?? '',
 } as const;

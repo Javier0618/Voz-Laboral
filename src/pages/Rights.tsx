@@ -295,7 +295,7 @@ export function RightsArticle() {
   useEffect(() => {
     if (!data) return;
     const path = `/derechos/${data.slug}`;
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const origin = brand.siteUrl;
     const pageUrl = origin ? `${origin}${path}` : path;
     const tema = temaDeGuia(data);
     const topicLabel = tema.name;

@@ -13,7 +13,7 @@ Video vertical (1080 × 1920, 57 segundos) para Reels, TikTok, Shorts y estados 
 ```bash
 node video/render.cjs vozlaboral-presentacion.mp4
 # Con tu dominio en la pantalla final, en lugar de «Enlace en la descripción»:
-node video/render.cjs vozlaboral-presentacion.mp4 --url vozlaboral.co
+node video/render.cjs vozlaboral-presentacion.mp4 --url tuvozlaboral.com
 # Solo algunos cuadros como PNG, para revisar el diseño:
 node video/render.cjs prueba.mp4 --frames 120,600,1500
 ```
@@ -69,6 +69,7 @@ Son 9 bloques, uno por escena. Escribe «Voz Laboral» separado para que la voz 
 La locución de noviembre de 2026 es un solo archivo de 46 s. Sus pausas entre bloques no son más largas que las de dentro de cada bloque, así que se cortó a mano, en silencios comprobados con la transcripción:
 
 ```bash
+node video/render.cjs video/sin-voz.mp4 --url tuvozlaboral.com
 node video/voz.cjs locucion.mp3 video/sin-voz.mp4 video/vozlaboral-presentacion-con-voz.mp4 \
   --cortes 0:4.40,4.78:9.02,9.18:13.49,13.69:22.42,22.61:26.98,27.17:32.02,32.20:37.79,37.97:42.14,42.34:46.10
 ```
@@ -92,7 +93,7 @@ En los dos casos el script muestra cuánto dura cada bloque frente al tiempo de 
 
 ## Texto para publicar
 
-> La ley laboral cambió. ¿Sabes cómo te afecta? 📘 En VozLaboral encuentras guías claras sobre tus derechos laborales en Colombia —reforma laboral, reforma pensional, teletrabajo, sindicatos, liquidación y más—, cada una con su fuente oficial. También hay calculadoras para revisar tu pago y experiencias de trabajadores contadas con alias. Entra aquí: [enlace]
+> La ley laboral cambió. ¿Sabes cómo te afecta? 📘 En VozLaboral encuentras guías claras sobre tus derechos laborales en Colombia —reforma laboral, reforma pensional, teletrabajo, sindicatos, liquidación y más—, cada una con su fuente oficial. También hay calculadoras para revisar tu pago y experiencias de trabajadores contadas con alias. Entra aquí: tuvozlaboral.com
 >
 > #VozLaboral #TrabajoEnColombia #DerechosLaborales #Empleo
 

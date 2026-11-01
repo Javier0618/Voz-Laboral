@@ -10,8 +10,8 @@ const DEFAULT_DESCRIPTION =
 
 const DEFAULT_TITLE = `${brand.name}: guías laborales para trabajadores en Colombia`;
 
-/** Portada social por defecto (public/). Preferible WebP/PNG 1200×628 en producción. */
-export const DEFAULT_OG_IMAGE = '/og-default.svg';
+/** Portada social por defecto (public/), PNG de 1200×630: WhatsApp y Facebook no aceptan SVG. */
+export const DEFAULT_OG_IMAGE = '/og-default.png';
 
 export type PageMeta = {
   title: string;
@@ -29,8 +29,9 @@ export type PageMeta = {
 function absoluteUrl(pathOrUrl: string | null | undefined): string | undefined {
   if (!pathOrUrl) return undefined;
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  if (!origin) return pathOrUrl;
+  // Siempre el dominio oficial: la dirección canónica y las vistas previas no
+  // deben apuntar a www, a la IP del servidor ni a un entorno de pruebas.
+  const origin = brand.siteUrl;
   return pathOrUrl.startsWith('/') ? `${origin}${pathOrUrl}` : `${origin}/${pathOrUrl}`;
 }
 
@@ -88,6 +89,9 @@ export function setPageMeta(meta: PageMeta | null) {
     setMetaByProperty('og:type', 'website');
     setMetaByName('twitter:title', DEFAULT_TITLE);
     setMetaByName('twitter:description', DEFAULT_DESCRIPTION);
+    setMetaByProperty('og:image', absoluteUrl(DEFAULT_OG_IMAGE)!);
+    setMetaByName('twitter:image', absoluteUrl(DEFAULT_OG_IMAGE)!);
+    setMetaByProperty('og:url', absoluteUrl('/')!);
     setCanonical(undefined);
     setJsonLd(null);
     return;
@@ -97,11 +101,16 @@ export function setPageMeta(meta: PageMeta | null) {
   setMetaByProperty('og:title', meta.title);
   setMetaByProperty('og:description', meta.description);
   setMetaByProperty('og:type', meta.type ?? 'website');
-  if (meta.image) setMetaByProperty('og:image', absoluteUrl(meta.image) ?? meta.image);
+  // Sin imagen propia se usa la de por defecto: así no queda la de la página anterior.
+  const image = absoluteUrl(meta.image || DEFAULT_OG_IMAGE)!;
+  setMetaByProperty('og:image', image);
   setMetaByName('twitter:title', meta.title);
   setMetaByName('twitter:description', meta.description);
-  if (meta.image) setMetaByName('twitter:image', absoluteUrl(meta.image) ?? meta.image);
-  if (meta.path) setCanonical(absoluteUrl(meta.path));
+  setMetaByName('twitter:image', image);
+  if (meta.path) {
+    setCanonical(absoluteUrl(meta.path));
+    setMetaByProperty('og:url', absoluteUrl(meta.path)!);
+  }
   setJsonLd(meta.jsonLd ?? null);
 }
 
@@ -117,7 +126,7 @@ export function defaultHomeMeta(): PageMeta {
       '@type': 'WebSite',
       name: brand.name,
       description: DEFAULT_DESCRIPTION,
-      url: typeof window !== 'undefined' ? window.location.origin : undefined,
+      url: brand.siteUrl,
       inLanguage: 'es-CO',
       publisher: {
         '@type': 'Organization',
