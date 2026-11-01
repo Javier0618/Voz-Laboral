@@ -73,7 +73,11 @@ export const GUIAS_A_CREAR: { titulo: string; slugSugerido: string; eje: string 
 
 /** Calculadora → guías relacionadas (slug de /derechos/…). */
 export const GUIAS_POR_CALCULADORA: Record<string, { slug: string; label: string }[]> = {
-  '/calculadoras/turnos': [
+  '/calculadoras/operativos': [
+    { slug: 'jornada-horas-extra-y-recargos', label: 'Jornada, horas extra y recargos' },
+    { slug: 'descanso-dominical-y-festivos', label: 'Descanso dominical y festivos' },
+  ],
+  '/calculadoras/vigilantes': [
     { slug: 'jornada-horas-extra-y-recargos', label: 'Jornada, horas extra y recargos' },
     { slug: 'descanso-dominical-y-festivos', label: 'Descanso dominical y festivos' },
   ],

@@ -9,6 +9,8 @@ export default {
       colors: {
         ink: 'rgb(var(--ink) / <alpha-value>)',
         brand: 'rgb(var(--surface-brand) / <alpha-value>)',
+        // Colores fijos para botones blancos sobre la cabecera (no cambian con el modo oscuro).
+        onwhite: { ink: '#0F2440', tint: '#E6F2F1' },
         navy: 'rgb(var(--navy) / <alpha-value>)',
         teal: { DEFAULT: 'rgb(var(--teal) / <alpha-value>)', strong: 'rgb(var(--teal-strong) / <alpha-value>)', tint: 'rgb(var(--teal-tint) / <alpha-value>)' },
         paper: 'rgb(var(--paper) / <alpha-value>)',

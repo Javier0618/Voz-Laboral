@@ -103,7 +103,7 @@ export function PromoVideoThumb({ className = 'w-[4.5rem]' }: { className?: stri
     <span className={`relative block flex-none overflow-hidden rounded ${className}`}>
       <img src={POSTER} alt="" width={72} height={128} loading="lazy" className="block aspect-[9/16] w-full object-cover" />
       <span className="absolute inset-0 flex items-center justify-center bg-ink/30">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-ink shadow transition-transform group-hover:scale-110">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-onwhite-ink shadow transition-transform group-hover:scale-110">
           <PlayIcon className="ml-0.5 h-5 w-5" />
         </span>
       </span>
@@ -144,7 +144,7 @@ export function PromoVideoInline() {
           }}
           className="group absolute inset-0 flex flex-col items-center justify-end gap-3 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent pb-8 text-white focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white"
         >
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-ink shadow-lg transition-transform group-hover:scale-110">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-onwhite-ink shadow-lg transition-transform group-hover:scale-110">
             <PlayIcon className="ml-1 h-8 w-8" />
           </span>
           <span className="font-semibold">Ver el video · {promoDuration}</span>

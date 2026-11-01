@@ -26,7 +26,7 @@ function renderAt(path: string) {
 describe('aplicación sin configurar', () => {
   it('la portada muestra el aviso de configuración y marca el ejemplo como ilustrativo', async () => {
     renderAt('/');
-    expect(screen.getByRole('heading', { level: 1, name: /Cómo es trabajar ahí/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /Conoce tus derechos laborales/ })).toBeInTheDocument();
     expect(screen.getByText('Falta conectar la base de datos')).toBeInTheDocument();
     expect(screen.getByText(/Ejemplo ilustrativo/)).toBeInTheDocument();
     expect(screen.getByRole('search')).toBeInTheDocument();

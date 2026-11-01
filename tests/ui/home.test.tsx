@@ -1,4 +1,4 @@
-// Portada: sin experiencias publicadas invita a contar la primera y sube las guías.
+// Portada: orden guías → experiencias → calculadoras; sin experiencias invita a contar la primera.
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
@@ -20,13 +20,15 @@ import Home from '../../src/pages/Home';
 const headings = () => screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
 
 describe('portada', () => {
-  it('sin experiencias invita a ser de los primeros y muestra las guías antes', async () => {
+  it('sin experiencias invita a ser de los primeros, con las guías antes y las calculadoras después', async () => {
     experiences.list = [];
     render(<MemoryRouter><Home /></MemoryRouter>);
     expect(await screen.findByRole('heading', { name: 'Sé de las primeras personas en contar' })).toBeTruthy();
     expect(screen.getByRole('link', { name: /Compartir mi experiencia/ }).getAttribute('href')).toBe('/compartir');
     expect(screen.getByRole('link', { name: /Enviar por WhatsApp/ }).getAttribute('href')).toMatch(/^https:\/\/wa\.me\//);
-    expect(headings().indexOf('Conoce tus derechos laborales')).toBe(headings().indexOf('Sé de las primeras personas en contar') + 1);
+    const h = headings();
+    expect(h.indexOf('Sé de las primeras personas en contar')).toBe(h.indexOf('Guías laborales') + 1);
+    expect(h.indexOf('Calculadoras laborales')).toBe(h.indexOf('Sé de las primeras personas en contar') + 1);
     expect(screen.queryByRole('heading', { name: 'Experiencias recientes' })).toBeNull();
   });
 

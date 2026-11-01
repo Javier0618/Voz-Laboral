@@ -23,10 +23,10 @@ export default function Home() {
       {notConfigured && (
         <div className="page mt-10"><ConfigNotice /></div>
       )}
-      {/* Orden: guías → calculadoras → experiencias → cómo funciona → qué puedes contar → identidad */}
+      {/* Orden: guías → experiencias → calculadoras → cómo funciona → qué puedes contar → identidad */}
       <Rights />
-      <CalculatorsPreview />
       {empty ? <FirstExperiences /> : <RecentExperiences {...recent} />}
+      <CalculatorsPreview />
       <HowItWorks />
       <Categories />
       <Identity />
@@ -43,17 +43,18 @@ function Hero() {
         <div className="min-w-0">
           <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-white/70">Para trabajadores en Colombia</p>
           <h1 className="text-[2.5rem] font-medium leading-[2.875rem] tracking-[-0.01em] text-white sm:text-5xl lg:text-[4.25rem] lg:leading-[4.5rem]">
-            Guías laborales claras para trabajadores.
+            Conoce tus derechos laborales en Colombia.
           </h1>
           <p className="mt-6 max-w-[36rem] text-lg leading-8 text-white/80">
-            Lee guías sobre derechos y deberes según la ley colombiana, usa calculadoras de nómina y conoce experiencias reales de quienes trabajan en empresas — con alias, sin publicar tu nombre.
+            Guías claras basadas en la ley colombiana, experiencias reales de quienes trabajan en cada empresa — contadas con alias — y
+            calculadoras para revisar tu pago.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/derechos" className="btn min-h-[52px] bg-white px-7 text-base text-ink hover:bg-teal-tint">
+            <Link to="/derechos" className="btn min-h-[52px] bg-white px-7 text-base text-onwhite-ink hover:bg-onwhite-tint">
               Ver guías laborales
             </Link>
-            <Link to="/calculadoras" className="btn min-h-[52px] border border-white/40 px-7 text-base text-white hover:border-white hover:bg-white/10">
-              Calculadoras
+            <Link to="/compartir" className="btn min-h-[52px] border border-white/40 px-7 text-base text-white hover:border-white hover:bg-white/10">
+              Compartir experiencia
             </Link>
           </div>
           <form
@@ -64,12 +65,12 @@ function Hero() {
               navigate(`/empresas${q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ''}`);
             }}
           >
-            <label htmlFor="buscar-empresa" className="mb-2 block text-sm font-semibold text-white">Busca una empresa</label>
+            <label htmlFor="buscar-empresa" className="mb-2 block text-sm font-semibold text-white">O busca una empresa</label>
             <div className="flex flex-col gap-2 rounded-md bg-white p-1.5 sm:flex-row">
               <input
                 id="buscar-empresa"
                 type="search"
-                className="block min-h-[52px] w-full rounded border-0 bg-transparent px-3 text-lg text-ink placeholder:text-slate/70 focus:outline-none focus:ring-2 focus:ring-teal/40"
+                className="block min-h-[52px] w-full rounded border-0 bg-transparent px-3 text-lg text-onwhite-ink placeholder:text-[#3F4A5A]/70 focus:outline-none focus:ring-2 focus:ring-teal/40"
                 placeholder="Nombre, sigla o NIT"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
@@ -78,13 +79,7 @@ function Hero() {
               <button type="submit" className="btn-primary min-h-[52px] px-7 text-base">Buscar</button>
             </div>
           </form>
-          <p className="mt-6 text-white/75">
-            ¿Quieres contar cómo te fue en el trabajo?{' '}
-            <Link to="/compartir" className="font-semibold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white">
-              Comparte tu experiencia
-            </Link>
-            {' '}con un alias. No necesitas cuenta.
-          </p>
+          <p className="mt-6 text-sm text-white/75">Compartes con un alias y sin crear cuenta. Tu nombre y tu correo nunca se publican.</p>
           <PromoVideoTeaser className="mt-6 lg:hidden" />
         </div>
         <RedactionSpecimen />

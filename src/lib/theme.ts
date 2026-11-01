@@ -1,4 +1,4 @@
-/** Tema claro / oscuro. Preferencia en localStorage; si no hay, sigue el sistema. */
+/** Tema claro / oscuro. Por defecto, claro; el modo oscuro solo se activa si la persona lo elige. */
 export type Theme = 'light' | 'dark';
 
 const KEY = 'vl-theme';
@@ -12,12 +12,8 @@ export function getStoredTheme(): Theme | null {
   }
 }
 
-export function systemPrefersDark(): boolean {
-  return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
-}
-
 export function resolveTheme(stored: Theme | null = getStoredTheme()): Theme {
-  return stored ?? (systemPrefersDark() ? 'dark' : 'light');
+  return stored ?? 'light';
 }
 
 export function applyTheme(theme: Theme) {

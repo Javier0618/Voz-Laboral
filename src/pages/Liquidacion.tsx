@@ -8,6 +8,7 @@ import { Alert, Field, PageHeader } from '../components/ui';
 import { TextoCst } from '../components/ArticulosCst';
 import { CalcSharePrompt } from '../components/CalcSharePrompt';
 import { PrintButton } from '../components/PrintButton';
+import { CalculatorGuideLinks } from '../components/CalculatorGuideLinks';
 
 const pesos = (n: number) => `$${n.toLocaleString('es-CO')}`;
 const soloDigitos = (s: string) => s.replace(/\D/g, '');
@@ -174,6 +175,8 @@ function Desprendible({ r }: { r: ResultadoLiquidacion }) {
           mensaje="Tu testimonio ayuda a que otras personas conozcan el cumplimiento laboral real de la empresa."
         />
       </div>
+
+      <CalculatorGuideLinks path="/liquidacion" />
     </div>
   );
 }

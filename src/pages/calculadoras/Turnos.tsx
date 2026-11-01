@@ -13,6 +13,7 @@ import {
 } from '../../components/nomina';
 import { periodoTitulo } from './Administrativos';
 import { ResumenClasificacionHoras } from '../../components/ResumenClasificacionHoras';
+import { CalculatorGuideLinks } from '../../components/CalculatorGuideLinks';
 
 type Tipo = 'operativos' | 'vigilantes';
 
@@ -150,6 +151,7 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
           empresa. El descanso de cada turno se resta a mitad del turno: si tu pausa es en otra hora, el reparto entre horas de día y de noche puede variar un poco.
         </p>
       </ComoSeCalcula>
+      <CalculatorGuideLinks path={`/calculadoras/${tipo}`} />
     </div>
   );
 }

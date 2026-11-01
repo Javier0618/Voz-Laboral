@@ -141,7 +141,7 @@ export default function About() {
           <p className="mt-2 max-w-prose text-white/80">Cuéntalo con un alias o sin cuenta. Tu experiencia ayuda a quien está pensando en trabajar ahí.</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link to="/compartir" className="btn bg-white text-ink hover:bg-teal-tint">Compartir una experiencia</Link>
+          <Link to="/compartir" className="btn bg-white text-onwhite-ink hover:bg-onwhite-tint">Compartir una experiencia</Link>
           <Link to="/politicas/reglas" className="btn border border-white/40 text-white hover:border-white">Leer las reglas</Link>
         </div>
       </section>
