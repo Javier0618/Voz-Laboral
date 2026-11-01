@@ -4,6 +4,7 @@ import { VALORES_2026 } from '../../lib/liquidacion';
 import { Alert, Field, PageHeader } from '../../components/ui';
 import { CalcSharePrompt } from '../../components/CalcSharePrompt';
 import { PrintButton } from '../../components/PrintButton';
+import { CalculatorGuideLinks } from '../../components/CalculatorGuideLinks';
 
 const pesos = (n: number) => `$${Math.round(n).toLocaleString('es-CO')}`;
 const soloDigitos = (s: string) => s.replace(/\D/g, '');
@@ -180,6 +181,8 @@ export default function SalarioNetoPage() {
           )}
         </section>
       </div>
+
+      <CalculatorGuideLinks path="/calculadoras/salario-neto" />
     </div>
   );
 }

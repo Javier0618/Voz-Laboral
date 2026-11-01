@@ -10,6 +10,7 @@ import {
 } from '../../components/nomina';
 import { ResumenClasificacionHoras } from '../../components/ResumenClasificacionHoras';
 import { periodoTitulo } from './Administrativos';
+import { CalculatorGuideLinks } from '../../components/CalculatorGuideLinks';
 
 export default function PorDias() {
   useEffect(() => {
@@ -132,6 +133,7 @@ export default function PorDias() {
         <h3>Si trabajas por tu cuenta</h3>
         <p>Esta calculadora es para trabajadores con empleador. Si eres independiente, tus aportes se calculan con otras reglas.</p>
       </ComoSeCalcula>
+      <CalculatorGuideLinks path="/calculadoras/por-dias" />
     </div>
   );
 }
