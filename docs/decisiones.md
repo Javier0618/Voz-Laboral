@@ -86,12 +86,14 @@ La dirección es sobria y confiable: ni red social ni portal gubernamental.
 - **5.3:** no se crean calculadoras nuevas hasta tener al menos 10 guías sólidas con la plantilla editorial. La prioridad es el contenido.
 - **5.4:** la liquidación sigue el Código Sustantivo del Trabajo (convención 30/360). No se añade una opción con reglas propias de cada empresa, como su forma de pagar el dominical: añadiría confusión legal sin aportar claridad. Si una empresa paga más que el mínimo legal, la guía lo explica, pero la calculadora estima el mínimo.
 
-## Medición de visitas (Fase 6.3)
+## Medición de visitas y publicidad (Fase 6.3)
 
-- El sitio se aloja en un VPS propio. Se usa **Umami** instalado en ese VPS: no usa cookies, así que **no hay banner**, y los datos no salen del servidor.
-- Se activa al compilar con `VITE_UMAMI_URL` y `VITE_UMAMI_WEBSITE_ID`. Sin ellas no se carga ningún script (`iniciarUmami` en `src/lib/analytics.ts`).
-- Antes de cada envío, `umamiBeforeSend` pasa la dirección y la procedencia por `limpiarUrl`: quita los parámetros, como el `?code=` del inicio de sesión, y tapa el enlace privado de `/seguimiento/<enlace>`. Además, el script se carga con `data-exclude-search` y `data-exclude-hash`.
-- **Futuro, Google AdSense:** sus anuncios personalizados usan cookies, así que al activarlo hará falta el banner de consentimiento de AdSense («Privacidad y mensajes»), el archivo `ads.txt` y actualizar la política. Para proteger la independencia, los anuncios irán solo en guías y calculadoras, marcados como «Publicidad»; nunca en perfiles de empresa, experiencias ni formularios.
+- Decisión: **Google Analytics 4** para medir visitas y, más adelante, **Google AdSense** para monetizar. Umami se descartó.
+- **Consentimiento previo (Ley 1581 de 2012).** Si existe `VITE_GA_ID` o `VITE_ADSENSE_CLIENT`, la primera visita muestra un aviso de cookies (`src/components/CookieConsent.tsx`) con tres opciones: «Aceptar todas», «Solo necesarias» y «Configurar». La decisión se guarda en el navegador y se cambia desde «Preferencias de cookies», al pie de página.
+- **Google Consent Mode v2** (`src/lib/analytics.ts`): todo empieza denegado (`analytics_storage`, `ad_storage`, `ad_user_data` y `ad_personalization`), y se concede solo lo aceptado. Sin consentimiento de publicidad, AdSense solo puede mostrar anuncios no personalizados (`requestNonPersonalizedAds = 1`).
+- **Páginas vistas** enviadas a mano (`send_page_view: false`). Cada dirección pasa por `limpiarUrl`, que quita parámetros como el `?code=` del inicio de sesión o las búsquedas, y tapa el enlace privado de `/seguimiento/<enlace>`.
+- **Políticas:** la política de tratamiento de datos, el aviso de privacidad y los términos lo explican, y hay una página propia, «Política de cookies» (`/politicas/cookies`), con los enlaces de inhabilitación que pide Google.
+- **AdSense, pendiente de activar:** falta cargar el script con `VITE_ADSENSE_CLIENT`, colocar los bloques de anuncios y publicar `ads.txt`. Los anuncios irán solo en guías y calculadoras, marcados como «Publicidad»; nunca en perfiles de empresa, experiencias ni formularios. Si se recibe tráfico del Espacio Económico Europeo o del Reino Unido, Google exige una plataforma de consentimiento certificada: en ese caso, conviene usar la de AdSense («Privacidad y mensajes») en lugar del aviso propio.
 
 ## Revisión periódica de las guías (Fase 3.3)
 

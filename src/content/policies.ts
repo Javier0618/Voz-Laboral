@@ -23,6 +23,7 @@ export const policies: Policy[] = [
           'Reacciones: guardamos qué reacción dejó cada cuenta para contar una por persona y permitir quitarla. Solo se publica el total; nadie más ve quién reaccionó.',
           'Envíos sin cuenta: no pedimos correo ni otro dato de contacto. Guardamos el contenido y una huella cifrada (hash) del enlace de seguimiento, nunca el enlace. Quien tenga el enlace puede ver el estado, las reacciones y los comentarios, y vincular la experiencia a una cuenta.',
           'Registros técnicos y de seguridad: eventos como superar límites de envío o cambios de rol. En nuestras tablas no guardamos direcciones IP; el proveedor de infraestructura puede registrarlas en sus propios registros técnicos durante el plazo que define su contrato.',
+          'Datos de navegación, solo si los aceptas en el aviso de cookies: identificadores de cookies, páginas que visitas, cómo llegaste al sitio, tipo de dispositivo y navegador, y ubicación aproximada (país o ciudad) que se deduce de tu dirección IP. Los recogen Google Analytics, para medir el uso del sitio, y Google AdSense, para mostrar publicidad. Lo explicamos en la [política de cookies](/politicas/cookies).',
           'No solicitamos datos sensibles. Si un relato los incluye, el equipo de moderación puede pedir que se retiren.',
         ],
       },
@@ -30,15 +31,17 @@ export const policies: Policy[] = [
         heading: 'Finalidades',
         paragraphs: [
           'Gestionar tu cuenta, publicar y moderar contenido, atender reclamaciones y solicitudes, prevenir abusos y cumplir obligaciones legales.',
-          'No vendemos datos ni los compartimos con las empresas mencionadas en las publicaciones.',
+          'Si das tu autorización en el aviso de cookies: medir cómo se usa el sitio para mejorar las guías y las herramientas (Google Analytics), y mostrar publicidad que financia el sitio, personalizada solo si la aceptas (Google AdSense).',
+          'No vendemos datos ni los compartimos con las empresas mencionadas en las publicaciones. Los datos de tu cuenta y tus publicaciones nunca se usan para publicidad.',
         ],
       },
       {
-        heading: 'Cookies y almacenamiento en tu navegador',
+        heading: 'Cookies, medición y publicidad: tu autorización',
         paragraphs: [
-          'No usamos cookies ni de publicidad ni de seguimiento.',
-          'Para saber qué páginas se leen más, usamos Umami, una herramienta de medición sin cookies instalada en nuestro propio servidor: los datos no se comparten con terceros. Umami cuenta las visitas con un código anónimo que cambia cada día, así que no permite seguirte entre días ni entre sitios, y solo vemos cifras agregadas: páginas vistas, de dónde llegaron las visitas, país y tipo de dispositivo. Antes de registrar cada visita quitamos de la dirección los parámetros y los enlaces privados de seguimiento.',
-          'El sitio guarda en tu navegador (almacenamiento local) solo lo necesario para funcionar: tu sesión si inicias sesión, tu preferencia de modo claro u oscuro, el texto de la experiencia que estás escribiendo (para que no lo pierdas) y una marca para no contar dos veces la visita a una guía el mismo día. Puedes borrarlo desde la configuración de tu navegador.',
+          'Las cookies de medición (Google Analytics) y de publicidad personalizada (Google AdSense) solo se activan si las aceptas en el aviso de cookies que aparece en tu primera visita. Esa aceptación es tu autorización previa, expresa e informada para ese tratamiento. Si no aceptas, el sitio funciona igual.',
+          'Puedes cambiar o retirar tu autorización cuando quieras desde «Preferencias de cookies», al pie de cada página.',
+          'Antes de enviar datos de navegación, quitamos de las direcciones los parámetros y los enlaces privados de seguimiento, para que no salgan datos que puedan identificarte.',
+          'Los detalles de cada cookie, para qué sirve y cuánto dura están en la [política de cookies](/politicas/cookies).',
         ],
       },
       {
@@ -46,6 +49,7 @@ export const policies: Policy[] = [
         paragraphs: [
           'Usamos proveedores de infraestructura en la nube para la base de datos, la autenticación y el alojamiento del sitio. Sus servidores pueden estar ubicados fuera de Colombia.',
           'Solo les transmitimos los datos necesarios para prestar el servicio, y los tratan por nuestra cuenta, sin usarlos para fines propios.',
+          'Si aceptas las cookies de medición o de publicidad, Google LLC y sus filiales reciben datos de navegación y pueden tratarlos en Estados Unidos y en otros países. En la medición actúan por nuestra cuenta. En la publicidad personalizada, Google y sus socios publicitarios también los usan según sus propias políticas. Puedes conocer [cómo usa Google los datos de los sitios que usan sus servicios](https://policies.google.com/technologies/partner-sites).',
         ],
       },
       {
@@ -54,6 +58,7 @@ export const policies: Policy[] = [
           'Cuenta: mientras esté activa. Al solicitar la eliminación hay 15 días para cancelarla; después, las publicaciones y los comentarios se desvinculan de la cuenta, se borran sus reacciones, el alias y el acceso.',
           'Comentarios eliminados por su autor: dejan de mostrarse de inmediato y se conservan ocultos para atender reclamaciones durante el plazo del historial de moderación.',
           'Registros de seguridad: 12 meses. Historial de moderación: 5 años, para atender reclamaciones y requerimientos legales.',
+          'Datos de medición (Google Analytics): hasta 14 meses, tras los cuales Google los borra; solo usamos informes agregados. Cookies: la duración de cada una está en la política de cookies, y puedes borrarlas cuando quieras desde tu navegador.',
         ],
       },
       {
@@ -92,9 +97,55 @@ export const policies: Policy[] = [
         ],
       },
       {
-        heading: 'Medición de visitas',
+        heading: 'Cookies, medición y publicidad',
         paragraphs: [
-          'No usamos cookies. Medimos qué páginas se leen con Umami, instalado en nuestro propio servidor, con cifras agregadas que no permiten identificarte. Los detalles están en la política de tratamiento de datos.',
+          'Usamos Google Analytics para saber qué páginas se leen, y Google AdSense para mostrar publicidad que financia el sitio. Sus cookies solo se activan si las aceptas, y puedes cambiar tu decisión en «Preferencias de cookies», al pie de cada página.',
+          'Tu cuenta, tu correo y tus publicaciones nunca se usan para publicidad. Más detalles en la [política de cookies](/politicas/cookies).',
+        ],
+      },
+      { heading: 'Responsable', paragraphs: [RESPONSABLE] },
+    ],
+  },
+  {
+    slug: 'cookies',
+    title: 'Política de cookies',
+    summary: 'Qué cookies usa el sitio, para qué sirven, cuánto duran y cómo cambiar tu decisión.',
+    sections: [
+      {
+        heading: 'Qué son las cookies',
+        paragraphs: [
+          'Las cookies son pequeños archivos que un sitio guarda en tu navegador. El almacenamiento local cumple una función parecida. Algunos son necesarios para que el sitio funcione y otros sirven para medir el uso o mostrar publicidad.',
+        ],
+      },
+      {
+        heading: 'Necesarias (siempre activas)',
+        paragraphs: [
+          'Sin ellas el sitio no funciona bien, así que no requieren tu autorización. Se guardan en el almacenamiento local de tu navegador y no se comparten con terceros:',
+          'Tu sesión, si inicias sesión. Tu preferencia de modo claro u oscuro. El texto de la experiencia que estás escribiendo, para que no lo pierdas. Una marca para no contar dos veces la visita a una guía el mismo día. Y tu decisión sobre las cookies, para no preguntarte en cada visita.',
+        ],
+      },
+      {
+        heading: 'De medición: Google Analytics (opcionales)',
+        paragraphs: [
+          'Nos dicen qué páginas se leen, cómo llegan las visitas y desde qué tipo de dispositivo, para mejorar las guías y las herramientas. Solo vemos informes agregados, no quién eres.',
+          'Las instala Google Analytics con los nombres «_ga» y «_ga_» seguido de un identificador, y duran hasta 2 años. Google conserva los datos hasta 14 meses.',
+          'Puedes desactivar la medición de Google Analytics en todos los sitios con el [complemento de inhabilitación de Google Analytics](https://tools.google.com/dlpage/gaoptout).',
+        ],
+      },
+      {
+        heading: 'De publicidad: Google AdSense (opcionales)',
+        paragraphs: [
+          'Mostramos anuncios de Google AdSense para financiar el sitio. Google y sus socios, como proveedores externos, usan cookies para mostrar anuncios según tus visitas anteriores a este y a otros sitios web.',
+          'Las cookies de publicidad de Google permiten que Google y sus socios te muestren anuncios basados en tus visitas a este sitio y a otros sitios de internet. Si no las aceptas, los anuncios que veas no serán personalizados.',
+          'Puedes desactivar la publicidad personalizada en la [configuración de anuncios de Google](https://adssettings.google.com) y conocer más sobre las cookies publicitarias de otros proveedores en [aboutads.info](https://www.aboutads.info).',
+          'Los anuncios se marcan como «Publicidad» y no influyen en el contenido ni en la moderación. No mostramos anuncios en los perfiles de empresa, en las experiencias ni en los formularios para compartir.',
+        ],
+      },
+      {
+        heading: 'Cómo cambiar tu decisión',
+        paragraphs: [
+          'En tu primera visita te preguntamos si aceptas las cookies de medición y de publicidad. Puedes cambiar tu decisión cuando quieras desde «Preferencias de cookies», al pie de cada página.',
+          'También puedes borrar o bloquear las cookies desde la configuración de tu navegador. Si bloqueas las necesarias, puede que algunas funciones, como iniciar sesión, dejen de funcionar.',
         ],
       },
       { heading: 'Responsable', paragraphs: [RESPONSABLE] },
@@ -122,7 +173,10 @@ export const policies: Policy[] = [
       },
       {
         heading: 'Independencia',
-        paragraphs: ['Las empresas no pueden pagar por retirar o modificar críticas legítimas. Pueden solicitar correcciones de datos verificables y publicar respuestas identificadas como suyas.'],
+        paragraphs: [
+          'Las empresas no pueden pagar por retirar o modificar críticas legítimas. Pueden solicitar correcciones de datos verificables y publicar respuestas identificadas como suyas.',
+          'El sitio se financia en parte con publicidad de Google AdSense. Los anuncios se marcan como «Publicidad», los elige Google y no influyen en el contenido de las guías, en la moderación ni en las experiencias publicadas. No mostramos anuncios en los perfiles de empresa, en las experiencias ni en los formularios para compartir.',
+        ],
       },
       {
         heading: 'Contenido ilícito y retiro',

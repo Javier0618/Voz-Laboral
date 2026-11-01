@@ -1,6 +1,10 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it } from 'vitest';
-import { iniciarUmami, limpiarUrl, umamiBeforeSend } from '../../src/lib/analytics';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { _reiniciarParaPruebas, consentState, iniciarGoogle, limpiarUrl, registrarPagina } from '../../src/lib/analytics';
+import { saveConsent } from '../../src/lib/consent';
+
+type W = Window & { dataLayer?: IArguments[]; gtag?: unknown; adsbygoogle?: { requestNonPersonalizedAds?: number } };
+const llamadas = () => ((window as W).dataLayer ?? []).map((a) => Array.from(a));
 
 describe('limpiarUrl', () => {
   it('tapa el enlace privado de seguimiento', () => {
@@ -11,34 +15,56 @@ describe('limpiarUrl', () => {
     expect(limpiarUrl('https://tuvozlaboral.com/cuenta?code=xyz&siguiente=/x#y')).toBe('https://tuvozlaboral.com/cuenta');
     expect(limpiarUrl('/derechos?q=despido&tema=jornada')).toBe('/derechos');
   });
-  it('deja igual las direcciones públicas', () => {
-    expect(limpiarUrl('/derechos/reforma-laboral-ley-2466-que-cambio')).toBe('/derechos/reforma-laboral-ley-2466-que-cambio');
+});
+
+describe('consentState', () => {
+  it('sin decisión todo está denegado', () => {
+    expect(consentState(null)).toEqual({ analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+  });
+  it('concede solo lo aceptado', () => {
+    expect(consentState({ analytics: true, ads: false, fecha: '' })).toEqual({ analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
   });
 });
 
-describe('Umami', () => {
-  afterEach(() => document.querySelectorAll('script[data-website-id]').forEach((s) => s.remove()));
+describe('Google Analytics', () => {
+  beforeEach(() => {
+    _reiniciarParaPruebas();
+    localStorage.clear();
+    delete (window as W).dataLayer;
+    delete (window as W).gtag;
+    document.querySelectorAll('script[src*="googletagmanager"]').forEach((s) => s.remove());
+  });
+  afterEach(() => localStorage.clear());
 
-  it('limpia la dirección y la procedencia antes de enviar', () => {
-    const out = umamiBeforeSend('event', { url: '/seguimiento/tok?x=1', referrer: 'https://tuvozlaboral.com/cuenta?code=abc', title: 'T' });
-    expect(out).toEqual({ url: '/seguimiento/[enlace]', referrer: 'https://tuvozlaboral.com/cuenta', title: 'T' });
+  it('no carga nada sin identificador', () => {
+    expect(iniciarGoogle(undefined)).toBe(false);
+    expect(document.querySelector('script[src*="googletagmanager"]')).toBeNull();
   });
 
-  it('no hace nada si no está configurado', () => {
-    expect(iniciarUmami({})).toBe(false);
-    expect(document.querySelector('script[data-website-id]')).toBeNull();
+  it('carga gtag con todo denegado, sin página vista automática y sin anuncios personalizados', () => {
+    expect(iniciarGoogle('G-PRUEBA')).toBe(true);
+    expect(document.querySelector<HTMLScriptElement>('script[src*="googletagmanager"]')!.src).toContain('id=G-PRUEBA');
+    const c = llamadas();
+    expect(c[0]).toEqual(['consent', 'default', expect.objectContaining({ analytics_storage: 'denied', ad_storage: 'denied' })]);
+    expect(c.find((x) => x[0] === 'config')).toEqual(['config', 'G-PRUEBA', { send_page_view: false, anonymize_ip: true }]);
+    expect((window as W).adsbygoogle!.requestNonPersonalizedAds).toBe(1);
   });
 
-  it('inserta el script una sola vez, con el filtro y sin parámetros', () => {
-    expect(iniciarUmami({ url: 'https://estadisticas.tutuvozlaboral.comm/', websiteId: 'abc-123', domains: 'tutuvozlaboral.comm' })).toBe(true);
-    iniciarUmami({ url: 'https://estadisticas.tutuvozlaboral.comm', websiteId: 'abc-123' });
-    const scripts = document.querySelectorAll<HTMLScriptElement>('script[data-website-id]');
-    expect(scripts).toHaveLength(1);
-    const s = scripts[0];
-    expect(s.src).toBe('https://estadisticas.tutuvozlaboral.comm/script.js');
-    expect(s.dataset.websiteId).toBe('abc-123');
-    expect(s.dataset.excludeSearch).toBe('true');
-    expect(s.dataset.domains).toBe('tutuvozlaboral.comm');
-    expect(typeof (window as unknown as Record<string, unknown>)[s.dataset.beforeSend!]).toBe('function');
+  it('aplica la decisión guardada y las nuevas decisiones', () => {
+    saveConsent({ analytics: true, ads: false });
+    iniciarGoogle('G-PRUEBA');
+    expect(llamadas().find((x) => x[0] === 'consent' && x[1] === 'update')![2]).toMatchObject({ analytics_storage: 'granted', ad_storage: 'denied' });
+    saveConsent({ analytics: true, ads: true });
+    const updates = llamadas().filter((x) => x[0] === 'consent' && x[1] === 'update');
+    expect(updates[updates.length - 1][2]).toMatchObject({ ad_storage: 'granted', ad_personalization: 'granted' });
+    expect((window as W).adsbygoogle!.requestNonPersonalizedAds).toBe(0);
+  });
+
+  it('envía las páginas vistas con la dirección limpia', () => {
+    iniciarGoogle('G-PRUEBA');
+    registrarPagina('/seguimiento/token-secreto', 'Seguimiento');
+    const ev = llamadas().find((x) => x[0] === 'event' && x[1] === 'page_view')!;
+    expect(ev[2]).toMatchObject({ page_path: '/seguimiento/[enlace]', page_title: 'Seguimiento' });
+    expect(String((ev[2] as { page_location: string }).page_location)).not.toContain('token-secreto');
   });
 });

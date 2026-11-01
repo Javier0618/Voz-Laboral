@@ -1,11 +1,15 @@
 /**
- * Medición de visitas con Umami (sin cookies), alojado en el propio VPS.
+ * Google Analytics 4 con Consent Mode v2 y preparación para Google AdSense.
  *
- * Se activa solo si al compilar existen VITE_UMAMI_URL y VITE_UMAMI_WEBSITE_ID.
- * Antes de enviar cada visita, limpiarUrl:
- * - quita todos los parámetros (?code= del inicio de sesión, búsquedas…) y el ancla;
- * - tapa el enlace privado de seguimiento de quien compartió sin cuenta.
+ * - Solo se carga si al compilar existe VITE_GA_ID (p. ej. G-XXXXXXXXXX).
+ * - Todo empieza denegado; se concede solo lo que la persona acepte en el
+ *   aviso de cookies (src/components/CookieConsent.tsx).
+ * - Las páginas vistas se envían a mano, con la dirección pasada por
+ *   limpiarUrl: sin parámetros (?code= del inicio de sesión, búsquedas) y con
+ *   el enlace privado de seguimiento tapado.
  */
+import { onConsentChange, readConsent, type Consent } from './consent';
+
 export function limpiarUrl(url: string): string {
   if (!url) return url;
   const absoluta = /^[a-z][a-z0-9+.-]*:\/\//i.test(url);
@@ -16,40 +20,80 @@ export function limpiarUrl(url: string): string {
   return absoluta ? u.toString() : u.pathname;
 }
 
-type UmamiPayload = { url?: string; referrer?: string; [k: string]: unknown };
+type Gtag = (...args: unknown[]) => void;
+type W = Window & { dataLayer?: unknown[]; gtag?: Gtag; adsbygoogle?: unknown[] & { requestNonPersonalizedAds?: number } };
 
-/** Función que Umami llama antes de cada envío (atributo data-before-send). */
-export function umamiBeforeSend(_type: string, payload: UmamiPayload): UmamiPayload {
+export function gaId(): string | undefined {
+  return (import.meta.env.VITE_GA_ID as string | undefined) || undefined;
+}
+export function adsenseClient(): string | undefined {
+  return (import.meta.env.VITE_ADSENSE_CLIENT as string | undefined) || undefined;
+}
+/** true si hay algún servicio opcional configurado: solo entonces se pide consentimiento. */
+export function hayServiciosOpcionales(): boolean {
+  return Boolean(gaId() || adsenseClient());
+}
+
+export function consentState(c: Consent | null) {
+  const g = (ok: boolean | undefined) => (ok ? 'granted' : 'denied');
   return {
-    ...payload,
-    ...(payload.url ? { url: limpiarUrl(payload.url) } : {}),
-    ...(payload.referrer ? { referrer: limpiarUrl(payload.referrer) } : {}),
+    analytics_storage: g(c?.analytics),
+    ad_storage: g(c?.ads),
+    ad_user_data: g(c?.ads),
+    ad_personalization: g(c?.ads),
   };
 }
 
-export interface UmamiConfig { url?: string; websiteId?: string; domains?: string }
+let iniciado = false;
 
-const HOOK = '__vozlaboralUmamiBeforeSend';
+/** Carga Google Analytics con todo denegado por defecto y aplica la elección guardada. */
+export function iniciarGoogle(id = gaId()): boolean {
+  if (typeof window === 'undefined' || !id || iniciado) return iniciado;
+  iniciado = true;
+  const w = window as W;
+  w.dataLayer = w.dataLayer || [];
+  w.gtag = function gtag() {
+    // gtag necesita el objeto «arguments», no un arreglo.
+    // eslint-disable-next-line prefer-rest-params
+    w.dataLayer!.push(arguments);
+  };
+  w.gtag('consent', 'default', { ...consentState(null), wait_for_update: 500 });
+  const guardado = readConsent();
+  if (guardado) w.gtag('consent', 'update', consentState(guardado));
+  w.gtag('js', new Date());
+  w.gtag('config', id, { send_page_view: false, anonymize_ip: true });
+  aplicarAnuncios(guardado);
+  onConsentChange((c) => {
+    w.gtag?.('consent', 'update', consentState(c));
+    aplicarAnuncios(c);
+  });
 
-/** Inserta el script de Umami una sola vez. Devuelve false si no está configurado. */
-export function iniciarUmami(
-  cfg: UmamiConfig = {
-    url: import.meta.env.VITE_UMAMI_URL,
-    websiteId: import.meta.env.VITE_UMAMI_WEBSITE_ID,
-    domains: import.meta.env.VITE_UMAMI_DOMAINS,
-  },
-): boolean {
-  if (typeof document === 'undefined' || !cfg.url || !cfg.websiteId) return false;
-  if (document.querySelector('script[data-website-id]')) return true;
-  (window as unknown as Record<string, unknown>)[HOOK] = umamiBeforeSend;
   const s = document.createElement('script');
-  s.defer = true;
-  s.src = `${cfg.url.replace(/\/$/, '')}/script.js`;
-  s.dataset.websiteId = cfg.websiteId;
-  s.dataset.beforeSend = HOOK;
-  s.dataset.excludeSearch = 'true';
-  s.dataset.excludeHash = 'true';
-  if (cfg.domains) s.dataset.domains = cfg.domains;
+  s.async = true;
+  s.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
   document.head.appendChild(s);
   return true;
+}
+
+/** AdSense: sin consentimiento de publicidad, solo anuncios no personalizados. */
+function aplicarAnuncios(c: Consent | null) {
+  const w = window as W;
+  w.adsbygoogle = w.adsbygoogle || ([] as unknown as W['adsbygoogle']);
+  w.adsbygoogle!.requestNonPersonalizedAds = c?.ads ? 0 : 1;
+}
+
+/** Envía una página vista con la dirección limpia. */
+export function registrarPagina(path: string, title?: string) {
+  const w = window as W;
+  if (!iniciado || !w.gtag) return;
+  w.gtag('event', 'page_view', {
+    page_location: limpiarUrl(window.location.origin + path),
+    page_path: limpiarUrl(path),
+    page_title: title ?? document.title,
+  });
+}
+
+/** Solo para pruebas. */
+export function _reiniciarParaPruebas() {
+  iniciado = false;
 }

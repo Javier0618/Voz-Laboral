@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { brand } from '../config/brand';
 import { ThemeToggle } from './ThemeToggle';
+import { hayServiciosOpcionales } from '../lib/analytics';
+import { openConsentPreferences } from '../lib/consent';
 import { useAuth } from '../auth/AuthProvider';
 import { NotificationBell } from './NotificationBell';
 
@@ -198,6 +200,10 @@ function Footer() {
             <li><Link className="hover:text-white hover:underline" to="/politicas/privacidad">Aviso de privacidad</Link></li>
             <li><Link className="hover:text-white hover:underline" to="/politicas/terminos">Términos de uso</Link></li>
             <li><Link className="hover:text-white hover:underline" to="/politicas/reglas">Reglas de publicación</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/politicas/cookies">Política de cookies</Link></li>
+            {hayServiciosOpcionales() && (
+              <li><button type="button" className="text-left hover:text-white hover:underline" onClick={openConsentPreferences}>Preferencias de cookies</button></li>
+            )}
           </ul>
         </div>
         <div>

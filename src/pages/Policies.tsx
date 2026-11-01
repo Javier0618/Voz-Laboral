@@ -1,7 +1,29 @@
+import type { ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { brand } from '../config/brand';
 import { policies } from '../content/policies';
 import { EmptyState } from '../components/ui';
+
+const LINK = /\[([^\]]+)\]\(((?:https:\/\/|\/)[^)\s]*)\)/g;
+
+/** Admite enlaces con el formato [texto](https://…) o [texto](/ruta) dentro de un párrafo. */
+export function TextWithLinks({ text }: { text: string }) {
+  const parts: ReactNode[] = [];
+  let last = 0;
+  for (const m of text.matchAll(LINK)) {
+    const [whole, label, href] = m;
+    const at = m.index ?? 0;
+    if (at > last) parts.push(text.slice(last, at));
+    parts.push(
+      href.startsWith('/')
+        ? <Link key={at} to={href} className="btn-link">{label}</Link>
+        : <a key={at} href={href} target="_blank" rel="noopener noreferrer" className="btn-link">{label}<span className="sr-only"> (se abre en otra pestaña)</span></a>,
+    );
+    last = at + whole.length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return <>{parts}</>;
+}
 
 export default function PolicyPage() {
   const { slug = '' } = useParams();
@@ -23,7 +45,7 @@ export default function PolicyPage() {
         {policy.sections.map((s) => (
           <section key={s.heading} className="mt-10 max-w-prose">
             <h2 className="text-2xl">{s.heading}</h2>
-            {s.paragraphs.map((p, i) => <p key={i} className="mt-3 leading-7 text-ink">{p}</p>)}
+            {s.paragraphs.map((p, i) => <p key={i} className="mt-3 leading-7 text-ink"><TextWithLinks text={p} /></p>)}
           </section>
         ))}
         {brand.contactEmail && (

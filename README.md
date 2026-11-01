@@ -62,9 +62,8 @@ Sin variables de Supabase la app arranca igualmente y muestra un aviso de config
 | `VITE_SUPABASE_URL` | URL del proyecto (Settings → API) |
 | `VITE_SUPABASE_ANON_KEY` | Clave pública `anon` / *publishable*. Su seguridad depende de RLS. |
 | `VITE_CONTACT_EMAIL` | Correo público de contacto (opcional) |
-| `VITE_UMAMI_URL` | Dirección de tu instancia de Umami, por ejemplo `https://estadisticas.tuvozlaboral.com` (opcional; sin ella no se mide nada) |
-| `VITE_UMAMI_WEBSITE_ID` | «Website ID» que da Umami al añadir el sitio (opcional) |
-| `VITE_UMAMI_DOMAINS` | Dominio público, para que solo se cuenten visitas reales y no las de pruebas en local (opcional) |
+| `VITE_GA_ID` | Identificador de Google Analytics 4 (`G-…`), opcional. Si existe, se carga Analytics con Consent Mode v2 y aparece el aviso de cookies. |
+| `VITE_ADSENSE_CLIENT` | Identificador de Google AdSense (`ca-pub-…`), opcional y para más adelante. También activa el aviso de cookies. |
 | `SITE_URL` | Dominio público para generar `sitemap.xml` y `robots.txt` al compilar. Si no la defines, se usa `https://tuvozlaboral.com`. |
 | `VITE_SITE_URL` | Dominio público para la dirección canónica y las vistas previas al compartir. Por defecto, `https://tuvozlaboral.com`; cámbialo solo para un entorno de pruebas. |
 

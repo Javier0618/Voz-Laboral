@@ -24,7 +24,7 @@ if (!site) {
 const urls = new Map([
   ['/', null], ['/empresas', null], ['/experiencias', null], ['/derechos', null], ['/como-funciona', null],
   ['/compartir', null], ['/politicas/reglas', null], ['/politicas/terminos', null], ['/politicas/privacidad', null],
-  ['/politicas/tratamiento-de-datos', null],
+  ['/politicas/tratamiento-de-datos', null], ['/politicas/cookies', null],
 ]);
 
 async function get(path, init) {
