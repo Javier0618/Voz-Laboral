@@ -1,4 +1,4 @@
-// Editor de una guía laboral («Guías»), solo para administración. La base de
+// Editor de una guía de «Guías», solo para administración. La base de
 // datos impone los permisos: este panel solo los refleja.
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -12,7 +12,6 @@ import { prepareCoverImage } from '../lib/image';
 import { formatDate, todayLocal } from '../lib/format';
 import type { AppError } from '../lib/supabase';
 import { GuideBody } from '../components/GuideBody';
-import { GUIDE_TEMPLATE } from '../lib/guideTemplate';
 import { Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, useAsync } from '../components/ui';
 
 const statusLabel: Record<GuideStatus, string> = {
@@ -32,7 +31,7 @@ export default function GuideEditor() {
   return <Editor key={guide.data.id} guide={guide.data} onSaved={guide.reload} />;
 }
 
-function Editor({ guide: g, onSaved }: { guide: GuideDetailDetail; onSaved: () => void }) {
+function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void }) {
   const { session } = useAuth();
   const categories = useAsync(() => listCategories(), []);
   const [form, setForm] = useState({ title: g.title, summary: g.summary, content: g.content, category_slug: g.category_slug ?? '' });
@@ -103,7 +102,7 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetailDetail; onSaved: () =
     const at = caret.current ?? form.content.length;
     const before = form.content.slice(0, at).replace(/\s*$/, '');
     const after = form.content.slice(at).replace(/^\s*/, '');
-    setForm({ ...form, content: `${before}\ co\n\n${markdown}\n\n${after}`.trim() });
+    setForm({ ...form, content: `${before}\n\n${markdown}\n\n${after}`.trim() });
     setImageOpen(false);
     setNotice('Imagen insertada. Guarda los cambios para conservarla.');
   }
@@ -164,35 +163,8 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetailDetail; onSaved: () =
                   <button type="button" className="btn-secondary" onClick={() => { caret.current = textarea.current?.selectionStart ?? null; setImageOpen(true); }}>
                     Insertar imagen
                   </button>
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    title="Rellena el contenido con la estructura editorial recomendada"
-                    onClick={() => {
-                      const cur = form.content.trim();
-                      if (cur && !window.confirm('¿Reemplazar el contenido actual por la plantilla editorial? Se borrará el texto que hay ahora.')) return;
-                      setForm({ ...form, content: GUIDE_TEMPLATE });
-                      setView('editar');
-                      setNotice('Plantilla insertada. Completa cada sección y guarda los cambios.');
-                    }}
-                  >
-                    Insertar plantilla de guía
-                  </button>
-                  <p className="text-sm text-slate">Separa los bloques con una línea en blanco. La plantilla solo aparece en modo <strong>Editar</strong>.</p>
+                  <p className="text-sm text-slate">Separa los bloques con una línea en blanco. Puedes usar ## para títulos, - para listas y > para notas.</p>
                 </div>
-                <details className="mb-3 rounded border border-line bg-mist px-4 py-3 text-sm">
-                  <summary className="cursor-pointer font-semibold text-ink">Guía de formato</summary>
-                  <dl className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-[12rem_minmax(0,1fr)]">
-                    <dt><code>## Título</code></dt><dd className="text-slate">Subtítulo de sección. Aparece en el índice «En esta guía».</dd>
-                    <dt><code>### Título</code></dt><dd className="text-slate">Subtítulo menor dentro de una sección.</dd>
-                    <dt><code>- texto</code></dt><dd className="text-slate">Lista con viñetas (una línea por punto).</dd>
-                    <dt><code>1. texto</code></dt><dd className="text-slate">Lista numerada, para pasos en orden.</dd>
-                    <dt><code>&gt; texto</code></dt><dd className="text-slate">Recuadro «Importante» para una advertencia o un dato clave.</dd>
-                    <dt><code>**texto**</code></dt><dd className="text-slate">Negrita.</dd>
-                    <dt><code>[texto](https://…)</code></dt><dd className="text-slate">Enlace a una fuente oficial. Solo se aceptan direcciones https.</dd>
-                    <dt><code>[texto](/derechos/slug)</code></dt><dd className="text-slate">Enlace a otra guía de VozLaboral. Usa el slug que aparece en su dirección.</dd>
-                  </dl>
-                </details>
                 <label htmlFor="guia-contenido" className="sr-only">Contenido de la guía</label>
                 <textarea
                   id="guia-contenido"
@@ -282,9 +254,7 @@ function CoverPanel({ guide: g, onChange }: { guide: GuideDetail; onChange: () =
   return (
     <section aria-labelledby="portada-guia">
       <h2 id="portada-guia" className="border-b border-ink/80 pb-3 font-sans text-base font-semibold">Imagen de portada</h2>
-      <p className="mt-3 text-sm text-slate">
-        Aparece en el listado de guías, en la portada del sitio y arriba de la guía. Se recorta en horizontal (1200 × 628) y se le quitan los metadatos.
-      </p>
+      <p className="mt-3 text-sm text-slate">Aparece en el listado de guías y arriba de la guía. Se recorta a 1200 × 628.</p>
       <div className="mt-4 overflow-hidden rounded border border-line bg-mist">
         {g.cover_url ? (
           <img src={g.cover_url} alt="" className="block aspect-[1200/628] w-full object-cover" />
@@ -293,7 +263,7 @@ function CoverPanel({ guide: g, onChange }: { guide: GuideDetail; onChange: () =
         )}
       </div>
       <div className="mt-4">
-        <Field label="Descripción de la imagen" optional hint="Para lectores de pantalla. Déjala vacía si la imagen es solo decorativa.">
+        <Field label="Descripción de la imagen" optional>
           {(p) => <input {...p} className="input" value={alt} maxLength={200} onChange={(e) => setAlt(e.target.value)} />}
         </Field>
       </div>
@@ -316,7 +286,6 @@ function CoverPanel({ guide: g, onChange }: { guide: GuideDetail; onChange: () =
           </button>
         )}
       </div>
-      <p className="mt-2 text-xs text-slate">PNG, JPG o WebP. No uses fotos de personas reconocibles ni documentos con datos personales.</p>
       {error && <div className="mt-3"><Alert tone="error">{error}</Alert></div>}
       {notice && <div className="mt-3"><Alert tone="success">{notice}</Alert></div>}
     </section>
@@ -357,7 +326,7 @@ function ImageDialog({ open, slug, onClose, onInsert }: { open: boolean; slug: s
   return (
     <Dialog open={open} onClose={onClose} title="Insertar imagen">
       <form onSubmit={submit} noValidate className="space-y-4">
-        <Field label="Imagen" error={errors.file} hint="PNG, JPG o WebP de hasta 2 MB.">
+        <Field label="Imagen" error={errors.file}>
           {(p) => <input {...p} type="file" accept="image/png,image/jpeg,image/webp" className="block w-full text-sm" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />}
         </Field>
         <Field label="Descripción" error={errors.alt}>
@@ -410,7 +379,7 @@ function Sources({ guide: g, onChange }: { guide: GuideDetail; onChange: () => v
   }
 
   return (
-    <aside aria-labelledby="fuentes" className="space-y-5 lg:border-l lg:border-line lg:pl-8">
+    <aside aria-labelledby="fuentes" className="space-y-5">
       <h2 id="fuentes" className="border-b border-ink/80 pb-3 font-sans text-base font-semibold">Fuentes oficiales</h2>
       {g.legal_resource_sources.length === 0 ? (
         <p className="text-sm text-slate">Sin fuentes. Una guía no se puede publicar sin al menos una.</p>
@@ -427,16 +396,24 @@ function Sources({ guide: g, onChange }: { guide: GuideDetail; onChange: () => v
       )}
       <form onSubmit={add} noValidate className="space-y-3 rounded bg-mist p-4">
         <p className="text-sm font-semibold">Añadir fuente</p>
-        <Field label="Nombre">{(p) => <input {...p} className="input" placeholder="Código Sustantivo del Trabajo, art. 57" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} />}</Field>
-        <Field label="Publicada por">{(p) => <input {...p} className="input" value={form.publisher} onChange={(e) => setForm({ ...form, publisher: e.target.value })} />}</Field>
-        <Field label="Dirección">{(p) => <input {...p} type="url" className="input" placeholder="https://…" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} />}</Field>
-        <Field label="Fecha de consulta">{(p) => <input {...p} type="date" className="input" max={today} value={form.accessed_at} onChange={(e) => setForm({ ...form, accessed_at: e.target.value })} />}</Field>
+        <Field label="Nombre">
+          {(p) => <input {...p} className="input" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} />}
+        </Field>
+        <Field label="Publicada por">
+          {(p) => <input {...p} className="input" value={form.publisher} onChange={(e) => setForm({ ...form, publisher: e.target.value })} />}
+        </Field>
+        <Field label="Dirección">
+          {(p) => <input {...p} type="url" className="input" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} />}
+        </Field>
+        <Field label="Fecha de consulta">
+          {(p) => <input {...p} type="date" className="input" max={today} value={form.accessed_at} onChange={(e) => setForm({ ...form, accessed_at: e.target.value })} />}
+        </Field>
         {error && <Alert tone="error">{error}</Alert>}
         <button type="submit" className="btn-secondary w-full" disabled={busy}>Añadir fuente</button>
       </form>
       <ConfirmDialog open={removing !== null} onClose={() => setRemoving(null)} title="¿Quitar esta fuente?" confirmLabel="Quitar fuente" busy={busy}
         onConfirm={() => removing && remove(removing)}>
-        La guía dejará de citarla. Si es la única fuente de una guía publicada, retírala antes para revisión.
+        La guía dejará de citarla.
       </ConfirmDialog>
     </aside>
   );
