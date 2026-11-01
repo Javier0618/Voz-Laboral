@@ -70,3 +70,18 @@ La dirección es sobria y confiable: ni red social ni portal gubernamental.
   - flechas en los botones;
   - numeración donde no hay una secuencia real. Solo «Cómo funciona la publicación» está numerada, porque es un proceso.
 - **Estados de moderación**: chips con texto y un punto de color, nunca solo color. Cada estado tiene su explicación al pasar el cursor y en «Mi cuenta».
+
+## Guías: borrado definitivo (noviembre de 2026)
+
+- La administración puede **borrar** una guía desde Moderación → Guías, además de archivarla. El borrado es definitivo: se van también sus fuentes, sus visitas y sus imágenes.
+- El borrado pasa por la función `public.delete_legal_resource` (migración `20261101001800_delete_guide.sql`). La función:
+  - exige rol de administración y un motivo;
+  - deja en `moderation_events` el estado previo, el título y la dirección de la guía.
+- El borrado directo de la tabla `legal_resources` quedó cerrado incluso para la administración. Así ningún borrado queda sin registro.
+- Si la guía está publicada, el panel avisa de que su enlace dejará de funcionar. Para ocultar una guía sin perderla, usa «Archivar».
+
+## Calculadoras como herramienta (Fase 5)
+
+- **5.1 y 5.2:** cada calculadora enlaza a su guía («Lee la guía sobre este tema») y explica su fórmula al final («Cómo se calcula»), con un ejemplo. Las dos secciones se ven sin necesidad de calcular. El texto de «Cómo se calcula» describe exactamente lo que hace el código de `src/lib`. Si cambias una fórmula, actualiza también su explicación.
+- **5.3:** no se crean calculadoras nuevas hasta tener al menos 10 guías sólidas con la plantilla editorial. La prioridad es el contenido.
+- **5.4:** la liquidación sigue el Código Sustantivo del Trabajo (convención 30/360). No se añade una opción con reglas propias de cada empresa, como su forma de pagar el dominical: añadiría confusión legal sin aportar claridad. Si una empresa paga más que el mínimo legal, la guía lo explica, pero la calculadora estima el mínimo.

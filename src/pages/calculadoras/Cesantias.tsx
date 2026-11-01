@@ -5,6 +5,7 @@ import { Alert, Field, PageHeader } from '../../components/ui';
 import { CalcSharePrompt } from '../../components/CalcSharePrompt';
 import { PrintButton } from '../../components/PrintButton';
 import { CalculatorGuideLinks } from '../../components/CalculatorGuideLinks';
+import { ComoSeCalcula } from '../../components/ComoSeCalcula';
 
 const pesos = (n: number) => `$${Math.round(n).toLocaleString('es-CO')}`;
 const soloDigitos = (s: string) => s.replace(/\D/g, '');
@@ -160,6 +161,30 @@ export default function CesantiasPage() {
           )}
         </section>
       </div>
+
+      <ComoSeCalcula>
+        <p>
+          Las cesantías equivalen a un mes de salario por cada año trabajado (art. 249 del CST). Sobre ellas, el empleador te debe intereses
+          del 12 % anual (Ley 52 de 1975).
+        </p>
+        <h3>Las fórmulas</h3>
+        <p><strong>Cesantías = base × días trabajados en el año ÷ 360</strong></p>
+        <p><strong>Intereses = cesantías × días trabajados × 12 % ÷ 360</strong></p>
+        <ul>
+          <li><strong>Base:</strong> tu salario más el promedio de pagos variables, y el auxilio de transporte si ganas hasta 2 salarios mínimos.</li>
+          <li><strong>Días:</strong> hasta 360 por año. Si no trabajaste el año completo, el cálculo es proporcional.</li>
+        </ul>
+        <h3>Fechas</h3>
+        <ul>
+          <li>Los intereses se te pagan directamente a más tardar el 31 de enero.</li>
+          <li>Las cesantías se consignan en tu fondo antes del 15 de febrero (art. 99 de la Ley 50 de 1990).</li>
+        </ul>
+        <h3>Ejemplo</h3>
+        <p>
+          Con una base de $2.000.000 (salario mínimo más auxilio de transporte de 2026) y el año completo: cesantías de $2.000.000 e
+          intereses de $2.000.000 × 360 × 12 % ÷ 360 = $240.000.
+        </p>
+      </ComoSeCalcula>
 
       <CalculatorGuideLinks path="/calculadoras/cesantias" />
     </div>

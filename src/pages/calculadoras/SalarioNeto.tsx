@@ -5,6 +5,7 @@ import { Alert, Field, PageHeader } from '../../components/ui';
 import { CalcSharePrompt } from '../../components/CalcSharePrompt';
 import { PrintButton } from '../../components/PrintButton';
 import { CalculatorGuideLinks } from '../../components/CalculatorGuideLinks';
+import { ComoSeCalcula } from '../../components/ComoSeCalcula';
 
 const pesos = (n: number) => `$${Math.round(n).toLocaleString('es-CO')}`;
 const soloDigitos = (s: string) => s.replace(/\D/g, '');
@@ -181,6 +182,31 @@ export default function SalarioNetoPage() {
           )}
         </section>
       </div>
+
+      <ComoSeCalcula>
+        <p>El salario neto es lo que recibes después de los descuentos de ley. La calculadora sigue estos pasos:</p>
+        <ol>
+          <li>
+            <strong>Ingreso base de cotización (IBC).</strong> Es tu salario más los pagos salariales. Si los pagos no salariales superan el
+            40 % del total, el exceso también cuenta. El IBC no puede ser menor a 1 salario mínimo ni mayor a 25.
+          </li>
+          <li><strong>Salud:</strong> 4 % del IBC. <strong>Pensión:</strong> 4 % del IBC (Ley 100 de 1993).</li>
+          <li>
+            <strong>Fondo de Solidaridad Pensional:</strong> 1 % si ganas desde 4 salarios mínimos. Sube hasta el 2 % a partir de 16 salarios
+            mínimos.
+          </li>
+          <li>
+            <strong>Retención en la fuente:</strong> al ingreso, menos salud, pensión y solidaridad, se le resta la renta exenta del 25 %
+            (con su tope mensual) y tus deducciones voluntarias. Al resultado se le aplica la tabla del art. 383 del Estatuto Tributario: no hay
+            retención hasta 95 UVT.
+          </li>
+          <li><strong>Auxilio de transporte:</strong> si ganas hasta 2 salarios mínimos, se suma a lo que recibes.</li>
+        </ol>
+        <p>
+          Es un cálculo orientativo: tu retención real puede variar según tus dependientes, intereses de vivienda, medicina prepagada y otras
+          deducciones que reporte tu empleador.
+        </p>
+      </ComoSeCalcula>
 
       <CalculatorGuideLinks path="/calculadoras/salario-neto" />
     </div>

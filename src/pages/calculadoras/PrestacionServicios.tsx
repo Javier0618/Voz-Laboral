@@ -5,6 +5,7 @@ import { Alert, Field, PageHeader } from '../../components/ui';
 import { CalcSharePrompt } from '../../components/CalcSharePrompt';
 import { PrintButton } from '../../components/PrintButton';
 import { CalculatorGuideLinks } from '../../components/CalculatorGuideLinks';
+import { ComoSeCalcula } from '../../components/ComoSeCalcula';
 
 const pesos = (n: number) => `$${Math.round(n).toLocaleString('es-CO')}`;
 const soloDigitos = (s: string) => s.replace(/\D/g, '');
@@ -202,6 +203,31 @@ export default function PrestacionServiciosPage() {
           )}
         </section>
       </div>
+
+      <ComoSeCalcula>
+        <p>Si trabajas por prestación de servicios, tú pagas tu seguridad social. La calculadora sigue estos pasos:</p>
+        <ol>
+          <li>
+            <strong>Ingreso base de cotización (IBC):</strong> el 40 % del valor mensual de tus honorarios. No puede ser menor a 1 salario
+            mínimo ni mayor a 25.
+          </li>
+          <li><strong>Salud:</strong> 12,5 % del IBC. <strong>Pensión:</strong> 16 % del IBC.</li>
+          <li>
+            <strong>Riesgos laborales (ARL):</strong> según la clase de riesgo, desde 0,522 % (riesgo I) hasta 6,96 % (riesgo V) del IBC. En
+            riesgo IV y V la paga el contratante.
+          </li>
+          <li><strong>Retención en la fuente:</strong> el porcentaje que indiques, aplicado sobre los honorarios.</li>
+        </ol>
+        <p><strong>Neto = honorarios − seguridad social a tu cargo − retención</strong></p>
+        <p>
+          Ejemplo: con honorarios de $5.000.000, el IBC es $2.000.000; pagas $250.000 de salud, $320.000 de pensión y $10.440 de ARL en
+          riesgo I.
+        </p>
+        <p>
+          Si en la práctica cumples horario, recibes órdenes y trabajas de forma personal, podría existir un contrato de trabajo aunque
+          firmaras uno de prestación de servicios.
+        </p>
+      </ComoSeCalcula>
 
       <CalculatorGuideLinks path="/calculadoras/prestacion-servicios" />
     </div>

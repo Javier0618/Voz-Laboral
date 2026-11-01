@@ -5,6 +5,7 @@ import { Alert, Field, PageHeader } from '../../components/ui';
 import { CalcSharePrompt } from '../../components/CalcSharePrompt';
 import { PrintButton } from '../../components/PrintButton';
 import { CalculatorGuideLinks } from '../../components/CalculatorGuideLinks';
+import { ComoSeCalcula } from '../../components/ComoSeCalcula';
 
 const pesos = (n: number) => `$${Math.round(n).toLocaleString('es-CO')}`;
 const soloDigitos = (s: string) => s.replace(/\D/g, '');
@@ -179,6 +180,25 @@ export default function PrimaPage() {
           )}
         </section>
       </div>
+
+      <ComoSeCalcula>
+        <p>
+          La prima de servicios equivale a un mes de salario por cada año trabajado y se paga en dos partes: la primera a más tardar el 30
+          de junio y la segunda a más tardar el 20 de diciembre (art. 306 del CST). Esta calculadora estima la prima de un semestre.
+        </p>
+        <h3>La fórmula</h3>
+        <p><strong>Prima = base × días trabajados en el semestre ÷ 360</strong></p>
+        <ul>
+          <li><strong>Base:</strong> tu salario más el promedio de pagos variables (horas extra, recargos, comisiones).</li>
+          <li><strong>Auxilio de transporte:</strong> si ganas hasta 2 salarios mínimos, se suma a la base.</li>
+          <li><strong>Días:</strong> hasta 180 por semestre. Si entraste a mitad de semestre, se cuenta solo el tiempo trabajado.</li>
+        </ul>
+        <h3>Ejemplo</h3>
+        <p>
+          Con el salario mínimo de 2026 ($1.750.905) y el auxilio de transporte ($249.095), la base es $2.000.000. Por un semestre completo:
+          $2.000.000 × 180 ÷ 360 = $1.000.000.
+        </p>
+      </ComoSeCalcula>
 
       <CalculatorGuideLinks path="/calculadoras/prima" />
     </div>

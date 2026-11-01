@@ -9,6 +9,7 @@ import { TextoCst } from '../components/ArticulosCst';
 import { CalcSharePrompt } from '../components/CalcSharePrompt';
 import { PrintButton } from '../components/PrintButton';
 import { CalculatorGuideLinks } from '../components/CalculatorGuideLinks';
+import { ComoSeCalcula } from '../components/ComoSeCalcula';
 
 const pesos = (n: number) => `$${n.toLocaleString('es-CO')}`;
 const soloDigitos = (s: string) => s.replace(/\D/g, '');
@@ -138,6 +139,40 @@ export default function Liquidacion() {
           )}
         </section>
       </div>
+
+      <ComoSeCalcula>
+        <p>
+          La calculadora usa la convención de nómina de meses de 30 días y años de 360. Suma estos conceptos:
+        </p>
+        <ul>
+          <li>
+            <strong>Cesantías del año en curso:</strong> base × días trabajados en el año ÷ 360. Se presume que las de años anteriores ya
+            se consignaron en tu fondo.
+          </li>
+          <li><strong>Intereses de las cesantías:</strong> cesantías × días × 12 % ÷ 360.</li>
+          <li><strong>Prima del semestre en curso:</strong> base × días trabajados en el semestre ÷ 360.</li>
+          <li>
+            <strong>Vacaciones pendientes:</strong> 15 días hábiles por año trabajado, menos los que ya disfrutaste, pagados con tu salario fijo
+            ÷ 30.
+          </li>
+          <li><strong>Salario pendiente:</strong> los días trabajados que aún no te pagaron, con su auxilio de transporte si aplica.</li>
+          <li>
+            <strong>Indemnización (solo si te despidieron sin justa causa):</strong> en contrato a término fijo, los salarios del tiempo que
+            faltaba; en contrato indefinido, 30 días por el primer año y 20 por cada año adicional, o 20 y 15 si ganas 10 salarios mínimos o
+            más (art. 64 del CST).
+          </li>
+        </ul>
+        <p>
+          La <strong>base</strong> de cesantías, intereses y prima es tu salario más el promedio de pagos variables, y el auxilio de
+          transporte si ganas hasta 2 salarios mínimos. Las vacaciones no incluyen el auxilio de transporte.
+        </p>
+        <p>
+          Sobre el salario pendiente se descuentan salud y pensión (4 % cada una) y, si ganas desde 4 salarios mínimos, el Fondo de
+          Solidaridad Pensional. No incluye la retención en la fuente.
+        </p>
+      </ComoSeCalcula>
+
+      <CalculatorGuideLinks path="/liquidacion" />
     </div>
   );
 }
@@ -175,8 +210,6 @@ function Desprendible({ r }: { r: ResultadoLiquidacion }) {
           mensaje="Tu testimonio ayuda a que otras personas conozcan el cumplimiento laboral real de la empresa."
         />
       </div>
-
-      <CalculatorGuideLinks path="/liquidacion" />
     </div>
   );
 }

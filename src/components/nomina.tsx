@@ -144,14 +144,7 @@ export function ExplicacionDescanso() {
   );
 }
 
-export function ComoSeCalcula({ children }: { children: ReactNode }) {
-  return (
-    <section className="mt-14 max-w-prose border-t border-line pt-10" aria-labelledby="como-se-calcula">
-      <h2 id="como-se-calcula" className="text-2xl">Cómo se calcula</h2>
-      <div className="guide-body mt-4 space-y-4 text-base leading-7 text-slate">{children}</div>
-    </section>
-  );
-}
+export { ComoSeCalcula } from './ComoSeCalcula';
 
 const ORDEN_ETIQUETAS: TipoHora[] = ['HED', 'HEN', 'HEDD', 'HEDN', 'RN', 'RDD', 'RDN'];
 
