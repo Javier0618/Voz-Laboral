@@ -11,6 +11,7 @@ import { calculadoraPorPath, metaCalculadora } from '../../lib/calculadoras';
 import {
   ComoSeCalcula, DesprendibleView, MoneyInput, NovedadesFields, NumberInput, OtrosFields, PeriodoFields, periodoActual, pesos, rangoPeriodo,
 } from '../../components/nomina';
+import { CalculatorGuideLinks } from '../../components/CalculatorGuideLinks';
 
 export default function Administrativos() {
   useEffect(() => {
@@ -34,7 +35,6 @@ export default function Administrativos() {
       salarioMensual: salario, diasPeriodo: rango.diasNomina, fechaReferencia: rango.desde, horasMes: horasMes || HORAS_MES_DEFECTO,
       novedades, horasValoradas: { horas, valores: valorarHoras(horas, valorHora, rango.desde) }, otros,
     });
-    // Sin fechas solo se puede comparar el total con 12 h por cada semana del período (CST, art. 167A).
     const extrasH = horas.HED + horas.HEN + horas.HEDD + horas.HEDN;
     const maximo = Math.round((12 * rango.diasNomina) / 7);
     if (extrasH > maximo) r.avisos.unshift(`Escribiste ${extrasH} horas extra: en ${rango.diasNomina} días la ley permite como máximo unas ${maximo} (2 al día y 12 a la semana, CST, art. 167A). Aun así, toda hora extra trabajada se debe pagar. Los sectores de seguridad privada y salud están exceptuados.`);
@@ -121,6 +121,8 @@ export default function Administrativos() {
           40 % del total, el exceso cuenta para la base (Ley 1393 de 2010, art. 30). La retención en la fuente no se calcula.
         </p>
       </ComoSeCalcula>
+
+      <CalculatorGuideLinks path="/calculadoras/administrativos" />
     </div>
   );
 }
