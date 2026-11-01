@@ -1,4 +1,4 @@
-# Sistema editorial — VozLaboral
+# Sistema editorial — TuVozLaboral
 
 Objetivo: publicar **guías laborales** claras para trabajadores en Colombia sobre **todo lo relacionado con el trabajo**: reformas, contrato, jornada, salud, dignidad, trámites y pagos. No solo nómina.
 
@@ -55,7 +55,7 @@ Cómo se aplica en el día a día del trabajador. Ejemplos concretos (montos, ho
 
 ## 2. Taxonomía (temas)
 
-VozLaboral habla de **trabajo y trabajadores en general**, no solo de nómina. Los temas están en el código, en `src/lib/temasGuias.ts`, y ordenan el índice `/derechos`, en este orden:
+TuVozLaboral habla de **trabajo y trabajadores en general**, no solo de nómina. Los temas están en el código, en `src/lib/temasGuias.ts`, y ordenan el índice `/derechos`, en este orden:
 
 | # | Tema (slug) | Qué incluye |
 |---|-------------|-------------|

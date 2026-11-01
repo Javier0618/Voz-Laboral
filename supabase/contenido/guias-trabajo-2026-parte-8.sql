@@ -1,4 +1,4 @@
--- VozLaboral: guías, parte 8 — salud mental en el trabajo y riesgo psicosocial.
+-- TuVozLaboral: guías, parte 8 — salud mental en el trabajo y riesgo psicosocial.
 --
 -- 1 de noviembre de 2026. Redactada y verificada contra los textos oficiales
 -- compilados por Colpensiones: Ley 1616 de 2013 (art. 9, con el parágrafo de

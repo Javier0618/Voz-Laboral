@@ -102,7 +102,7 @@ export function ShareButton({ exp, variant = 'link' }: { exp: PublicExperience; 
   const [copied, setCopied] = useState(false);
   const url = experienceUrl(exp.id);
   const title = `${exp.title || exp.category_name} · ${exp.company_name}`;
-  const message = `Mira esta experiencia sobre ${exp.company_name} en VozLaboral: ${url}`;
+  const message = `Mira esta experiencia sobre ${exp.company_name} en TuVozLaboral: ${url}`;
 
   async function share() {
     if (typeof navigator.share === 'function') {

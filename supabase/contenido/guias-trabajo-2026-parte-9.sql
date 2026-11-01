@@ -1,4 +1,4 @@
--- VozLaboral: guías, parte 9 — inclusión laboral de personas con discapacidad.
+-- TuVozLaboral: guías, parte 9 — inclusión laboral de personas con discapacidad.
 --
 -- 1 de noviembre de 2026. Redactada y verificada contra los textos oficiales
 -- compilados por Colpensiones: Ley 2466 de 2025 (arts. 15, 16, 7 y 47), Ley

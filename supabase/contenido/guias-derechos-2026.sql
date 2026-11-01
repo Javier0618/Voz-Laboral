@@ -1,4 +1,4 @@
--- VozLaboral: guías de «Tus derechos» (10 temas), redactadas a partir del texto
+-- TuVozLaboral: guías de «Tus derechos» (10 temas), redactadas a partir del texto
 -- oficial consolidado de la Secretaría del Senado, consultado el 26 de octubre
 -- de 2026 (CST actualizado al 15 de octubre de 2026).
 --

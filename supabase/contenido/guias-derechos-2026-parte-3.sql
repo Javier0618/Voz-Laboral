@@ -1,4 +1,4 @@
--- VozLaboral: guías de «Tus derechos», parte 3 (8 temas).
+-- TuVozLaboral: guías de «Tus derechos», parte 3 (8 temas).
 --
 -- Redactadas el 27 de octubre de 2026. Desde el entorno de trabajo no se pudo
 -- abrir el texto oficial consolidado: los datos se contrastaron con los

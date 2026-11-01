@@ -6,29 +6,29 @@ Textos listos para invitar a las primeras personas y lista de pasos antes de abr
 
 **Para grupos de trabajo o de amigos**
 
-> Hola. Estoy invitando a probar VozLaboral, una página donde los trabajadores cuentan cómo es trabajar en empresas de Colombia: lo bueno, lo malo o las dos cosas. Se publica con un alias o sin cuenta, y tu nombre y tu correo no aparecen. ¿Te animas a contar cómo te fue en tu trabajo actual o en uno anterior? [enlace]
+> Hola. Estoy invitando a probar TuVozLaboral, una página donde los trabajadores cuentan cómo es trabajar en empresas de Colombia: lo bueno, lo malo o las dos cosas. Se publica con un alias o sin cuenta, y tu nombre y tu correo no aparecen. ¿Te animas a contar cómo te fue en tu trabajo actual o en uno anterior? [enlace]
 
 **Corto, para reenviar**
 
-> ¿Cómo te fue en tu último trabajo? Cuéntalo en VozLaboral, sin dar tu nombre. Ayuda a quien está pensando en trabajar ahí: [enlace]
+> ¿Cómo te fue en tu último trabajo? Cuéntalo en TuVozLaboral, sin dar tu nombre. Ayuda a quien está pensando en trabajar ahí: [enlace]
 
 **Para alguien que contó algo en persona**
 
-> Lo que me contaste de tu trabajo le puede servir a otras personas. En VozLaboral puedes contarlo con un alias, sin dar tu nombre, y la moderación revisa que no tenga datos personales antes de publicarlo: [enlace]
+> Lo que me contaste de tu trabajo le puede servir a otras personas. En TuVozLaboral puedes contarlo con un alias, sin dar tu nombre, y la moderación revisa que no tenga datos personales antes de publicarlo: [enlace]
 
 ## Publicaciones para redes
 
 **Presentación**
 
-> Antes de aceptar un trabajo, ¿no te gustaría saber cómo es por dentro? VozLaboral reúne experiencias de trabajadores en empresas de Colombia, buenas, malas y mixtas, contadas con un alias. Sin puntuaciones ni rankings: relatos reales, revisados antes de publicarse. [enlace]
+> Antes de aceptar un trabajo, ¿no te gustaría saber cómo es por dentro? TuVozLaboral reúne experiencias de trabajadores en empresas de Colombia, buenas, malas y mixtas, contadas con un alias. Sin puntuaciones ni rankings: relatos reales, revisados antes de publicarse. [enlace]
 
 **Lo bueno también cuenta**
 
-> ¿Tu empresa paga puntual, capacita bien o tiene buenos jefes? Cuéntalo. En VozLaboral también publicamos experiencias buenas: ayudan a quien busca trabajo a saber qué esperar. [enlace]
+> ¿Tu empresa paga puntual, capacita bien o tiene buenos jefes? Cuéntalo. En TuVozLaboral también publicamos experiencias buenas: ayudan a quien busca trabajo a saber qué esperar. [enlace]
 
 **Tus derechos**
 
-> ¿Sabes cuándo deben pagarte la prima o cuántos días de vacaciones te corresponden? En VozLaboral hay guías sencillas sobre tus derechos laborales, con su fuente oficial. [enlace]/derechos
+> ¿Sabes cuándo deben pagarte la prima o cuántos días de vacaciones te corresponden? En TuVozLaboral hay guías sencillas sobre tus derechos laborales, con su fuente oficial. [enlace]/derechos
 
 ## Para quién empezar
 

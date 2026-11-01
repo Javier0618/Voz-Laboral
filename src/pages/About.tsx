@@ -47,7 +47,7 @@ const states: ExperienceStatus[] = ['en_revision', 'publicada', 'requiere_ajuste
 const faqs = [
   {
     q: '¿Quién escribe las guías?',
-    a: 'El equipo de VozLaboral, a partir del texto oficial de las normas. Cada guía cita sus fuentes y muestra la fecha de verificación. No son asesoría jurídica: para tu caso concreto, consulta al Ministerio del Trabajo o a un abogado.',
+    a: 'El equipo de TuVozLaboral, a partir del texto oficial de las normas. Cada guía cita sus fuentes y muestra la fecha de verificación. No son asesoría jurídica: para tu caso concreto, consulta al Ministerio del Trabajo o a un abogado.',
   },
   {
     q: '¿Qué hago si una guía tiene un error o está desactualizada?',

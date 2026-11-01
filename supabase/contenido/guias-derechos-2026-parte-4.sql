@@ -1,4 +1,4 @@
--- VozLaboral: guías de «Tus derechos», parte 4.
+-- TuVozLaboral: guías de «Tus derechos», parte 4.
 --
 -- Redactada el 29 de octubre de 2026 a partir del texto oficial consolidado de
 -- la Secretaría del Senado (codigo_sustantivo_trabajo_pr005 y pr006).

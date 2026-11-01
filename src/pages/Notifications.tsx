@@ -33,7 +33,7 @@ export default function Notifications() {
   const unread = (data ?? []).filter((n) => !n.read_at);
 
   useEffect(() => {
-    document.title = 'Avisos · VozLaboral';
+    document.title = 'Avisos · TuVozLaboral';
   }, []);
 
   async function markAll() {

@@ -112,7 +112,7 @@ def escribir(empresas, anio: int, lote: int, destino: Path):
             f"  ({sql_texto(e['slug'])}, {sql_texto(e['nombre'])}, {sql_texto(e['legal'])}, {sql_texto(e['sector'])}, {sql_texto(e['ciudad'])}, {sql_texto(e['depto'])}, {sql_texto(e['nit'])})"
             for e in grupo
         )
-        sql = f"""-- VozLaboral: importación de empresas, parte {parte} ({len(grupo)} empresas).
+        sql = f"""-- TuVozLaboral: importación de empresas, parte {parte} ({len(grupo)} empresas).
 -- {nota}.
 -- Generado por scripts/importar_empresas.py. Se puede ejecutar más de una vez sin duplicar.
 begin;

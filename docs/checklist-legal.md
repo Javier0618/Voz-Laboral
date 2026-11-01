@@ -31,7 +31,7 @@
 - ✅ Las empresas no pueden pagar por retirar contenido (términos) ni acceder a los datos de los autores (técnico).
 - ✅ Las guías no se publican sin una fuente oficial y una fecha de verificación (restricción en la base de datos).
 - ⬜ Autorización expresa para el tratamiento de datos al registrarse: hoy es una casilla obligatoria; validar si basta y cómo conservar la prueba de la autorización.
-- ⬜ Verificar la disponibilidad del nombre «VozLaboral» como marca y dominio (no se ha comprobado).
+- ⬜ Verificar la disponibilidad del nombre «TuVozLaboral» como marca y dominio (no se ha comprobado).
 - ⬜ Revisar la responsabilidad por comentarios de terceros y el procedimiento de retirada.
 - ⬜ Validar el tratamiento de los envíos sin cuenta (sin datos de contacto; enlace de seguimiento) en la política de datos.
 - ⬜ Completar en «Quiénes somos y cómo moderamos» quién es el responsable del proyecto.

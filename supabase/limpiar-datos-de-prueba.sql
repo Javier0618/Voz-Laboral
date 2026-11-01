@@ -1,4 +1,4 @@
--- VozLaboral: borra TODO el contenido de prueba (empresas marcadas
+-- TuVozLaboral: borra TODO el contenido de prueba (empresas marcadas
 -- «(contenido de prueba)» y lo que depende de ellas). No toca tu cuenta,
 -- tu rol de administrador ni las empresas importadas de Supersociedades.
 -- El borrado es definitivo y atómico: o se borra todo o nada.

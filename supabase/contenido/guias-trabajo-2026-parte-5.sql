@@ -1,4 +1,4 @@
--- VozLaboral: guías, parte 5 — reformas y mundo del trabajo.
+-- TuVozLaboral: guías, parte 5 — reformas y mundo del trabajo.
 --
 -- Redactada el 1 de noviembre de 2026. Amplía el foco más allá de pagos y
 -- liquidaciones: reforma laboral, nuevas formas de trabajar y derechos

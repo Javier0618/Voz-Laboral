@@ -1,4 +1,4 @@
--- VozLaboral: guías, parte 6 — verificación contra el texto oficial.
+-- TuVozLaboral: guías, parte 6 — verificación contra el texto oficial.
 --
 -- 1 de noviembre de 2026. Las cinco guías de la parte 5 se contrastaron con
 -- los textos oficiales compilados por Colpensiones (Ley 2466 de 2025, Leyes

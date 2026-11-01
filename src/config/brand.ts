@@ -2,7 +2,7 @@
 // los colores están en src/index.css (:root).
 // El nombre es provisional: la disponibilidad de dominio y marca se comprueba por separado.
 export const brand = {
-  name: 'VozLaboral',
+  name: 'TuVozLaboral',
   tagline: 'Guías laborales claras para trabajadores en Colombia: derechos, reformas y cambios en el trabajo, con experiencias reales y calculadoras',
   country: 'Colombia',
   /** Dominio público. Se usa para la dirección canónica, las vistas previas al compartir y el sitemap. */

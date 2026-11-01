@@ -1,4 +1,4 @@
-# VozLaboral
+# TuVozLaboral
 
 Sitio independiente de **guías laborales** para trabajadores en Colombia. Su foco principal es publicar guías claras sobre derechos laborales, reformas y cambios en el mundo del trabajo, con la norma citada, su fuente oficial y la fecha de verificación.
 
@@ -11,7 +11,7 @@ El sistema editorial (plantilla, temas, calendario y flujo de publicación) est�
 
 > **Estado:** MVP en desarrollo. **No está listo para producción.** Faltan la verificación contra un proyecto de Supabase real, la revisión jurídica de las políticas y los puntos pendientes de [`docs/checklist-seguridad.md`](docs/checklist-seguridad.md) y [`docs/checklist-legal.md`](docs/checklist-legal.md).
 >
-> «VozLaboral» es un nombre provisional: la disponibilidad de la marca y del dominio no se ha comprobado.
+> «TuVozLaboral» es un nombre provisional: la disponibilidad de la marca y del dominio no se ha comprobado.
 
 ## Qué incluye
 

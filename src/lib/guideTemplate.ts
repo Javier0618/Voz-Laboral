@@ -23,7 +23,7 @@ Explica cómo se aplica en el día a día. Usa ejemplos concretos (montos en pes
 ## Herramientas y lecturas relacionadas
 
 - [Calculadora relacionada](/calculadoras/)
-- [Otra guía de VozLaboral](/derechos/)
+- [Otra guía de TuVozLaboral](/derechos/)
 `;
 
 export const GUIDE_TEMPLATE_HINT =

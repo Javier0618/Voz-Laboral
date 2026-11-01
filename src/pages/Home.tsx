@@ -171,7 +171,7 @@ function FirstExperiences() {
   return (
     <section className="page mt-20" aria-labelledby="primeras">
       <SectionHeading id="primeras" title="Sé de las primeras personas en contar">
-        VozLaboral está empezando. Cada experiencia ayuda a quien está pensando en trabajar en esa empresa, y lo bueno también cuenta.
+        TuVozLaboral está empezando. Cada experiencia ayuda a quien está pensando en trabajar en esa empresa, y lo bueno también cuenta.
       </SectionHeading>
       <ul className="mt-8 grid gap-4 md:grid-cols-3">
         <li>
@@ -210,7 +210,7 @@ function FirstExperiences() {
 function InviteRow() {
   const [copied, setCopied] = useState(false);
   const url = typeof window === 'undefined' ? '' : window.location.origin;
-  const message = `Te invito a VozLaboral: cuenta cómo es trabajar en tu empresa, sin dar tu nombre. ${url}`;
+  const message = `Te invito a TuVozLaboral: cuenta cómo es trabajar en tu empresa, sin dar tu nombre. ${url}`;
   return (
     <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 rounded-lg bg-mist px-6 py-4">
       <p className="font-semibold">¿Conoces a alguien que trabaje en una empresa? Envíale la invitación.</p>
@@ -268,7 +268,7 @@ function HowItWorks() {
   return (
     <section className="mt-24 bg-mist" aria-labelledby="como-funciona">
       <div className="page py-16 sm:py-20">
-        <SectionHeading id="como-funciona" title="Cómo te ayuda VozLaboral" action={<Link to="/como-funciona" className="btn-link">Quiénes somos y cómo trabajamos</Link>} />
+        <SectionHeading id="como-funciona" title="Cómo te ayuda TuVozLaboral" action={<Link to="/como-funciona" className="btn-link">Quiénes somos y cómo trabajamos</Link>} />
         <ol className="relative mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
           <span aria-hidden="true" className="absolute left-5 right-5 top-5 hidden h-px bg-ink/25 md:block" />
           {steps.map((s, i) => (

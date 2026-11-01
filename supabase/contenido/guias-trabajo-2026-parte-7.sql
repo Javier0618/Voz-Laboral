@@ -1,4 +1,4 @@
--- VozLaboral: guías, parte 7 — prestación de servicios vs. contrato laboral.
+-- TuVozLaboral: guías, parte 7 — prestación de servicios vs. contrato laboral.
 --
 -- 1 de noviembre de 2026. Redactada y verificada contra los textos oficiales
 -- compilados por Colpensiones: Código Sustantivo del Trabajo (arts. 23, 24 y

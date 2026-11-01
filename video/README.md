@@ -1,6 +1,6 @@
 # Video de presentación
 
-Video vertical (1080 × 1920, 57 segundos) para Reels, TikTok, Shorts y estados de WhatsApp. Presenta VozLaboral como un sitio de **guías laborales**: primero las guías, después las calculadoras y al final las experiencias. Termina con un llamado a entrar.
+Video vertical (1080 × 1920, 57 segundos) para Reels, TikTok, Shorts y estados de WhatsApp. Presenta TuVozLaboral como un sitio de **guías laborales**: primero las guías, después las calculadoras y al final las experiencias. Termina con un llamado a entrar.
 
 > **Voz:** locución de ElevenLabs v3 con el guion etiquetado de la sección «Voz», sincronizada el 1 de noviembre de 2026 con `voz.cjs --cortes` (ver «Locución actual»).
 
@@ -26,13 +26,13 @@ Necesita Playwright con Chromium y ffmpeg. Tarda unos 3 minutos.
 |---|---|---|
 | 0–5 | Gancho | La ley laboral cambió. ¿Sabes cómo te afecta? |
 | 5–10 | Preguntas | ¿Desde qué hora es trabajo nocturno? ¿Cuánto me pagan un domingo? ¿Cuánto dura un contrato fijo? ¿Me pueden escribir de noche? |
-| 10–14 | Marca | VozLaboral: guías laborales claras para trabajadores en Colombia |
+| 10–14 | Marca | TuVozLaboral: guías laborales claras para trabajadores en Colombia |
 | 14–24 | Guías | Tus derechos, con la ley en la mano (temas y captura de una guía) |
 | 24–31 | Cada guía | Qué dice la ley · Cómo se aplica · Qué puedes hacer · Fecha de revisión |
 | 31–37 | Calculadoras | Revisa tus cuentas: nómina, prima y cesantías, liquidación, salario neto |
 | 37–46 | Experiencias | Y lo que cuentan quienes trabajan ahí (tres tarjetas de ejemplo) |
 | 46–51 | Garantías | Fuente oficial · Experiencias revisadas · Nombre y correo nunca se publican |
-| 51–57 | Llamado a la acción | Conoce tus derechos laborales · Entra a VozLaboral |
+| 51–57 | Llamado a la acción | Conoce tus derechos laborales · Entra a TuVozLaboral |
 
 Las tarjetas de experiencias son ejemplos ilustrativos y así lo dice el video. Las respuestas a las preguntas de la escena 2 están en las guías (trabajo nocturno desde las 7:00 p. m., recargo dominical, contrato fijo de hasta 4 años, desconexión laboral). Si cambia la ley, revisa esas preguntas.
 
@@ -42,19 +42,19 @@ La locución se genera en **ElevenLabs v3** con etiquetas de audio (`[pause]`, `
 
 ### Guion para ElevenLabs
 
-Son 9 bloques, uno por escena. Escribe «Voz Laboral» separado para que la voz lo pronuncie bien. Las etiquetas van en inglés porque así las reconoce ElevenLabs, y no se leen en voz alta.
+Son 9 bloques, uno por escena. Escribe «Tu Voz Laboral» separado para que la voz lo pronuncie bien. Las etiquetas van en inglés porque así las reconoce ElevenLabs, y no se leen en voz alta.
 
 | # | Escena | Máx. | Texto para ElevenLabs |
 |---|---|---|---|
 | 01 | Gancho | 4,3 s | `[slowly] La ley laboral cambió. [pause] ¿Sabes cómo te afecta?` |
 | 02 | Preguntas | 4,7 s | `[playful] ¿Desde qué hora es nocturno? ¿Cuánto vale un domingo? [pause] Está en la ley.` |
-| 03 | Marca | 4,4 s | `[excited] Voz Laboral. [pause] Guías laborales claras para trabajadores en Colombia.` |
+| 03 | Marca | 4,4 s | `[excited] Tu Voz Laboral. [pause] Guías laborales claras para trabajadores en Colombia.` |
 | 04 | Guías | 9,0 s | `Reforma laboral, reforma pensional, teletrabajo, sindicatos, liquidación… y mucho más. [pause] Tus derechos, con la ley en la mano.` |
 | 05 | Cada guía | 6,8 s | `Cada guía te explica qué dice la ley, cómo se aplica y qué puedes hacer.` |
 | 06 | Calculadoras | 5,5 s | `[playful] Con las calculadoras revisas tu nómina, tu prima, tus cesantías o tu liquidación.` |
 | 07 | Experiencias | 8,6 s | `Y puedes leer lo que cuentan quienes trabajan en cada empresa… [pause] o contar tu experiencia, con un alias.` |
 | 08 | Garantías | 4,7 s | `[softly] Cada guía cita su fuente oficial. Y tu nombre nunca se publica.` |
-| 09 | Cierre | 5,8 s | `[excited] Conoce tus derechos laborales. [pause] Entra a Voz Laboral.` |
+| 09 | Cierre | 5,8 s | `[excited] Conoce tus derechos laborales. [pause] Entra a Tu Voz Laboral.` |
 
 «Máx.» es lo que dura la escena. Si un bloque no cabe, `voz.cjs` lo avisa: acorta el texto o sube la velocidad de la voz.
 
@@ -66,12 +66,13 @@ Son 9 bloques, uno por escena. Escribe «Voz Laboral» separado para que la voz 
 
 ### Locución actual
 
-La locución de noviembre de 2026 es un solo archivo de 46 s. Sus pausas entre bloques no son más largas que las de dentro de cada bloque, así que se cortó a mano, en silencios comprobados con la transcripción:
+Los 9 bloques de la locución actual están en `video/locucion/01.mp3` … `09.mp3`. Se cortaron del audio de noviembre de 2026 en silencios comprobados con la transcripción.
+
+> **Pendiente:** los bloques **03** y **09** todavía dicen «Voz Laboral». Genera en ElevenLabs solo esos dos con el texto nuevo de la tabla (que dice «Tu Voz Laboral»), con la misma voz y los mismos ajustes, y reemplaza `03.mp3` y `09.mp3`. Después vuelve a unir la voz:
 
 ```bash
 node video/render.cjs video/sin-voz.mp4 --url tuvozlaboral.com
-node video/voz.cjs locucion.mp3 video/sin-voz.mp4 video/vozlaboral-presentacion-con-voz.mp4 \
-  --cortes 0:4.40,4.78:9.02,9.18:13.49,13.69:22.42,22.61:26.98,27.17:32.02,32.20:37.79,37.97:42.14,42.34:46.10
+node video/voz.cjs video/locucion video/sin-voz.mp4 video/tuvozlaboral-presentacion-con-voz.mp4
 ```
 
 ### Unir la voz
@@ -93,9 +94,9 @@ En los dos casos el script muestra cuánto dura cada bloque frente al tiempo de 
 
 ## Texto para publicar
 
-> La ley laboral cambió. ¿Sabes cómo te afecta? 📘 En VozLaboral encuentras guías claras sobre tus derechos laborales en Colombia —reforma laboral, reforma pensional, teletrabajo, sindicatos, liquidación y más—, cada una con su fuente oficial. También hay calculadoras para revisar tu pago y experiencias de trabajadores contadas con alias. Entra aquí: tuvozlaboral.com
+> La ley laboral cambió. ¿Sabes cómo te afecta? 📘 En TuVozLaboral encuentras guías claras sobre tus derechos laborales en Colombia —reforma laboral, reforma pensional, teletrabajo, sindicatos, liquidación y más—, cada una con su fuente oficial. También hay calculadoras para revisar tu pago y experiencias de trabajadores contadas con alias. Entra aquí: tuvozlaboral.com
 >
-> #VozLaboral #TrabajoEnColombia #DerechosLaborales #Empleo
+> #TuVozLaboral #TrabajoEnColombia #DerechosLaborales #Empleo
 
 ## En la web
 

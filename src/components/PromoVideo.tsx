@@ -46,7 +46,7 @@ function VideoDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   return (
     <dialog
       ref={ref}
-      aria-label="Video: cómo funciona VozLaboral"
+      aria-label="Video: cómo funciona TuVozLaboral"
       onCancel={(e) => { e.preventDefault(); onClose(); }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       className="m-auto w-[min(26rem,calc(100vw-2rem),calc((100dvh-6rem)*9/16))] overflow-visible bg-transparent p-0 backdrop:bg-ink/85"
@@ -121,7 +121,7 @@ export function PromoVideoTeaser({ className = 'mt-6' }: { className?: string })
       <span>
         <span className="block font-semibold text-white">Mira cómo funciona</span>
         <span className="mt-0.5 block text-sm text-white/75">
-          Video de {promoDuration}, con sonido y subtítulos: qué es VozLaboral y qué puedes hacer.
+          Video de {promoDuration}, con sonido y subtítulos: qué es TuVozLaboral y qué puedes hacer.
         </span>
       </span>
     </PromoVideoButton>

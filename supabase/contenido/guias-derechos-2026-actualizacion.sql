@@ -1,7 +1,7 @@
--- VozLaboral: actualización de las 16 guías de las partes 1 y 2.
+-- TuVozLaboral: actualización de las 16 guías de las partes 1 y 2.
 --
 -- 1. Convierte las referencias a otras guías en enlaces internos
---    [texto](/derechos/slug), que la página abre sin salir de VozLaboral.
+--    [texto](/derechos/slug), que la página abre sin salir de TuVozLaboral.
 -- 2. Precisa algunos datos: vacaciones (arts. 189 y 190), cesantías (sanciones),
 --    prima (trabajadores ocasionales, C-825 de 2006) y maternidad (Ley 2114).
 -- 3. Cambia la fuente general del Código por la página del Senado que contiene

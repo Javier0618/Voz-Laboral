@@ -1,4 +1,4 @@
--- VozLaboral: correcciones a las 24 guías tras revisarlas contra el texto oficial.
+-- TuVozLaboral: correcciones a las 24 guías tras revisarlas contra el texto oficial.
 --
 -- Revisión del 27 de octubre de 2026 contra el texto consolidado de la
 -- compilación normativa oficial de Colpensiones (Código Sustantivo del Trabajo,

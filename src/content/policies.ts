@@ -3,7 +3,7 @@
 export interface PolicySection { heading: string; paragraphs: string[] }
 export interface Policy { slug: string; title: string; summary: string; sections: PolicySection[] }
 
-const RESPONSABLE = 'VozLaboral, sitio de guías laborales y experiencias de trabajadores en Colombia. Para cualquier asunto sobre tus datos, escríbenos al correo de contacto que aparece al final de esta página.';
+const RESPONSABLE = 'TuVozLaboral, sitio de guías laborales y experiencias de trabajadores en Colombia. Para cualquier asunto sobre tus datos, escríbenos al correo de contacto que aparece al final de esta página.';
 
 export const policies: Policy[] = [
   {
