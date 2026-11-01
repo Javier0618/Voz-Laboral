@@ -106,6 +106,7 @@ export const GUIA_TEMA: Record<string, string> = {
   'despido-con-y-sin-justa-causa': 'terminacion',
   'renuncia-y-preaviso': 'terminacion',
   'estabilidad-laboral-reforzada': 'terminacion',
+  'subsidio-de-desempleo-proteccion-al-cesante': 'terminacion',
 
   'a-donde-acudir-ministerio-y-derecho-de-peticion': 'tramites',
 };

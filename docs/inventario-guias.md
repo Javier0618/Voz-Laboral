@@ -59,6 +59,7 @@ Las guías de la parte 5 siguen la plantilla editorial. Se verificaron contra el
 | Prestación de servicios o contrato laboral: cómo saber cuál tienes | `prestacion-de-servicios-vs-contrato-laboral` | Contrato y formas de trabajar | Pendiente de revisión (parte 7) |
 | Salud mental en el trabajo y riesgo psicosocial: lo que debe hacer tu empresa | `salud-mental-y-riesgo-psicosocial` | Salud, seguridad y licencias | Pendiente de revisión (parte 8) |
 | Inclusión laboral de personas con discapacidad: cuota de empleo, ajustes y protección | `inclusion-laboral-y-discapacidad` | Igualdad, dignidad y acoso | Pendiente de revisión (parte 9) |
+| Si te quedas sin empleo: subsidio de desempleo y cómo pedirlo | `subsidio-de-desempleo-proteccion-al-cesante` | Fin del contrato | Pendiente de revisión (parte 10) |
 
 ## Temas prioritarios sin guía propia
 

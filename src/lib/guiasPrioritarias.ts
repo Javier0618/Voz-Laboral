@@ -15,6 +15,7 @@ export const GUIAS_PRIORITARIAS = [
   'prestacion-de-servicios-vs-contrato-laboral',
   'salud-mental-y-riesgo-psicosocial',
   'inclusion-laboral-y-discapacidad',
+  'subsidio-de-desempleo-proteccion-al-cesante',
   // Ya publicadas
   'jornada-horas-extra-y-recargos',
   'tipos-de-contrato-y-periodo-de-prueba',
@@ -43,10 +44,14 @@ export function ordenarPorPrioridad<T extends { slug: string }>(guias: T[]): T[]
  * Las licencias nuevas de la reforma ya están en la guía de licencias remuneradas.
  */
 export const GUIAS_A_CREAR: { titulo: string; slugSugerido: string; eje: string }[] = [
+  // Prioridad: temas generales que le pasan a casi cualquier trabajador.
+  { titulo: 'Cómo reclamar tus derechos: conciliación, demanda laboral y tutela', slugSugerido: 'como-reclamar-conciliacion-demanda-tutela', eje: 'A dónde acudir' },
+  { titulo: 'Cómo leer tu desprendible de nómina', slugSugerido: 'como-leer-tu-desprendible-de-nomina', eje: 'Salario y prestaciones' },
+  { titulo: 'Calendario laboral del año: fechas de pago y cambios', slugSugerido: 'calendario-laboral-del-ano', eje: 'Reformas y novedades' },
+  { titulo: 'Tu primer empleo: lo que debe pasar desde el primer día', slugSugerido: 'tu-primer-empleo', eje: 'Contrato y formas de trabajar' },
+  // Después: temas de grupos específicos.
   { titulo: 'Trabajo doméstico: derechos y deberes', slugSugerido: 'trabajo-domestico-derechos', eje: 'Contrato y formas de trabajar' },
   { titulo: 'Trabajadores migrantes en Colombia: derechos laborales', slugSugerido: 'trabajadores-migrantes-derechos', eje: 'Igualdad, dignidad y acoso' },
-  { titulo: 'Inspección de trabajo: qué puede hacer y cómo pedirla', slugSugerido: 'inspeccion-de-trabajo', eje: 'A dónde acudir' },
-  { titulo: 'Calendario laboral del año: fechas de pago y cambios', slugSugerido: 'calendario-laboral-del-ano', eje: 'Reformas y novedades' },
   { titulo: 'Trabajo en el campo: jornal y contrato agropecuario', slugSugerido: 'trabajo-agropecuario', eje: 'Contrato y formas de trabajar' },
 ];
 
