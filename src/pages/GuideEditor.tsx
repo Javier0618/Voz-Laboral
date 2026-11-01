@@ -29,6 +29,7 @@ export default function GuideEditor() {
   if (!isAdmin) return <div className="page py-10"><Alert tone="warning" title="Acceso restringido">Solo la administración puede editar guías.</Alert></div>;
   if (guide.error) return <div className="page py-10"><ErrorState error={guide.error} onRetry={guide.reload} /></div>;
   if (!guide.data) return <div className="page py-10"><EmptyState title="No encontramos esta guía" action={<Link to="/moderacion" className="btn-primary">Volver a Moderación</Link>} /></div>;
+  // key por id: al recargar tras guardar no se vuelve a montar y el aviso de confirmación sigue visible.
   return <Editor key={guide.data.id} guide={guide.data} onSaved={guide.reload} />;
 }
 
@@ -48,6 +49,7 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
   const dirty = form.title !== g.title || form.summary !== g.summary || form.content !== g.content || form.category_slug !== (g.category_slug ?? '');
   const { views, lastViewAt } = guideViews(g.legal_resource_stats);
 
+  // Evita perder cambios al cerrar o recargar la pestaña.
   useEffect(() => {
     if (!dirty) return;
     const warn = (e: BeforeUnloadEvent) => e.preventDefault();
@@ -169,8 +171,8 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
                     className="btn-primary"
                     title="Rellena el contenido con la estructura editorial recomendada"
                     onClick={() => {
-                      const t = form.content.trim();
-                      if (t && !window.confirm('¿Reemplazar el contenido actual por la plantilla editorial? Se borrará el texto que hay ahora.')) return;
+                      const cur = form.content.trim();
+                      if (cur && !window.confirm('¿Reemplazar el contenido actual por la plantilla editorial? Se borrará el texto que hay ahora.')) return;
                       setForm({ ...form, content: GUIDE_TEMPLATE });
                       setView('editar');
                       setNotice('Plantilla insertada. Completa cada sección y guarda los cambios.');
@@ -347,7 +349,8 @@ function ImageDialog({ open, slug, onClose, onInsert }: { open: boolean; slug: s
     setError(null);
     try {
       const url = await uploadGuideImage(slug, file);
-      onInsert(`![${alt.trim().replace(/[[\]]/g, '')}](${url})`);
+      const safeAlt = alt.trim().replaceAll('[', '').replaceAll(']', '');
+      onInsert(`![${safeAlt}](${url})`);
     } catch (err) {
       setError((err as AppError).message);
     } finally {
@@ -430,10 +433,18 @@ function Sources({ guide: g, onChange }: { guide: GuideDetail; onChange: () => v
       )}
       {open ? (
         <form onSubmit={add} className="mt-4 space-y-3 rounded border border-line p-4">
-          <Field label="Etiqueta">{(p) => <input {...p} className="input" required value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} />}</Field>
-          <Field label="URL">{(p) => <input {...p} className="input" type="url" required value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} />}</Field>
-          <Field label="Editorial o entidad">{(p) => <input {...p} className="input" required value={form.publisher} onChange={(e) => setForm({ ...form, publisher: e.target.value })} />}</Field>
-          <Field label="Fecha de consulta">{(p) => <input {...p} className="input" type="date" required value={form.accessed_at} onChange={(e) => setForm({ ...form, accessed_at: e.target.value })} />}</Field>
+          <Field label="Etiqueta">
+            {(p) => <input {...p} className="input" required value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} />}
+          </Field>
+          <Field label="URL">
+            {(p) => <input {...p} className="input" type="url" required value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} />}
+          </Field>
+          <Field label="Editorial o entidad">
+            {(p) => <input {...p} className="input" required value={form.publisher} onChange={(e) => setForm({ ...form, publisher: e.target.value })} />}
+          </Field>
+          <Field label="Fecha de consulta">
+            {(p) => <input {...p} className="input" type="date" required value={form.accessed_at} onChange={(e) => setForm({ ...form, accessed_at: e.target.value })} />}
+          </Field>
           <div className="flex gap-2">
             <button type="submit" className="btn-primary" disabled={busy}>Añadir</button>
             <button type="button" className="btn-secondary" onClick={() => setOpen(false)}>Cancelar</button>
