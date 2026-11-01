@@ -163,7 +163,7 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
                   <button type="button" className="btn-secondary" onClick={() => { caret.current = textarea.current?.selectionStart ?? null; setImageOpen(true); }}>
                     Insertar imagen
                   </button>
-                  <p className="text-sm text-slate">Separa los bloques con una línea en blanco. Puedes usar ## para títulos, - para listas y > para notas.</p>
+                  <p className="text-sm text-slate">Separa los bloques con una línea en blanco.</p>
                 </div>
                 <label htmlFor="guia-contenido" className="sr-only">Contenido de la guía</label>
                 <textarea
@@ -254,7 +254,7 @@ function CoverPanel({ guide: g, onChange }: { guide: GuideDetail; onChange: () =
   return (
     <section aria-labelledby="portada-guia">
       <h2 id="portada-guia" className="border-b border-ink/80 pb-3 font-sans text-base font-semibold">Imagen de portada</h2>
-      <p className="mt-3 text-sm text-slate">Aparece en el listado de guías y arriba de la guía. Se recorta a 1200 × 628.</p>
+      <p className="mt-3 text-sm text-slate">Aparece en el listado de guías y arriba de la guía. Se recorta a 1200 x 628.</p>
       <div className="mt-4 overflow-hidden rounded border border-line bg-mist">
         {g.cover_url ? (
           <img src={g.cover_url} alt="" className="block aspect-[1200/628] w-full object-cover" />
@@ -267,10 +267,10 @@ function CoverPanel({ guide: g, onChange }: { guide: GuideDetail; onChange: () =
           {(p) => <input {...p} className="input" value={alt} maxLength={200} onChange={(e) => setAlt(e.target.value)} />}
         </Field>
       </div>
-      <input ref={input} type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" id={`portada-${g.id}`}
+      <input ref={input} type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" id={'portada-' + g.id}
         onChange={(e) => upload(e.target.files?.[0])} disabled={busy} />
       <div className="mt-4 flex flex-wrap gap-2">
-        <label htmlFor={`portada-${g.id}`} className={`btn-secondary cursor-pointer ${busy ? 'pointer-events-none opacity-60' : ''`}>
+        <label htmlFor={'portada-' + g.id} className={'btn-secondary cursor-pointer' + (busy ? ' pointer-events-none opacity-60' : '')}>
           {busy ? 'Guardando…' : g.cover_url ? 'Cambiar imagen' : 'Subir imagen'}
         </label>
         {g.cover_url && alt.trim() !== g.cover_alt && (
@@ -315,7 +315,7 @@ function ImageDialog({ open, slug, onClose, onInsert }: { open: boolean; slug: s
     try {
       const url = await uploadGuideImage(slug, file);
       const safeAlt = alt.trim().replaceAll('[', '').replaceAll(']', '');
-      onInsert(`![${safeAlt}](${url})`);
+      onInsert('![' + safeAlt + '](' + url + ')');
     } catch (err) {
       setError((err as AppError).message);
     } finally {
