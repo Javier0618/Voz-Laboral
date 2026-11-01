@@ -68,7 +68,7 @@ Son 9 bloques, uno por escena. Escribe «Tu Voz Laboral» separado para que la v
 
 Los 9 bloques de la locución actual están en `video/locucion/01.mp3` … `09.mp3`. Se cortaron del audio de noviembre de 2026 en silencios comprobados con la transcripción.
 
-> **Pendiente:** los bloques **03** y **09** todavía dicen «Voz Laboral». Genera en ElevenLabs solo esos dos con el texto nuevo de la tabla (que dice «Tu Voz Laboral»), con la misma voz y los mismos ajustes, y reemplaza `03.mp3` y `09.mp3`. Después vuelve a unir la voz:
+Los bloques 03 y 09 se volvieron a grabar con «Tu Voz Laboral». El 03 está acelerado un 6 % para que quepa en su escena (4,4 s). Para volver a unir la voz:
 
 ```bash
 node video/render.cjs video/sin-voz.mp4 --url tuvozlaboral.com
