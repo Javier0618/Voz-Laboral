@@ -101,6 +101,7 @@ Las guías de la parte 5 se contrastaron el 1 de noviembre de 2026 con los texto
 | 8 | Salud mental en el trabajo y riesgo psicosocial: lo que debe hacer tu empresa | Salud, seguridad y licencias | Nueva (parte 8), pendiente de tu revisión |
 | 9 | Inclusión laboral de personas con discapacidad: cuota de empleo, ajustes y protección | Igualdad, dignidad y acoso | Nueva (parte 9), pendiente de tu revisión |
 | 10 | Si te quedas sin empleo: subsidio de desempleo y cómo pedirlo | Fin del contrato | Nueva (parte 10), pendiente de tu revisión |
+| 11 | Cómo reclamar tus derechos laborales: conciliación, demanda y tutela | A dónde acudir | Nueva (parte 11), pendiente de tu revisión |
 
 **Fuente de referencia:** la compilación normativa de Colpensiones (`normativa.colpensiones.gov.co`) incluye los textos con notas de vigencia y es accesible desde el entorno de trabajo.
 
@@ -110,13 +111,12 @@ Prioridad: temas generales que le pasan a casi cualquier trabajador. Los de grup
 
 | # | Tema | Eje |
 |---|------|-----|
-| 1 | Cómo reclamar tus derechos: conciliación, demanda laboral y tutela | A dónde acudir |
-| 2 | Cómo leer tu desprendible de nómina | Salario y prestaciones |
-| 3 | Calendario laboral del año: fechas de pago y cambios | Reformas |
-| 4 | Tu primer empleo: lo que debe pasar desde el primer día | Formas de trabajar |
-| 5 | Trabajo doméstico: derechos | Formas de trabajar |
-| 6 | Trabajadores migrantes: derechos laborales | Dignidad |
-| 7 | Trabajo en el campo: jornal y contrato agropecuario | Formas de trabajar |
+| 1 | Cómo leer tu desprendible de nómina | Salario y prestaciones |
+| 2 | Calendario laboral del año: fechas de pago y cambios | Reformas |
+| 3 | Tu primer empleo: lo que debe pasar desde el primer día | Formas de trabajar |
+| 4 | Trabajo doméstico: derechos | Formas de trabajar |
+| 5 | Trabajadores migrantes: derechos laborales | Dignidad |
+| 6 | Trabajo en el campo: jornal y contrato agropecuario | Formas de trabajar |
 
 ### Ya publicadas
 

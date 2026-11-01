@@ -109,6 +109,7 @@ export const GUIA_TEMA: Record<string, string> = {
   'subsidio-de-desempleo-proteccion-al-cesante': 'terminacion',
 
   'a-donde-acudir-ministerio-y-derecho-de-peticion': 'tramites',
+  'como-reclamar-conciliacion-demanda-tutela': 'tramites',
 };
 
 /** Si la guía no está en GUIA_TEMA, se deduce de su categoría de experiencias. */

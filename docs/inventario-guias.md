@@ -60,6 +60,7 @@ Las guías de la parte 5 siguen la plantilla editorial. Se verificaron contra el
 | Salud mental en el trabajo y riesgo psicosocial: lo que debe hacer tu empresa | `salud-mental-y-riesgo-psicosocial` | Salud, seguridad y licencias | Pendiente de revisión (parte 8) |
 | Inclusión laboral de personas con discapacidad: cuota de empleo, ajustes y protección | `inclusion-laboral-y-discapacidad` | Igualdad, dignidad y acoso | Pendiente de revisión (parte 9) |
 | Si te quedas sin empleo: subsidio de desempleo y cómo pedirlo | `subsidio-de-desempleo-proteccion-al-cesante` | Fin del contrato | Pendiente de revisión (parte 10) |
+| Cómo reclamar tus derechos laborales: conciliación, demanda y tutela | `como-reclamar-conciliacion-demanda-tutela` | A dónde acudir | Pendiente de revisión (parte 11) |
 
 ## Temas prioritarios sin guía propia
 
