@@ -5,8 +5,9 @@
  * solo pagos.
  */
 export const GUIAS_PRIORITARIAS = [
-  // Reformas y nuevas formas de trabajar (parte 5, pendientes de publicar)
+  // Reformas y nuevas formas de trabajar (partes 5 y 6)
   'reforma-laboral-ley-2466-que-cambio',
+  'reforma-pensional-que-cambia',
   'teletrabajo-trabajo-remoto-y-desconexion',
   'plataformas-digitales-de-reparto',
   'sindicatos-asociacion-y-huelga',
@@ -34,12 +35,11 @@ export function ordenarPorPrioridad<T extends { slug: string }>(guias: T[]): T[]
 
 /**
  * Temas por CREAR (aún no hay guía). Calendario: una cada 7–10 días.
- * Las de la parte 5 (reforma, teletrabajo, plataformas, aprendices y
- * sindicatos) ya están redactadas y pendientes de revisión.
+ * Ya redactadas: reforma laboral, teletrabajo, plataformas, aprendices y
+ * sindicatos (parte 5, corregidas en la parte 6) y reforma pensional (parte 6).
+ * Las licencias nuevas de la reforma ya están en la guía de licencias remuneradas.
  */
 export const GUIAS_A_CREAR: { titulo: string; slugSugerido: string; eje: string }[] = [
-  { titulo: 'Reforma pensional: qué cambia y desde cuándo', slugSugerido: 'reforma-pensional-que-cambia', eje: 'Reformas y novedades' },
-  { titulo: 'Licencias nuevas de la reforma laboral', slugSugerido: 'licencias-nuevas-reforma-laboral', eje: 'Reformas y novedades' },
   { titulo: 'Contrato de prestación de servicios vs. contrato laboral', slugSugerido: 'ops-vs-contrato-laboral', eje: 'Contrato y formas de trabajar' },
   { titulo: 'Salud mental en el trabajo y riesgo psicosocial', slugSugerido: 'salud-mental-y-riesgo-psicosocial', eje: 'Salud, seguridad y licencias' },
   { titulo: 'Inclusión laboral y cuota de personas con discapacidad', slugSugerido: 'inclusion-laboral-discapacidad', eje: 'Igualdad, dignidad y acoso' },

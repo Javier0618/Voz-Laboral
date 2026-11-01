@@ -85,37 +85,33 @@ Una guía trata un solo tema concreto. El salario importa, pero **no monopoliza*
 
 Publicar **una guía nueva o una reescritura fuerte cada 7–10 días**. La lista de guías por crear está en el código, en `GUIAS_A_CREAR` (`src/lib/guiasPrioritarias.ts`).
 
-### Redactadas, pendientes de tu revisión (parte 5)
+### Verificadas contra el texto oficial (partes 5 y 6)
 
-Archivo: `supabase/contenido/guias-trabajo-2026-parte-5.sql`. Entran como «pendiente de verificación».
+Las guías de la parte 5 se contrastaron el 1 de noviembre de 2026 con los textos oficiales que compila Colpensiones. Las correcciones están en `supabase/contenido/guias-trabajo-2026-parte-6.sql`.
 
-| # | Guía | Tema |
-|---|------|------|
-| 1 | Reforma laboral de 2025: qué cambió para quienes trabajan | Reformas y novedades |
-| 2 | Teletrabajo, trabajo remoto, trabajo en casa y derecho a desconectarte | Contrato y formas de trabajar |
-| 3 | Repartidores de plataformas digitales: qué dice la reforma laboral | Contrato y formas de trabajar |
-| 4 | Aprendices SENA y contrato de aprendizaje después de la reforma | Contrato y formas de trabajar |
-| 5 | Sindicatos, negociación colectiva y huelga: tus derechos | Sindicatos y derechos colectivos |
+| # | Guía | Tema | Estado |
+|---|------|------|--------|
+| 1 | Reforma laboral de 2025: qué cambió para quienes trabajan | Reformas y novedades | Publicada, corregida en la parte 6 |
+| 2 | Teletrabajo, trabajo remoto, trabajo en casa y derecho a desconectarte | Contrato y formas de trabajar | Publicada, corregida en la parte 6 |
+| 3 | Repartidores de plataformas digitales: qué dice la reforma laboral | Contrato y formas de trabajar | Publicada, corregida en la parte 6 |
+| 4 | Aprendices SENA y contrato de aprendizaje después de la reforma | Contrato y formas de trabajar | Publicada, corregida en la parte 6 |
+| 5 | Sindicatos, negociación colectiva y huelga: tus derechos | Sindicatos y derechos colectivos | Publicada, corregida en la parte 6 |
+| 6 | Reforma pensional: qué cambia y desde cuándo | Reformas y novedades | Nueva, pendiente de tu revisión |
 
-Se redactaron sin acceso a los portales oficiales. Antes de publicar:
-
-- revisa los puntos marcados «(pendiente de verificación)»;
-- abre cada enlace de fuentes.
+**Fuente de referencia:** la compilación normativa de Colpensiones (`normativa.colpensiones.gov.co`) incluye los textos con notas de vigencia y es accesible desde el entorno de trabajo.
 
 ### Por crear (en orden)
 
 | # | Tema | Eje |
 |---|------|-----|
-| 1 | Reforma pensional: qué cambia y desde cuándo | Reformas |
-| 2 | Licencias nuevas de la reforma laboral | Reformas |
-| 3 | OPS vs. contrato laboral | Formas de trabajar |
-| 4 | Salud mental y riesgo psicosocial | Salud |
-| 5 | Inclusión laboral y cuota de discapacidad | Dignidad |
-| 6 | Trabajo doméstico: derechos | Formas de trabajar |
-| 7 | Trabajadores migrantes: derechos laborales | Dignidad |
-| 8 | Inspección de trabajo | A dónde acudir |
-| 9 | Calendario laboral del año | Reformas |
-| 10 | Trabajo en el campo: jornal y contrato agropecuario | Formas de trabajar |
+| 1 | OPS vs. contrato laboral | Formas de trabajar |
+| 2 | Salud mental y riesgo psicosocial | Salud |
+| 3 | Inclusión laboral y cuota de discapacidad | Dignidad |
+| 4 | Trabajo doméstico: derechos | Formas de trabajar |
+| 5 | Trabajadores migrantes: derechos laborales | Dignidad |
+| 6 | Inspección de trabajo | A dónde acudir |
+| 7 | Calendario laboral del año | Reformas |
+| 8 | Trabajo en el campo: jornal y contrato agropecuario | Formas de trabajar |
 
 ### Ya publicadas
 

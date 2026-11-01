@@ -67,6 +67,7 @@ const POR_SLUG = new Map([...TEMAS_GUIAS, TEMA_OTROS].map((t) => [t.slug, t]));
 /** Clasificación explícita de cada guía (slug de la guía → tema). */
 export const GUIA_TEMA: Record<string, string> = {
   'reforma-laboral-ley-2466-que-cambio': 'reformas',
+  'reforma-pensional-que-cambia': 'reformas',
 
   'cuando-existe-contrato-de-trabajo': 'formas-de-trabajar',
   'tipos-de-contrato-y-periodo-de-prueba': 'formas-de-trabajar',

@@ -44,17 +44,18 @@ Hay **25 guías** en el repositorio. Las 24 primeras se revisaron contra el text
 | 24 | Licencias de maternidad y paternidad | `licencias-de-maternidad-y-paternidad` | parte-2 | Mantener | Pendiente: verificar si se amplió la licencia de paternidad. |
 | 25 | Vacaciones: cuántos días te corresponden y cuándo tomarlas | `vacaciones` | parte-2 | Mantener | |
 
-## Redactadas y pendientes de revisión (parte 5)
+## Partes 5 y 6: reformas y mundo del trabajo
 
-Archivo: `supabase/contenido/guias-trabajo-2026-parte-5.sql`. Siguen la plantilla editorial y entran como «pendiente de verificación».
+Las guías de la parte 5 siguen la plantilla editorial. Se verificaron contra el texto oficial el 1 de noviembre de 2026, y las correcciones están en la parte 6.
 
-| Título | Slug | Tema |
-|---|---|---|
-| Reforma laboral de 2025: qué cambió para quienes trabajan | `reforma-laboral-ley-2466-que-cambio` | Reformas y novedades |
-| Teletrabajo, trabajo remoto, trabajo en casa y derecho a desconectarte | `teletrabajo-trabajo-remoto-y-desconexion` | Contrato y formas de trabajar |
-| Repartidores de plataformas digitales: qué dice la reforma laboral | `plataformas-digitales-de-reparto` | Contrato y formas de trabajar |
-| Aprendices SENA y contrato de aprendizaje después de la reforma | `contrato-de-aprendizaje-sena` | Contrato y formas de trabajar |
-| Sindicatos, negociación colectiva y huelga: tus derechos | `sindicatos-asociacion-y-huelga` | Sindicatos y derechos colectivos |
+| Título | Slug | Tema | Estado |
+|---|---|---|---|
+| Reforma laboral de 2025: qué cambió para quienes trabajan | `reforma-laboral-ley-2466-que-cambio` | Reformas y novedades | Publicada |
+| Teletrabajo, trabajo remoto, trabajo en casa y derecho a desconectarte | `teletrabajo-trabajo-remoto-y-desconexion` | Contrato y formas de trabajar | Publicada |
+| Repartidores de plataformas digitales: qué dice la reforma laboral | `plataformas-digitales-de-reparto` | Contrato y formas de trabajar | Publicada |
+| Aprendices SENA y contrato de aprendizaje después de la reforma | `contrato-de-aprendizaje-sena` | Contrato y formas de trabajar | Publicada |
+| Sindicatos, negociación colectiva y huelga: tus derechos | `sindicatos-asociacion-y-huelga` | Sindicatos y derechos colectivos | Publicada |
+| Reforma pensional: qué cambia y desde cuándo | `reforma-pensional-que-cambia` | Reformas y novedades | Pendiente de revisión |
 
 ## Temas prioritarios sin guía propia
 
