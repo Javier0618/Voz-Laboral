@@ -8,6 +8,7 @@ import { brand } from '../config/brand';
 import { GuideBody } from '../components/GuideBody';
 import { GuideCover } from '../components/GuideCover';
 import { GuideCalculatorLinks } from '../components/GuideCalculatorLinks';
+import { RelatedExperiences } from '../components/RelatedExperiences';
 import { GUIAS_PRIORITARIAS } from '../lib/guiasPrioritarias';
 import { ordenTema, resolverTema, temaDeGuia } from '../lib/temasGuias';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, useAsync } from '../components/ui';
@@ -425,6 +426,8 @@ export function RightsArticle() {
           )}
 
           <p className="mt-10 max-w-prose rounded border-l-4 border-navy/30 bg-mist px-4 py-3 text-sm leading-6">{data.disclaimer}</p>
+
+          <RelatedExperiences category={data.category_slug} topicName={topicName} />
 
           <section className="mt-12 max-w-prose rounded-lg bg-brand p-6 text-white sm:p-8 print:hidden" aria-labelledby="cta-guia">
             <h2 id="cta-guia" className="font-serif text-2xl text-white">¿Viviste algo así en tu trabajo?</h2>

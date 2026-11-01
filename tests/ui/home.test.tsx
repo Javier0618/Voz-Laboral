@@ -29,13 +29,14 @@ describe('portada', () => {
     const h = headings();
     expect(h.indexOf('Sé de las primeras personas en contar')).toBe(h.indexOf('Guías laborales') + 1);
     expect(h.indexOf('Calculadoras laborales')).toBe(h.indexOf('Sé de las primeras personas en contar') + 1);
-    expect(screen.queryByRole('heading', { name: 'Experiencias recientes' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Lo que cuentan quienes trabajan ahí' })).toBeNull();
   });
 
   it('con experiencias muestra las recientes', async () => {
     experiences.list = [{ id: 'e1', title: 'Pagos puntuales' }];
     render(<MemoryRouter><Home /></MemoryRouter>);
     expect(await screen.findByText('Pagos puntuales')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Lo que cuentan quienes trabajan ahí' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Sé de las primeras personas en contar' })).toBeNull();
   });
 });

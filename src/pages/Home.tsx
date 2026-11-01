@@ -147,8 +147,9 @@ function SectionHeading({ id, title, children, action }: { id: string; title: st
 function RecentExperiences({ data, loading, error, reload }: ReturnType<typeof useAsync<Awaited<ReturnType<typeof listExperiences>>>>) {
   return (
     <section className="page mt-20" aria-labelledby="recientes">
-      <SectionHeading id="recientes" title="Experiencias recientes" action={<Link to="/experiencias" className="btn-link">Ver todas las experiencias</Link>}>
-        Buenas, malas y mixtas. La moderación revisa que cumplan las reglas, no que los hechos sean ciertos.
+      <SectionHeading id="recientes" title="Lo que cuentan quienes trabajan ahí" action={<Link to="/experiencias" className="btn-link">Ver todas las experiencias</Link>}>
+        Experiencias recientes de trabajadores, contadas con alias: buenas, malas y mixtas. Complementan las guías con lo que pasa en la
+        práctica. La moderación revisa que cumplan las reglas, no que los hechos sean ciertos.
       </SectionHeading>
       <div className="mt-8">
         {loading ? (
