@@ -9,6 +9,7 @@ import { GuideBody } from '../components/GuideBody';
 import { GuideCover } from '../components/GuideCover';
 import { GuideCalculatorLinks } from '../components/GuideCalculatorLinks';
 import { GUIAS_PRIORITARIAS } from '../lib/guiasPrioritarias';
+import { ordenTema, resolverTema, temaDeGuia } from '../lib/temasGuias';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, useAsync } from '../components/ui';
 
 const disclaimer =
@@ -63,16 +64,15 @@ function HelpAside({ guides }: { guides: LegalResource[] }) {
 
 export default function Rights() {
   const resources = useAsync(() => (notConfigured ? Promise.resolve([]) : listLegalResources()), []);
-  const categories = useAsync(() => (notConfigured ? Promise.resolve([]) : listCategories()), []);
   const [params, setParams] = useSearchParams();
   const query = params.get('q') ?? '';
-  const topic = params.get('tema') ?? '';
+  const topic = resolverTema(params.get('tema') ?? '')?.slug ?? '';
 
   useEffect(() => {
     setPageMeta({
       title: `Guías laborales · ${brand.name}`,
       description:
-        'Guías laborales para conocer tus derechos y deberes según la ley colombiana: salario, jornada, contrato, seguridad social y a dónde acudir. Cada una cita su fuente oficial.',
+        'Guías sobre el trabajo en Colombia: reformas laborales, contratos y nuevas formas de trabajar, jornada, salud, acoso, sindicatos, salario y a dónde acudir. Cada una cita su fuente oficial.',
       path: '/derechos',
       type: 'website',
     });
@@ -89,17 +89,14 @@ export default function Rights() {
 
   const guides = resources.data ?? [];
   const topics = useMemo(() => {
-    const used = new Set(guides.map((g) => g.category_slug ?? ''));
-    const list = (categories.data ?? []).filter((c) => used.has(c.slug)).map((c) => ({ slug: c.slug, name: c.name }));
-    if (used.has('')) list.push({ slug: 'generales', name: 'Temas generales' });
-    return list;
-  }, [guides, categories.data]);
+    const used = new Map(guides.map((g) => { const t = temaDeGuia(g); return [t.slug, t] as const; }));
+    return [...used.values()].sort((a, b) => ordenTema(a.slug) - ordenTema(b.slug));
+  }, [guides]);
 
   const visible = useMemo(() => {
     const q = normalize(query.trim());
     return guides.filter((g) => {
-      const slug = g.category_slug ?? 'generales';
-      if (topic && slug !== topic) return false;
+      if (topic && temaDeGuia(g).slug !== topic) return false;
       if (!q) return true;
       return normalize(`${g.title} ${g.summary} ${plainText(g.content)}`).includes(q);
     });
@@ -108,8 +105,8 @@ export default function Rights() {
   return (
     <div className="page py-10">
       <PageHeader title="Guías laborales">
-        Guías para conocer tus derechos y deberes laborales según la ley colombiana: salario, jornada, horas extra, contrato, prestaciones,
-        seguridad social y a dónde acudir. Cada una resume la norma con claridad, cita su fuente oficial y la fecha en que se verificó. Son
+        Todo lo que cambia en el trabajo en Colombia, explicado con claridad: reformas laborales, contratos y nuevas formas de trabajar,
+        jornada, salud, acoso, sindicatos, salario y a dónde acudir. Cada guía cita su fuente oficial y la fecha en que se verificó. Son
         orientativas: no sustituyen al Ministerio del Trabajo ni a un abogado.
       </PageHeader>
 
@@ -135,7 +132,7 @@ export default function Rights() {
                   id="buscar-guias"
                   type="search"
                   className="input"
-                  placeholder="Por ejemplo: horas extra, vacaciones, despido"
+                  placeholder="Por ejemplo: reforma laboral, teletrabajo, sindicato, despido"
                   value={query}
                   onChange={(e) => setFilter({ q: e.target.value })}
                 />
@@ -180,9 +177,9 @@ export default function Rights() {
                 </EmptyState>
               </div>
             ) : topic || query ? (
-              <GuideList guides={visible} all={guides} categories={categories.data} />
+              <GuideList guides={visible} all={guides} />
             ) : (
-              <GuidesByTopic guides={visible} categories={categories.data} />
+              <GuidesByTopic guides={visible} />
             )}
           </div>
           <HelpAside guides={guides} />
@@ -199,7 +196,7 @@ function FeaturedGuides({ guides }: { guides: LegalResource[] }) {
   return (
     <section className="mt-10" aria-labelledby="destacadas">
       <h2 id="destacadas" className="font-sans text-base font-semibold text-ink">Empieza por estas</h2>
-      <p className="mt-1 text-sm text-slate">Las guías más consultadas sobre pagos, jornada y qué hacer si hay un problema.</p>
+      <p className="mt-1 text-sm text-slate">Reformas recientes, tus derechos en el día a día y qué hacer si hay un problema.</p>
       <ul className="mt-4 grid gap-3 sm:grid-cols-2">
         {featured.slice(0, 6).map((g) => (
           <li key={g.id}>
@@ -217,15 +214,7 @@ function FeaturedGuides({ guides }: { guides: LegalResource[] }) {
   );
 }
 
-function GuideList({
-  guides,
-  all,
-  categories,
-}: {
-  guides: LegalResource[];
-  all: LegalResource[];
-  categories: Category[] | null | undefined;
-}) {
+function GuideList({ guides, all }: { guides: LegalResource[]; all: LegalResource[] }) {
   return (
     <ol className="mt-3 border-t border-ink/80">
       {guides.map((g) => (
@@ -237,7 +226,7 @@ function GuideList({
             </span>
             <GuideCover guide={g} className="mb-4 rounded sm:col-start-2 md:order-last md:col-start-3 md:mb-0 md:self-start" />
             <span className="sm:col-start-2 md:row-start-1">
-              <span className="block text-sm font-semibold text-teal-strong">{categoryName(categories, g.category_slug)}</span>
+              <span className="block text-sm font-semibold text-teal-strong">{temaDeGuia(g).name}</span>
               <span className="mt-1 block font-serif text-2xl leading-tight text-ink group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">
                 {g.title}
               </span>
@@ -251,35 +240,24 @@ function GuideList({
   );
 }
 
-function GuidesByTopic({
-  guides,
-  categories,
-}: {
-  guides: LegalResource[];
-  categories: Category[] | null | undefined;
-}) {
-  const groups = new Map<string, LegalResource[]>();
+function GuidesByTopic({ guides }: { guides: LegalResource[] }) {
+  const groups = new Map<string, { tema: ReturnType<typeof temaDeGuia>; items: LegalResource[] }>();
   for (const g of guides) {
-    const key = g.category_slug || 'generales';
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push(g);
+    const tema = temaDeGuia(g);
+    if (!groups.has(tema.slug)) groups.set(tema.slug, { tema, items: [] });
+    groups.get(tema.slug)!.items.push(g);
   }
-  const order = (categories ?? []).map((c) => c.slug);
-  const keys = [
-    ...order.filter((s) => groups.has(s)),
-    ...[...groups.keys()].filter((s) => s !== 'generales' && !order.includes(s)).sort(),
-    ...(groups.has('generales') ? ['generales'] : []),
-  ];
+  const keys = [...groups.keys()].sort((x, y) => ordenTema(x) - ordenTema(y));
   return (
     <div className="mt-3 space-y-12">
       {keys.map((slug) => {
-        const items = groups.get(slug) ?? [];
-        if (!items.length) return null;
+        const { tema, items } = groups.get(slug)!;
         return (
           <section key={slug} aria-labelledby={`tema-${slug}`}>
-            <h2 id={`tema-${slug}`} className="border-b border-ink/80 pb-3 font-sans text-lg font-semibold text-ink">
-              {categoryName(categories, slug === 'generales' ? null : slug)}
-            </h2>
+            <div className="border-b border-ink/80 pb-3">
+              <h2 id={`tema-${slug}`} className="font-sans text-lg font-semibold text-ink">{tema.name}</h2>
+              {tema.description && <p className="mt-1 text-sm text-slate">{tema.description}</p>}
+            </div>
             <ul className="divide-y divide-line">
               {items.map((g) => (
                 <li key={g.id}>
@@ -318,8 +296,9 @@ export function RightsArticle() {
     const path = `/derechos/${data.slug}`;
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     const pageUrl = origin ? `${origin}${path}` : path;
-    const topicLabel = categoryName(categories.data, data.category_slug);
-    const temaPath = `/derechos?tema=${data.category_slug ?? 'generales'}`;
+    const tema = temaDeGuia(data);
+    const topicLabel = tema.name;
+    const temaPath = `/derechos?tema=${tema.slug}`;
     setPageMeta({
       title: `${data.title} · ${brand.name}`,
       description: data.summary,
@@ -350,7 +329,7 @@ export function RightsArticle() {
       ],
     });
     return () => setPageMeta(null);
-  }, [data, categories.data]);
+  }, [data]);
 
   if (notConfigured) return <div className="page py-10"><ConfigNotice /></div>;
   if (loading) return <div className="page py-10"><Loading /></div>;
@@ -367,8 +346,14 @@ export function RightsArticle() {
 
   const outline = guideOutline(data.content);
   const topicName = categoryName(categories.data, data.category_slug);
+  const tema = temaDeGuia(data);
   const others = (all.data ?? []).filter((g) => g.id !== data.id);
-  const related = [...others.filter((g) => g.category_slug === data.category_slug), ...others.filter((g) => g.category_slug !== data.category_slug)].slice(0, 3);
+  const sameTema = others.filter((g) => temaDeGuia(g).slug === tema.slug);
+  const related = [
+    ...sameTema,
+    ...others.filter((g) => g.category_slug === data.category_slug && !sameTema.includes(g)),
+    ...others.filter((g) => g.category_slug !== data.category_slug && !sameTema.includes(g)),
+  ].slice(0, 3);
   const sources = data.legal_resource_sources ?? [];
 
   return (
@@ -378,7 +363,7 @@ export function RightsArticle() {
           <nav aria-label="Ruta de navegación" className="text-sm text-slate print:hidden">
             <Link to="/derechos" className="hover:text-ink hover:underline">Guías</Link>
             <span aria-hidden="true" className="mx-2">/</span>
-            <Link to={`/derechos?tema=${data.category_slug ?? 'generales'}`} className="hover:text-ink hover:underline">{topicName}</Link>
+            <Link to={`/derechos?tema=${tema.slug}`} className="hover:text-ink hover:underline">{tema.name}</Link>
           </nav>
           <div className={data.cover_url ? 'mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:items-stretch xl:grid-cols-[minmax(0,1fr)_minmax(0,28rem)]' : 'mt-4'}>
             <div>
@@ -394,7 +379,7 @@ export function RightsArticle() {
           <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-4 border-t border-ink/15 pt-5 text-sm">
             <div>
               <dt className="text-slate">Tema</dt>
-              <dd className="mt-0.5 font-semibold">{topicName}</dd>
+              <dd className="mt-0.5 font-semibold">{tema.name}</dd>
             </div>
             <div>
               <dt className="text-slate">Lectura</dt>
