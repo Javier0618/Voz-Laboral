@@ -1,9 +1,23 @@
 // Genera dist/sitemap.xml y dist/robots.txt después de `vite build`.
 // Usa la clave pública (anon) y solo funciones/columnas públicas.
 // Variables: SITE_URL (dominio público; por defecto https://tuvozlaboral.com),
-// VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY. Si falta algo o Supabase no
+// VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY, del sistema o de los archivos .env. Si falta algo o Supabase no
 // responde, genera el mapa solo con las páginas fijas: nunca rompe el build.
-import { writeFileSync, existsSync } from 'node:fs';
+import { writeFileSync, existsSync, readFileSync } from 'node:fs';
+
+// Lee los mismos archivos .env que Vite (las variables del sistema tienen
+// prioridad). Sin esto, el script no vería VITE_SUPABASE_URL ni SITE_URL si
+// solo están en .env o .env.local, y el mapa no incluiría las guías.
+for (const nombre of ['.env.production.local', '.env.local', '.env.production', '.env']) {
+  const ruta = new URL(`../${nombre}`, import.meta.url);
+  if (!existsSync(ruta)) continue;
+  for (const linea of readFileSync(ruta, 'utf8').split(/\r?\n/)) {
+    const m = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/.exec(linea);
+    if (!m || linea.trim().startsWith('#')) continue;
+    const valor = m[2].replace(/^(['"])(.*)\1$/, '$2');
+    if (process.env[m[1]] === undefined) process.env[m[1]] = valor;
+  }
+}
 
 const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '';
 const site = (process.env.SITE_URL || process.env.URL || vercel || 'https://tuvozlaboral.com').replace(/\/$/, '');
