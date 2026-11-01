@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { VALORES_2026 } from '../../lib/liquidacion';
 import { setPageMeta } from '../../lib/meta';
 import { brand } from '../../config/brand';
@@ -38,6 +38,10 @@ export default function CalculadorasIndex() {
           </li>
         ))}
       </ul>
+      <p className="mt-10 max-w-prose text-slate">
+        Para entender la norma detrás de cada cifra, consulta las{' '}
+        <Link to="/derechos" className="btn-link">guías laborales</Link>.
+      </p>
       <section className="mt-12 max-w-prose rounded-md bg-mist p-6" aria-labelledby="valores">
         <h2 id="valores" className="font-sans text-base font-semibold">Valores de 2026 que usan</h2>
         <ul className="mt-3 space-y-1 text-slate">
