@@ -37,6 +37,7 @@ export const policies: Policy[] = [
         heading: 'Cookies y almacenamiento en tu navegador',
         paragraphs: [
           'No usamos cookies ni de publicidad ni de seguimiento.',
+          'Para saber qué páginas se leen más, usamos Umami, una herramienta de medición sin cookies instalada en nuestro propio servidor: los datos no se comparten con terceros. Umami cuenta las visitas con un código anónimo que cambia cada día, así que no permite seguirte entre días ni entre sitios, y solo vemos cifras agregadas: páginas vistas, de dónde llegaron las visitas, país y tipo de dispositivo. Antes de registrar cada visita quitamos de la dirección los parámetros y los enlaces privados de seguimiento.',
           'El sitio guarda en tu navegador (almacenamiento local) solo lo necesario para funcionar: tu sesión si inicias sesión, tu preferencia de modo claro u oscuro, el texto de la experiencia que estás escribiendo (para que no lo pierdas) y una marca para no contar dos veces la visita a una guía el mismo día. Puedes borrarlo desde la configuración de tu navegador.',
         ],
       },
@@ -88,6 +89,12 @@ export const policies: Policy[] = [
         heading: 'Límites de la protección',
         paragraphs: [
           'No podemos garantizar anonimato absoluto. Los detalles de un relato pueden permitir que alguien de tu entorno te reconozca. Una autoridad competente puede requerir información conforme a la ley; en ese caso solo entregamos lo que la orden exija.',
+        ],
+      },
+      {
+        heading: 'Medición de visitas',
+        paragraphs: [
+          'No usamos cookies. Medimos qué páginas se leen con Umami, instalado en nuestro propio servidor, con cifras agregadas que no permiten identificarte. Los detalles están en la política de tratamiento de datos.',
         ],
       },
       { heading: 'Responsable', paragraphs: [RESPONSABLE] },

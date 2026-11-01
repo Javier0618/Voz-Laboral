@@ -86,13 +86,12 @@ La dirección es sobria y confiable: ni red social ni portal gubernamental.
 - **5.3:** no se crean calculadoras nuevas hasta tener al menos 10 guías sólidas con la plantilla editorial. La prioridad es el contenido.
 - **5.4:** la liquidación sigue el Código Sustantivo del Trabajo (convención 30/360). No se añade una opción con reglas propias de cada empresa, como su forma de pagar el dominical: añadiría confusión legal sin aportar claridad. Si una empresa paga más que el mínimo legal, la guía lo explica, pero la calculadora estima el mínimo.
 
-## Medición de visitas (Fase 6.3), pendiente
+## Medición de visitas (Fase 6.3)
 
-- El sitio se alojará en un VPS propio, así que Vercel Web Analytics no sirve: solo funciona en Vercel.
-- Hay dos opciones:
-  - **Umami en el mismo VPS** (recomendada): sin cookies, sin banner y con los datos en el servidor propio.
-  - **Google Analytics**: usa cookies, así que pide consentimiento y un banner.
-- Está decidido que, se elija la que se elija, cada dirección pase antes por `limpiarUrl` (`src/lib/analytics.ts`). Así se quitan los parámetros, como el `?code=` del inicio de sesión, y se tapa el enlace privado de `/seguimiento/<enlace>`.
+- El sitio se aloja en un VPS propio. Se usa **Umami** instalado en ese VPS: no usa cookies, así que **no hay banner**, y los datos no salen del servidor.
+- Se activa al compilar con `VITE_UMAMI_URL` y `VITE_UMAMI_WEBSITE_ID`. Sin ellas no se carga ningún script (`iniciarUmami` en `src/lib/analytics.ts`).
+- Antes de cada envío, `umamiBeforeSend` pasa la dirección y la procedencia por `limpiarUrl`: quita los parámetros, como el `?code=` del inicio de sesión, y tapa el enlace privado de `/seguimiento/<enlace>`. Además, el script se carga con `data-exclude-search` y `data-exclude-hash`.
+- **Futuro, Google AdSense:** sus anuncios personalizados usan cookies, así que al activarlo hará falta el banner de consentimiento de AdSense («Privacidad y mensajes»), el archivo `ads.txt` y actualizar la política. Para proteger la independencia, los anuncios irán solo en guías y calculadoras, marcados como «Publicidad»; nunca en perfiles de empresa, experiencias ni formularios.
 
 ## Revisión periódica de las guías (Fase 3.3)
 

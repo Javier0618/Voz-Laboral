@@ -9,7 +9,7 @@
 - ⬜ Normas sobre transferencia y transmisión internacional de datos, si los servidores de Supabase están fuera de Colombia.
 - ⬜ Responsabilidad por contenidos de terceros, derecho al buen nombre y rectificación de información publicada (jurisprudencia aplicable).
 - ⬜ Régimen de acoso laboral y canales oficiales de denuncia, para las guías y para los avisos a usuarios en riesgo.
-- ⬜ Cookies y almacenamiento local: hoy el sitio no usa cookies, y el almacenamiento local guarda solo la sesión, el tema, el texto de la experiencia en curso y una marca de visita. Falta elegir la medición de visitas para el VPS: con Umami (sin cookies) basta con informarlo en la política; con Google Analytics (usa cookies) hace falta consentimiento y un banner.
+- ⬜ Cookies y almacenamiento local: el sitio no usa cookies. Mide las visitas con Umami, sin cookies y alojado en el VPS propio, y lo informa en la política sin banner; hay que confirmar que basta. Cuando se active Google AdSense, que usa cookies, hará falta consentimiento y un banner.
 
 ## Documentos (borradores en `src/content/policies.ts`)
 
