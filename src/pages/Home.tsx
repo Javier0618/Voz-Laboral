@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { listCategories, listExperiences, listLegalResources } from '../lib/api';
 import { CALCULADORAS } from '../lib/calculadoras';
+import { ordenarPorPrioridad } from '../lib/guiasPrioritarias';
 import { readingMinutes } from '../lib/guide';
 import { defaultHomeMeta, setPageMeta } from '../lib/meta';
 import { GuideCover } from '../components/GuideCover';
@@ -325,15 +326,15 @@ function Identity() {
 
 function Rights() {
   const guides = useAsync(() => (notConfigured ? Promise.resolve([]) : listLegalResources()), []);
-  const featured = (guides.data ?? []).slice(0, 6);
+  const featured = ordenarPorPrioridad(guides.data ?? []).slice(0, 6);
   return (
     <section className="page mt-20" aria-labelledby="guias-inicio">
       <div className="grid gap-6 border-t border-ink/80 pt-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12">
         <div>
           <h2 id="guias-inicio" className="text-3xl">Guías laborales</h2>
           <p className="mt-3 max-w-prose text-slate">
-            Guías para conocer tus derechos y deberes según la ley colombiana. Cada una resume la norma, cita su fuente oficial y la fecha
-            de revisión. Son orientativas: no sustituyen al Ministerio del Trabajo ni a un abogado.
+            Reformas laborales, contratos y nuevas formas de trabajar, jornada, salud, acoso, sindicatos y salario. Cada guía resume la
+            norma, cita su fuente oficial y la fecha de revisión. Son orientativas: no sustituyen al Ministerio del Trabajo ni a un abogado.
           </p>
         </div>
         <Link to="/derechos" className="btn-primary justify-self-start px-6">Ver todas las guías</Link>

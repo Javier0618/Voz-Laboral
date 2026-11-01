@@ -6,7 +6,7 @@ import { brand } from '../config/brand';
 // prerender o middleware en el hosting.
 
 const DEFAULT_DESCRIPTION =
-  'Guías sobre derechos laborales en Colombia, experiencias de trabajadores contadas con alias y calculadoras de nómina. Información clara, orientativa.';
+  'Guías sobre derechos laborales y reformas en Colombia, experiencias de trabajadores contadas con alias y calculadoras de nómina. Información clara, orientativa.';
 
 const DEFAULT_TITLE = `${brand.name}: derechos laborales, experiencias y calculadoras en Colombia`;
 

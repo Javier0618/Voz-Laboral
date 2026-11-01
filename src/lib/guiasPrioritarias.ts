@@ -1,74 +1,53 @@
-/** Guías prioritarias (calendario editorial). Incluye temas existentes y huecos a crear. */
+/**
+ * Guías destacadas («Empieza por estas» en /derechos y bloque de la portada).
+ * Solo se muestran las que están publicadas, en este orden. El foco es el
+ * trabajo en general —reformas, formas de trabajar, dignidad, defensa—, no
+ * solo pagos.
+ */
 export const GUIAS_PRIORITARIAS = [
-  // Ya publicadas — reforzar cuando toque
+  // Reformas y nuevas formas de trabajar (parte 5, pendientes de publicar)
+  'reforma-laboral-ley-2466-que-cambio',
+  'teletrabajo-trabajo-remoto-y-desconexion',
+  'plataformas-digitales-de-reparto',
+  'sindicatos-asociacion-y-huelga',
+  'contrato-de-aprendizaje-sena',
+  // Ya publicadas
+  'jornada-horas-extra-y-recargos',
+  'tipos-de-contrato-y-periodo-de-prueba',
+  'acoso-laboral-que-es-y-donde-acudir',
   'a-donde-acudir-ministerio-y-derecho-de-peticion',
   'accidente-de-trabajo-y-enfermedad-laboral',
-  'acoso-laboral-que-es-y-donde-acudir',
-  'tipos-de-contrato-y-periodo-de-prueba',
-  'jornada-horas-extra-y-recargos',
+  'estabilidad-laboral-reforzada',
   'descanso-dominical-y-festivos',
-  // Prestaciones y fin de contrato (útiles, no el único foco)
-  'liquidacion-al-terminar-el-contrato',
   'despido-con-y-sin-justa-causa',
-  'prima-de-servicios',
-  'incapacidad-por-enfermedad',
+  'liquidacion-al-terminar-el-contrato',
 ] as const;
 
+/** Ordena guías publicadas: primero las prioritarias, luego el resto por título. */
+export function ordenarPorPrioridad<T extends { slug: string }>(guias: T[]): T[] {
+  const rank = (slug: string) => {
+    const i = (GUIAS_PRIORITARIAS as readonly string[]).indexOf(slug);
+    return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+  };
+  return [...guias].sort((a, b) => rank(a.slug) - rank(b.slug));
+}
+
 /**
- * Temas prioritarios a CREAR (aún no hay slug en la base).
- * Reformas, sistema laboral y vida en el trabajo — no solo salario.
+ * Temas por CREAR (aún no hay guía). Calendario: una cada 7–10 días.
+ * Las de la parte 5 (reforma, teletrabajo, plataformas, aprendices y
+ * sindicatos) ya están redactadas y pendientes de revisión.
  */
 export const GUIAS_A_CREAR: { titulo: string; slugSugerido: string; eje: string }[] = [
-  {
-    titulo: 'Qué cambió con la reforma laboral reciente',
-    slugSugerido: 'reforma-laboral-que-cambio',
-    eje: 'Reformas y novedades',
-  },
-  {
-    titulo: 'Jornada laboral de 42 horas: cómo se aplica',
-    slugSugerido: 'jornada-42-horas-como-se-aplica',
-    eje: 'Reformas y novedades',
-  },
-  {
-    titulo: 'Teletrabajo, trabajo remoto e híbrido',
-    slugSugerido: 'teletrabajo-remoto-hibrido',
-    eje: 'Formas de trabajar',
-  },
-  {
-    titulo: 'Contrato de prestación de servicios vs. contrato laboral',
-    slugSugerido: 'ops-vs-contrato-laboral',
-    eje: 'Contrato y vínculo',
-  },
-  {
-    titulo: 'Sindicatos, derecho de asociación y huelga',
-    slugSugerido: 'sindicatos-asociacion-y-huelga',
-    eje: 'Derechos colectivos',
-  },
-  {
-    titulo: 'Discriminación y acoso: qué dice la ley y dónde denunciar',
-    slugSugerido: 'discriminacion-en-el-trabajo',
-    eje: 'Igualdad y dignidad',
-  },
-  {
-    titulo: 'Salud mental en el trabajo y factores de riesgo psicosocial',
-    slugSugerido: 'salud-mental-y-riesgo-psicosocial',
-    eje: 'Salud y seguridad',
-  },
-  {
-    titulo: 'Trabajo doméstico: derechos y deberes',
-    slugSugerido: 'trabajo-domestico-derechos',
-    eje: 'Sectores',
-  },
-  {
-    titulo: 'Aprendices SENA y contratos de aprendizaje',
-    slugSugerido: 'contrato-de-aprendizaje-sena',
-    eje: 'Contrato y vínculo',
-  },
-  {
-    titulo: 'Inspección de trabajo: qué puede hacer y cómo solicitarla',
-    slugSugerido: 'inspeccion-de-trabajo',
-    eje: 'Trámites y defensa',
-  },
+  { titulo: 'Reforma pensional: qué cambia y desde cuándo', slugSugerido: 'reforma-pensional-que-cambia', eje: 'Reformas y novedades' },
+  { titulo: 'Licencias nuevas de la reforma laboral', slugSugerido: 'licencias-nuevas-reforma-laboral', eje: 'Reformas y novedades' },
+  { titulo: 'Contrato de prestación de servicios vs. contrato laboral', slugSugerido: 'ops-vs-contrato-laboral', eje: 'Contrato y formas de trabajar' },
+  { titulo: 'Salud mental en el trabajo y riesgo psicosocial', slugSugerido: 'salud-mental-y-riesgo-psicosocial', eje: 'Salud, seguridad y licencias' },
+  { titulo: 'Inclusión laboral y cuota de personas con discapacidad', slugSugerido: 'inclusion-laboral-discapacidad', eje: 'Igualdad, dignidad y acoso' },
+  { titulo: 'Trabajo doméstico: derechos y deberes', slugSugerido: 'trabajo-domestico-derechos', eje: 'Contrato y formas de trabajar' },
+  { titulo: 'Trabajadores migrantes en Colombia: derechos laborales', slugSugerido: 'trabajadores-migrantes-derechos', eje: 'Igualdad, dignidad y acoso' },
+  { titulo: 'Inspección de trabajo: qué puede hacer y cómo pedirla', slugSugerido: 'inspeccion-de-trabajo', eje: 'A dónde acudir' },
+  { titulo: 'Calendario laboral del año: fechas de pago y cambios', slugSugerido: 'calendario-laboral-del-ano', eje: 'Reformas y novedades' },
+  { titulo: 'Trabajo en el campo: jornal y contrato agropecuario', slugSugerido: 'trabajo-agropecuario', eje: 'Contrato y formas de trabajar' },
 ];
 
 /** Calculadora → guías relacionadas (slug de /derechos/…). */
