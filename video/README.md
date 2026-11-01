@@ -2,7 +2,7 @@
 
 Video vertical (1080 × 1920, 57 segundos) para Reels, TikTok, Shorts y estados de WhatsApp. Presenta TuVozLaboral como un sitio de **guías laborales**: primero las guías, después las calculadoras y al final las experiencias. Termina con un llamado a entrar.
 
-> **Voz:** locución de ElevenLabs v3 con el guion etiquetado de la sección «Voz», sincronizada el 1 de noviembre de 2026 con `voz.cjs --cortes` (ver «Locución actual»).
+> **Voz:** locución de ElevenLabs v3 con el guion etiquetado de la sección «Voz». Está en 9 clips en `video/locucion/` y se une con `voz.cjs` (ver «Locución actual»).
 
 - `promo.html`: el video, hecho como página animada con la tipografía y los colores de la plataforma. Ábrelo en el navegador para verlo en vivo.
 - `render.cjs`: lo graba cuadro por cuadro y arma el MP4 con ffmpeg.
