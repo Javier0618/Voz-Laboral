@@ -212,6 +212,26 @@ export async function setGuideCover(id: string, cover: { url: string | null; alt
   }
 }
 
+/**
+ * Borra una guía de forma definitiva (con motivo, queda registro en moderación)
+ * y después intenta limpiar sus imágenes del bucket «guias».
+ */
+export async function deleteGuide(id: string, reason: string) {
+  const slug = await run<string>(requireClient().rpc('delete_legal_resource', { p_id: id, p_reason: reason.trim() }));
+  if (slug) {
+    // Si falla la limpieza, quedan archivos huérfanos pero la guía ya se borró.
+    try {
+      const bucket = requireClient().storage.from('guias');
+      const { data } = await bucket.list(slug, { limit: 1000 });
+      const paths = (data ?? []).map((f) => `${slug}/${f.name}`);
+      if (paths.length) await bucket.remove(paths);
+    } catch {
+      /* sin acción */
+    }
+  }
+  return slug;
+}
+
 const NEW_GUIDE_CONTENT = `## Qué dice la ley
 Escribe aquí el contenido de la guía. Cita el artículo y la norma de cada afirmación.
 

@@ -7,7 +7,7 @@ import {
   addCompanyAlias, createCompany, listAppeals, listClaims, listCommentsForModeration, listModerationEvents, listReports, listSuggestions, moderateComment, moderateExperience,
   moderationQueue, publishCompanyResponse, resolveAppeal, resolveClaim, resolveReport, resolveSuggestion, setSuspension,
   type ClaimRow, type QueueItem,
-  createGuide, guideViews, listGuides, setGuideStatus, type GuideRow, type GuideStatus,
+  createGuide, deleteGuide, guideViews, listGuides, setGuideStatus, type GuideRow, type GuideStatus,
 } from '../lib/adminApi';
 import { listCategories, type ExperienceStatus } from '../lib/api';
 import { formatDate, formatPeriod, plural, relationshipLabel } from '../lib/format';
@@ -650,6 +650,7 @@ function Guides() {
 function GuideRowItem({ guide: g, onDone }: { guide: GuideRow; onDone: () => void }) {
   const { session } = useAuth();
   const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -687,7 +688,9 @@ function GuideRowItem({ guide: g, onDone }: { guide: GuideRow; onDone: () => voi
         {g.status === 'publicado' && <Link to={`/derechos/${g.slug}`} className="btn-secondary">Ver publicada</Link>}
         {g.status === 'publicado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => change('pendiente_verificacion')}>Retirar para revisar</button>}
         {g.status !== 'archivado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => change('archivado')}>Archivar</button>}
+        <button type="button" className="btn-danger" disabled={busy} onClick={() => setDeleting(true)}>Borrar</button>
       </div>
+      <DeleteGuideDialog guide={g} open={deleting} onClose={() => setDeleting(false)} onDone={onDone} />
       <ConfirmDialog
         open={confirming}
         onClose={() => setConfirming(false)}
@@ -701,6 +704,61 @@ function GuideRowItem({ guide: g, onDone }: { guide: GuideRow; onDone: () => voi
         derechos.
       </ConfirmDialog>
     </li>
+  );
+}
+
+/** Borrado definitivo: pide motivo y avisa si la guía está publicada. */
+export function DeleteGuideDialog({ guide: g, open, onClose, onDone }: { guide: GuideRow; open: boolean; onClose: () => void; onDone: () => void }) {
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const valid = reason.trim().length >= 3;
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!valid) {
+      setError('Indica el motivo para borrar la guía.');
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await deleteGuide(g.id, reason);
+      setReason('');
+      onClose();
+      onDone();
+    } catch (err) {
+      setError((err as AppError).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onClose={onClose} title="¿Borrar esta guía para siempre?">
+      <form onSubmit={submit} noValidate>
+        <p className="text-slate">
+          Vas a borrar «{g.title}» con sus fuentes, sus visitas y sus imágenes. No se puede deshacer. Si solo quieres ocultarla, usa
+          «Archivar».
+        </p>
+        {g.status === 'publicado' && (
+          <div className="mt-4">
+            <Alert tone="warning">
+              Está publicada: el enlace /derechos/{g.slug} dejará de funcionar y las guías que la enlacen tendrán un enlace roto.
+            </Alert>
+          </div>
+        )}
+        <div className="mt-4">
+          <Field label="Motivo" hint="Queda en el historial de moderación." error={error ?? undefined}>
+            {(p) => <input {...p} className="input" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} />}
+          </Field>
+        </div>
+        <div className="mt-6 flex flex-wrap justify-end gap-3">
+          <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button type="submit" className="btn-danger" disabled={busy}>{busy ? 'Borrando…' : 'Borrar guía'}</button>
+        </div>
+      </form>
+    </Dialog>
   );
 }
 
