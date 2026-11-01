@@ -121,7 +121,7 @@ export function PromoVideoTeaser({ className = 'mt-6' }: { className?: string })
       <span>
         <span className="block font-semibold text-white">Mira cómo funciona</span>
         <span className="mt-0.5 block text-sm text-white/75">
-          Video de {promoDuration}, con subtítulos: qué es VozLaboral y qué puedes hacer.
+          Video de {promoDuration}, con sonido y subtítulos: qué es VozLaboral y qué puedes hacer.
         </span>
       </span>
     </PromoVideoButton>

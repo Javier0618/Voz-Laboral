@@ -124,7 +124,7 @@ export default function About() {
         <div>
           <h2 id="video" className="text-3xl">{brand.name} en un minuto</h2>
           <p className="mt-3 max-w-prose text-slate">
-            Qué es, qué encontrarás en las guías, cómo te ayudan las calculadoras y cómo se comparte una experiencia. El video tiene subtítulos.
+            Qué es, qué encontrarás en las guías, cómo te ayudan las calculadoras y cómo se comparte una experiencia. El video tiene sonido y subtítulos.
           </p>
           <ul className="mt-5 list-disc space-y-2 pl-5 text-slate marker:text-teal">
             <li>Aprende sobre tus derechos y los cambios en la ley.</li>

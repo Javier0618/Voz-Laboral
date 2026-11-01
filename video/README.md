@@ -2,7 +2,7 @@
 
 Video vertical (1080 × 1920, 57 segundos) para Reels, TikTok, Shorts y estados de WhatsApp. Presenta VozLaboral como un sitio de **guías laborales**: primero las guías, después las calculadoras y al final las experiencias. Termina con un llamado a entrar.
 
-> **Sin voz por ahora.** La versión anterior, centrada en experiencias, tenía la locución de ElevenLabs. Esta versión nueva aún no tiene voz: genérala en ElevenLabs con el guion etiquetado de la sección «Voz» y únela con `voz.cjs`, que coloca cada bloque en su escena. La versión anterior sigue disponible en el historial de git.
+> **Voz:** locución de ElevenLabs v3 con el guion etiquetado de la sección «Voz», sincronizada el 1 de noviembre de 2026 con `voz.cjs --cortes` (ver «Locución actual»).
 
 - `promo.html`: el video, hecho como página animada con la tipografía y los colores de la plataforma. Ábrelo en el navegador para verlo en vivo.
 - `render.cjs`: lo graba cuadro por cuadro y arma el MP4 con ffmpeg.
@@ -64,6 +64,15 @@ Son 9 bloques, uno por escena. Escribe «Voz Laboral» separado para que la voz 
 - Estabilidad «Natural».
 - Velocidad 1,0. Súbela a 1,05–1,1 si algún bloque no cabe.
 
+### Locución actual
+
+La locución de noviembre de 2026 es un solo archivo de 46 s. Sus pausas entre bloques no son más largas que las de dentro de cada bloque, así que se cortó a mano, en silencios comprobados con la transcripción:
+
+```bash
+node video/voz.cjs locucion.mp3 video/sin-voz.mp4 video/vozlaboral-presentacion-con-voz.mp4 \
+  --cortes 0:4.40,4.78:9.02,9.18:13.49,13.69:22.42,22.61:26.98,27.17:32.02,32.20:37.79,37.97:42.14,42.34:46.10
+```
+
 ### Unir la voz
 
 Lo más sencillo y preciso es generar **cada bloque por separado** y guardar los clips en una carpeta como `01.mp3` … `09.mp3`:
@@ -91,9 +100,9 @@ En los dos casos el script muestra cuánto dura cada bloque frente al tiempo de 
 
 La portada (tarjeta «Mira cómo funciona», que abre el video en una ventana) y la página «Quiénes somos» usan una versión liviana que está en `public/video/`:
 
-- `vozlaboral-presentacion.mp4`: 720 × 1280, alrededor de 1 MB. Solo se descarga cuando alguien lo reproduce.
+- `vozlaboral-presentacion.mp4`: 720 × 1280 con voz, alrededor de 1,6 MB. Solo se descarga cuando alguien lo reproduce.
 - `vozlaboral-presentacion.jpg`: imagen de portada.
-- `vozlaboral-presentacion.es.vtt`: subtítulos con el texto del guion.
+- `vozlaboral-presentacion.es.vtt`: subtítulos con los tiempos reales de la locución.
 
 Para actualizarla después de volver a generar el video con voz:
 

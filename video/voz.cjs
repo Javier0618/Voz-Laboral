@@ -8,6 +8,10 @@
 // silencios más largos, así que deja una pausa clara entre bloques:
 //   node video/voz.cjs locucion.mp3 video/sin-voz.mp4 video/con-voz.mp4
 //
+// Con cortes a mano (segundos del audio, «desde:hasta» por bloque), útil
+// cuando las pausas entre bloques no son más largas que las de dentro:
+//   node video/voz.cjs locucion.mp3 sin-voz.mp4 con-voz.mp4 --cortes 0:4.45,4.78:9.02,…
+//
 // El guion, con sus etiquetas de ElevenLabs, está en video/README.md.
 const { execFileSync } = require('child_process');
 const fs = require('fs');
@@ -16,7 +20,7 @@ const path = require('path');
 const DURACION = 57;
 // Segundo del video en que empieza cada bloque y hasta cuándo dura su escena.
 const ESCENAS = [
-  { en: 0.3, fin: 4.6, nombre: 'Gancho' },
+  { en: 0.15, fin: 4.6, nombre: 'Gancho' },
   { en: 4.9, fin: 9.6, nombre: 'Preguntas' },
   { en: 10.0, fin: 14.4, nombre: 'Marca' },
   { en: 14.8, fin: 23.8, nombre: 'Guías' },
@@ -27,7 +31,10 @@ const ESCENAS = [
   { en: 51.2, fin: 57.0, nombre: 'Llamado a la acción' },
 ];
 
-const [fuente, video, salida] = process.argv.slice(2);
+const argv = process.argv.slice(2);
+const iCortes = argv.indexOf('--cortes');
+const cortesManuales = iCortes >= 0 ? argv.splice(iCortes, 2)[1] : null;
+const [fuente, video, salida] = argv;
 if (!salida) {
   console.error('Uso: node video/voz.cjs <carpeta-de-clips | locucion.mp3> <video.mp4> <salida.mp4>');
   process.exit(1);
@@ -39,7 +46,17 @@ const duracion = (f) =>
 let entradas; // archivos de audio que entran a ffmpeg
 let cortes; // por bloque: { entrada, desde, hasta }
 
-if (fs.statSync(fuente).isDirectory()) {
+if (cortesManuales) {
+  entradas = [fuente];
+  cortes = cortesManuales.split(',').map((par) => {
+    const [desde, hasta] = par.split(':').map(Number);
+    return { entrada: 0, desde, hasta };
+  });
+  if (cortes.length !== ESCENAS.length || cortes.some((c) => !(c.hasta > c.desde))) {
+    console.error(`--cortes necesita ${ESCENAS.length} pares «desde:hasta» válidos.`);
+    process.exit(1);
+  }
+} else if (fs.statSync(fuente).isDirectory()) {
   const clips = fs.readdirSync(fuente).filter((n) => /\.(mp3|wav|m4a)$/i.test(n)).sort();
   if (clips.length !== ESCENAS.length) {
     console.error(`La carpeta debe tener ${ESCENAS.length} clips (01 … 09). Tiene ${clips.length}.`);
