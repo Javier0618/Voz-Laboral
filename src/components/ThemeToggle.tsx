@@ -9,19 +9,6 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
     const t = resolveTheme();
     setLocal(t);
     applyTheme(t);
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const onChange = () => {
-      try {
-        if (localStorage.getItem('vl-theme')) return;
-      } catch {
-        return;
-      }
-      const next = resolveTheme(null);
-      setLocal(next);
-      applyTheme(next);
-    };
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
   }, []);
 
   const next = theme === 'dark' ? 'light' : 'dark';

@@ -46,7 +46,7 @@ function HelpAside({ guides }: { guides: LegalResource[] }) {
           Estas guías explican derechos y deberes laborales en general. Para actuar en un caso concreto, acude a las autoridades del trabajo.
         </p>
         {help && (
-          <Link to={`/derechos/${help.slug}`} className="btn mt-4 w-full bg-white text-ink hover:bg-teal-tint">
+          <Link to={`/derechos/${help.slug}`} className="btn mt-4 w-full bg-white text-onwhite-ink hover:bg-onwhite-tint">
             Ver a dónde acudir
           </Link>
         )}
@@ -446,7 +446,7 @@ export function RightsArticle() {
             <p className="mt-2 text-white/80">Lee lo que han contado otras personas sobre este tema o comparte tu experiencia con un alias.</p>
             <div className="mt-5 flex flex-wrap gap-3">
               {data.category_slug && (
-                <Link to={`/experiencias?categoria=${data.category_slug}`} className="btn bg-white text-ink hover:bg-teal-tint">
+                <Link to={`/experiencias?categoria=${data.category_slug}`} className="btn bg-white text-onwhite-ink hover:bg-onwhite-tint">
                   Ver experiencias sobre {topicName.toLowerCase()}
                 </Link>
               )}

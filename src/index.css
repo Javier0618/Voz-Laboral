@@ -108,6 +108,10 @@
   .btn-primary {
     @apply btn bg-teal text-white hover:bg-teal-strong;
   }
+  /* En modo oscuro el verde es más claro: texto oscuro para mantener el contraste AA. */
+  .dark .btn-primary {
+    color: rgb(8 16 28);
+  }
   .btn-secondary {
     @apply btn border border-line bg-paper text-ink hover:border-slate;
   }

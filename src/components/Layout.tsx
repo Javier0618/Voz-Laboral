@@ -137,7 +137,7 @@ export function Layout() {
             <ThemeToggle />
             {session && <NotificationBell />}
             {session ? <AccountMenu /> : <NavLink to="/cuenta" className={navClass}>Iniciar sesión</NavLink>}
-            <Link to="/compartir" className="btn ml-2 whitespace-nowrap bg-white text-ink hover:bg-teal-tint">
+            <Link to="/compartir" className="btn ml-2 whitespace-nowrap bg-white text-onwhite-ink hover:bg-onwhite-tint">
               <span>Compartir<span className="hidden xl:inline"> experiencia</span></span>
             </Link>
           </div>
@@ -164,7 +164,7 @@ export function Layout() {
               ))}
               {isModerator && <li><NavLink to="/moderacion" className={navClass}>Moderación</NavLink></li>}
               <li><NavLink to="/cuenta" className={navClass}>{session ? 'Mi cuenta' : 'Iniciar sesión'}</NavLink></li>
-              <li className="py-3"><Link to="/compartir" className="btn w-full bg-white text-ink hover:bg-teal-tint">Compartir experiencia</Link></li>
+              <li className="py-3"><Link to="/compartir" className="btn w-full bg-white text-onwhite-ink hover:bg-onwhite-tint">Compartir experiencia</Link></li>
             </ul>
           </nav>
         )}

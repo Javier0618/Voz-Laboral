@@ -91,13 +91,13 @@ export default function Tracking() {
               Al vincularla podrás verla en Mi cuenta, editarla si te piden ajustes, apelar decisiones y responder comentarios con tu alias.
             </p>
             {!session ? (
-              <Link to={`/cuenta?siguiente=/seguimiento/${token}`} className="btn mt-4 w-full bg-white text-ink hover:bg-teal-tint">
+              <Link to={`/cuenta?siguiente=/seguimiento/${token}`} className="btn mt-4 w-full bg-white text-onwhite-ink hover:bg-onwhite-tint">
                 Crear cuenta o iniciar sesión
               </Link>
             ) : !profile?.alias ? (
-              <Link to="/cuenta" className="btn mt-4 w-full bg-white text-ink hover:bg-teal-tint">Elige tu alias primero</Link>
+              <Link to="/cuenta" className="btn mt-4 w-full bg-white text-onwhite-ink hover:bg-onwhite-tint">Elige tu alias primero</Link>
             ) : (
-              <button type="button" className="btn mt-4 w-full bg-white text-ink hover:bg-teal-tint" disabled={claiming} onClick={claim}>
+              <button type="button" className="btn mt-4 w-full bg-white text-onwhite-ink hover:bg-onwhite-tint" disabled={claiming} onClick={claim}>
                 {claiming ? 'Vinculando…' : 'Vincular a mi cuenta'}
               </button>
             )}
