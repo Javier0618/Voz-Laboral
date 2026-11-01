@@ -45,9 +45,12 @@ describe('borrar guías', () => {
     expect(ev.rows[0].internal_note).toContain('/derechos/guia-publicada-a-borrar');
   });
 
-  it('exige un motivo', async () => {
+  it('no exige motivo: registra uno por defecto', async () => {
     const id = await nuevaGuia('guia-sin-motivo', false);
-    await expect(as(db, admin, () => db.query(`select public.delete_legal_resource($1, ' ')`, [id]))).rejects.toThrow(/VL072/);
+    await as(db, admin, () => db.query(`select public.delete_legal_resource($1)`, [id]));
+    expect((await db.query(`select 1 from public.legal_resources where id = $1`, [id])).rows).toEqual([]);
+    const ev = await db.query<{ reason: string }>(`select reason from public.moderation_events where target_id = $1 and new_status = 'eliminado'`, [id]);
+    expect(ev.rows).toEqual([{ reason: 'Guía borrada desde el panel' }]);
   });
 
   it('una persona sin rol no puede borrar, ni con la función ni directamente', async () => {

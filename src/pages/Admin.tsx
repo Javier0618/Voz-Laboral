@@ -707,24 +707,16 @@ function GuideRowItem({ guide: g, onDone }: { guide: GuideRow; onDone: () => voi
   );
 }
 
-/** Borrado definitivo: pide motivo y avisa si la guía está publicada. */
+/** Borrado definitivo: confirma y avisa si la guía está publicada. */
 export function DeleteGuideDialog({ guide: g, open, onClose, onDone }: { guide: GuideRow; open: boolean; onClose: () => void; onDone: () => void }) {
-  const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const valid = reason.trim().length >= 3;
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!valid) {
-      setError('Indica el motivo para borrar la guía.');
-      return;
-    }
+  async function confirm() {
     setBusy(true);
     setError(null);
     try {
-      await deleteGuide(g.id, reason);
-      setReason('');
+      await deleteGuide(g.id);
       onClose();
       onDone();
     } catch (err) {
@@ -735,30 +727,20 @@ export function DeleteGuideDialog({ guide: g, open, onClose, onDone }: { guide: 
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title="¿Borrar esta guía para siempre?">
-      <form onSubmit={submit} noValidate>
-        <p className="text-slate">
-          Vas a borrar «{g.title}» con sus fuentes, sus visitas y sus imágenes. No se puede deshacer. Si solo quieres ocultarla, usa
-          «Archivar».
-        </p>
-        {g.status === 'publicado' && (
-          <div className="mt-4">
-            <Alert tone="warning">
-              Está publicada: el enlace /derechos/{g.slug} dejará de funcionar y las guías que la enlacen tendrán un enlace roto.
-            </Alert>
-          </div>
-        )}
+    <ConfirmDialog open={open} onClose={onClose} title="¿Borrar esta guía para siempre?" confirmLabel="Borrar guía" busy={busy} onConfirm={confirm}>
+      <p>
+        Vas a borrar «{g.title}» con sus fuentes, sus visitas y sus imágenes. No se puede deshacer. Si solo quieres ocultarla, usa
+        «Archivar».
+      </p>
+      {g.status === 'publicado' && (
         <div className="mt-4">
-          <Field label="Motivo" hint="Queda en el historial de moderación." error={error ?? undefined}>
-            {(p) => <input {...p} className="input" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} />}
-          </Field>
+          <Alert tone="warning">
+            Está publicada: el enlace /derechos/{g.slug} dejará de funcionar y las guías que la enlacen tendrán un enlace roto.
+          </Alert>
         </div>
-        <div className="mt-6 flex flex-wrap justify-end gap-3">
-          <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
-          <button type="submit" className="btn-danger" disabled={busy}>{busy ? 'Borrando…' : 'Borrar guía'}</button>
-        </div>
-      </form>
-    </Dialog>
+      )}
+      {error && <div className="mt-4"><Alert tone="error">{error}</Alert></div>}
+    </ConfirmDialog>
   );
 }
 
