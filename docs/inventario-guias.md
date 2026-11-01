@@ -57,6 +57,7 @@ Las guías de la parte 5 siguen la plantilla editorial. Se verificaron contra el
 | Sindicatos, negociación colectiva y huelga: tus derechos | `sindicatos-asociacion-y-huelga` | Sindicatos y derechos colectivos | Publicada |
 | Reforma pensional: qué cambia y desde cuándo | `reforma-pensional-que-cambia` | Reformas y novedades | Publicada |
 | Prestación de servicios o contrato laboral: cómo saber cuál tienes | `prestacion-de-servicios-vs-contrato-laboral` | Contrato y formas de trabajar | Pendiente de revisión (parte 7) |
+| Salud mental en el trabajo y riesgo psicosocial: lo que debe hacer tu empresa | `salud-mental-y-riesgo-psicosocial` | Salud, seguridad y licencias | Pendiente de revisión (parte 8) |
 
 ## Temas prioritarios sin guía propia
 

@@ -87,6 +87,7 @@ export const GUIA_TEMA: Record<string, string> = {
   'incapacidad-por-enfermedad': 'salud',
   'licencias-remuneradas': 'salud',
   'licencias-de-maternidad-y-paternidad': 'salud',
+  'salud-mental-y-riesgo-psicosocial': 'salud',
 
   'acoso-laboral-que-es-y-donde-acudir': 'dignidad',
   'acoso-sexual-en-el-trabajo': 'dignidad',
