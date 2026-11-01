@@ -34,6 +34,13 @@ export const policies: Policy[] = [
         ],
       },
       {
+        heading: 'Cookies y almacenamiento en tu navegador',
+        paragraphs: [
+          'No usamos cookies ni de publicidad ni de seguimiento.',
+          'El sitio guarda en tu navegador (almacenamiento local) solo lo necesario para funcionar: tu sesión si inicias sesión, tu preferencia de modo claro u oscuro, el texto de la experiencia que estás escribiendo (para que no lo pierdas) y una marca para no contar dos veces la visita a una guía el mismo día. Puedes borrarlo desde la configuración de tu navegador.',
+        ],
+      },
+      {
         heading: 'Transferencia y transmisión de datos',
         paragraphs: [
           'Usamos proveedores de infraestructura en la nube para la base de datos, la autenticación y el alojamiento del sitio. Sus servidores pueden estar ubicados fuera de Colombia.',

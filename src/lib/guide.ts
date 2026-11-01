@@ -123,3 +123,19 @@ export function readingMinutes(content: string): number {
   const words = plainText(content).split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 200));
 }
+
+/** Meses tras los que una guía publicada debe revisarse contra la norma (Fase 3.3). */
+export const MESES_REVISION = 6;
+
+/**
+ * true si la guía está publicada y su última verificación tiene más de
+ * MESES_REVISION meses (o no tiene fecha). Fechas en formato AAAA-MM-DD.
+ */
+export function necesitaRevision(status: string, lastVerified: string | null, hoy: string): boolean {
+  if (status !== 'publicado') return false;
+  if (!lastVerified) return true;
+  const [y, m, d] = lastVerified.slice(0, 10).split('-').map(Number);
+  const limite = new Date(Date.UTC(y, m - 1 + MESES_REVISION, d));
+  const [hy, hm, hd] = hoy.slice(0, 10).split('-').map(Number);
+  return Date.UTC(hy, hm - 1, hd) >= limite.getTime();
+}

@@ -10,7 +10,8 @@ import {
   createGuide, deleteGuide, guideViews, listGuides, setGuideStatus, type GuideRow, type GuideStatus,
 } from '../lib/adminApi';
 import { listCategories, type ExperienceStatus } from '../lib/api';
-import { formatDate, formatPeriod, plural, relationshipLabel } from '../lib/format';
+import { formatDate, formatPeriod, plural, relationshipLabel, todayLocal } from '../lib/format';
+import { MESES_REVISION, necesitaRevision } from '../lib/guide';
 import { normalizeText } from '../lib/schemas';
 import type { AppError } from '../lib/supabase';
 import {
@@ -632,6 +633,7 @@ function Guides() {
         <button type="button" className="btn-primary" onClick={() => setCreating(true)}>Nueva guía</button>
       </div>
       <NewGuideDialog open={creating} onClose={() => setCreating(false)} />
+      {data && <ReviewNotice guides={data} />}
       <Alert tone="warning" title="Publica solo guías revisadas">
         Cada guía debe revisarla un abogado contra su fuente oficial antes de publicarse. Al publicar se registra la fecha de hoy como
         fecha de verificación.
@@ -647,10 +649,26 @@ function Guides() {
   );
 }
 
+/** Fase 3.3: cuántas guías publicadas llevan más de 6 meses sin verificarse. */
+function ReviewNotice({ guides }: { guides: GuideRow[] }) {
+  const hoy = todayLocal();
+  const pendientes = guides.filter((g) => necesitaRevision(g.status, g.last_verified_at, hoy));
+  if (!pendientes.length) return null;
+  return (
+    <div className="mb-4">
+      <Alert tone="warning" title={`${plural(pendientes.length, 'guía necesita', 'guías necesitan')} revisión`}>
+        Llevan más de {MESES_REVISION} meses sin verificarse contra la norma: {pendientes.map((g) => g.title).join(' · ')}. Ábrelas, compara
+        con el texto oficial, corrige lo que haga falta y pulsa «Marcar como verificada hoy».
+      </Alert>
+    </div>
+  );
+}
+
 function GuideRowItem({ guide: g, onDone }: { guide: GuideRow; onDone: () => void }) {
   const { session } = useAuth();
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -676,6 +694,11 @@ function GuideRowItem({ guide: g, onDone }: { guide: GuideRow; onDone: () => voi
         <span>{g.legal_resource_sources.length} {g.legal_resource_sources.length === 1 ? 'fuente' : 'fuentes'}</span>
         {g.status === 'publicado' && <span>{plural(guideViews(g.legal_resource_stats).views, 'visita', 'visitas')}</span>}
         {g.last_verified_at && <span>Verificada el {formatDate(g.last_verified_at)}</span>}
+        {necesitaRevision(g.status, g.last_verified_at, todayLocal()) && (
+          <span className="rounded-[3px] border border-amber/40 bg-amber-tint px-2 py-0.5 text-xs font-semibold text-amber">
+            Revisar: verificada hace más de {MESES_REVISION} meses
+          </span>
+        )}
       </div>
       <h3 className="mt-2 text-xl">
         <Link to={`/moderacion/guias/${g.id}`} className="hover:text-teal-strong hover:underline">{g.title}</Link>
@@ -686,11 +709,24 @@ function GuideRowItem({ guide: g, onDone }: { guide: GuideRow; onDone: () => voi
         <Link to={`/moderacion/guias/${g.id}`} className="btn-primary">Abrir y editar</Link>
         {g.status !== 'publicado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => setConfirming(true)}>Publicar guía</button>}
         {g.status === 'publicado' && <Link to={`/derechos/${g.slug}`} className="btn-secondary">Ver publicada</Link>}
+        {g.status === 'publicado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => setVerifying(true)}>Marcar como verificada hoy</button>}
         {g.status === 'publicado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => change('pendiente_verificacion')}>Retirar para revisar</button>}
         {g.status !== 'archivado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => change('archivado')}>Archivar</button>}
         <button type="button" className="btn-danger" disabled={busy} onClick={() => setDeleting(true)}>Borrar</button>
       </div>
       <DeleteGuideDialog guide={g} open={deleting} onClose={() => setDeleting(false)} onDone={onDone} />
+      <ConfirmDialog
+        open={verifying}
+        onClose={() => setVerifying(false)}
+        title="¿Marcar como verificada hoy?"
+        confirmLabel="Marcar como verificada"
+        tone="primary"
+        busy={busy}
+        onConfirm={async () => { await change('publicado'); setVerifying(false); }}
+      >
+        Confirma que comparaste la guía con sus fuentes oficiales y que sigue vigente. Su fecha de verificación pasará a ser la de hoy y
+        será visible para quienes la lean.
+      </ConfirmDialog>
       <ConfirmDialog
         open={confirming}
         onClose={() => setConfirming(false)}
