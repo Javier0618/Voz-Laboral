@@ -55,7 +55,8 @@ Las guías de la parte 5 siguen la plantilla editorial. Se verificaron contra el
 | Repartidores de plataformas digitales: qué dice la reforma laboral | `plataformas-digitales-de-reparto` | Contrato y formas de trabajar | Publicada |
 | Aprendices SENA y contrato de aprendizaje después de la reforma | `contrato-de-aprendizaje-sena` | Contrato y formas de trabajar | Publicada |
 | Sindicatos, negociación colectiva y huelga: tus derechos | `sindicatos-asociacion-y-huelga` | Sindicatos y derechos colectivos | Publicada |
-| Reforma pensional: qué cambia y desde cuándo | `reforma-pensional-que-cambia` | Reformas y novedades | Pendiente de revisión |
+| Reforma pensional: qué cambia y desde cuándo | `reforma-pensional-que-cambia` | Reformas y novedades | Publicada |
+| Prestación de servicios o contrato laboral: cómo saber cuál tienes | `prestacion-de-servicios-vs-contrato-laboral` | Contrato y formas de trabajar | Pendiente de revisión (parte 7) |
 
 ## Temas prioritarios sin guía propia
 

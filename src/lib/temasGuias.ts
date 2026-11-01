@@ -75,6 +75,7 @@ export const GUIA_TEMA: Record<string, string> = {
   'teletrabajo-trabajo-remoto-y-desconexion': 'formas-de-trabajar',
   'plataformas-digitales-de-reparto': 'formas-de-trabajar',
   'contrato-de-aprendizaje-sena': 'formas-de-trabajar',
+  'prestacion-de-servicios-vs-contrato-laboral': 'formas-de-trabajar',
 
   'jornada-horas-extra-y-recargos': 'jornada',
   'descanso-dominical-y-festivos': 'jornada',

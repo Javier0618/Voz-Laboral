@@ -96,7 +96,8 @@ Las guías de la parte 5 se contrastaron el 1 de noviembre de 2026 con los texto
 | 3 | Repartidores de plataformas digitales: qué dice la reforma laboral | Contrato y formas de trabajar | Publicada, corregida en la parte 6 |
 | 4 | Aprendices SENA y contrato de aprendizaje después de la reforma | Contrato y formas de trabajar | Publicada, corregida en la parte 6 |
 | 5 | Sindicatos, negociación colectiva y huelga: tus derechos | Sindicatos y derechos colectivos | Publicada, corregida en la parte 6 |
-| 6 | Reforma pensional: qué cambia y desde cuándo | Reformas y novedades | Nueva, pendiente de tu revisión |
+| 6 | Reforma pensional: qué cambia y desde cuándo | Reformas y novedades | Publicada |
+| 7 | Prestación de servicios o contrato laboral: cómo saber cuál tienes | Contrato y formas de trabajar | Nueva (parte 7), pendiente de tu revisión |
 
 **Fuente de referencia:** la compilación normativa de Colpensiones (`normativa.colpensiones.gov.co`) incluye los textos con notas de vigencia y es accesible desde el entorno de trabajo.
 
@@ -104,14 +105,13 @@ Las guías de la parte 5 se contrastaron el 1 de noviembre de 2026 con los texto
 
 | # | Tema | Eje |
 |---|------|-----|
-| 1 | OPS vs. contrato laboral | Formas de trabajar |
-| 2 | Salud mental y riesgo psicosocial | Salud |
-| 3 | Inclusión laboral y cuota de discapacidad | Dignidad |
-| 4 | Trabajo doméstico: derechos | Formas de trabajar |
-| 5 | Trabajadores migrantes: derechos laborales | Dignidad |
-| 6 | Inspección de trabajo | A dónde acudir |
-| 7 | Calendario laboral del año | Reformas |
-| 8 | Trabajo en el campo: jornal y contrato agropecuario | Formas de trabajar |
+| 1 | Salud mental y riesgo psicosocial | Salud |
+| 2 | Inclusión laboral y cuota de discapacidad | Dignidad |
+| 3 | Trabajo doméstico: derechos | Formas de trabajar |
+| 4 | Trabajadores migrantes: derechos laborales | Dignidad |
+| 5 | Inspección de trabajo | A dónde acudir |
+| 6 | Calendario laboral del año | Reformas |
+| 7 | Trabajo en el campo: jornal y contrato agropecuario | Formas de trabajar |
 
 ### Ya publicadas
 

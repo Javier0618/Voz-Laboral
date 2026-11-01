@@ -12,6 +12,7 @@ export const GUIAS_PRIORITARIAS = [
   'plataformas-digitales-de-reparto',
   'sindicatos-asociacion-y-huelga',
   'contrato-de-aprendizaje-sena',
+  'prestacion-de-servicios-vs-contrato-laboral',
   // Ya publicadas
   'jornada-horas-extra-y-recargos',
   'tipos-de-contrato-y-periodo-de-prueba',
@@ -40,7 +41,6 @@ export function ordenarPorPrioridad<T extends { slug: string }>(guias: T[]): T[]
  * Las licencias nuevas de la reforma ya están en la guía de licencias remuneradas.
  */
 export const GUIAS_A_CREAR: { titulo: string; slugSugerido: string; eje: string }[] = [
-  { titulo: 'Contrato de prestación de servicios vs. contrato laboral', slugSugerido: 'ops-vs-contrato-laboral', eje: 'Contrato y formas de trabajar' },
   { titulo: 'Salud mental en el trabajo y riesgo psicosocial', slugSugerido: 'salud-mental-y-riesgo-psicosocial', eje: 'Salud, seguridad y licencias' },
   { titulo: 'Inclusión laboral y cuota de personas con discapacidad', slugSugerido: 'inclusion-laboral-discapacidad', eje: 'Igualdad, dignidad y acoso' },
   { titulo: 'Trabajo doméstico: derechos y deberes', slugSugerido: 'trabajo-domestico-derechos', eje: 'Contrato y formas de trabajar' },
@@ -79,6 +79,7 @@ export const GUIAS_POR_CALCULADORA: Record<string, { slug: string; label: string
     { slug: 'pago-del-salario', label: 'Cuándo y cómo deben pagarte el salario' },
   ],
   '/calculadoras/prestacion-servicios': [
+    { slug: 'prestacion-de-servicios-vs-contrato-laboral', label: 'Prestación de servicios o contrato laboral' },
     { slug: 'cuando-existe-contrato-de-trabajo', label: 'Cuándo existe un contrato de trabajo' },
     { slug: 'seguridad-social-eps-pension-arl-y-caja', label: 'Seguridad social' },
   ],
