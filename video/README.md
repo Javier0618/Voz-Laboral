@@ -1,6 +1,8 @@
 # Video de presentación
 
-Video vertical (1080 × 1920, 57 segundos) para Reels, TikTok, Shorts y estados de WhatsApp. Explica qué es VozLaboral, cómo funciona y qué se puede hacer, y termina con un llamado a entrar.
+Video vertical (1080 × 1920, 57 segundos) para Reels, TikTok, Shorts y estados de WhatsApp. Presenta VozLaboral como un sitio de **guías laborales**: primero las guías, después las calculadoras y al final las experiencias. Termina con un llamado a entrar.
+
+> **Sin voz por ahora.** La versión anterior, centrada en experiencias, tenía la locución de ElevenLabs. Esta versión nueva aún no tiene voz: graba una con el guion de abajo y únela con `voz.cjs` (ajusta sus cortes). La versión anterior sigue disponible en el historial de git.
 
 - `promo.html`: el video, hecho como página animada con la tipografía y los colores de la plataforma. Ábrelo en el navegador para verlo en vivo.
 - `render.cjs`: lo graba cuadro por cuadro y arma el MP4 con ffmpeg.
@@ -22,17 +24,17 @@ Necesita Playwright con Chromium y ffmpeg. Tarda unos 3 minutos.
 
 | Segundos | Escena | Texto principal |
 |---|---|---|
-| 0–5 | Gancho | Antes de aceptar un trabajo, ¿no te gustaría saber cómo es por dentro? |
-| 5–10 | Problema | ¿Pagan a tiempo? ¿Respetan los turnos? ¿Pagan las horas extra? ¿Cómo tratan a la gente? |
-| 10–14 | Marca | VozLaboral: experiencias de trabajadores en empresas de Colombia |
-| 14–21 | Tono | Lo bueno, lo malo y lo mixto (tres tarjetas de ejemplo) |
-| 21–31 | Cómo funciona | Busca la empresa (si no aparece, pide que la agreguen) · Cuenta cómo te fue · La moderación la revisa |
-| 31–38 | Comunidad | Reacciona, comenta y responde · Avisos con una cuenta |
-| 38–46 | Derechos | 24 guías claras con su fuente oficial |
-| 46–51 | Garantías | Nombre y correo nunca se publican · Revisión previa · Sin rankings |
-| 51–57 | Llamado a la acción | Tu experiencia puede ayudar a otra persona · Entra a VozLaboral |
+| 0–5 | Gancho | La ley laboral cambió. ¿Sabes cómo te afecta? |
+| 5–10 | Preguntas | ¿Desde qué hora es trabajo nocturno? ¿Cuánto me pagan un domingo? ¿Cuánto dura un contrato fijo? ¿Me pueden escribir de noche? |
+| 10–14 | Marca | VozLaboral: guías laborales claras para trabajadores en Colombia |
+| 14–24 | Guías | Tus derechos, con la ley en la mano (temas y captura de una guía) |
+| 24–31 | Cada guía | Qué dice la ley · Cómo se aplica · Qué puedes hacer · Fecha de revisión |
+| 31–37 | Calculadoras | Revisa tus cuentas: nómina, prima y cesantías, liquidación, salario neto |
+| 37–46 | Experiencias | Y lo que cuentan quienes trabajan ahí (tres tarjetas de ejemplo) |
+| 46–51 | Garantías | Fuente oficial · Experiencias revisadas · Nombre y correo nunca se publican |
+| 51–57 | Llamado a la acción | Conoce tus derechos laborales · Entra a VozLaboral |
 
-Las tarjetas de experiencias son ejemplos ilustrativos y así lo dice el video. Si cambia el número de guías publicadas, actualiza la escena 7 de `promo.html`.
+Las tarjetas de experiencias son ejemplos ilustrativos y así lo dice el video. Las respuestas a las preguntas de la escena 2 están en las guías (trabajo nocturno desde las 7:00 p. m., recargo dominical, contrato fijo de hasta 4 años, desconexión laboral). Si cambia la ley, revisa esas preguntas.
 
 ## Voz
 
@@ -47,33 +49,37 @@ Los cortes de `voz.cjs` corresponden a la locución de ElevenLabs con la voz «D
 
 ## Guion de voz
 
-El video funciona sin sonido, como se ve la mayoría de los videos en redes. Si quieres grabar una voz, este guion sigue las escenas (unas 140 palabras):
+El video funciona sin sonido, como se ve la mayoría de los videos en redes. Este guion sigue las escenas (unas 130 palabras) y coincide con los subtítulos de `public/video/vozlaboral-presentacion.es.vtt`:
 
-> ¿Antes de aceptar un trabajo, no te gustaría saber cómo es por dentro? Si pagan a tiempo, si respetan los turnos, cómo tratan a la gente. Eso lo saben quienes trabajan ahí.
+> La ley laboral cambió. ¿Sabes cómo te afecta? ¿Desde qué hora es trabajo nocturno? ¿Cuánto te pagan un domingo? La respuesta está en la ley. Te la explicamos.
 >
-> VozLaboral reúne experiencias de trabajadores en empresas de Colombia. Lo bueno, lo malo y lo mixto.
+> VozLaboral: guías laborales claras para trabajadores en Colombia. Reforma laboral, reforma pensional, teletrabajo, sindicatos, liquidación y más. Tus derechos, con la ley en la mano.
 >
-> Buscas la empresa, y si no aparece, pides que la agreguen. Cuentas cómo te fue con un alias, o sin crear cuenta, y la moderación la revisa antes de publicarla. Tu nombre y tu correo nunca aparecen.
+> Cada guía te dice qué dice la ley, cómo se aplica y qué puedes hacer, con su fuente oficial.
 >
-> Los demás pueden reaccionar, comentar y responder. Y si tienes cuenta, te avisamos.
+> Las calculadoras te ayudan a revisar tu nómina, tu prima, tus cesantías o tu liquidación.
 >
-> Además, hay guías claras sobre tus derechos: liquidación, prima, vacaciones, despido, y más, con su fuente oficial.
+> Y puedes leer lo que cuentan quienes trabajan en cada empresa, o compartir tu experiencia con un alias.
 >
-> Tu experiencia puede ayudar a otra persona. Entra a VozLaboral.
+> Cada guía cita su fuente oficial, y tu nombre y tu correo nunca se publican.
+>
+> Conoce tus derechos laborales. Entra a VozLaboral.
+
+Después de grabarla, ajusta en `voz.cjs` los segundos de cada frase (`desde`, `hasta`) y el segundo del video donde empieza (`en`), según la tabla de escenas.
 
 ## Texto para publicar
 
-> ¿Cómo es trabajar ahí, contado por quienes trabajan ahí? 👷‍♀️👨‍🍳 En VozLaboral puedes leer y contar experiencias buenas, malas y mixtas en empresas de Colombia, con un alias o sin crear cuenta. También hay guías de tus derechos laborales con su fuente oficial. Entra aquí: [enlace]
+> La ley laboral cambió. ¿Sabes cómo te afecta? 📘 En VozLaboral encuentras guías claras sobre tus derechos laborales en Colombia —reforma laboral, reforma pensional, teletrabajo, sindicatos, liquidación y más—, cada una con su fuente oficial. También hay calculadoras para revisar tu pago y experiencias de trabajadores contadas con alias. Entra aquí: [enlace]
 >
 > #VozLaboral #TrabajoEnColombia #DerechosLaborales #Empleo
 
 ## En la web
 
-La portada (tarjeta «Mira cómo funciona», que abre el video en una ventana) y la página «Cómo funciona» usan una versión liviana que está en `public/video/`:
+La portada (tarjeta «Mira cómo funciona», que abre el video en una ventana) y la página «Quiénes somos» usan una versión liviana que está en `public/video/`:
 
-- `vozlaboral-presentacion.mp4`: 720 × 1280, unos 1,8 MB. Solo se descarga cuando alguien lo reproduce.
+- `vozlaboral-presentacion.mp4`: 720 × 1280, alrededor de 1 MB. Solo se descarga cuando alguien lo reproduce.
 - `vozlaboral-presentacion.jpg`: imagen de portada.
-- `vozlaboral-presentacion.es.vtt`: subtítulos con el texto de la locución.
+- `vozlaboral-presentacion.es.vtt`: subtítulos con el texto del guion.
 
 Para actualizarla después de volver a generar el video con voz:
 

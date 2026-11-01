@@ -11,7 +11,7 @@ const nav = [
   { to: '/experiencias', label: 'Experiencias' },
   { to: '/calculadoras', label: 'Calculadoras' },
   { to: '/empresas', label: 'Empresas' },
-  { to: '/como-funciona', label: 'Cómo funciona', wide: true },
+  { to: '/como-funciona', label: 'Quiénes somos', wide: true },
 ];
 
 /** Logotipo: un folio con una línea tapada. Pensado para fondo tinta. */

@@ -1,5 +1,8 @@
 // Une la locución al video: corta el audio por frases y pone cada una en su escena.
 // Uso: node video/voz.cjs <locucion.mp3> <video.mp4> <salida.mp4>
+// ATENCIÓN: estos cortes son de la locución ANTERIOR (video centrado en
+// experiencias). Para el video actual, centrado en guías, graba el guion nuevo
+// de video/README.md y ajusta los cortes según su tabla de escenas.
 // Los cortes corresponden a la locución de ElevenLabs (voz «Diego», 44 s). Si
 // grabas otra, ajusta `desde` y `hasta` de cada frase con los silencios que
 // muestra: ffmpeg -i locucion.mp3 -af silencedetect=noise=-35dB:d=0.25 -f null -
