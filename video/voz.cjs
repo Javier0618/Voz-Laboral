@@ -1,39 +1,88 @@
-// Une la locución al video: corta el audio por frases y pone cada una en su escena.
-// Uso: node video/voz.cjs <locucion.mp3> <video.mp4> <salida.mp4>
-// ATENCIÓN: estos cortes son de la locución ANTERIOR (video centrado en
-// experiencias). Para el video actual, centrado en guías, graba el guion nuevo
-// de video/README.md y ajusta los cortes según su tabla de escenas.
-// Los cortes corresponden a la locución de ElevenLabs (voz «Diego», 44 s). Si
-// grabas otra, ajusta `desde` y `hasta` de cada frase con los silencios que
-// muestra: ffmpeg -i locucion.mp3 -af silencedetect=noise=-35dB:d=0.25 -f null -
+// Une la locución al video: pone cada bloque del guion en su escena.
+//
+// Uso (recomendado): una carpeta con 9 clips, uno por bloque del guion
+// (01.mp3 … 09.mp3, en orden; vale .mp3, .wav o .m4a):
+//   node video/voz.cjs clips/ video/sin-voz.mp4 video/con-voz.mp4
+//
+// Uso alternativo: un solo audio con todo el guion. Se corta por sus 8
+// silencios más largos, así que deja una pausa clara entre bloques:
+//   node video/voz.cjs locucion.mp3 video/sin-voz.mp4 video/con-voz.mp4
+//
+// El guion, con sus etiquetas de ElevenLabs, está en video/README.md.
 const { execFileSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
-// desde/hasta: segundos en el audio. en: segundo del video donde empieza.
-const frases = [
-  { desde: 0.0, hasta: 4.15, en: 0.2 },    // Antes de aceptar un trabajo…
-  { desde: 4.5, hasta: 9.15, en: 4.9 },    // ¿Pagan a tiempo? … quienes trabajan ahí.
-  { desde: 9.48, hasta: 13.55, en: 10.2 }, // Voz Laboral reúne experiencias…
-  { desde: 13.7, hasta: 17.45, en: 15.0 }, // Y no solo quejas: lo bueno, lo malo y lo mixto.
-  { desde: 17.75, hasta: 26.85, en: 22.0 }, // Busca la empresa… antes de publicarla.
-  { desde: 26.98, hasta: 32.22, en: 32.2 }, // Los demás pueden reaccionar… te avisamos.
-  { desde: 32.4, hasta: 37.1, en: 39.0 },  // Además, hay veinticuatro guías…
-  { desde: 37.33, hasta: 39.73, en: 46.4 }, // Tu nombre y tu correo nunca se publican.
-  { desde: 39.96, hasta: 44.2, en: 51.4 }, // Tu experiencia puede ayudar… Entra a Voz Laboral.
+const DURACION = 57;
+// Segundo del video en que empieza cada bloque y hasta cuándo dura su escena.
+const ESCENAS = [
+  { en: 0.3, fin: 4.6, nombre: 'Gancho' },
+  { en: 4.9, fin: 9.6, nombre: 'Preguntas' },
+  { en: 10.0, fin: 14.4, nombre: 'Marca' },
+  { en: 14.8, fin: 23.8, nombre: 'Guías' },
+  { en: 24.2, fin: 31.0, nombre: 'Cada guía' },
+  { en: 31.3, fin: 36.8, nombre: 'Calculadoras' },
+  { en: 37.2, fin: 45.8, nombre: 'Experiencias' },
+  { en: 46.1, fin: 50.8, nombre: 'Garantías' },
+  { en: 51.2, fin: 57.0, nombre: 'Llamado a la acción' },
 ];
 
-const [audio, video, salida] = process.argv.slice(2);
+const [fuente, video, salida] = process.argv.slice(2);
 if (!salida) {
-  console.error('Uso: node video/voz.cjs <locucion.mp3> <video.mp4> <salida.mp4>');
+  console.error('Uso: node video/voz.cjs <carpeta-de-clips | locucion.mp3> <video.mp4> <salida.mp4>');
   process.exit(1);
 }
 
-const partes = frases.map((f, i) => {
-  const ms = Math.round(f.en * 1000);
-  return `[1:a]atrim=${f.desde}:${f.hasta},asetpts=PTS-STARTPTS,afade=t=in:d=0.04,afade=t=out:st=${(f.hasta - f.desde - 0.06).toFixed(2)}:d=0.06,adelay=${ms}|${ms}[f${i}]`;
-});
-const mezcla = `${frases.map((_, i) => `[f${i}]`).join('')}amix=inputs=${frases.length}:normalize=0,apad,atrim=0:57,loudnorm=I=-14:TP=-1.5:LRA=11[voz]`;
+const duracion = (f) =>
+  Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f]).toString().trim());
 
-execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', video, '-i', audio,
+let entradas; // archivos de audio que entran a ffmpeg
+let cortes; // por bloque: { entrada, desde, hasta }
+
+if (fs.statSync(fuente).isDirectory()) {
+  const clips = fs.readdirSync(fuente).filter((n) => /\.(mp3|wav|m4a)$/i.test(n)).sort();
+  if (clips.length !== ESCENAS.length) {
+    console.error(`La carpeta debe tener ${ESCENAS.length} clips (01 … 09). Tiene ${clips.length}.`);
+    process.exit(1);
+  }
+  entradas = clips.map((n) => path.join(fuente, n));
+  cortes = entradas.map((f, i) => ({ entrada: i, desde: 0, hasta: duracion(f) }));
+} else {
+  entradas = [fuente];
+  const total = duracion(fuente);
+  // ffmpeg informa los silencios en stderr; se capturan con spawnSync.
+  const { spawnSync } = require('child_process');
+  const r = spawnSync('ffmpeg', ['-hide_banner', '-i', fuente, '-af', 'silencedetect=noise=-35dB:d=0.2', '-f', 'null', '-'], { encoding: 'utf8' });
+  const log = `${r.stdout}${r.stderr}`;
+  const inicios = [...log.matchAll(/silence_start: ([\d.]+)/g)].map((m) => Number(m[1]));
+  const finales = [...log.matchAll(/silence_end: ([\d.]+)/g)].map((m) => Number(m[1]));
+  const huecos = inicios
+    .map((ini, i) => ({ ini, fin: finales[i] ?? total }))
+    .filter((h) => h.ini > 0.05 && h.fin < total - 0.05); // ni el silencio inicial ni el final
+  if (huecos.length < ESCENAS.length - 1) {
+    console.error(`Solo encontré ${huecos.length} pausas; hacen falta ${ESCENAS.length - 1}. Deja una pausa más larga entre bloques o usa una carpeta de clips.`);
+    process.exit(1);
+  }
+  const elegidos = [...huecos].sort((a, b) => (b.fin - b.ini) - (a.fin - a.ini)).slice(0, ESCENAS.length - 1).sort((a, b) => a.ini - b.ini);
+  const limites = [0, ...elegidos.flatMap((h) => [h.ini, h.fin]), total];
+  cortes = ESCENAS.map((_, i) => ({ entrada: 0, desde: limites[i * 2], hasta: limites[i * 2 + 1] }));
+}
+
+// Avisa si algún bloque no cabe en su escena.
+cortes.forEach((c, i) => {
+  const largo = c.hasta - c.desde;
+  const hueco = ESCENAS[i].fin - ESCENAS[i].en;
+  console.log(`${String(i + 1).padStart(2, '0')} ${ESCENAS[i].nombre}: ${largo.toFixed(2)} s de ${hueco.toFixed(1)} s disponibles${largo > hueco ? '  ← NO CABE: acórtalo o habla más rápido' : ''}`);
+});
+
+const partes = cortes.map((c, i) => {
+  const ms = Math.round(ESCENAS[i].en * 1000);
+  const largo = c.hasta - c.desde;
+  return `[${c.entrada + 1}:a]atrim=${c.desde.toFixed(3)}:${c.hasta.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:d=0.04,afade=t=out:st=${Math.max(0, largo - 0.06).toFixed(2)}:d=0.06,adelay=${ms}|${ms}[f${i}]`;
+});
+const mezcla = `${cortes.map((_, i) => `[f${i}]`).join('')}amix=inputs=${cortes.length}:normalize=0,apad,atrim=0:${DURACION},loudnorm=I=-14:TP=-1.5:LRA=11[voz]`;
+
+execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', video, ...entradas.flatMap((f) => ['-i', f]),
   '-filter_complex', [...partes, mezcla].join(';'),
   '-map', '0:v', '-map', '[voz]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '160k', '-ar', '48000', '-ac', '2',
   '-shortest', '-movflags', '+faststart', salida], { stdio: 'inherit' });

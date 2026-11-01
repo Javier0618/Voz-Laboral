@@ -2,7 +2,7 @@
 
 Video vertical (1080 × 1920, 57 segundos) para Reels, TikTok, Shorts y estados de WhatsApp. Presenta VozLaboral como un sitio de **guías laborales**: primero las guías, después las calculadoras y al final las experiencias. Termina con un llamado a entrar.
 
-> **Sin voz por ahora.** La versión anterior, centrada en experiencias, tenía la locución de ElevenLabs. Esta versión nueva aún no tiene voz: graba una con el guion de abajo y únela con `voz.cjs` (ajusta sus cortes). La versión anterior sigue disponible en el historial de git.
+> **Sin voz por ahora.** La versión anterior, centrada en experiencias, tenía la locución de ElevenLabs. Esta versión nueva aún no tiene voz: genérala en ElevenLabs con el guion etiquetado de la sección «Voz» y únela con `voz.cjs`, que coloca cada bloque en su escena. La versión anterior sigue disponible en el historial de git.
 
 - `promo.html`: el video, hecho como página animada con la tipografía y los colores de la plataforma. Ábrelo en el navegador para verlo en vivo.
 - `render.cjs`: lo graba cuadro por cuadro y arma el MP4 con ffmpeg.
@@ -38,34 +38,48 @@ Las tarjetas de experiencias son ejemplos ilustrativos y así lo dice el video. 
 
 ## Voz
 
-`voz.cjs` une una locución al video: corta el audio por frases y pone cada una en su escena, con el volumen normalizado para redes (−14 LUFS).
+La locución se genera en **ElevenLabs v3** con etiquetas de audio (`[pause]`, `[excited]`…) y se une al video con `voz.cjs`, que pone cada bloque en su escena y normaliza el volumen para redes (−14 LUFS).
+
+### Guion para ElevenLabs
+
+Son 9 bloques, uno por escena. Escribe «Voz Laboral» separado para que la voz lo pronuncie bien. Las etiquetas van en inglés porque así las reconoce ElevenLabs, y no se leen en voz alta.
+
+| # | Escena | Máx. | Texto para ElevenLabs |
+|---|---|---|---|
+| 01 | Gancho | 4,3 s | `[slowly] La ley laboral cambió. [pause] ¿Sabes cómo te afecta?` |
+| 02 | Preguntas | 4,7 s | `[playful] ¿Desde qué hora es nocturno? ¿Cuánto vale un domingo? [pause] Está en la ley.` |
+| 03 | Marca | 4,4 s | `[excited] Voz Laboral. [pause] Guías laborales claras para trabajadores en Colombia.` |
+| 04 | Guías | 9,0 s | `Reforma laboral, reforma pensional, teletrabajo, sindicatos, liquidación… y mucho más. [pause] Tus derechos, con la ley en la mano.` |
+| 05 | Cada guía | 6,8 s | `Cada guía te explica qué dice la ley, cómo se aplica y qué puedes hacer.` |
+| 06 | Calculadoras | 5,5 s | `[playful] Con las calculadoras revisas tu nómina, tu prima, tus cesantías o tu liquidación.` |
+| 07 | Experiencias | 8,6 s | `Y puedes leer lo que cuentan quienes trabajan en cada empresa… [pause] o contar tu experiencia, con un alias.` |
+| 08 | Garantías | 4,7 s | `[softly] Cada guía cita su fuente oficial. Y tu nombre nunca se publica.` |
+| 09 | Cierre | 5,8 s | `[excited] Conoce tus derechos laborales. [pause] Entra a Voz Laboral.` |
+
+«Máx.» es lo que dura la escena. Si un bloque no cabe, `voz.cjs` lo avisa: acorta el texto o sube la velocidad de la voz.
+
+**Ajustes sugeridos en ElevenLabs:**
+- Modelo Eleven v3.
+- Voz cálida, masculina o femenina, con acento colombiano o neutro.
+- Estabilidad «Natural».
+- Velocidad 1,0. Súbela a 1,05–1,1 si algún bloque no cabe.
+
+### Unir la voz
+
+Lo más sencillo y preciso es generar **cada bloque por separado** y guardar los clips en una carpeta como `01.mp3` … `09.mp3`:
 
 ```bash
-node video/render.cjs sin-voz.mp4
-node video/voz.cjs locucion.mp3 sin-voz.mp4 vozlaboral-presentacion-con-voz.mp4
+node video/render.cjs video/sin-voz.mp4
+node video/voz.cjs clips/ video/sin-voz.mp4 video/vozlaboral-presentacion-con-voz.mp4
 ```
 
-Los cortes de `voz.cjs` corresponden a la locución de ElevenLabs con la voz «Diego». Si grabas otra, ajusta los segundos de cada frase.
+Si prefieres generar todo de una vez, pega los 9 bloques seguidos con `[pause] [pause]` entre uno y otro, y usa el archivo único. El script corta por las 8 pausas más largas:
 
-## Guion de voz
+```bash
+node video/voz.cjs locucion.mp3 video/sin-voz.mp4 video/vozlaboral-presentacion-con-voz.mp4
+```
 
-El video funciona sin sonido, como se ve la mayoría de los videos en redes. Este guion sigue las escenas (unas 130 palabras) y coincide con los subtítulos de `public/video/vozlaboral-presentacion.es.vtt`:
-
-> La ley laboral cambió. ¿Sabes cómo te afecta? ¿Desde qué hora es trabajo nocturno? ¿Cuánto te pagan un domingo? La respuesta está en la ley. Te la explicamos.
->
-> VozLaboral: guías laborales claras para trabajadores en Colombia. Reforma laboral, reforma pensional, teletrabajo, sindicatos, liquidación y más. Tus derechos, con la ley en la mano.
->
-> Cada guía te dice qué dice la ley, cómo se aplica y qué puedes hacer, con su fuente oficial.
->
-> Las calculadoras te ayudan a revisar tu nómina, tu prima, tus cesantías o tu liquidación.
->
-> Y puedes leer lo que cuentan quienes trabajan en cada empresa, o compartir tu experiencia con un alias.
->
-> Cada guía cita su fuente oficial, y tu nombre y tu correo nunca se publican.
->
-> Conoce tus derechos laborales. Entra a VozLaboral.
-
-Después de grabarla, ajusta en `voz.cjs` los segundos de cada frase (`desde`, `hasta`) y el segundo del video donde empieza (`en`), según la tabla de escenas.
+En los dos casos el script muestra cuánto dura cada bloque frente al tiempo de su escena. Después genera la versión web con el comando de la sección «En la web».
 
 ## Texto para publicar
 
