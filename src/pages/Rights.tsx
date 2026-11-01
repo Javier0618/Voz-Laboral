@@ -8,6 +8,7 @@ import { brand } from '../config/brand';
 import { GuideBody } from '../components/GuideBody';
 import { GuideCover } from '../components/GuideCover';
 import { GuideCalculatorLinks } from '../components/GuideCalculatorLinks';
+import { GUIAS_PRIORITARIAS } from '../lib/guiasPrioritarias';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, useAsync } from '../components/ui';
 
 const disclaimer =
@@ -161,6 +162,8 @@ export default function Rights() {
               )}
             </form>
 
+            {!query && !topic && <FeaturedGuides guides={guides} />}
+
             <p className="mt-8 text-sm text-slate" aria-live="polite">
               {visible.length === guides.length
                 ? `${guides.length} ${guides.length === 1 ? 'guía publicada' : 'guías publicadas'}`
@@ -176,33 +179,128 @@ export default function Rights() {
                   Prueba con otra palabra o quita el filtro de tema.
                 </EmptyState>
               </div>
+            ) : topic || query ? (
+              <GuideList guides={visible} all={guides} categories={categories.data} />
             ) : (
-              <ol className="mt-3 border-t border-ink/80">
-                {visible.map((g) => (
-                  <li key={g.id} className="border-b border-line">
-                    <Link to={`/derechos/${g.slug}`}
-                      className={`group grid gap-x-6 py-6 sm:grid-cols-[3.5rem_minmax(0,1fr)] ${g.cover_url ? 'md:grid-cols-[3.5rem_minmax(0,1fr)_11rem]' : ''}`}>
-                      <span aria-hidden="true" className="hidden font-serif text-3xl leading-none text-teal/70 sm:block">
-                        {String(guides.indexOf(g) + 1).padStart(2, '0')}
-                      </span>
-                      <GuideCover guide={g} className="mb-4 rounded sm:col-start-2 md:order-last md:col-start-3 md:mb-0 md:self-start" />
-                      <span className="sm:col-start-2 md:row-start-1">
-                        <span className="block text-sm font-semibold text-teal-strong">{categoryName(categories.data, g.category_slug)}</span>
-                        <span className="mt-1 block font-serif text-2xl leading-tight text-ink group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">
-                          {g.title}
-                        </span>
-                        <span className="mt-2 block max-w-prose text-slate">{g.summary}</span>
-                        <GuideMeta guide={g} className="mt-3" />
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
+              <GuidesByTopic guides={visible} categories={categories.data} />
             )}
           </div>
           <HelpAside guides={guides} />
         </div>
       )}
+    </div>
+  );
+}
+
+function FeaturedGuides({ guides }: { guides: LegalResource[] }) {
+  const bySlug = new Map(guides.map((g) => [g.slug, g]));
+  const featured = GUIAS_PRIORITARIAS.map((s) => bySlug.get(s)).filter(Boolean) as LegalResource[];
+  if (!featured.length) return null;
+  return (
+    <section className="mt-10" aria-labelledby="destacadas">
+      <h2 id="destacadas" className="font-sans text-base font-semibold text-ink">Empieza por estas</h2>
+      <p className="mt-1 text-sm text-slate">Las guías más consultadas sobre pagos, jornada y qué hacer si hay un problema.</p>
+      <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+        {featured.slice(0, 6).map((g) => (
+          <li key={g.id}>
+            <Link to={`/derechos/${g.slug}`} className="group flex h-full flex-col rounded-lg border border-line bg-paper p-4 transition-colors hover:border-slate">
+              <span className="font-serif text-lg leading-snug text-ink group-hover:underline group-hover:decoration-teal/60">{g.title}</span>
+              <span className="mt-1 line-clamp-2 text-sm text-slate">{g.summary}</span>
+              {g.last_verified_at && (
+                <span className="mt-auto pt-3 text-xs font-medium text-slate">Verificada el {formatDate(g.last_verified_at)}</span>
+              )}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function GuideList({
+  guides,
+  all,
+  categories,
+}: {
+  guides: LegalResource[];
+  all: LegalResource[];
+  categories: Category[] | null | undefined;
+}) {
+  return (
+    <ol className="mt-3 border-t border-ink/80">
+      {guides.map((g) => (
+        <li key={g.id} className="border-b border-line">
+          <Link to={`/derechos/${g.slug}`}
+            className={`group grid gap-x-6 py-6 sm:grid-cols-[3.5rem_minmax(0,1fr)] ${g.cover_url ? 'md:grid-cols-[3.5rem_minmax(0,1fr)_11rem]' : ''}`}>
+            <span aria-hidden="true" className="hidden font-serif text-3xl leading-none text-teal/70 sm:block">
+              {String(all.indexOf(g) + 1).padStart(2, '0')}
+            </span>
+            <GuideCover guide={g} className="mb-4 rounded sm:col-start-2 md:order-last md:col-start-3 md:mb-0 md:self-start" />
+            <span className="sm:col-start-2 md:row-start-1">
+              <span className="block text-sm font-semibold text-teal-strong">{categoryName(categories, g.category_slug)}</span>
+              <span className="mt-1 block font-serif text-2xl leading-tight text-ink group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">
+                {g.title}
+              </span>
+              <span className="mt-2 block max-w-prose text-slate">{g.summary}</span>
+              <GuideMeta guide={g} className="mt-3" />
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function GuidesByTopic({
+  guides,
+  categories,
+}: {
+  guides: LegalResource[];
+  categories: Category[] | null | undefined;
+}) {
+  const groups = new Map<string, LegalResource[]>();
+  for (const g of guides) {
+    const key = g.category_slug || 'generales';
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(g);
+  }
+  const order = (categories ?? []).map((c) => c.slug);
+  const keys = [
+    ...order.filter((s) => groups.has(s)),
+    ...[...groups.keys()].filter((s) => s !== 'generales' && !order.includes(s)).sort(),
+    ...(groups.has('generales') ? ['generales'] : []),
+  ];
+  return (
+    <div className="mt-3 space-y-12">
+      {keys.map((slug) => {
+        const items = groups.get(slug) ?? [];
+        if (!items.length) return null;
+        return (
+          <section key={slug} aria-labelledby={`tema-${slug}`}>
+            <h2 id={`tema-${slug}`} className="border-b border-ink/80 pb-3 font-sans text-lg font-semibold text-ink">
+              {categoryName(categories, slug === 'generales' ? null : slug)}
+            </h2>
+            <ul className="divide-y divide-line">
+              {items.map((g) => (
+                <li key={g.id}>
+                  <Link to={`/derechos/${g.slug}`} className="group grid gap-x-6 py-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+                    <span>
+                      <span className="block font-serif text-xl leading-snug text-ink group-hover:underline group-hover:decoration-teal/60">
+                        {g.title}
+                      </span>
+                      <span className="mt-1 block max-w-prose text-sm text-slate">{g.summary}</span>
+                      <GuideMeta guide={g} className="mt-2" />
+                    </span>
+                    {g.cover_url && (
+                      <GuideCover guide={g} className="mt-3 w-full max-w-[11rem] rounded sm:mt-0" />
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
     </div>
   );
 }
