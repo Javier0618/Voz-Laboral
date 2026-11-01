@@ -74,8 +74,8 @@ La dirección es sobria y confiable: ni red social ni portal gubernamental.
 ## Guías: borrado definitivo (noviembre de 2026)
 
 - La administración puede **borrar** una guía desde Moderación → Guías, además de archivarla. El borrado es definitivo: se van también sus fuentes, sus visitas y sus imágenes.
-- El borrado pasa por la función `public.delete_legal_resource` (migración `20261101001800_delete_guide.sql`). La función:
-  - exige rol de administración y un motivo;
+- El borrado pasa por la función `public.delete_legal_resource` (migraciones `20261101001800` y `20261101001900`). La función:
+  - exige rol de administración (no pide motivo: se registra «Guía borrada desde el panel»);
   - deja en `moderation_events` el estado previo, el título y la dirección de la guía.
 - El borrado directo de la tabla `legal_resources` quedó cerrado incluso para la administración. Así ningún borrado queda sin registro.
 - Si la guía está publicada, el panel avisa de que su enlace dejará de funcionar. Para ocultar una guía sin perderla, usa «Archivar».

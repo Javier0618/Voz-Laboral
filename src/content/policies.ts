@@ -3,7 +3,7 @@
 export interface PolicySection { heading: string; paragraphs: string[] }
 export interface Policy { slug: string; title: string; summary: string; sections: PolicySection[] }
 
-const RESPONSABLE = 'VozLaboral, plataforma de experiencias laborales en Colombia. Para cualquier asunto sobre tus datos, escríbenos al correo de contacto que aparece al final de esta página.';
+const RESPONSABLE = 'VozLaboral, sitio de guías laborales y experiencias de trabajadores en Colombia. Para cualquier asunto sobre tus datos, escríbenos al correo de contacto que aparece al final de esta página.';
 
 export const policies: Policy[] = [
   {
@@ -89,12 +89,13 @@ export const policies: Policy[] = [
   {
     slug: 'terminos',
     title: 'Términos de uso',
-    summary: 'Condiciones para usar la plataforma.',
+    summary: 'Condiciones para usar el sitio: guías, experiencias y calculadoras.',
     sections: [
       {
-        heading: 'Qué es y qué no es la plataforma',
+        heading: 'Qué es y qué no es el sitio',
         paragraphs: [
-          'Un espacio independiente para compartir experiencias laborales, buenas y malas, conversar sobre ellas y encontrar orientación general sobre derechos. No es una autoridad judicial ni administrativa, y no sustituye al Ministerio del Trabajo, a los inspectores de trabajo, a los jueces ni la asesoría jurídica profesional.',
+          'Un sitio independiente que publica guías laborales con información general sobre derechos, deberes y cambios normativos en Colombia, reúne experiencias laborales de trabajadores, buenas y malas, y ofrece calculadoras orientativas. No es una autoridad judicial ni administrativa, y no sustituye al Ministerio del Trabajo, a los inspectores de trabajo, a los jueces ni la asesoría jurídica profesional.',
+          'Las guías y las calculadoras son orientativas: cada guía indica su fuente oficial y la fecha en que se verificó, y la norma puede haber cambiado después. Antes de tomar una decisión, comprueba la fecha y la fuente, o consulta a un profesional.',
           'Que una experiencia esté publicada significa que cumple las reglas de publicación, no que la plataforma haya comprobado los hechos.',
         ],
       },

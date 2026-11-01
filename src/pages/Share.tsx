@@ -57,7 +57,8 @@ export default function Share() {
   return (
     <div className="page py-10">
       <PageHeader title="Compartir una experiencia">
-        Buena, mala o mixta: cuenta cómo es trabajar en una empresa. Se publica con un alias después de una revisión.
+        Buena, mala o mixta: cuenta cómo es trabajar en una empresa. Se publica con un alias después de una revisión. Si quieres saber
+        antes qué dice la ley sobre lo que viviste, revisa las <Link to="/derechos" className="btn-link">guías laborales</Link>.
       </PageHeader>
       <div className="mt-8">
         {!session ? (

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { listCategories, listExperiences, listLegalResources } from '../lib/api';
 import { CALCULADORAS } from '../lib/calculadoras';
 import { ordenarPorPrioridad } from '../lib/guiasPrioritarias';
+import { TEMAS_GUIAS } from '../lib/temasGuias';
 import { readingMinutes } from '../lib/guide';
 import { defaultHomeMeta, setPageMeta } from '../lib/meta';
 import { GuideCover } from '../components/GuideCover';
@@ -24,7 +25,7 @@ export default function Home() {
       {notConfigured && (
         <div className="page mt-10"><ConfigNotice /></div>
       )}
-      {/* Orden: guías → experiencias → calculadoras → cómo funciona → qué puedes contar → identidad */}
+      {/* Orden: guías (con temas) → experiencias → calculadoras → cómo funciona → qué puedes contar → identidad */}
       <Rights />
       {empty ? <FirstExperiences /> : <RecentExperiences {...recent} />}
       <CalculatorsPreview />
@@ -235,7 +236,7 @@ function Categories() {
   if (notConfigured) return null;
   return (
     <section className="page mt-24" aria-labelledby="categorias">
-      <SectionHeading id="categorias" title="Qué puedes contar">
+      <SectionHeading id="categorias" title="Qué puedes contar en una experiencia">
         Lo bueno y lo malo de trabajar en una empresa. Cada tema lleva a sus experiencias publicadas.
       </SectionHeading>
       <div className="mt-8">
@@ -260,14 +261,14 @@ function Categories() {
 
 function HowItWorks() {
   const steps = [
-    { title: 'Cuentas tu experiencia', text: 'Con o sin cuenta. Eliges la empresa, el tema y si fue buena, mala o mixta.' },
-    { title: 'La moderación la revisa', text: 'Que no tenga datos personales, amenazas ni documentos confidenciales. No juzga si los hechos son ciertos.' },
-    { title: 'Otras personas participan', text: 'Reaccionan y comentan. Con cuenta lo ves todo en Mi cuenta y puedes apelar cada decisión.' },
+    { title: 'Lee la guía', text: 'Te explicamos tus derechos y lo que cambia en la ley, con la norma citada, su fuente oficial y la fecha de revisión.' },
+    { title: 'Revisa tus cuentas', text: 'Las calculadoras te ayudan a comprobar tu nómina, tu prima, tus cesantías o tu liquidación, y te dicen cómo se calcula.' },
+    { title: 'Cuenta y aprende de otros', text: 'Lee lo que viven otras personas en su trabajo o comparte tu experiencia con un alias. La moderación la revisa antes de publicarla.' },
   ];
   return (
     <section className="mt-24 bg-mist" aria-labelledby="como-funciona">
       <div className="page py-16 sm:py-20">
-        <SectionHeading id="como-funciona" title="Cómo funciona" action={<Link to="/como-funciona" className="btn-link">Cómo moderamos</Link>} />
+        <SectionHeading id="como-funciona" title="Cómo te ayuda VozLaboral" action={<Link to="/como-funciona" className="btn-link">Quiénes somos y cómo trabajamos</Link>} />
         <ol className="relative mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
           <span aria-hidden="true" className="absolute left-5 right-5 top-5 hidden h-px bg-ink/25 md:block" />
           {steps.map((s, i) => (
@@ -294,7 +295,7 @@ function Identity() {
     <section className="page mt-24" aria-labelledby="identidad">
       <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <div>
-          <h2 id="identidad" className="text-3xl sm:text-4xl">Te decimos qué se ve y qué no.</h2>
+          <h2 id="identidad" className="text-3xl sm:text-4xl">Si compartes, te decimos qué se ve y qué no.</h2>
           <p className="mt-5 max-w-prose text-slate">
             No prometemos anonimato absoluto: si cuentas detalles que solo tú conoces, alguien cercano podría reconocerte. Por eso te
             avisamos cuando el texto parece incluir datos personales.
@@ -356,6 +357,21 @@ function Rights() {
           ))}
         </ul>
       )}
+      <div className="mt-10">
+        <h3 className="font-sans text-base font-semibold text-ink">Explora las guías por tema</h3>
+        <ul className="mt-4 flex flex-wrap gap-2">
+          {TEMAS_GUIAS.map((t) => (
+            <li key={t.slug}>
+              <Link
+                to={`/derechos?tema=${t.slug}`}
+                className="inline-flex min-h-[40px] items-center rounded-full border border-line bg-paper px-4 text-sm font-semibold text-ink hover:border-slate"
+              >
+                {t.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }

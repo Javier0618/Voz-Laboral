@@ -6,7 +6,36 @@ import { setPageMeta } from '../lib/meta';
 import { PageHeader, StatusChip, statusHint } from '../components/ui';
 import { PromoVideoInline } from '../components/PromoVideo';
 
+const pillars = [
+  {
+    title: 'Guías laborales',
+    text: 'Nuestro centro. Explicamos tus derechos, las reformas y los cambios en el trabajo en lenguaje claro, con la norma citada, su fuente oficial y la fecha de revisión.',
+    to: '/derechos',
+    cta: 'Ver las guías',
+  },
+  {
+    title: 'Experiencias',
+    text: 'Lo que cuentan quienes trabajan en cada empresa, con un alias. Complementan las guías con lo que pasa en la práctica.',
+    to: '/experiencias',
+    cta: 'Leer experiencias',
+  },
+  {
+    title: 'Calculadoras',
+    text: 'Herramientas para revisar tu nómina, tu prima, tus cesantías o tu liquidación. Cada una explica cómo se calcula y enlaza a su guía.',
+    to: '/calculadoras',
+    cta: 'Usar una calculadora',
+  },
+];
+
+const editorial = [
+  { title: 'Fuente oficial en cada guía', text: 'Cada afirmación se apoya en la ley, un decreto o una sentencia, y la guía enlaza al texto oficial.' },
+  { title: 'Fecha de verificación visible', text: 'Cada guía muestra cuándo se revisó por última vez contra la norma. Las revisamos cuando cambia la ley.' },
+  { title: 'Misma estructura siempre', text: 'Qué dice la ley, cómo se aplica en la práctica, errores comunes, qué puedes hacer y lecturas relacionadas.' },
+  { title: 'Orientación, no asesoría', text: 'Las guías son información general. Para tu caso concreto, acude al Ministerio del Trabajo o a un profesional del derecho.' },
+];
+
 const principles = [
+  { title: 'Información clara y verificable', text: 'Escribimos para quien trabaja, no para abogados, y citamos siempre de dónde sale cada dato. Si una norma cambia, la guía cambia.' },
   { title: 'Lo bueno y lo malo', text: 'Una empresa no es solo sus problemas. Publicamos experiencias buenas, malas y mixtas para que se vea el cuadro completo.' },
   { title: 'Sin puntuaciones ni rankings', text: 'No calificamos empresas con estrellas ni las ordenamos. Mostramos relatos y, cuando hay suficientes, cuántos hay por tema.' },
   { title: 'Tu identidad, protegida', text: 'Se publica con un alias o como «Persona sin cuenta». Nadie, tampoco las empresas, recibe tu correo ni tus datos de cuenta.' },
@@ -17,7 +46,15 @@ const states: ExperienceStatus[] = ['en_revision', 'publicada', 'requiere_ajuste
 
 const faqs = [
   {
-    q: '¿Necesito una cuenta para compartir?',
+    q: '¿Quién escribe las guías?',
+    a: 'El equipo de VozLaboral, a partir del texto oficial de las normas. Cada guía cita sus fuentes y muestra la fecha de verificación. No son asesoría jurídica: para tu caso concreto, consulta al Ministerio del Trabajo o a un abogado.',
+  },
+  {
+    q: '¿Qué hago si una guía tiene un error o está desactualizada?',
+    a: 'Escríbenos al correo de contacto que aparece al pie de la página, indicando la guía y la norma que cambió. La revisamos contra la fuente oficial y, si corresponde, la corregimos y actualizamos su fecha de verificación.',
+  },
+  {
+    q: '¿Necesito una cuenta para compartir una experiencia?',
     a: 'No. Puedes compartir sin cuenta y recibirás un enlace privado para seguir tu experiencia. Con una cuenta, además, la ves en Mi cuenta, puedes editarla o apelar, y puedes reaccionar y comentar en otras experiencias.',
   },
   {
@@ -41,8 +78,8 @@ const faqs = [
 export default function About() {
   useEffect(() => {
     setPageMeta({
-      title: `Quiénes somos y cómo moderamos · ${brand.name}`,
-      description: `${brand.name} reúne experiencias de trabajo en empresas de ${brand.country}, contadas por quienes las vivieron. Cómo moderamos y qué protegemos.`,
+      title: `Quiénes somos y cómo trabajamos · ${brand.name}`,
+      description: `${brand.name} publica guías laborales claras para trabajadores en ${brand.country}, con fuentes oficiales, y reúne experiencias y calculadoras. Cómo hacemos las guías y cómo moderamos.`,
       path: '/como-funciona',
       type: 'website',
     });
@@ -51,24 +88,50 @@ export default function About() {
 
   return (
     <div className="page py-10">
-      <PageHeader title="Quiénes somos y cómo moderamos">
-        {brand.name} reúne experiencias de trabajo en empresas de {brand.country}, contadas por quienes las vivieron. Sirve para saber qué
-        esperar de un empleo, reconocer lo que una empresa hace bien y señalar lo que debe mejorar.
+      <PageHeader title="Quiénes somos y cómo trabajamos">
+        {brand.name} publica guías laborales claras para quienes trabajan en {brand.country}: tus derechos, las reformas y los cambios en el
+        mundo del trabajo, explicados con la norma en la mano. Las experiencias de otros trabajadores y las calculadoras completan las guías
+        con lo que pasa en la práctica.
       </PageHeader>
 
-      <section className="mt-12 grid items-center gap-10 rounded-lg bg-mist p-6 sm:p-10 md:grid-cols-[minmax(0,1fr)_18rem]" aria-labelledby="video">
+      <section className="mt-12" aria-labelledby="que-hacemos">
+        <h2 id="que-hacemos" className="text-3xl">Qué encontrarás aquí</h2>
+        <ol className="mt-6 grid gap-6 border-t border-ink/80 pt-8 md:grid-cols-3">
+          {pillars.map((p, i) => (
+            <li key={p.title} className="flex flex-col">
+              <span className="text-sm font-semibold text-teal-strong">{i === 0 ? 'Lo principal' : 'Complemento'}</span>
+              <h3 className="mt-1 font-serif text-2xl">{p.title}</h3>
+              <p className="mt-2 max-w-prose text-slate">{p.text}</p>
+              <Link to={p.to} className={`mt-4 self-start ${i === 0 ? 'btn-primary' : 'btn-link'}`}>{p.cta}</Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="mt-16 rounded-lg bg-mist p-6 sm:p-10" aria-labelledby="como-guias">
+        <h2 id="como-guias" className="text-3xl">Cómo hacemos las guías</h2>
+        <ul className="mt-6 grid gap-x-12 gap-y-8 md:grid-cols-2">
+          {editorial.map((p) => (
+            <li key={p.title}>
+              <h3 className="font-sans text-lg font-semibold">{p.title}</h3>
+              <p className="mt-2 max-w-prose text-slate">{p.text}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mt-16 grid items-center gap-10 rounded-lg border border-line p-6 sm:p-10 md:grid-cols-[minmax(0,1fr)_18rem]" aria-labelledby="video">
         <div>
           <h2 id="video" className="text-3xl">{brand.name} en un minuto</h2>
           <p className="mt-3 max-w-prose text-slate">
-            Qué es, cómo se comparte una experiencia, qué pueden hacer los demás y dónde están las guías de tus derechos. El video tiene sonido y
-            subtítulos.
+            Qué es, dónde están las guías, cómo se comparte una experiencia y qué pueden hacer los demás. El video tiene sonido y subtítulos.
           </p>
           <ul className="mt-5 list-disc space-y-2 pl-5 text-slate marker:text-teal">
-            <li>Busca la empresa o pide que la agreguen.</li>
+            <li>Aprende sobre tus derechos y los cambios en la ley.</li>
+            <li>Busca una empresa y lee lo que cuentan quienes trabajan ahí.</li>
             <li>Cuenta cómo te fue con un alias, o sin cuenta.</li>
-            <li>Reacciona, comenta y aprende sobre tus derechos.</li>
           </ul>
-          <Link to="/compartir" className="btn-primary mt-7">Compartir una experiencia</Link>
+          <Link to="/derechos" className="btn-primary mt-7">Ver las guías</Link>
         </div>
         <PromoVideoInline />
       </section>
@@ -86,7 +149,7 @@ export default function About() {
       </section>
 
       <section className="mt-20 rounded-lg bg-mist p-6 sm:p-10" aria-labelledby="moderacion">
-        <h2 id="moderacion" className="text-3xl">Cómo moderamos</h2>
+        <h2 id="moderacion" className="text-3xl">Cómo moderamos las experiencias</h2>
         <div className="mt-8 grid gap-10 lg:grid-cols-2">
           <div>
             <h3 className="font-sans text-lg font-semibold">Experiencias: revisión antes de publicar</h3>
@@ -135,14 +198,16 @@ export default function About() {
         </div>
       </section>
 
-      <section className="mt-20 grid gap-6 rounded-lg bg-ink p-8 text-white md:grid-cols-[minmax(0,1fr)_auto] md:items-center sm:p-10" aria-labelledby="participa">
+      <section className="mt-20 grid gap-6 rounded-lg bg-brand p-8 text-white md:grid-cols-[minmax(0,1fr)_auto] md:items-center sm:p-10" aria-labelledby="participa">
         <div>
-          <h2 id="participa" className="font-serif text-3xl text-white">¿Cómo te fue en tu trabajo?</h2>
-          <p className="mt-2 max-w-prose text-white/80">Cuéntalo con un alias o sin cuenta. Tu experiencia ayuda a quien está pensando en trabajar ahí.</p>
+          <h2 id="participa" className="font-serif text-3xl text-white">Conoce tus derechos laborales</h2>
+          <p className="mt-2 max-w-prose text-white/80">
+            Empieza por las guías. Y si quieres, cuenta cómo te fue en tu trabajo: tu experiencia ayuda a otras personas.
+          </p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link to="/compartir" className="btn bg-white text-onwhite-ink hover:bg-onwhite-tint">Compartir una experiencia</Link>
-          <Link to="/politicas/reglas" className="btn border border-white/40 text-white hover:border-white">Leer las reglas</Link>
+          <Link to="/derechos" className="btn bg-white text-onwhite-ink hover:bg-onwhite-tint">Ver las guías</Link>
+          <Link to="/compartir" className="btn border border-white/40 text-white hover:border-white">Compartir una experiencia</Link>
         </div>
       </section>
     </div>

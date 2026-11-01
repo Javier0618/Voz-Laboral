@@ -137,7 +137,7 @@ export function Layout() {
             <ThemeToggle />
             {session && <NotificationBell />}
             {session ? <AccountMenu /> : <NavLink to="/cuenta" className={navClass}>Iniciar sesión</NavLink>}
-            <Link to="/compartir" className="btn ml-2 whitespace-nowrap bg-white text-onwhite-ink hover:bg-onwhite-tint">
+            <Link to="/compartir" className="btn ml-2 whitespace-nowrap border border-white/40 text-white hover:border-white hover:bg-white/10">
               <span>Compartir<span className="hidden xl:inline"> experiencia</span></span>
             </Link>
           </div>
@@ -164,7 +164,7 @@ export function Layout() {
               ))}
               {isModerator && <li><NavLink to="/moderacion" className={navClass}>Moderación</NavLink></li>}
               <li><NavLink to="/cuenta" className={navClass}>{session ? 'Mi cuenta' : 'Iniciar sesión'}</NavLink></li>
-              <li className="py-3"><Link to="/compartir" className="btn w-full bg-white text-onwhite-ink hover:bg-onwhite-tint">Compartir experiencia</Link></li>
+              <li className="py-3"><Link to="/compartir" className="btn w-full border border-white/40 text-white hover:border-white hover:bg-white/10">Compartir experiencia</Link></li>
             </ul>
           </nav>
         )}
@@ -186,8 +186,9 @@ function Footer() {
         <div>
           <p className="font-serif text-xl font-semibold">{brand.name}</p>
           <p className="mt-3 max-w-sm text-sm text-white/75">
-            Guías laborales sobre derechos y deberes en {brand.country}, experiencias reales con alias y calculadoras de nómina. No somos una
-            autoridad: la información es orientativa y publicar una experiencia no prueba que los hechos sean ciertos.
+            Guías laborales sobre tus derechos, las reformas y los cambios en el trabajo en {brand.country}, con fuentes oficiales. Además,
+            experiencias de trabajadores contadas con alias y calculadoras de nómina. No somos una autoridad: la información es orientativa y
+            publicar una experiencia no prueba que los hechos sean ciertos.
           </p>
         </div>
         <div>
@@ -202,7 +203,7 @@ function Footer() {
         <div>
           <h2 className="font-sans text-sm font-semibold text-white">Contacto</h2>
           <ul className="mt-3 space-y-2 text-sm text-white/80">
-            <li><Link className="hover:text-white hover:underline" to="/como-funciona">Quiénes somos y cómo moderamos</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/como-funciona">Quiénes somos y cómo trabajamos</Link></li>
             <li><Link className="hover:text-white hover:underline" to="/politicas/solicitudes">Consultas y reclamos sobre tus datos</Link></li>
             <li><Link className="hover:text-white hover:underline" to="/empresas">Soy una empresa: solicitar una corrección</Link></li>
             {brand.contactEmail && (

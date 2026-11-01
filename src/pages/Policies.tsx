@@ -50,7 +50,7 @@ export function NotFound() {
   return (
     <div className="page py-16">
       <EmptyState title="Esta página no existe" action={<Link to="/" className="btn-primary">Ir al inicio</Link>}>
-        Revisa la dirección o busca la empresa que te interesa desde el inicio.
+        Revisa la dirección, o busca la guía o la empresa que te interesa desde el inicio.
       </EmptyState>
     </div>
   );

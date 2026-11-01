@@ -60,8 +60,9 @@ export default function Experiences() {
   return (
     <div className="page py-10">
       <PageHeader title="Experiencias">
-        Experiencias buenas, malas y mixtas, publicadas tras la moderación. Cada una refleja la vivencia de quien la escribe: la plataforma
-        no verifica los hechos.
+        Lo que cuentan quienes trabajan en empresas de Colombia: experiencias buenas, malas y mixtas, publicadas tras la moderación. Cada
+        una refleja la vivencia de quien la escribe: no verificamos los hechos. Para saber qué dice la ley sobre cada tema, consulta las{' '}
+        <Link to="/derechos" className="btn-link">guías laborales</Link>.
       </PageHeader>
 
       {notConfigured ? (

@@ -1,6 +1,13 @@
 # VozLaboral
 
-Plataforma independiente de transparencia laboral para Colombia. Los trabajadores comparten experiencias buenas, malas y mixtas sobre empresas reales, con un alias público o sin cuenta. Cada relato pasa por una moderación auditada antes de publicarse, y la comunidad puede reaccionar y comentar.
+Sitio independiente de **guías laborales** para trabajadores en Colombia. Su foco principal es publicar guías claras sobre derechos laborales, reformas y cambios en el mundo del trabajo, con la norma citada, su fuente oficial y la fecha de verificación.
+
+Completan las guías:
+
+1. **Experiencias:** los trabajadores cuentan cómo les fue en empresas reales, con un alias público o sin cuenta. Cada relato pasa por una moderación auditada antes de publicarse, y la comunidad puede reaccionar y comentar.
+2. **Calculadoras:** de nómina, prima, cesantías y liquidación. Cada una explica cómo se calcula y enlaza a su guía.
+
+El sistema editorial (plantilla, temas, calendario y flujo de publicación) está en [`docs/editorial.md`](docs/editorial.md).
 
 > **Estado:** MVP en desarrollo. **No está listo para producción.** Faltan la verificación contra un proyecto de Supabase real, la revisión jurídica de las políticas y los puntos pendientes de [`docs/checklist-seguridad.md`](docs/checklist-seguridad.md) y [`docs/checklist-legal.md`](docs/checklist-legal.md).
 >
@@ -18,7 +25,7 @@ Plataforma independiente de transparencia laboral para Colombia. Los trabajadore
 | Formulario de experiencias con tono (buena, mala o mixta), vista previa, borrador y avisos de datos personales | Implementado y probado |
 | Compartir sin cuenta, con enlace privado de seguimiento y opción de vincular a una cuenta | Implementado y probado en la base de datos |
 | Reacciones de apoyo («Me pasó igual», «Me sirvió», «Gracias») y comentarios con moderación | Implementado y probado en la base de datos |
-| Página «Quiénes somos y cómo moderamos» | Implementado |
+| Página «Quiénes somos y cómo trabajamos» (guías, experiencias y moderación) | Implementado |
 | Página propia de cada experiencia (`/experiencias/:id`) con botón Compartir (WhatsApp, copiar enlace) | Implementado |
 | Avisos para quien publica: comentarios, reacciones y decisiones de moderación (campana y `/avisos`) | Implementado y probado en la base de datos |
 | `sitemap.xml` y `robots.txt` generados al compilar | Implementado (requiere `SITE_URL`) |
@@ -26,7 +33,9 @@ Plataforma independiente de transparencia laboral para Colombia. Los trabajadore
 | Historial propio: estados, motivos, edición, retirada y apelación | Implementado |
 | Panel de moderación: cola, comentarios, reportes, reclamaciones, apelaciones, catálogo, guías e historial | Implementado |
 | Reclamaciones de empresas y respuestas empresariales | Implementado |
-| Guías de derechos laborales con editor (formato enriquecido, índice, buscador y guías relacionadas) | Implementado; 10 guías cargadas como «pendiente de verificación» |
+| **Guías laborales** (eje principal): editor con plantilla, índice por temas editoriales, buscador, guías relacionadas, experiencias relacionadas y enlaces a calculadoras | Implementado; 31 guías en `supabase/contenido` (partes 1 a 6) |
+| Borrado definitivo de guías desde el panel, con registro en moderación | Implementado y probado en la base de datos |
+| «Cómo se calcula» y enlace a la guía en cada calculadora | Implementado |
 | Políticas legales | **Borradores** pendientes de un abogado |
 | Eliminación de cuenta con anonimización y purga por plazo | Implementado y probado en la base de datos |
 | Archivos de respaldo | **No habilitado** a propósito (ver `docs/decisiones.md`) |
@@ -105,7 +114,7 @@ Es un sitio estático (`npm run build` genera `dist/`). Sirve en cualquier hosti
 ## Estructura
 
 ```
-supabase/migrations/   esquema, RLS, funciones y auditoría (18 migraciones)
+supabase/migrations/   esquema, RLS, funciones y auditoría (19 migraciones)
 supabase/seed.dev.sql  empresas ficticias para desarrollo
 src/config/brand.ts    nombre y textos de marca
 src/index.css          colores de marca (variables en :root)

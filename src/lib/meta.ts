@@ -6,9 +6,9 @@ import { brand } from '../config/brand';
 // prerender o middleware en el hosting.
 
 const DEFAULT_DESCRIPTION =
-  'Guías sobre derechos laborales y reformas en Colombia, experiencias de trabajadores contadas con alias y calculadoras de nómina. Información clara, orientativa.';
+  'Guías claras sobre derechos laborales, reformas y cambios en el trabajo en Colombia, con fuentes oficiales. Además, experiencias de trabajadores y calculadoras de nómina.';
 
-const DEFAULT_TITLE = `${brand.name}: derechos laborales, experiencias y calculadoras en Colombia`;
+const DEFAULT_TITLE = `${brand.name}: guías laborales para trabajadores en Colombia`;
 
 /** Portada social por defecto (public/). Preferible WebP/PNG 1200×628 en producción. */
 export const DEFAULT_OG_IMAGE = '/og-default.svg';
