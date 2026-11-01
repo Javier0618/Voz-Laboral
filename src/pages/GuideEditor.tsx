@@ -166,18 +166,19 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
                   </button>
                   <button
                     type="button"
-                    className="btn-secondary"
+                    className="btn-primary"
                     title="Rellena el contenido con la estructura editorial recomendada"
                     onClick={() => {
                       const t = form.content.trim();
-                      if (t && !window.confirm('¿Reemplazar el contenido actual por la plantilla editorial?')) return;
+                      if (t && !window.confirm('¿Reemplazar el contenido actual por la plantilla editorial? Se borrará el texto que hay ahora.')) return;
                       setForm({ ...form, content: GUIDE_TEMPLATE });
                       setView('editar');
+                      setNotice('Plantilla insertada. Completa cada sección y guarda los cambios.');
                     }}
                   >
-                    Insertar plantilla
+                    Insertar plantilla de guía
                   </button>
-                  <p className="text-sm text-slate">Separa los bloques con una línea en blanco.</p>
+                  <p className="text-sm text-slate">Separa los bloques con una línea en blanco. La plantilla solo aparece en modo <strong>Editar</strong>.</p>
                 </div>
                 <details className="mb-3 rounded border border-line bg-mist px-4 py-3 text-sm">
                   <summary className="cursor-pointer font-semibold text-ink">Guía de formato</summary>
