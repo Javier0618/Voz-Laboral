@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { OPEN_EVENT, readConsent, saveConsent } from '../lib/consent';
-import { hayServiciosOpcionales, iniciarGoogle, registrarPagina } from '../lib/analytics';
+import { adsenseClient, hayServiciosOpcionales, iniciarGoogle, registrarPagina } from '../lib/analytics';
 
 /**
  * Aviso de cookies: aparece en la primera visita si hay servicios opcionales
@@ -10,6 +10,8 @@ import { hayServiciosOpcionales, iniciarGoogle, registrarPagina } from '../lib/a
  */
 export function CookieConsent() {
   const activo = hayServiciosOpcionales();
+  // La publicidad solo se menciona y se ofrece si AdSense está activo.
+  const conAnuncios = Boolean(adsenseClient());
   const [abierto, setAbierto] = useState(() => activo && readConsent() === null);
   const [detalle, setDetalle] = useState(false);
   const previo = readConsent();
@@ -58,8 +60,9 @@ export function CookieConsent() {
       <div className="page py-5">
         <h2 id="cookies-titulo" className="font-sans text-base font-semibold text-ink">Tu privacidad</h2>
         <p className="mt-1 max-w-3xl text-sm leading-6 text-slate">
-          Usamos cookies necesarias para que el sitio funcione. Con tu permiso, también usamos cookies de Google para medir qué páginas se
-          leen y para mostrar publicidad que financia el sitio. Tu cuenta y tus publicaciones nunca se usan para publicidad.{' '}
+          {conAnuncios
+            ? 'Usamos cookies necesarias para que el sitio funcione. Con tu permiso, también usamos cookies de Google para medir qué páginas se leen y para mostrar publicidad. Tu cuenta y tus publicaciones nunca se envían a Google.'
+            : 'Usamos cookies necesarias para que el sitio funcione. Con tu permiso, también usamos Google Analytics para saber qué páginas se leen más y así mejorar las guías. Tu cuenta y tus publicaciones nunca se envían a Google.'}{' '}
           <Link to="/politicas/cookies" className="btn-link">Política de cookies</Link>
         </p>
 
@@ -74,18 +77,20 @@ export function CookieConsent() {
               <input type="checkbox" checked={analytics} onChange={(e) => setAnalytics(e.target.checked)} className="mt-1" />
               <span><strong className="text-ink">Medición (Google Analytics).</strong> <span className="text-slate">Qué páginas se leen y cómo llegan las visitas, en informes agregados.</span></span>
             </label>
-            <label className="flex items-start gap-3 text-sm">
-              <input type="checkbox" checked={ads} onChange={(e) => setAds(e.target.checked)} className="mt-1" />
-              <span><strong className="text-ink">Publicidad personalizada (Google AdSense).</strong> <span className="text-slate">Si no la aceptas, verás anuncios no personalizados.</span></span>
-            </label>
+            {conAnuncios && (
+              <label className="flex items-start gap-3 text-sm">
+                <input type="checkbox" checked={ads} onChange={(e) => setAds(e.target.checked)} className="mt-1" />
+                <span><strong className="text-ink">Publicidad personalizada (Google AdSense).</strong> <span className="text-slate">Si no la aceptas, verás anuncios no personalizados.</span></span>
+              </label>
+            )}
           </fieldset>
         )}
 
         <div className="mt-4 flex flex-wrap gap-3">
-          <button type="button" className="btn-primary" onClick={() => guardar({ analytics: true, ads: true })}>Aceptar todas</button>
+          <button type="button" className="btn-primary" onClick={() => guardar({ analytics: true, ads: conAnuncios })}>Aceptar todas</button>
           <button type="button" className="btn-secondary" onClick={() => guardar({ analytics: false, ads: false })}>Solo necesarias</button>
           {detalle ? (
-            <button type="button" className="btn-secondary" onClick={() => guardar({ analytics, ads })}>Guardar mi elección</button>
+            <button type="button" className="btn-secondary" onClick={() => guardar({ analytics, ads: conAnuncios && ads })}>Guardar mi elección</button>
           ) : (
             <button type="button" className="btn-link px-2" onClick={() => setDetalle(true)}>Configurar</button>
           )}

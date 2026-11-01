@@ -3,6 +3,16 @@
 export interface PolicySection { heading: string; paragraphs: string[] }
 export interface Policy { slug: string; title: string; summary: string; sections: PolicySection[] }
 
+import { adsenseClient } from '../lib/analytics';
+
+/**
+ * La publicidad (Google AdSense) solo se menciona si está activa: con
+ * VITE_ADSENSE_CLIENT al compilar. Hoy el objetivo es medir qué páginas se
+ * visitan con Google Analytics.
+ */
+const ADS = Boolean(adsenseClient());
+const siAnuncios = <T,>(...items: T[]): T[] => (ADS ? items : []);
+
 const RESPONSABLE = 'TuVozLaboral, sitio de guías laborales y experiencias de trabajadores en Colombia. Para cualquier asunto sobre tus datos, escríbenos al correo de contacto que aparece al final de esta página.';
 
 export const policies: Policy[] = [
@@ -23,7 +33,7 @@ export const policies: Policy[] = [
           'Reacciones: guardamos qué reacción dejó cada cuenta para contar una por persona y permitir quitarla. Solo se publica el total; nadie más ve quién reaccionó.',
           'Envíos sin cuenta: no pedimos correo ni otro dato de contacto. Guardamos el contenido y una huella cifrada (hash) del enlace de seguimiento, nunca el enlace. Quien tenga el enlace puede ver el estado, las reacciones y los comentarios, y vincular la experiencia a una cuenta.',
           'Registros técnicos y de seguridad: eventos como superar límites de envío o cambios de rol. En nuestras tablas no guardamos direcciones IP; el proveedor de infraestructura puede registrarlas en sus propios registros técnicos durante el plazo que define su contrato.',
-          'Datos de navegación, solo si los aceptas en el aviso de cookies: identificadores de cookies, páginas que visitas, cómo llegaste al sitio, tipo de dispositivo y navegador, y ubicación aproximada (país o ciudad) que se deduce de tu dirección IP. Los recogen Google Analytics, para medir el uso del sitio, y Google AdSense, para mostrar publicidad. Lo explicamos en la [política de cookies](/politicas/cookies).',
+          'Datos de navegación, solo si los aceptas en el aviso de cookies: identificadores de cookies, páginas que visitas, cómo llegaste al sitio, tipo de dispositivo y navegador, y ubicación aproximada (país o ciudad) que se deduce de tu dirección IP. ' + (ADS ? 'Los recogen Google Analytics, para medir qué páginas se visitan, y Google AdSense, para mostrar publicidad.' : 'Los recoge Google Analytics, para medir qué páginas se visitan.') + ' Lo explicamos en la [política de cookies](/politicas/cookies).',
           'No solicitamos datos sensibles. Si un relato los incluye, el equipo de moderación puede pedir que se retiren.',
         ],
       },
@@ -31,14 +41,15 @@ export const policies: Policy[] = [
         heading: 'Finalidades',
         paragraphs: [
           'Gestionar tu cuenta, publicar y moderar contenido, atender reclamaciones y solicitudes, prevenir abusos y cumplir obligaciones legales.',
-          'Si das tu autorización en el aviso de cookies: medir cómo se usa el sitio para mejorar las guías y las herramientas (Google Analytics), y mostrar publicidad que financia el sitio, personalizada solo si la aceptas (Google AdSense).',
-          'No vendemos datos ni los compartimos con las empresas mencionadas en las publicaciones. Los datos de tu cuenta y tus publicaciones nunca se usan para publicidad.',
+          'Si das tu autorización en el aviso de cookies: medir qué páginas se visitan y cómo se usa el sitio, para mejorar las guías y las herramientas (Google Analytics).',
+          ...siAnuncios('Mostrar publicidad, personalizada solo si la aceptas (Google AdSense).'),
+          'No vendemos datos ni los compartimos con las empresas mencionadas en las publicaciones. Los datos de tu cuenta y tus publicaciones nunca se usan para publicidad ni se envían a Google.',
         ],
       },
       {
-        heading: 'Cookies, medición y publicidad: tu autorización',
+        heading: ADS ? 'Cookies, medición y publicidad: tu autorización' : 'Cookies y medición: tu autorización',
         paragraphs: [
-          'Las cookies de medición (Google Analytics) y de publicidad personalizada (Google AdSense) solo se activan si las aceptas en el aviso de cookies que aparece en tu primera visita. Esa aceptación es tu autorización previa, expresa e informada para ese tratamiento. Si no aceptas, el sitio funciona igual.',
+          (ADS ? 'Las cookies de medición (Google Analytics) y de publicidad personalizada (Google AdSense)' : 'Las cookies de medición (Google Analytics)') + ' solo se activan si las aceptas en el aviso de cookies que aparece en tu primera visita. Esa aceptación es tu autorización previa, expresa e informada para ese tratamiento. Si no aceptas, el sitio funciona igual.',
           'Puedes cambiar o retirar tu autorización cuando quieras desde «Preferencias de cookies», al pie de cada página.',
           'Antes de enviar datos de navegación, quitamos de las direcciones los parámetros y los enlaces privados de seguimiento, para que no salgan datos que puedan identificarte.',
           'Los detalles de cada cookie, para qué sirve y cuánto dura están en la [política de cookies](/politicas/cookies).',
@@ -49,7 +60,9 @@ export const policies: Policy[] = [
         paragraphs: [
           'Usamos proveedores de infraestructura en la nube para la base de datos, la autenticación y el alojamiento del sitio. Sus servidores pueden estar ubicados fuera de Colombia.',
           'Solo les transmitimos los datos necesarios para prestar el servicio, y los tratan por nuestra cuenta, sin usarlos para fines propios.',
-          'Si aceptas las cookies de medición o de publicidad, Google LLC y sus filiales reciben datos de navegación y pueden tratarlos en Estados Unidos y en otros países. En la medición actúan por nuestra cuenta. En la publicidad personalizada, Google y sus socios publicitarios también los usan según sus propias políticas. Puedes conocer [cómo usa Google los datos de los sitios que usan sus servicios](https://policies.google.com/technologies/partner-sites).',
+          ADS
+            ? 'Si aceptas las cookies de medición o de publicidad, Google LLC y sus filiales reciben datos de navegación y pueden tratarlos en Estados Unidos y en otros países. En la medición actúan por nuestra cuenta. En la publicidad personalizada, Google y sus socios publicitarios también los usan según sus propias políticas. Puedes conocer [cómo usa Google los datos de los sitios que usan sus servicios](https://policies.google.com/technologies/partner-sites).'
+            : 'Si aceptas las cookies de medición, Google LLC y sus filiales reciben datos de navegación y pueden tratarlos en Estados Unidos y en otros países. Actúan por nuestra cuenta, para darnos informes de uso del sitio. Puedes conocer [cómo usa Google los datos de los sitios que usan sus servicios](https://policies.google.com/technologies/partner-sites).',
         ],
       },
       {
@@ -97,10 +110,10 @@ export const policies: Policy[] = [
         ],
       },
       {
-        heading: 'Cookies, medición y publicidad',
+        heading: ADS ? 'Cookies, medición y publicidad' : 'Cookies y medición',
         paragraphs: [
-          'Usamos Google Analytics para saber qué páginas se leen, y Google AdSense para mostrar publicidad que financia el sitio. Sus cookies solo se activan si las aceptas, y puedes cambiar tu decisión en «Preferencias de cookies», al pie de cada página.',
-          'Tu cuenta, tu correo y tus publicaciones nunca se usan para publicidad. Más detalles en la [política de cookies](/politicas/cookies).',
+          (ADS ? 'Usamos Google Analytics para saber qué páginas se leen, y Google AdSense para mostrar publicidad.' : 'Usamos Google Analytics para saber qué páginas se leen.') + ' Sus cookies solo se activan si las aceptas, y puedes cambiar tu decisión en «Preferencias de cookies», al pie de cada página.',
+          'Tu cuenta, tu correo y tus publicaciones nunca se envían a Google. Más detalles en la [política de cookies](/politicas/cookies).',
         ],
       },
       { heading: 'Responsable', paragraphs: [RESPONSABLE] },
@@ -114,7 +127,7 @@ export const policies: Policy[] = [
       {
         heading: 'Qué son las cookies',
         paragraphs: [
-          'Las cookies son pequeños archivos que un sitio guarda en tu navegador. El almacenamiento local cumple una función parecida. Algunos son necesarios para que el sitio funcione y otros sirven para medir el uso o mostrar publicidad.',
+          'Las cookies son pequeños archivos que un sitio guarda en tu navegador. El almacenamiento local cumple una función parecida. Algunos son necesarios para que el sitio funcione y otros sirven para medir qué páginas se visitan' + (ADS ? ' o para mostrar publicidad.' : '.'),
         ],
       },
       {
@@ -132,19 +145,21 @@ export const policies: Policy[] = [
           'Puedes desactivar la medición de Google Analytics en todos los sitios con el [complemento de inhabilitación de Google Analytics](https://tools.google.com/dlpage/gaoptout).',
         ],
       },
-      {
+      ...siAnuncios(
+        {
         heading: 'De publicidad: Google AdSense (opcionales)',
         paragraphs: [
-          'Mostramos anuncios de Google AdSense para financiar el sitio. Google y sus socios, como proveedores externos, usan cookies para mostrar anuncios según tus visitas anteriores a este y a otros sitios web.',
+          'Mostramos anuncios de Google AdSense. Google y sus socios, como proveedores externos, usan cookies para mostrar anuncios según tus visitas anteriores a este y a otros sitios web.',
           'Las cookies de publicidad de Google permiten que Google y sus socios te muestren anuncios basados en tus visitas a este sitio y a otros sitios de internet. Si no las aceptas, los anuncios que veas no serán personalizados.',
           'Puedes desactivar la publicidad personalizada en la [configuración de anuncios de Google](https://adssettings.google.com) y conocer más sobre las cookies publicitarias de otros proveedores en [aboutads.info](https://www.aboutads.info).',
           'Los anuncios se marcan como «Publicidad» y no influyen en el contenido ni en la moderación. No mostramos anuncios en los perfiles de empresa, en las experiencias ni en los formularios para compartir.',
         ],
-      },
+      }
+      ),
       {
         heading: 'Cómo cambiar tu decisión',
         paragraphs: [
-          'En tu primera visita te preguntamos si aceptas las cookies de medición y de publicidad. Puedes cambiar tu decisión cuando quieras desde «Preferencias de cookies», al pie de cada página.',
+          'En tu primera visita te preguntamos si aceptas las cookies de medición' + (ADS ? ' y de publicidad' : '') + '. Puedes cambiar tu decisión cuando quieras desde «Preferencias de cookies», al pie de cada página.',
           'También puedes borrar o bloquear las cookies desde la configuración de tu navegador. Si bloqueas las necesarias, puede que algunas funciones, como iniciar sesión, dejen de funcionar.',
         ],
       },
@@ -175,7 +190,7 @@ export const policies: Policy[] = [
         heading: 'Independencia',
         paragraphs: [
           'Las empresas no pueden pagar por retirar o modificar críticas legítimas. Pueden solicitar correcciones de datos verificables y publicar respuestas identificadas como suyas.',
-          'El sitio se financia en parte con publicidad de Google AdSense. Los anuncios se marcan como «Publicidad», los elige Google y no influyen en el contenido de las guías, en la moderación ni en las experiencias publicadas. No mostramos anuncios en los perfiles de empresa, en las experiencias ni en los formularios para compartir.',
+          ...siAnuncios('El sitio muestra publicidad de Google AdSense. Los anuncios se marcan como «Publicidad», los elige Google y no influyen en el contenido de las guías, en la moderación ni en las experiencias publicadas. No mostramos anuncios en los perfiles de empresa, en las experiencias ni en los formularios para compartir.'),
         ],
       },
       {

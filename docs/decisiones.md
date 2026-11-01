@@ -89,6 +89,7 @@ La dirección es sobria y confiable: ni red social ni portal gubernamental.
 ## Medición de visitas y publicidad (Fase 6.3)
 
 - Decisión: **Google Analytics 4** para medir visitas y, más adelante, **Google AdSense** para monetizar. Umami se descartó.
+- **El objetivo actual es medir qué páginas se visitan.** Mientras AdSense no esté activo (sin `VITE_ADSENSE_CLIENT`), ni el aviso de cookies ni las políticas mencionan la publicidad, porque no se informa de un tratamiento que no ocurre. Al definir `VITE_ADSENSE_CLIENT`, aparecen solos los textos de publicidad (`siAnuncios` en `src/content/policies.ts`) y la casilla de publicidad personalizada del aviso.
 - **Consentimiento previo (Ley 1581 de 2012).** Si existe `VITE_GA_ID` o `VITE_ADSENSE_CLIENT`, la primera visita muestra un aviso de cookies (`src/components/CookieConsent.tsx`) con tres opciones: «Aceptar todas», «Solo necesarias» y «Configurar». La decisión se guarda en el navegador y se cambia desde «Preferencias de cookies», al pie de página.
 - **Google Consent Mode v2** (`src/lib/analytics.ts`): todo empieza denegado (`analytics_storage`, `ad_storage`, `ad_user_data` y `ad_personalization`), y se concede solo lo aceptado. Sin consentimiento de publicidad, AdSense solo puede mostrar anuncios no personalizados (`requestNonPersonalizedAds = 1`).
 - **Páginas vistas** enviadas a mano (`send_page_view: false`). Cada dirección pasa por `limpiarUrl`, que quita parámetros como el `?code=` del inicio de sesión o las búsquedas, y tapa el enlace privado de `/seguimiento/<enlace>`.

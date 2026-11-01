@@ -11,10 +11,11 @@ vi.mock('../../src/lib/analytics', async (orig) => ({
   iniciarGoogle: vi.fn(),
   registrarPagina: vi.fn(),
   hayServiciosOpcionales: () => servicios.on,
+  adsenseClient: () => (servicios.ads ? 'ca-pub-prueba' : undefined),
 }));
-const servicios = vi.hoisted(() => ({ on: true }));
+const servicios = vi.hoisted(() => ({ on: true, ads: false }));
 
-afterEach(() => { localStorage.clear(); servicios.on = true; });
+afterEach(() => { localStorage.clear(); servicios.on = true; servicios.ads = false; });
 
 describe('aviso de cookies', () => {
   it('no aparece si no hay Google Analytics ni AdSense configurados', () => {
@@ -42,5 +43,22 @@ describe('aviso de cookies', () => {
     openConsentPreferences();
     expect(await screen.findByRole('dialog')).toBeTruthy();
     expect((screen.getByLabelText(/Medición \(Google Analytics\)/) as HTMLInputElement).checked).toBe(true);
+  });
+
+  it('sin AdSense solo habla de medición y «Aceptar todas» no concede publicidad', async () => {
+    render(<MemoryRouter><CookieConsent /></MemoryRouter>);
+    expect(screen.getByRole('dialog').textContent).not.toMatch(/publicidad/i);
+    await userEvent.click(screen.getByRole('button', { name: 'Configurar' }));
+    expect(screen.queryByLabelText(/Publicidad personalizada/)).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Aceptar todas' }));
+    expect(readConsent()).toMatchObject({ analytics: true, ads: false });
+  });
+
+  it('con AdSense activo ofrece la publicidad personalizada', async () => {
+    servicios.ads = true;
+    render(<MemoryRouter><CookieConsent /></MemoryRouter>);
+    expect(screen.getByRole('dialog').textContent).toMatch(/publicidad/i);
+    await userEvent.click(screen.getByRole('button', { name: 'Aceptar todas' }));
+    expect(readConsent()).toMatchObject({ analytics: true, ads: true });
   });
 });
