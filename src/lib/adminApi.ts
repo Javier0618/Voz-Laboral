@@ -1,6 +1,6 @@
 // Operaciones del panel de moderación. La autorización real está en la base
 // de datos: estas funciones fallan con "permiso" si la cuenta no tiene rol.
-import { requireClient } from './supabase';
+import { AppError, requireClient } from './supabase';
 import { toAppError } from './errors';
 import type { ExperienceStatus } from './api';
 import { todayLocal } from './format';
@@ -217,19 +217,44 @@ export async function setGuideCover(id: string, cover: { url: string | null; alt
  * intenta limpiar sus imágenes del bucket «guias».
  */
 export async function deleteGuide(id: string) {
-  const slug = await run<string>(requireClient().rpc('delete_legal_resource', { p_id: id }));
+  const client = requireClient();
+  // Se envía el motivo por defecto para que funcione con cualquiera de las dos
+  // versiones de la función (20261101001800 lo exige; 20261101001900 no).
+  const { data, error } = await client.rpc('delete_legal_resource', { p_id: id, p_reason: 'Guía borrada desde el panel' });
+  let slug = data as string | null;
+  if (error) {
+    // Si la base de datos aún no tiene la función (migraciones pendientes),
+    // se intenta el borrado directo, que el esquema anterior permitía a la
+    // administración. Si tampoco se puede, se explica qué falta.
+    if (!isMissingFunction(error)) throw toAppError(error);
+    const direct = await client.from('legal_resources').delete().eq('id', id).select('slug');
+    if (direct.error) {
+      throw new AppError(
+        'unknown',
+        'No se pudo borrar: falta aplicar en Supabase las migraciones 20261101001800_delete_guide.sql y 20261101001900_delete_guide_no_reason.sql.',
+      );
+    }
+    if (!direct.data?.length) throw new AppError('permission', 'No tienes permiso para borrar esta guía, o ya se había borrado.');
+    slug = direct.data[0].slug as string;
+  }
   if (slug) {
     // Si falla la limpieza, quedan archivos huérfanos pero la guía ya se borró.
     try {
-      const bucket = requireClient().storage.from('guias');
-      const { data } = await bucket.list(slug, { limit: 1000 });
-      const paths = (data ?? []).map((f) => `${slug}/${f.name}`);
+      const bucket = client.storage.from('guias');
+      const { data: files } = await bucket.list(slug, { limit: 1000 });
+      const paths = (files ?? []).map((f) => `${slug}/${f.name}`);
       if (paths.length) await bucket.remove(paths);
     } catch {
       /* sin acción */
     }
   }
   return slug;
+}
+
+/** PostgREST responde PGRST202 (404) cuando la función no existe en el esquema. */
+function isMissingFunction(error: unknown) {
+  const e = error as { code?: string; message?: string };
+  return e?.code === 'PGRST202' || /Could not find the function/i.test(e?.message ?? '');
 }
 
 const NEW_GUIDE_CONTENT = `## Qué dice la ley

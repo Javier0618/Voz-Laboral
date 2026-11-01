@@ -21,6 +21,9 @@ export function toAppError(error: unknown): AppError {
   if (raw?.code === '42501' || /permission denied|row-level security/i.test(message)) {
     return new AppError('permission', 'No tienes permiso para realizar esta acción.');
   }
+  if (raw?.code === 'PGRST202' || /Could not find the function/i.test(message)) {
+    return new AppError('unknown', 'Esta acción necesita una actualización de la base de datos que aún no se aplicó. Avisa a la administración.');
+  }
   if (raw?.code === '23505' || /duplicate key/i.test(message)) {
     return new AppError('validation', 'Ese valor ya está en uso. Prueba con otro.');
   }
