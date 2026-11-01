@@ -99,6 +99,7 @@ Las guías de la parte 5 se contrastaron el 1 de noviembre de 2026 con los texto
 | 6 | Reforma pensional: qué cambia y desde cuándo | Reformas y novedades | Publicada |
 | 7 | Prestación de servicios o contrato laboral: cómo saber cuál tienes | Contrato y formas de trabajar | Nueva (parte 7), pendiente de tu revisión |
 | 8 | Salud mental en el trabajo y riesgo psicosocial: lo que debe hacer tu empresa | Salud, seguridad y licencias | Nueva (parte 8), pendiente de tu revisión |
+| 9 | Inclusión laboral de personas con discapacidad: cuota de empleo, ajustes y protección | Igualdad, dignidad y acoso | Nueva (parte 9), pendiente de tu revisión |
 
 **Fuente de referencia:** la compilación normativa de Colpensiones (`normativa.colpensiones.gov.co`) incluye los textos con notas de vigencia y es accesible desde el entorno de trabajo.
 
@@ -106,12 +107,11 @@ Las guías de la parte 5 se contrastaron el 1 de noviembre de 2026 con los texto
 
 | # | Tema | Eje |
 |---|------|-----|
-| 1 | Inclusión laboral y cuota de discapacidad | Dignidad |
-| 2 | Trabajo doméstico: derechos | Formas de trabajar |
-| 3 | Trabajadores migrantes: derechos laborales | Dignidad |
-| 4 | Inspección de trabajo | A dónde acudir |
-| 5 | Calendario laboral del año | Reformas |
-| 6 | Trabajo en el campo: jornal y contrato agropecuario | Formas de trabajar |
+| 1 | Trabajo doméstico: derechos | Formas de trabajar |
+| 2 | Trabajadores migrantes: derechos laborales | Dignidad |
+| 3 | Inspección de trabajo | A dónde acudir |
+| 4 | Calendario laboral del año | Reformas |
+| 5 | Trabajo en el campo: jornal y contrato agropecuario | Formas de trabajar |
 
 ### Ya publicadas
 

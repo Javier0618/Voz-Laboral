@@ -93,6 +93,7 @@ export const GUIA_TEMA: Record<string, string> = {
   'acoso-sexual-en-el-trabajo': 'dignidad',
   'igualdad-y-no-discriminacion': 'dignidad',
   'igual-trabajo-igual-salario': 'dignidad',
+  'inclusion-laboral-y-discapacidad': 'dignidad',
 
   'sindicatos-asociacion-y-huelga': 'colectivos',
 

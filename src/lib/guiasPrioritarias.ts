@@ -14,6 +14,7 @@ export const GUIAS_PRIORITARIAS = [
   'contrato-de-aprendizaje-sena',
   'prestacion-de-servicios-vs-contrato-laboral',
   'salud-mental-y-riesgo-psicosocial',
+  'inclusion-laboral-y-discapacidad',
   // Ya publicadas
   'jornada-horas-extra-y-recargos',
   'tipos-de-contrato-y-periodo-de-prueba',
@@ -42,7 +43,6 @@ export function ordenarPorPrioridad<T extends { slug: string }>(guias: T[]): T[]
  * Las licencias nuevas de la reforma ya están en la guía de licencias remuneradas.
  */
 export const GUIAS_A_CREAR: { titulo: string; slugSugerido: string; eje: string }[] = [
-  { titulo: 'Inclusión laboral y cuota de personas con discapacidad', slugSugerido: 'inclusion-laboral-discapacidad', eje: 'Igualdad, dignidad y acoso' },
   { titulo: 'Trabajo doméstico: derechos y deberes', slugSugerido: 'trabajo-domestico-derechos', eje: 'Contrato y formas de trabajar' },
   { titulo: 'Trabajadores migrantes en Colombia: derechos laborales', slugSugerido: 'trabajadores-migrantes-derechos', eje: 'Igualdad, dignidad y acoso' },
   { titulo: 'Inspección de trabajo: qué puede hacer y cómo pedirla', slugSugerido: 'inspeccion-de-trabajo', eje: 'A dónde acudir' },
