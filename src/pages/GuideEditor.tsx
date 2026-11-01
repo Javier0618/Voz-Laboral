@@ -12,6 +12,7 @@ import { prepareCoverImage } from '../lib/image';
 import { formatDate, todayLocal } from '../lib/format';
 import type { AppError } from '../lib/supabase';
 import { GuideBody } from '../components/GuideBody';
+import { GUIDE_TEMPLATE } from '../lib/guideTemplate';
 import { Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, useAsync } from '../components/ui';
 
 const statusLabel: Record<GuideStatus, string> = {
@@ -163,7 +164,21 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
                   <button type="button" className="btn-secondary" onClick={() => { caret.current = textarea.current?.selectionStart ?? null; setImageOpen(true); }}>
                     Insertar imagen
                   </button>
-                  <p className="text-sm text-slate">Separa los bloques con una línea en blanco.</p>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    title="Rellena el contenido con la estructura editorial recomendada"
+                    onClick={() => {
+                      const cur = form.content.trim();
+                      if (cur && !window.confirm('¿Reemplazar el contenido actual por la plantilla editorial? Se borrará el texto que hay ahora.')) return;
+                      setForm({ ...form, content: GUIDE_TEMPLATE });
+                      setView('editar');
+                      setNotice('Plantilla insertada. Completa cada sección y guarda los cambios.');
+                    }}
+                  >
+                    Insertar plantilla de guía
+                  </button>
+                  <p className="text-sm text-slate">Separa los bloques con una línea en blanco. La plantilla solo aparece en modo Editar.</p>
                 </div>
                 <label htmlFor="guia-contenido" className="sr-only">Contenido de la guía</label>
                 <textarea
