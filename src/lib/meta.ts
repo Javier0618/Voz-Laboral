@@ -22,6 +22,8 @@ export type PageMeta = {
   path?: string | null;
   /** website | article */
   type?: 'website' | 'article';
+  /** Indicación para buscadores, p. ej. «noindex, follow» en páginas sin contenido propio. */
+  robots?: string | null;
   /** JSON-LD: un objeto o @graph (p. ej. Article + BreadcrumbList) */
   jsonLd?: Record<string, unknown> | Record<string, unknown>[] | null;
 };
@@ -53,6 +55,15 @@ function setMetaByProperty(property: string, content: string) {
     document.head.appendChild(el);
   }
   el.setAttribute('content', content);
+}
+
+function setRobots(value: string | null | undefined) {
+  const el = document.querySelector('meta[name="robots"]');
+  if (!value) {
+    el?.remove();
+    return;
+  }
+  setMetaByName('robots', value);
 }
 
 function setCanonical(href: string | undefined) {
@@ -93,6 +104,7 @@ export function setPageMeta(meta: PageMeta | null) {
     setMetaByName('twitter:image', absoluteUrl(DEFAULT_OG_IMAGE)!);
     setMetaByProperty('og:url', absoluteUrl('/')!);
     setCanonical(undefined);
+    setRobots(null);
     setJsonLd(null);
     return;
   }
@@ -111,6 +123,7 @@ export function setPageMeta(meta: PageMeta | null) {
     setCanonical(absoluteUrl(meta.path));
     setMetaByProperty('og:url', absoluteUrl(meta.path)!);
   }
+  setRobots(meta.robots);
   setJsonLd(meta.jsonLd ?? null);
 }
 

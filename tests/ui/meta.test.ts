@@ -22,4 +22,15 @@ describe('setPageMeta', () => {
     setPageMeta({ title: 'Con portada', description: 'Descripción', path: '/derechos/z', image: 'https://x.supabase.co/storage/v1/object/public/guias/z/a.png' });
     expect(prop('og:image')).toBe('https://x.supabase.co/storage/v1/object/public/guias/z/a.png');
   });
+
+  it('pone «noindex» solo donde se pide y lo quita al cambiar de página', () => {
+    const robots = () => document.querySelector('meta[name="robots"]')?.getAttribute('content') ?? null;
+    setPageMeta({ title: 'Empresa vacía', description: 'Sin experiencias', path: '/empresas/x', robots: 'noindex, follow' });
+    expect(robots()).toBe('noindex, follow');
+    setPageMeta({ title: 'Guía', description: 'Descripción', path: '/derechos/y' });
+    expect(robots()).toBeNull();
+    setPageMeta({ title: 'Empresa vacía', description: 'Sin experiencias', path: '/empresas/x', robots: 'noindex, follow' });
+    setPageMeta(null);
+    expect(robots()).toBeNull();
+  });
 });

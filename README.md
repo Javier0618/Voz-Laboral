@@ -112,6 +112,8 @@ Las pruebas de base de datos aplican las **migraciones reales** sobre [PGlite](h
 
 ## Despliegue
 
+**En un VPS con Nginx**, sigue [`docs/despliegue-vps.md`](docs/despliegue-vps.md). Ahí está la configuración para que las rutas internas no den 404, la redirección de `www` y de `http`, la caché y las cabeceras de seguridad.
+
 Es un sitio estático (`npm run build` genera `dist/`). Sirve en cualquier hosting con *fallback* a `index.html` para las rutas del cliente (Vercel, Netlify, Cloudflare Pages…). Configura las variables `VITE_*` en el hosting y añade las cabeceras de seguridad indicadas en el checklist.
 
 ## Estructura

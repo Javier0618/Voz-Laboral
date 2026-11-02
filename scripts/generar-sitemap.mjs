@@ -49,17 +49,17 @@ async function get(path, init) {
 
 if (api && key) {
   try {
-    // Supabase devuelve como máximo 1.000 filas por consulta: se pagina.
-    for (let offset = 0; offset < 200000; offset += 1000) {
-      const companies = await get(`/rest/v1/companies?select=slug,updated_at&status=eq.activo&order=slug&limit=1000&offset=${offset}`);
-      companies.forEach((c) => urls.set(`/empresas/${c.slug}`, c.updated_at));
-      if (companies.length < 1000) break;
-    }
     const guides = await get('/rest/v1/legal_resources?select=slug,updated_at&status=eq.publicado');
     guides.forEach((g) => urls.set(`/derechos/${g.slug}`, g.updated_at));
     for (let offset = 0; offset < 50000; offset += 50) {
       const page = await get('/rest/v1/rpc/list_experiences', { method: 'POST', body: JSON.stringify({ p_limit: 50, p_offset: offset }) });
-      page.forEach((e) => urls.set(`/experiencias/${e.id}`, e.published_at));
+      page.forEach((e) => {
+        urls.set(`/experiencias/${e.id}`, e.published_at);
+        // Solo empresas con experiencias publicadas: los perfiles vacíos no se
+        // indexan (llevan «noindex») y no deben aparecer en el mapa.
+        const actual = urls.get(`/empresas/${e.company_slug}`);
+        if (!actual || (e.published_at && e.published_at > actual)) urls.set(`/empresas/${e.company_slug}`, e.published_at);
+      });
       if (page.length < 50) break;
     }
   } catch (error) {

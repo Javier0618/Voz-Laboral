@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getCompanyProfile, listCompanyResponses, listExperiences, PAGE_SIZE, type Tone } from '../lib/api';
 import { formatDate, plural } from '../lib/format';
+import { setPageMeta } from '../lib/meta';
+import { brand } from '../config/brand';
 import { ExperienceItem } from '../components/ExperienceItem';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, Pagination, useAsync } from '../components/ui';
 
@@ -35,6 +37,24 @@ function ToneBalance({ tones }: { tones: Record<Tone, number> }) {
 export default function CompanyProfile() {
   const { slug = '' } = useParams();
   const profile = useAsync(() => (notConfigured ? Promise.resolve(null) : getCompanyProfile(slug)), [slug]);
+
+  // Título y descripción propios. Los perfiles sin experiencias publicadas no
+  // se indexan: miles de páginas vacías perjudicarían a todo el sitio en Google.
+  useEffect(() => {
+    const p = profile.data;
+    if (!p) return;
+    const n = p.visible_experiences;
+    setPageMeta({
+      title: `${p.company.trade_name}: experiencias de trabajadores · ${brand.name}`,
+      description: n > 0
+        ? `${plural(n, 'experiencia publicada', 'experiencias publicadas')} de personas que trabajan o trabajaron en ${p.company.trade_name} (${p.company.city}). Relatos con alias, revisados antes de publicarse.`
+        : `Perfil de ${p.company.trade_name} (${p.company.city}) en ${brand.name}. Aún no hay experiencias publicadas: cuenta la tuya con un alias.`,
+      path: `/empresas/${p.company.slug}`,
+      type: 'website',
+      robots: n > 0 ? null : 'noindex, follow',
+    });
+    return () => setPageMeta(null);
+  }, [profile.data]);
 
   if (notConfigured) return <div className="page py-10"><ConfigNotice /></div>;
   if (profile.loading) return <div className="page py-10"><Loading label="Cargando la empresa…" /></div>;
