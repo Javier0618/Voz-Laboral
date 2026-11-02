@@ -20,3 +20,4 @@ video/*.png
 !public/video/*.mp4
 .dist-nuevo
 .dist-anterior
+.env.respaldo

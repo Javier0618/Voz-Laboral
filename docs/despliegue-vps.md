@@ -202,3 +202,27 @@ add_header Content-Security-Policy-Report-Only "default-src 'self'; script-src '
 ```
 
 Cuando actives AdSense habrá que ampliarla con los dominios de anuncios de Google.
+
+## Copias de seguridad de Supabase
+
+El plan gratuito de Supabase no permite descargar copias. `scripts/respaldo-supabase.sh` guarda cada noche una copia de la base de datos en el VPS (datos de la web, cuentas y lista de archivos) y conserva los últimos 30 días.
+
+1. Instala el cliente de PostgreSQL 17, que debe ser de la misma versión o superior a la de Supabase (para Ubuntu y Debian, sigue las instrucciones de postgresql.org).
+2. Crea `/www/wwwroot/tuvozlaboral.com/.env.respaldo` con la cadena de conexión de Supabase. Está en Connect → **Session pooler**, porque la conexión directa solo funciona por IPv6:
+   ```
+   SUPABASE_DB_URL=postgresql://postgres.TU-PROYECTO:CONTRASEÑA@aws-0-REGION.pooler.supabase.com:5432/postgres
+   ```
+   Protégelo con `chmod 600 .env.respaldo`. Está en `.gitignore` y Nginx no lo sirve, porque solo publica `dist/`.
+3. Prueba a mano: `bash scripts/respaldo-supabase.sh`. Las copias quedan en `/www/backup/tuvozlaboral`.
+4. Prográmalo en aaPanel → Cron → «Shell script», cada día a las 3:00:
+   ```bash
+   cd /www/wwwroot/tuvozlaboral.com && bash scripts/respaldo-supabase.sh >> /www/wwwlogs/tuvozlaboral-respaldo.log 2>&1
+   ```
+
+**Restaurar** (en un proyecto nuevo o tras un error), con cuidado:
+
+```bash
+pg_restore --no-owner --no-privileges --clean --if-exists -d "$SUPABASE_DB_URL" /www/backup/tuvozlaboral/tuvozlaboral-AAAA-MM-DD-HHMM.dump
+```
+
+Las imágenes de portada de las guías no van en esta copia: están en Supabase Storage.
