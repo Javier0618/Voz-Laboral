@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { calcularPorDias, calcularTurnos, type Turno } from '../../lib/nomina';
 import { PageHeader } from '../../components/ui';
 import { setPageMeta } from '../../lib/meta';
@@ -11,6 +11,8 @@ import {
 import { ResumenClasificacionHoras } from '../../components/ResumenClasificacionHoras';
 import { periodoTitulo } from './Administrativos';
 import { CalculatorGuideLinks } from '../../components/CalculatorGuideLinks';
+import { SavedPayrollBar, useSavedPayroll } from '../../components/SavedPayroll';
+import { parsePeriodKey, periodKey } from '../../lib/payroll';
 
 export default function PorDias() {
   useEffect(() => {
@@ -19,7 +21,11 @@ export default function PorDias() {
     return () => setPageMeta(null);
   }, []);
 
-  const [periodo, setPeriodo] = useState(periodoActual());
+  const [params] = useSearchParams();
+  const [periodo, setPeriodo] = useState(() => {
+    const p = parsePeriodKey(params.get('periodo'));
+    return p ? { ...p, periodicidad: 'mensual' } : periodoActual();
+  });
   const [forma, setForma] = useState<'dia' | 'mensual'>('dia');
   const [valor, setValor] = useState(0);
   const [horasJornada, setHorasJornada] = useState(8);
@@ -38,6 +44,28 @@ export default function PorDias() {
     ? calcularPorDias({ valorDia, horasJornada, turnos: lista, cotizacion, otrosIngresos, otrosDescuentos })
     : null;
 
+  // Con cuenta: se guarda cada día que anotes (components/SavedPayroll.tsx).
+  const datos = { forma, valor, horasJornada, turnos, cotizacion, otrosIngresos, otrosDescuentos };
+  const llave = periodKey({ ...periodo, periodicidad: 'mensual' });
+  const guardado = useSavedPayroll<typeof datos>({
+    calculator: 'por-dias', periodKey: llave, datos, neto: r?.neto ?? 0, diasTrabajados: lista.length,
+    vacio: valor <= 0 && lista.length === 0,
+    aplicar: (d) => {
+      if (d.forma === 'dia' || d.forma === 'mensual') setForma(d.forma);
+      setValor(Number(d.valor) || 0);
+      if (Number(d.horasJornada) > 0) setHorasJornada(Number(d.horasJornada));
+      setTurnos(d.turnos ?? {});
+      if (d.cotizacion === 'ordinaria' || d.cotizacion === 'semanas') setCotizacion(d.cotizacion);
+      setOtrosIngresos(Number(d.otrosIngresos) || 0);
+      setOtrosDescuentos(Number(d.otrosDescuentos) || 0);
+    },
+    limpiarPeriodo: () => {
+      setTurnos({});
+      setOtrosIngresos(0);
+      setOtrosDescuentos(0);
+    },
+  });
+
   return (
     <div className="page py-10">
       <p className="text-sm text-slate"><Link to="/calculadoras" className="hover:text-ink hover:underline">Calculadoras</Link></p>
@@ -45,6 +73,11 @@ export default function PorDias() {
         Para quienes trabajan algunos días del mes o cobran por jornada: servicio doméstico por días, meseros, personal de eventos, ayudantes
         de construcción, reemplazos. Marca los días que trabajaste y la calculadora suma jornadas, recargos y descuentos.
       </PageHeader>
+
+      <div className="mt-8">
+        <SavedPayrollBar calculator="por-dias" periodKey={llave} datos={datos} neto={r?.neto ?? 0} diasTrabajados={lista.length}
+          status={guardado.status} savedAt={guardado.savedAt} calendario />
+      </div>
 
       <div className="mt-10 grid gap-12 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <form className="space-y-8" onSubmit={(e) => e.preventDefault()} aria-label="Datos de la nómina por días">

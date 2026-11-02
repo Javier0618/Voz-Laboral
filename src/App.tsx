@@ -52,8 +52,8 @@ export function AppRoutes() {
         <Route path="liquidacion" element={<LazyPage><CalcMeta path="/liquidacion"><Liquidacion /></CalcMeta></LazyPage>} />
         <Route path="calculadoras" element={<LazyPage><CalculadorasIndex /></LazyPage>} />
         <Route path="calculadoras/administrativos" element={<LazyPage><Administrativos /></LazyPage>} />
-        <Route path="calculadoras/operativos" element={<LazyPage><CalcMeta path="/calculadoras/operativos"><TurnosPage tipo="operativos" /></CalcMeta></LazyPage>} />
-        <Route path="calculadoras/vigilantes" element={<LazyPage><CalcMeta path="/calculadoras/vigilantes"><TurnosPage tipo="vigilantes" /></CalcMeta></LazyPage>} />
+        <Route path="calculadoras/operativos" element={<LazyPage><CalcMeta path="/calculadoras/operativos"><TurnosPage key="operativos" tipo="operativos" /></CalcMeta></LazyPage>} />
+        <Route path="calculadoras/vigilantes" element={<LazyPage><CalcMeta path="/calculadoras/vigilantes"><TurnosPage key="vigilantes" tipo="vigilantes" /></CalcMeta></LazyPage>} />
         <Route path="calculadoras/por-dias" element={<LazyPage><PorDias /></LazyPage>} />
         <Route path="calculadoras/prima" element={<LazyPage><CalcMeta path="/calculadoras/prima"><PrimaPage /></CalcMeta></LazyPage>} />
         <Route path="calculadoras/cesantias" element={<LazyPage><CalcMeta path="/calculadoras/cesantias"><CesantiasPage /></CalcMeta></LazyPage>} />

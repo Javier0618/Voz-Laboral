@@ -40,6 +40,7 @@ export const policies: Policy[] = [
           'Para la cuenta: correo electrónico y contraseña (almacenada cifrada por el proveedor de autenticación). No pedimos nombre real ni documento de identidad.',
           'Para publicar: el alias que eliges y el contenido de tus experiencias, comentarios, reportes, apelaciones y solicitudes.',
           'Reacciones: guardamos qué reacción dejó cada cuenta para contar una por persona y permitir quitarla. Solo se publica el total; nadie más ve quién reaccionó.',
+          'Calculadoras de nómina, solo si tienes cuenta y sesión iniciada: guardamos lo que anotas (salario, días y horarios de trabajo, horas y novedades) y el total estimado de cada período, para que lleves tu registro. Solo tú lo ves; el equipo del sitio no lo consulta ni lo usa para otra cosa. Puedes borrar cada período desde Mi cuenta, y todo se borra al eliminar la cuenta. Sin cuenta, las calculadoras no envían datos: todo se queda en tu navegador.',
           'Envíos sin cuenta: no pedimos correo ni otro dato de contacto. Guardamos el contenido y una huella cifrada (hash) del enlace de seguimiento, nunca el enlace. Quien tenga el enlace puede ver el estado, las reacciones y los comentarios, y vincular la experiencia a una cuenta.',
           'Registros técnicos y de seguridad: eventos como superar límites de envío o cambios de rol. En nuestras tablas no guardamos direcciones IP; el proveedor de infraestructura puede registrarlas en sus propios registros técnicos durante el plazo que define su contrato.',
           'Datos de navegación, solo si los aceptas en el aviso de cookies: identificadores de cookies, páginas que visitas, cómo llegaste al sitio, tipo de dispositivo y navegador, y ubicación aproximada (país o ciudad) que se deduce de tu dirección IP. ' + (ADS ? 'Los recogen Google Analytics, para medir qué páginas se visitan, y Google AdSense, para mostrar publicidad.' : 'Los recoge Google Analytics, para medir qué páginas se visitan.') + ' Lo explicamos en la [política de cookies](/politicas/cookies).',
@@ -79,6 +80,7 @@ export const policies: Policy[] = [
         heading: 'Conservación',
         paragraphs: [
           'Cuenta: mientras esté activa. Al solicitar la eliminación hay 15 días para cancelarla; después, las publicaciones y los comentarios se desvinculan de la cuenta, se borran sus reacciones, el alias y el acceso.',
+          'Nóminas guardadas en las calculadoras: mientras tengas la cuenta, o hasta que borres cada período. Se borran del todo cuando se elimina la cuenta.',
           'Comentarios eliminados por su autor: dejan de mostrarse de inmediato y se conservan ocultos para atender reclamaciones durante el plazo del historial de moderación.',
           'Registros de seguridad: 12 meses. Historial de moderación: 5 años, para atender reclamaciones y requerimientos legales.',
           'Datos de medición (Google Analytics): hasta 14 meses, tras los cuales Google los borra; solo usamos informes agregados. Cookies: la duración de cada una está en la política de cookies, y puedes borrarlas cuando quieras desde tu navegador.',

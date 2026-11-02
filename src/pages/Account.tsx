@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import {
@@ -13,6 +13,9 @@ import { AuthForms, NewPasswordForm } from './AuthForms';
 import {
   Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, PageHeader, StatusChip, statusHint, statusLabel, ToneChip, useAsync,
 } from '../components/ui';
+
+// Se carga aparte: solo hace falta con sesión iniciada.
+const MyPayrolls = lazy(() => import('../components/MyPayrolls').then((m) => ({ default: m.MyPayrolls })));
 
 export default function Account() {
   const { session, loading } = useAuth();
@@ -44,6 +47,7 @@ function AccountHome() {
           <Alert tone="error" title="Cuenta suspendida">{profile.suspended_reason ?? 'Incumplimiento reiterado de las reglas.'} Puedes seguir consultando tus datos.</Alert>
         )}
         <AliasSection />
+        <Suspense fallback={null}><MyPayrolls /></Suspense>
         <MyExperiences />
         <MyClaims />
       </div>

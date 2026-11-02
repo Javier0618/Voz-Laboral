@@ -1,6 +1,6 @@
 // Calculadora por turnos: operativos (5×2, 6×1) y vigilantes (2×2, 3×3, 4×2).
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { fecha as aFecha } from '../../lib/festivos';
 import { VALORES_2026 } from '../../lib/liquidacion';
 import {
@@ -14,6 +14,8 @@ import {
 import { periodoTitulo } from './Administrativos';
 import { ResumenClasificacionHoras } from '../../components/ResumenClasificacionHoras';
 import { CalculatorGuideLinks } from '../../components/CalculatorGuideLinks';
+import { SavedPayrollBar, useSavedPayroll } from '../../components/SavedPayroll';
+import { parsePeriodKey, periodKey } from '../../lib/payroll';
 
 type Tipo = 'operativos' | 'vigilantes';
 
@@ -26,7 +28,8 @@ const ROTACIONES = {
 
 export default function TurnosPage({ tipo }: { tipo: Tipo }) {
   const vig = tipo === 'vigilantes';
-  const [periodo, setPeriodo] = useState(periodoActual());
+  const [params] = useSearchParams();
+  const [periodo, setPeriodo] = useState(() => parsePeriodKey(params.get('periodo')) ?? periodoActual());
   const [salario, setSalario] = useState(0);
   const [turnos, setTurnos] = useState<Turnos>({});
   const [modo, setModo] = useState<'diario' | 'periodo'>(vig ? 'periodo' : 'diario');
@@ -55,6 +58,29 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
     : null;
   const resultado = nomina && limite ? { ...nomina, avisos: [limite, ...nomina.avisos] } : nomina;
 
+  // Con cuenta: se guarda cada día que anotes (components/SavedPayroll.tsx).
+  const datos = { salario, turnos, modo, horasJornada, umbralMes, novedades, otros };
+  const llave = periodKey(periodo);
+  const diasTrabajados = lista.filter((t) => t.fecha >= rango.desde && t.fecha <= rango.hasta).length;
+  const guardado = useSavedPayroll<typeof datos>({
+    calculator: tipo, periodKey: llave, datos, neto: resultado?.neto ?? 0, diasTrabajados,
+    vacio: salario <= 0 && diasTrabajados === 0,
+    aplicar: (d) => {
+      setSalario(Number(d.salario) || 0);
+      setTurnos(d.turnos ?? {});
+      if (d.modo === 'diario' || d.modo === 'periodo') setModo(d.modo);
+      if (Number(d.horasJornada) > 0) setHorasJornada(Number(d.horasJornada));
+      if (Number(d.umbralMes) > 0) setUmbralMes(Number(d.umbralMes));
+      setNovedades({ ...novedadesVacias(), ...d.novedades });
+      setOtros({ ...otrosVacios(), ...d.otros });
+    },
+    limpiarPeriodo: () => {
+      setTurnos({});
+      setNovedades(novedadesVacias());
+      setOtros(otrosVacios());
+    },
+  });
+
   return (
     <div className="page py-10">
       <p className="text-sm text-slate"><Link to="/calculadoras" className="hover:text-ink hover:underline">Calculadoras</Link></p>
@@ -63,6 +89,11 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
           ? 'Para turnos rotativos de 12 horas (2×2, 3×3, 4×2). Arma tu calendario con la rotación y corrige los días que cambien: la calculadora separa cada hora en diurna, nocturna, dominical o festiva y en ordinaria o extra.'
           : 'Para enfermería, conducción, producción y otros cargos con turnos (5×2, 6×1, mixtos o de noche). Llena tu calendario con tu horario semanal y corrige los días que cambien.'}
       </PageHeader>
+
+      <div className="mt-8">
+        <SavedPayrollBar calculator={tipo} periodKey={llave} datos={datos} neto={resultado?.neto ?? 0} diasTrabajados={diasTrabajados}
+          status={guardado.status} savedAt={guardado.savedAt} calendario />
+      </div>
 
       <div className="mt-10 grid gap-12 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <form className="space-y-8" onSubmit={(e) => e.preventDefault()} aria-label="Datos de la nómina">

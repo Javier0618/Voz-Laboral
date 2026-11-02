@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { VALORES_2026 } from '../../lib/liquidacion';
 import {
   calcularNomina, factorHora, HORAS_MES_DEFECTO, horasVacias, novedadesVacias, otrosVacios, TIPOS_HORA, valorarHoras,
@@ -12,6 +12,8 @@ import {
   ComoSeCalcula, DesprendibleView, MoneyInput, NovedadesFields, NumberInput, OtrosFields, PeriodoFields, periodoActual, pesos, rangoPeriodo,
 } from '../../components/nomina';
 import { CalculatorGuideLinks } from '../../components/CalculatorGuideLinks';
+import { SavedPayrollBar, useSavedPayroll } from '../../components/SavedPayroll';
+import { parsePeriodKey, periodKey } from '../../lib/payroll';
 
 export default function Administrativos() {
   useEffect(() => {
@@ -20,7 +22,8 @@ export default function Administrativos() {
     return () => setPageMeta(null);
   }, []);
 
-  const [periodo, setPeriodo] = useState(periodoActual());
+  const [params] = useSearchParams();
+  const [periodo, setPeriodo] = useState(() => parsePeriodKey(params.get('periodo')) ?? periodoActual());
   const [salario, setSalario] = useState(0);
   const [horasMes, setHorasMes] = useState(HORAS_MES_DEFECTO);
   const [horas, setHoras] = useState<Horas>(horasVacias());
@@ -41,6 +44,26 @@ export default function Administrativos() {
     return r;
   }, [salario, rango.diasNomina, rango.desde, horasMes, novedades, horas, valorHora, otros]);
 
+  // Con cuenta: se guarda la nómina de cada período (components/SavedPayroll.tsx).
+  const datos = { salario, horasMes, horas, novedades, otros };
+  const llave = periodKey(periodo);
+  const guardado = useSavedPayroll<typeof datos>({
+    calculator: 'administrativos', periodKey: llave, datos, neto: resultado?.neto ?? 0, diasTrabajados: 0,
+    vacio: salario <= 0,
+    aplicar: (d) => {
+      setSalario(Number(d.salario) || 0);
+      if (Number(d.horasMes) > 0) setHorasMes(Number(d.horasMes));
+      setHoras({ ...horasVacias(), ...d.horas });
+      setNovedades({ ...novedadesVacias(), ...d.novedades });
+      setOtros({ ...otrosVacios(), ...d.otros });
+    },
+    limpiarPeriodo: () => {
+      setHoras(horasVacias());
+      setNovedades(novedadesVacias());
+      setOtros(otrosVacios());
+    },
+  });
+
   return (
     <div className="page py-10">
       <p className="text-sm text-slate"><Link to="/calculadoras" className="hover:text-ink hover:underline">Calculadoras</Link></p>
@@ -48,6 +71,11 @@ export default function Administrativos() {
         Para quienes tienen un salario fijo mensual: personal de oficina, auxiliares, analistas, vendedores internos. Escribe tu salario y,
         si los tuviste, tus horas extra, recargos y novedades. El desprendible se actualiza mientras escribes.
       </PageHeader>
+
+      <div className="mt-8">
+        <SavedPayrollBar calculator="administrativos" periodKey={llave} datos={datos} neto={resultado?.neto ?? 0} diasTrabajados={0}
+          status={guardado.status} savedAt={guardado.savedAt} calendario={false} />
+      </div>
 
       <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <form className="space-y-8" onSubmit={(e) => e.preventDefault()} aria-label="Datos de la nómina">

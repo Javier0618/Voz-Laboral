@@ -39,3 +39,7 @@ Para ejecutarla a mano: `select private.run_scheduled_retention();`
 
 - Validar los plazos con un abogado.
 - Definir la conservación de los archivos de respaldo cuando se habiliten.
+
+## Nóminas guardadas (migración 2500)
+
+`payroll_records` guarda lo que una persona con cuenta anota en las calculadoras de nómina. Solo la dueña lo lee (RLS); ni moderación ni administración tienen acceso. Se conserva mientras exista la cuenta: la persona borra cada período desde Mi cuenta, y todo se borra en cascada al eliminar el usuario de Auth (`on delete cascade`). Límite: 500 períodos por cuenta.

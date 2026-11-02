@@ -6,13 +6,37 @@ import { brand } from '../../config/brand';
 import { CALCULADORAS } from '../../lib/calculadoras';
 import { PageHeader } from '../../components/ui';
 import { pesos } from '../../components/nomina';
+import { useAuth } from '../../auth/AuthProvider';
+
+/** Invitación a guardar la nómina: el plus de tener cuenta. */
+function PayrollInvite() {
+  const { session } = useAuth();
+  return (
+    <section aria-labelledby="lleva-tu-nomina" className="mt-8 rounded-lg border border-teal/40 bg-teal/5 p-5 sm:p-6">
+      <h2 id="lleva-tu-nomina" className="font-sans text-lg font-semibold">Lleva la cuenta de tu pago, día a día</h2>
+      <p className="mt-2 max-w-prose text-slate">
+        {session
+          ? 'Con tu sesión iniciada, las calculadoras de nómina guardan solas lo que anotes. Cada día que trabajes, marca tu turno y mira cuánto te debería llegar al cierre del mes.'
+          : 'Con una cuenta gratis, las calculadoras de nómina guardan solas lo que anotes. Marca cada día que trabajes y, al cierre del mes, sabes cuánto te deben pagar antes de que llegue el desprendible. Solo tú lo ves.'}
+      </p>
+      <div className="mt-4 flex flex-wrap gap-3">
+        {session ? (
+          <Link to="/cuenta#mis-nominas" className="btn-primary">Ver mis nóminas</Link>
+        ) : (
+          <Link to="/cuenta?modo=registro&siguiente=/calculadoras" className="btn-primary">Crear cuenta gratis</Link>
+        )}
+        <Link to="/calculadoras/operativos" className="btn-secondary">Anotar mis turnos</Link>
+      </div>
+    </section>
+  );
+}
 
 export default function CalculadorasIndex() {
   useEffect(() => {
     setPageMeta({
       title: `Calculadoras laborales · ${brand.name}`,
       description:
-        'Estima tu nómina y tu liquidación en Colombia. Horas extra, recargos, cesantías y más. Tus datos no salen del navegador.',
+        'Estima tu nómina y tu liquidación en Colombia: horas extra, recargos, cesantías y más. Con tu cuenta, guarda tus turnos día a día.',
       path: '/calculadoras',
       type: 'website',
     });
@@ -22,9 +46,10 @@ export default function CalculadorasIndex() {
   return (
     <div className="page py-10">
       <PageHeader title="Calculadoras laborales">
-        Estima tu pago y compáralo con tu desprendible. Cada resultado muestra la cuenta y la norma que la respalda. Tus datos no salen de
-        este navegador.
+        Estima tu pago y compáralo con tu desprendible. Cada resultado muestra la cuenta y la norma que la respalda. Sin cuenta, tus datos no
+        salen de este navegador.
       </PageHeader>
+      <PayrollInvite />
       <ul className="mt-2">
         {CALCULADORAS.map((c) => (
           <li key={c.path} className="border-b border-line">
