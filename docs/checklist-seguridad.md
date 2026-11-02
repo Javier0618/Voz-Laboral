@@ -51,7 +51,7 @@ Leyenda: ✅ hecho y probado · 🟡 hecho, pendiente de verificar en Supabase r
 
 ## Operación
 
-- ⬜ Programar `purge_expired_records()` (pg_cron) y el procesamiento de eliminaciones.
+- ✅ Programar `purge_expired_records()` y la eliminación de cuentas vencidas (pg_cron, migración `20261102002000`). Pendiente: comprobar en Supabase que la tarea aparece en `cron.job`.
 - ⬜ Procedimiento de respuesta ante incidentes: responsables, contención, notificación a la SIC y a los titulares (revisión jurídica).
 - ⬜ Copias de seguridad y prueba de restauración.
 - ⬜ Rotación de claves y revisión periódica de quién tiene rol de administración.

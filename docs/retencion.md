@@ -14,20 +14,28 @@
 | Usuario en `auth.users` | Se borra después de anonimizar | API de administración de Supabase con la clave `service_role`, **solo desde el servidor** |
 | Registros técnicos del proveedor (IP y similares) | Los que fije el contrato del proveedor | Fuera de la aplicación; debe documentarse en la política |
 
-## Procedimiento para eliminar una cuenta
+## Procedimiento para eliminar una cuenta (automático)
 
 1. La persona titular solicita la eliminación desde «Mi cuenta».
 2. Durante 15 días puede cancelarla.
-3. Pasado ese plazo, una persona administradora, o un proceso programado con `service_role`, ejecuta `select public.process_account_deletion('<uuid>');`.
-4. Después se elimina el usuario de Auth: en el panel de Supabase (Authentication → Users) o con `auth.admin.deleteUser` desde un entorno de servidor.
-5. Todo queda registrado en `moderation_events`.
+3. Cada día a las 3:17 a. m. (hora de Colombia), `private.run_scheduled_retention()` se ejecuta con `pg_cron`. Por cada cuenta con el plazo vencido:
+   - la anonimiza con `process_account_deletion()`;
+   - elimina el usuario de Auth, y en cascada su perfil y sus reacciones.
 
-## Purga periódica
+   Las experiencias y los comentarios quedan sin autor, y en los registros de auditoría solo se borra la referencia a la persona.
+4. Después ejecuta la purga de registros vencidos (`purge_expired_records()`).
+5. Todo queda registrado. Si una cuenta falla, se anota en `security_events` como `eliminacion_programada_fallida` y no frena a las demás.
 
-Programa `select public.purge_expired_records();` una vez al mes, por ejemplo con `pg_cron` en Supabase. La purga es la única vía para borrar registros de auditoría, y ella misma deja registro.
+Migración: `20261102002000_scheduled_retention.sql`. Requiere la extensión `pg_cron` (Supabase → Database → Extensions). Para comprobar la tarea:
+
+```sql
+select jobname, schedule, active from cron.job;
+select status, return_message, start_time from cron.job_run_details order by start_time desc limit 5;
+```
+
+Para ejecutarla a mano: `select private.run_scheduled_retention();`
 
 ## Pendiente
 
 - Validar los plazos con un abogado.
-- Automatizar los pasos 3 y 4 con una función de servidor (Edge Function) que use `service_role`.
 - Definir la conservación de los archivos de respaldo cuando se habiliten.
