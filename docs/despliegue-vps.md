@@ -2,6 +2,62 @@
 
 La web es un sitio estático (`npm run build` genera `dist/`) con rutas del lado del navegador: `/derechos/…`, `/calculadoras/…`, `/empresas/…`. **Nginx debe responder `index.html` a cualquier ruta que no sea un archivo.** Si no, al abrir un enlace directo o recargar la página aparece «404 Not Found».
 
+## Clonar y actualizar desde GitHub
+
+Carpeta del proyecto en el VPS: `/www/wwwroot/tuvozlaboral.com`. Nginx sirve `dist/`, así que el código fuente, `.git` y `.env` no son accesibles desde la web.
+
+### Una sola vez
+
+1. Necesitas Node.js 20 o superior y Git (`node -v`, `git --version`). Puedes instalar Node desde aaPanel → App Store → «Node.js version manager».
+2. Si el repositorio es privado, crea una clave de solo lectura para el VPS:
+   ```bash
+   ssh-keygen -t ed25519 -C "vps-tuvozlaboral" -f ~/.ssh/tuvozlaboral -N ""
+   ```
+   Copia la clave pública (`cat ~/.ssh/tuvozlaboral.pub`) en GitHub → repositorio → Settings → Deploy keys → Add deploy key, sin marcar «Allow write access». Después añade esto a `~/.ssh/config`:
+   ```
+   Host github-tuvozlaboral
+       HostName github.com
+       User git
+       IdentityFile ~/.ssh/tuvozlaboral
+       IdentitiesOnly yes
+   ```
+3. Convierte la carpeta en una copia del repositorio. Así se conservan los archivos que no son del repositorio, como `.env` y el `.user.ini` de aaPanel:
+   ```bash
+   cd /www/wwwroot/tuvozlaboral.com
+   git init -b main
+   git remote add origin git@github-tuvozlaboral:Javier0618/Voz-Laboral.git
+   git fetch origin main
+   git checkout -f -B main origin/main
+   ```
+   Si el repositorio es público, usa `https://github.com/Javier0618/Voz-Laboral.git` como dirección y sáltate el paso 2.
+4. Crea o revisa el archivo `.env`. Las variables están en la sección «Variables al compilar».
+5. Compila y publica por primera vez:
+   ```bash
+   FORZAR=1 bash scripts/desplegar.sh
+   ```
+
+### Cada vez que haya cambios
+
+```bash
+cd /www/wwwroot/tuvozlaboral.com && bash scripts/desplegar.sh
+```
+
+El script hace esto:
+- Descarga `main` y deja el código idéntico a GitHub. Los cambios hechos a mano en archivos del repositorio se pierden; `.env`, `dist` y los archivos de aaPanel no se tocan.
+- Reinstala las dependencias solo si cambiaron.
+- Compila en una carpeta aparte (`.dist-nuevo`) y solo al final la cambia por `dist/`. Si algo falla, la web sigue con la versión anterior.
+- Si no hay cambios, no hace nada. Para compilar igualmente, por ejemplo tras cambiar `.env`, usa `FORZAR=1 bash scripts/desplegar.sh`.
+
+### Opcional: actualizar solo
+
+En aaPanel → Cron → Add task → tipo «Shell script», cada 10 minutos:
+
+```bash
+cd /www/wwwroot/tuvozlaboral.com && bash scripts/desplegar.sh >> /www/wwwlogs/tuvozlaboral-despliegue.log 2>&1
+```
+
+Como el script termina enseguida si no hay cambios, no consume recursos.
+
 ## Con aaPanel (configuración actual del VPS)
 
 El VPS usa **aaPanel**, que gestiona Nginx y los certificados por su cuenta:

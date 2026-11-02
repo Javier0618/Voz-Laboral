@@ -4,6 +4,8 @@
 // VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY, del sistema o de los archivos .env. Si falta algo o Supabase no
 // responde, genera el mapa solo con las páginas fijas: nunca rompe el build.
 import { writeFileSync, existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 // Lee los mismos archivos .env que Vite (las variables del sistema tienen
 // prioridad). Sin esto, el script no vería VITE_SUPABASE_URL ni SITE_URL si
@@ -23,7 +25,11 @@ const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.en
 const site = (process.env.SITE_URL || process.env.URL || vercel || 'https://tuvozlaboral.com').replace(/\/$/, '');
 const api = (process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
 const key = process.env.VITE_SUPABASE_ANON_KEY || '';
-const out = new URL('../dist/', import.meta.url);
+// Carpeta de salida: dist/ por defecto, o la de SITEMAP_OUT (la usa
+// scripts/desplegar.sh para compilar en una carpeta aparte).
+const out = process.env.SITEMAP_OUT
+  ? pathToFileURL(resolve(process.env.SITEMAP_OUT) + '/')
+  : new URL('../dist/', import.meta.url);
 
 if (!existsSync(out)) {
   console.warn('[sitemap] No existe dist/: ejecuta primero vite build.');
@@ -81,4 +87,4 @@ writeFileSync(
   new URL('robots.txt', out),
   `User-agent: *\nDisallow: /cuenta\nDisallow: /moderacion\nDisallow: /seguimiento/\nDisallow: /avisos\n\nSitemap: ${site}/sitemap.xml\n`,
 );
-console.log(`[sitemap] ${urls.size} direcciones en dist/sitemap.xml`);
+console.log(`[sitemap] ${urls.size} direcciones en ${process.env.SITEMAP_OUT || "dist"}/sitemap.xml`);

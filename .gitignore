@@ -18,3 +18,5 @@ supabase/importaciones/
 *.mp4
 video/*.png
 !public/video/*.mp4
+.dist-nuevo
+.dist-anterior
