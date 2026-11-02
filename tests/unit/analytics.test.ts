@@ -67,4 +67,18 @@ describe('Google Analytics', () => {
     expect(ev[2]).toMatchObject({ page_path: '/seguimiento/[enlace]', page_title: 'Seguimiento' });
     expect(String((ev[2] as { page_location: string }).page_location)).not.toContain('token-secreto');
   });
+
+  it('fija la dirección limpia para todos los eventos, también al iniciar', () => {
+    window.history.replaceState(null, '', '/seguimiento/token-inicial?code=abc');
+    iniciarGoogle('G-PRUEBA');
+    const set0 = llamadas().find((x) => x[0] === 'set')!;
+    expect(set0[1]).toMatchObject({ page_path: '/seguimiento/[enlace]' });
+    expect(JSON.stringify(llamadas())).not.toContain('token-inicial');
+    expect(JSON.stringify(llamadas())).not.toContain('code=abc');
+    registrarPagina('/seguimiento/otro-token');
+    const sets = llamadas().filter((x) => x[0] === 'set');
+    expect(sets[sets.length - 1][1]).toMatchObject({ page_path: '/seguimiento/[enlace]' });
+    expect(JSON.stringify(llamadas())).not.toContain('otro-token');
+    window.history.replaceState(null, '', '/');
+  });
 });

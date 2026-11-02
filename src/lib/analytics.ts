@@ -61,6 +61,9 @@ export function iniciarGoogle(id = gaId()): boolean {
   const guardado = readConsent();
   if (guardado) w.gtag('consent', 'update', consentState(guardado));
   w.gtag('js', new Date());
+  // Dirección limpia para todos los eventos, también los automáticos de
+  // «Medición mejorada» (desplazamiento, clics…), desde el primer momento.
+  w.gtag('set', direccionLimpia(window.location.pathname));
   w.gtag('config', id, { send_page_view: false, anonymize_ip: true });
   aplicarAnuncios(guardado);
   onConsentChange((c) => {
@@ -82,15 +85,21 @@ function aplicarAnuncios(c: Consent | null) {
   w.adsbygoogle!.requestNonPersonalizedAds = c?.ads ? 0 : 1;
 }
 
-/** Envía una página vista con la dirección limpia. */
+function direccionLimpia(path: string) {
+  return { page_location: limpiarUrl(window.location.origin + path), page_path: limpiarUrl(path) };
+}
+
+/**
+ * Envía una página vista con la dirección limpia y la fija para los eventos
+ * siguientes, así ningún evento envía el enlace privado de seguimiento ni
+ * parámetros como el ?code= del inicio de sesión.
+ */
 export function registrarPagina(path: string, title?: string) {
   const w = window as W;
   if (!iniciado || !w.gtag) return;
-  w.gtag('event', 'page_view', {
-    page_location: limpiarUrl(window.location.origin + path),
-    page_path: limpiarUrl(path),
-    page_title: title ?? document.title,
-  });
+  const limpia = { ...direccionLimpia(path), page_title: title ?? document.title };
+  w.gtag('set', limpia);
+  w.gtag('event', 'page_view', limpia);
 }
 
 /** Solo para pruebas. */
