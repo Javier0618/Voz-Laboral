@@ -20,9 +20,29 @@ if [ ! -f .env.respaldo ]; then
   echo "Falta el archivo .env.respaldo con SUPABASE_DB_URL." >&2
   exit 1
 fi
-# shellcheck disable=SC1091
-set -a; . ./.env.respaldo; set +a
-: "${SUPABASE_DB_URL:?Falta SUPABASE_DB_URL en .env.respaldo}"
+# Se lee la línea a mano (sin ejecutar el archivo) para tolerar errores comunes
+# al escribirla: espacios, comillas, saltos de línea de Windows o el nombre de
+# la variable repetido.
+SUPABASE_DB_URL=$(grep -E '^[[:space:]]*(export[[:space:]]+)?SUPABASE_DB_URL[[:space:]]*=' .env.respaldo | tail -n 1 \
+  | tr -d '\r' | sed -E 's/^[[:space:]]*(export[[:space:]]+)?(SUPABASE_DB_URL[[:space:]]*=[[:space:]]*)+//; s/[[:space:]]+$//; s/^["'"'"']//; s/["'"'"']$//')
+if [ -z "$SUPABASE_DB_URL" ]; then
+  echo "Falta la línea SUPABASE_DB_URL=postgresql://… en .env.respaldo." >&2
+  exit 1
+fi
+case "$SUPABASE_DB_URL" in
+  postgresql://*|postgres://*) ;;
+  *) echo "La dirección de .env.respaldo debe empezar por postgresql:// (Supabase → Connect → Session pooler)." >&2; exit 1 ;;
+esac
+# Lo que va después de la contraseña debe ser el servidor de Supabase; si no,
+# la contraseña tiene un símbolo (#, @, /, ?) que corta la dirección.
+case "${SUPABASE_DB_URL##*@}" in
+  *.supabase.com:*|*.supabase.co:*) ;;
+  *) echo "La dirección de .env.respaldo está mal formada: si la contraseña tiene símbolos como # @ / ?, cámbiala por una solo con letras y números." >&2; exit 1 ;;
+esac
+if [ "$(printf '%s' "$SUPABASE_DB_URL" | grep -o '@' | wc -l)" -ne 1 ]; then
+  echo "La dirección de .env.respaldo está mal formada: si la contraseña tiene símbolos como # @ / ?, cámbiala por una solo con letras y números." >&2
+  exit 1
+fi
 
 # Usa el pg_dump 17 del paquete postgresql-client-17 aunque otro PostgreSQL
 # del servidor (por ejemplo, el de aaPanel) tenga una versión anterior en el PATH.
@@ -35,7 +55,7 @@ mkdir -p "$DESTINO"
 ARCHIVO="$DESTINO/tuvozlaboral-$(date +%F-%H%M).dump"
 
 echo "→ Copiando la base de datos…"
-"$PG_DUMP" "$SUPABASE_DB_URL" \
+"$PG_DUMP" --dbname="$SUPABASE_DB_URL" \
   --format=custom --compress=9 --no-owner --no-privileges \
   --schema=public --schema=private --schema=auth --schema=storage \
   --file="$ARCHIVO.tmp"
