@@ -120,7 +120,7 @@ Es un sitio estático (`npm run build` genera `dist/`). Sirve en cualquier hosti
 ## Estructura
 
 ```
-supabase/migrations/   esquema, RLS, funciones y auditoría (22 migraciones)
+supabase/migrations/   esquema, RLS, funciones y auditoría (23 migraciones)
 supabase/seed.dev.sql  empresas ficticias para desarrollo
 src/config/brand.ts    nombre y textos de marca
 src/index.css          colores de marca (variables en :root)

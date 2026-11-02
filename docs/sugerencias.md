@@ -19,11 +19,13 @@ No usa ninguna API de pago. Funciona en las conversaciones con Claude Code, con 
    - una **actualización** queda como propuesta en la sugerencia, con «Ver propuesta» y «Aplicar a la guía».
 4. **Publicar.** Revisas el borrador en el editor de siempre y lo publicas.
 
-Estados: `nueva → pedida → redactada`. Además, `descartada` y `existente` se pueden reabrir.
+Estados: `nueva → pedida → redactada`. Cuando publicas la guía (o aplicas la actualización), la sugerencia pasa a la pestaña **Publicadas**. Las `descartada` y `existente` se pueden reabrir o **eliminar** de forma definitiva.
+
+Las sugerencias cubren todo lo relacionado con el trabajo, no solo la ley: normas y posibles cambios, temporadas (prima, cesantías), empleo y vida laboral (buscar trabajo, entrevistas, bienestar, tendencias) y el dinero del trabajador. Cada publicación es de tipo **legal** (cita la norma y usa la plantilla) o **informativa** (estructura libre, sin obligación de citar leyes). El tema «Empleo y vida laboral» del índice reúne las publicaciones generales; puedes cambiar el tema de cualquier guía en el editor.
 
 ## Configuración (una sola vez)
 
-1. **Migración.** Ejecuta `supabase/migrations/20261102002200_guide_suggestions.sql` en el SQL Editor de Supabase.
+1. **Migraciones.** Ejecuta en el SQL Editor de Supabase `supabase/migrations/20261102002200_guide_suggestions.sql` y `20261102002300_guide_topics_and_suggestion_delete.sql`. La 2300 debe estar aplicada **antes** de desplegar el código que la usa.
 2. **Cuenta del redactor.** Regístrate en el sitio con un correo propio solo para esto, por ejemplo `redaccion.tuvozlaboral@gmail.com`. Confirma el correo y elige un alias, por ejemplo `redaccion`.
 3. **Rol.** En el SQL Editor:
    ```sql

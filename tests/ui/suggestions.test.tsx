@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('../../src/lib/supabase', () => ({ isConfigured: true, supabase: {}, requireClient: () => ({}) }));
 
 const setSuggestionStatus = vi.fn().mockResolvedValue(null);
+const deleteSuggestion = vi.fn().mockResolvedValue(null);
 const base = {
   kind: 'nueva', demand: 'Pico de búsquedas en diciembre.', priority: 'media', topic: 'salario', keywords: ['prima de diciembre'],
   sources: [{ label: 'CST, art. 306', url: 'https://normativa.colpensiones.gov.co/colpens/compilacion/docs/codigo_sustantivo_trabajo.htm' }],
@@ -19,8 +20,12 @@ vi.mock('../../src/lib/adminApi', () => ({
     { ...base, id: 's2', status: 'nueva', priority: 'alta', title: 'Prima de diciembre', reason: 'La segunda cuota se paga en diciembre.' },
     { ...base, id: 's3', status: 'redactada', title: 'Guía ya redactada', reason: 'Motivo de prueba suficientemente largo.', drafted_at: '2026-11-02T12:00:00Z',
       draft: { id: 'g9', slug: 'guia-redactada', title: 'Guía ya redactada', status: 'borrador' } },
+    { ...base, id: 's4', status: 'redactada', title: 'Guía ya publicada', reason: 'Motivo de prueba suficientemente largo.', drafted_at: '2026-11-02T12:00:00Z',
+      draft: { id: 'g8', slug: 'guia-publicada', title: 'Guía ya publicada', status: 'publicado' } },
+    { ...base, id: 's5', status: 'descartada', title: 'Tema descartado', reason: 'Motivo de prueba suficientemente largo.', decided_at: '2026-11-02T13:00:00Z' },
   ]),
   setSuggestionStatus: (...a: unknown[]) => setSuggestionStatus(...a),
+  deleteSuggestion: (...a: unknown[]) => deleteSuggestion(...a),
   applySuggestionProposal: vi.fn(),
 }));
 
@@ -43,4 +48,17 @@ describe('sugerencias editoriales', () => {
     await userEvent.click(await screen.findByRole('tab', { name: /Redactadas/ }));
     expect(screen.getByRole('link', { name: 'Revisar el borrador' }).getAttribute('href')).toBe('/moderacion/guias/g9');
   });
+
+  it('las publicadas salen de Redactadas y las descartadas se pueden eliminar', async () => {
+    render(<MemoryRouter><Suggestions /></MemoryRouter>);
+    await userEvent.click(await screen.findByRole('tab', { name: /Redactadas/ }));
+    expect(screen.queryByText('Guía ya publicada')).toBeNull();
+    await userEvent.click(screen.getByRole('tab', { name: /Publicadas/ }));
+    expect(screen.getByRole('link', { name: 'Ver la guía publicada' }).getAttribute('href')).toBe('/derechos/guia-publicada');
+    await userEvent.click(screen.getByRole('tab', { name: /Descartadas/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Eliminar' }));
+    await userEvent.click(screen.getAllByRole('button', { name: 'Eliminar' }).at(-1)!);
+    expect(deleteSuggestion).toHaveBeenCalledWith('s5');
+  });
 });
+

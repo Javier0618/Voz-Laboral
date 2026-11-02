@@ -6,8 +6,14 @@ import { dirname, resolve } from 'node:path';
 const palabras = (t) => (t.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').match(/[\p{L}\p{N}]+/gu) ?? []).length;
 const SECCIONES = ['Qué dice la ley', 'En la práctica', 'Errores comunes', 'Qué puedes hacer'];
 
-/** Revisa una guía contra el estándar de CLAUDE.md. Errores bloquean; avisos no. */
-export function revisarGuia({ slug, title, summary, content, sources }, { propuesta = false } = {}) {
+/**
+ * Revisa una guía contra el estándar de CLAUDE.md. Errores bloquean; avisos no.
+ * tipo «legal»: explica derechos u obligaciones; exige las secciones de la
+ * plantilla y citar la norma. tipo «informativa»: tendencias, posibles cambios,
+ * consejos o temas generales del trabajo; estructura libre y sin cita de norma.
+ */
+export function revisarGuia({ slug, title, summary, content, sources, tipo = 'legal' }, { propuesta = false } = {}) {
+  const legal = tipo !== 'informativa';
   const errores = [];
   const avisos = [];
   const h2 = [...content.matchAll(/^## (.+)$/gm)].map((m) => m[1].trim());
@@ -22,7 +28,7 @@ export function revisarGuia({ slug, title, summary, content, sources }, { propue
     const r = (summary ?? '').trim().length;
     if (r < 70 || r > 300) errores.push(`resumen: ${r} caracteres; debe tener entre 70 y 300 (ideal, 120 a 160).`);
     else if (r < 120 || r > 160) avisos.push(`resumen: ${r} caracteres; lo ideal son 120 a 160 (es la meta descripción).`);
-    if (!Array.isArray(sources) || !sources.length) errores.push('fuentes: hace falta al menos una fuente oficial.');
+    if (!Array.isArray(sources) || !sources.length) errores.push(`fuentes: hace falta al menos una fuente${legal ? ' oficial' : ' confiable'}.`);
     else if (sources.some((f) => !/^https?:\/\//.test(f.url ?? '') || !(f.label ?? '').trim())) errores.push('fuentes: cada una necesita nombre y dirección http(s).');
   }
 
@@ -31,10 +37,14 @@ export function revisarGuia({ slug, title, summary, content, sources }, { propue
   else if (n > 3000) avisos.push(`longitud: ${n} palabras; más de 3.000. Considera dividir el tema en dos guías.`);
 
   if (/^# /m.test(content)) errores.push('estructura: no uses «# »; el título de la página ya es el H1. Usa «## » y «### ».');
-  for (const s of SECCIONES) if (!h2.some((h) => h.toLowerCase().startsWith(s.toLowerCase()))) errores.push(`estructura: falta la sección «## ${s}».`);
+  if (legal) {
+    for (const s of SECCIONES) if (!h2.some((h) => h.toLowerCase().startsWith(s.toLowerCase()))) errores.push(`estructura: falta la sección «## ${s}» (guía legal).`);
+  } else if (h2.filter((h) => !/^Preguntas frecuentes/i.test(h)).length < 3) {
+    errores.push('estructura: un artículo informativo necesita al menos 3 secciones «## » además de las preguntas frecuentes.');
+  }
   const faq = content.match(/^## Preguntas frecuentes[\s\S]*?(?=^## |(?![\s\S]))/m)?.[0] ?? '';
   const preguntas = (faq.match(/^### ¿.+\?\s*$/gm) ?? []).length;
-  if (preguntas < 3) errores.push(`preguntas frecuentes: hacen falta al menos 3 («## Preguntas frecuentes» con «### ¿…?»); hay ${preguntas}.`);
+  if (preguntas < 3) (legal ? errores : avisos).push(`preguntas frecuentes: ${legal ? 'hacen falta' : 'conviene incluir'} al menos 3 («## Preguntas frecuentes» con «### ¿…?»); hay ${preguntas}.`);
 
   const internos = new Set([...content.matchAll(/\]\((\/(?:derechos|calculadoras)\/[a-z0-9-]+[^)]*)\)/g)].map((m) => m[1]));
   if (internos.size < 2) errores.push(`enlaces internos: hay ${internos.size}; incluye al menos 2 a guías o calculadoras existentes.`);
@@ -47,7 +57,7 @@ export function revisarGuia({ slug, title, summary, content, sources }, { propue
   const largos = content.split(/\n\s*\n/).filter((b) => !/^\s*([-*>]|\d+\.|#)/.test(b) && palabras(b) > 120).length;
   if (largos) avisos.push(`legibilidad: ${largos} párrafo(s) de más de 120 palabras; divídelos.`);
   if (!/\d/.test(content)) avisos.push('valor: no hay ninguna cifra; añade un ejemplo con montos, plazos o porcentajes si el tema lo permite.');
-  if (!/(art(ículo|\.)\s*\d|Ley \d|Decreto \d|Resolución \d|Sentencia [A-Z]+-?\d)/i.test(content)) errores.push('fuente en el texto: cita al menos una norma o sentencia (artículo, ley, decreto…).');
+  if (legal && !/(art(ículo|\.)\s*\d|Ley \d|Decreto \d|Resolución \d|Sentencia [A-Z]+-?\d)/i.test(content)) errores.push('fuente en el texto: una guía legal cita al menos una norma o sentencia (artículo, ley, decreto…). Si el texto no trata de derechos u obligaciones, márcalo como «informativa».');
 
   return { errores, avisos, palabras: n };
 }
@@ -60,8 +70,8 @@ export function imprimirRevision({ errores, avisos, palabras: n }) {
   return errores.length === 0;
 }
 
-export function leerGuia(ruta) {
-  if (ruta.endsWith('.md')) return { content: readFileSync(ruta, 'utf8'), propuesta: true };
+export function leerGuia(ruta, tipo) {
+  if (ruta.endsWith('.md')) return { content: readFileSync(ruta, 'utf8'), propuesta: true, tipo: tipo ?? 'legal' };
   const g = JSON.parse(readFileSync(ruta, 'utf8'));
   return { ...g, content: g.content ?? readFileSync(resolve(dirname(ruta), g.content_file), 'utf8') };
 }

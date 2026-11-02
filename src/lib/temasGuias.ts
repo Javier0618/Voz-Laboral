@@ -6,8 +6,9 @@
  * índice /derechos; son independientes de las categorías de experiencias,
  * que se siguen usando para enlazar cada guía con sus relatos.
  *
- * Para clasificar una guía nueva: añade su slug en GUIA_TEMA. Si no lo haces,
- * se deduce de su categoría (o del título, si habla de una reforma).
+ * El tema de una guía sale, en este orden, de su campo «topic» en la base de
+ * datos (lo elige el redactor o la administración en el editor), de GUIA_TEMA,
+ * del título si habla de una reforma, o de su categoría de experiencias.
  */
 
 export type TemaGuia = { slug: string; name: string; description: string };
@@ -57,6 +58,11 @@ export const TEMAS_GUIAS: TemaGuia[] = [
     slug: 'tramites',
     name: 'A dónde acudir',
     description: 'Derecho de petición, Ministerio del Trabajo e inspección.',
+  },
+  {
+    slug: 'empleo',
+    name: 'Empleo y vida laboral',
+    description: 'Buscar trabajo, hoja de vida, entrevistas, bienestar, productividad y tendencias del mundo laboral.',
   },
 ];
 
@@ -127,7 +133,9 @@ const TEMA_POR_CATEGORIA: Record<string, string> = {
 
 const PALABRAS_REFORMA = /(reforma|ley 2466|novedad|nueva ley|qué cambió)/i;
 
-export function temaDeGuia(guia: { slug: string; title?: string; category_slug: string | null }): TemaGuia {
+export function temaDeGuia(guia: { slug: string; title?: string; category_slug: string | null; topic?: string | null }): TemaGuia {
+  const guardado = guia.topic ? POR_SLUG.get(guia.topic) : undefined;
+  if (guardado) return guardado;
   const explicito = GUIA_TEMA[guia.slug];
   if (explicito) return POR_SLUG.get(explicito) ?? TEMA_OTROS;
   if (guia.title && PALABRAS_REFORMA.test(guia.title)) return POR_SLUG.get('reformas')!;

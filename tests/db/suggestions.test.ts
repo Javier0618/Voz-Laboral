@@ -108,4 +108,30 @@ describe('sugerencias editoriales', () => {
     expect(rows[0]).toEqual({ m: false, r: true });
     expect(await errorOf(as(db, otro, () => db.query(`select * from public.moderation_queue()`)))).toMatch(/VL403|permission|42501/);
   });
+
+  it('el borrador guarda el tema de la sugerencia', async () => {
+    const id = await add(redactor, 'Cómo preparar una entrevista de trabajo');
+    await db.query(`update public.guide_suggestions set topic = 'empleo' where id = $1`, [id]);
+    await as(db, admin, () => db.query(`select public.editorial_set_status($1, 'pedida')`, [id]));
+    const { rows } = await as(db, redactor, () =>
+      db.query<{ r: string }>(`select public.editorial_save_draft($1, 'entrevista-de-trabajo', 'Cómo preparar una entrevista de trabajo', 'Consejos prácticos para preparar una entrevista de trabajo en Colombia.', $2, null, $3::jsonb) as r`,
+        [id, '## Antes de la entrevista\nTexto de prueba suficientemente largo para la guía.', fuentes]),
+    );
+    const { rows: g } = await db.query<{ topic: string }>(`select topic from public.legal_resources where id = $1`, [rows[0].r]);
+    expect(g[0].topic).toBe('empleo');
+  });
+
+  it('solo la administración borra sugerencias, y solo descartadas o existentes', async () => {
+    const id = await add(redactor, 'Tema que se va a borrar del panel');
+    expect(await errorOf(as(db, admin, () => db.query(`select public.editorial_delete_suggestion($1)`, [id])))).toMatch(/VL089/);
+    await as(db, admin, () => db.query(`select public.editorial_set_status($1, 'descartada')`, [id]));
+    expect(await errorOf(as(db, redactor, () => db.query(`select public.editorial_delete_suggestion($1)`, [id])))).toMatch(/VL403/);
+    await as(db, admin, () => db.query(`select public.editorial_delete_suggestion($1)`, [id]));
+    const { rows } = await db.query(`select id from public.guide_suggestions where id = $1`, [id]);
+    expect(rows).toEqual([]);
+  });
+
+  it('el tema de una guía solo admite un slug', async () => {
+    expect(await errorOf(db.query(`update public.legal_resources set topic = 'Tema Inválido' where slug = 'plataformas-digitales-de-reparto'`))).toMatch(/topic_slug/);
+  });
 });
