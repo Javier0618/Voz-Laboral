@@ -36,6 +36,9 @@ export function toAppError(error: unknown): AppError {
   if (/User already registered/i.test(message)) {
     return new AppError('auth', 'Ya existe una cuenta con ese correo. Inicia sesión o recupera tu contraseña.');
   }
+  if (/Error sending .*email|sending (confirmation|recovery|magic link)/i.test(message)) {
+    return new AppError('unknown', 'No pudimos enviarte el correo en este momento. Inténtalo de nuevo más tarde; si sigue pasando, avísanos.');
+  }
   if (/Password should be/i.test(message)) {
     return new AppError('validation', 'La contraseña no cumple los requisitos de seguridad.');
   }

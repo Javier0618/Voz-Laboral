@@ -68,4 +68,7 @@ describe('mensajes de error', () => {
     const unknown = toAppError({ message: 'syntax error at or near "select" in public.secret_function' });
     expect(unknown.message).not.toMatch(/secret|select/);
   });
+  it('explica cuando falla el envío del correo de confirmación', () => {
+    expect(toAppError({ message: 'Error sending confirmation email', status: 500 }).message).toMatch(/enviarte el correo/);
+  });
 });
