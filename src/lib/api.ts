@@ -225,6 +225,18 @@ export function getLegalResource(slug: string) {
   );
 }
 
+// ---------------------------------------------------------------- buscador
+export interface GuideHit { slug: string; title: string; summary: string; topic: string; category_slug: string | null; score: number }
+
+export function searchGuides(query: string, limit = 8) {
+  return run<GuideHit[]>(requireClient().rpc('search_guides', { p_query: query, p_limit: limit }));
+}
+
+/** Registro anónimo: solo el término y cuántos resultados hubo (migración 2400). */
+export function logSearch(query: string, results: number) {
+  return run(requireClient().rpc('log_search', { p_query: query, p_results: results }));
+}
+
 // ---------------------------------------------------------------- cuenta
 export function getMyProfile(userId: string) {
   return run<Profile | null>(

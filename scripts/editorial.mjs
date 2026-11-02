@@ -11,6 +11,7 @@
 //   node scripts/editorial.mjs sugerencias [estado]      sugerencias (todas o de un estado)
 //   node scripts/editorial.mjs sugerir <archivo.json>    crea sugerencias (lista de objetos)
 //   node scripts/editorial.mjs pedidas                   sugerencias pedidas, con indicaciones
+//   node scripts/editorial.mjs busquedas [días]          lo que se buscó en el sitio sin resultados
 //   node scripts/editorial.mjs borrador <id> <archivo.json>       guarda la guía redactada
 //   node scripts/editorial.mjs propuesta <id> <archivo.md> "<qué cambia>" [legal|informativa]
 //   node scripts/editorial.mjs revisar <archivo.json | archivo.md> [legal|informativa]   revisa calidad y SEO (no se conecta)
@@ -108,6 +109,13 @@ switch (comando) {
     }
     break;
   }
+  case 'busquedas': {
+    const { data, error } = await supabase.rpc('editorial_search_gaps', { p_days: Number(args[0] ?? 30), p_max_results: 0 });
+    if (error) fallar(error);
+    for (const b of data) console.log(`${String(b.searches).padStart(4)}  ${b.term}`);
+    console.log(`\n${data.length} búsquedas sin resultado (veces buscada · término)`);
+    break;
+  }
   case 'borrador': {
     const [id, ruta] = args;
     const g = leerGuia(ruta);
@@ -131,7 +139,7 @@ switch (comando) {
     break;
   }
   default:
-    console.error('Comandos: guias | guia <slug> | sugerencias [estado] | sugerir <json> | pedidas | borrador <id> <json> | propuesta <id> <md> "<notas>" | revisar <json|md>');
+    console.error('Comandos: guias | guia <slug> | sugerencias [estado] | sugerir <json> | pedidas | busquedas [días] | borrador <id> <json> | propuesta <id> <md> "<notas>" | revisar <json|md>');
     process.exit(1);
 }
 await supabase.auth.signOut();

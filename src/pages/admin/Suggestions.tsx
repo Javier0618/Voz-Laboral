@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  applySuggestionProposal, deleteSuggestion, listGuideSuggestions, setSuggestionStatus, type GuideSuggestion,
+  applySuggestionProposal, deleteSuggestion, listGuideSuggestions, listSearchGaps, setSuggestionStatus, type GuideSuggestion,
 } from '../../lib/adminApi';
 import { formatDate } from '../../lib/format';
 import { TEMAS_GUIAS } from '../../lib/temasGuias';
@@ -46,6 +46,7 @@ export function Suggestions() {
         Temas que conviene publicar o actualizar, con el motivo y sus fuentes. Pulsa «Redactar guía» en los que te interesen: la guía llega
         como <strong>borrador</strong> y la publicas desde Guías después de revisarla.
       </p>
+      <SearchGaps />
       <div role="tablist" aria-label="Estado de las sugerencias" className="mt-6 flex flex-wrap gap-2">
         {filters.map((f) => (
           <button key={f.id} type="button" role="tab" aria-selected={filter === f.id} onClick={() => setFilter(f.id)}
@@ -70,6 +71,35 @@ export function Suggestions() {
         )}
       </div>
     </section>
+  );
+}
+
+/** Lo que la gente buscó en el sitio sin encontrar nada (registro anónimo, migración 2400). */
+function SearchGaps() {
+  const { data, error } = useAsync(() => listSearchGaps(30), []);
+  if (error || !data) return null;
+  return (
+    <details className="mt-6 rounded-lg border border-line bg-mist/50 px-5 py-4">
+      <summary className="cursor-pointer font-semibold">
+        Búsquedas sin resultado en los últimos 30 días · {data.length}
+      </summary>
+      {data.length === 0 ? (
+        <p className="mt-3 text-sm text-slate">Nadie ha buscado algo que no encontrara. Esta lista se llena con lo que la gente escribe en el buscador.</p>
+      ) : (
+        <>
+          <p className="mt-3 max-w-prose text-sm text-slate">
+            Términos que la gente escribió en el buscador sin obtener resultados, de forma anónima. El redactor los revisa al proponer temas.
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {data.map((g) => (
+              <li key={g.term} className="rounded-full border border-line bg-paper px-3 py-1 text-sm">
+                {g.term} <span className="text-slate">· {g.searches}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </details>
   );
 }
 

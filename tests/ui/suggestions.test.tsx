@@ -27,6 +27,7 @@ vi.mock('../../src/lib/adminApi', () => ({
   setSuggestionStatus: (...a: unknown[]) => setSuggestionStatus(...a),
   deleteSuggestion: (...a: unknown[]) => deleteSuggestion(...a),
   applySuggestionProposal: vi.fn(),
+  listSearchGaps: () => Promise.resolve([{ term: 'licencia de paternidad', searches: 7, results: 0, last_seen: '2026-11-02T10:00:00Z' }]),
 }));
 
 import { Suggestions } from '../../src/pages/admin/Suggestions';
@@ -60,5 +61,10 @@ describe('sugerencias editoriales', () => {
     await userEvent.click(screen.getAllByRole('button', { name: 'Eliminar' }).at(-1)!);
     expect(deleteSuggestion).toHaveBeenCalledWith('s5');
   });
-});
 
+  it('muestra las búsquedas del sitio que no tuvieron resultado', async () => {
+    render(<MemoryRouter><Suggestions /></MemoryRouter>);
+    expect(await screen.findByText(/Búsquedas sin resultado en los últimos 30 días · 1/)).toBeTruthy();
+    expect(screen.getByText('licencia de paternidad')).toBeTruthy();
+  });
+});

@@ -25,7 +25,7 @@ Las sugerencias cubren todo lo relacionado con el trabajo, no solo la ley: norma
 
 ## Configuración (una sola vez)
 
-1. **Migraciones.** Ejecuta en el SQL Editor de Supabase `supabase/migrations/20261102002200_guide_suggestions.sql` y `20261102002300_guide_topics_and_suggestion_delete.sql`. La 2300 debe estar aplicada **antes** de desplegar el código que la usa.
+1. **Migraciones.** Ejecuta en el SQL Editor de Supabase `supabase/migrations/20261102002200_guide_suggestions.sql` , `20261102002300_guide_topics_and_suggestion_delete.sql` y `20261102002400_site_search.sql` (buscador). Deben estar aplicadas **antes** de desplegar el código que las usa.
 2. **Cuenta del redactor.** Regístrate en el sitio con un correo propio solo para esto, por ejemplo `redaccion.tuvozlaboral@gmail.com`. Confirma el correo y elige un alias, por ejemplo `redaccion`.
 3. **Rol.** En el SQL Editor:
    ```sql
@@ -54,6 +54,7 @@ node scripts/editorial.mjs guia <slug>               # texto de una guía
 node scripts/editorial.mjs sugerencias [estado]      # sugerencias
 node scripts/editorial.mjs sugerir sugerencias.json  # crea sugerencias
 node scripts/editorial.mjs pedidas                   # pedidas, con tus indicaciones
+node scripts/editorial.mjs busquedas [días]          # lo que se buscó en el sitio sin resultados
 node scripts/editorial.mjs borrador <id> guia.json   # guarda una guía nueva como borrador
 node scripts/editorial.mjs propuesta <id> texto.md "qué cambia"
 node scripts/editorial.mjs revisar guia.json      # revisión de calidad y SEO, sin conectarse
@@ -73,4 +74,6 @@ Usan el mismo script y las mismas credenciales del paso 4. Antes de activarlas, 
 
 ## Sobre «lo que la gente busca»
 
-El campo «Interés» es una estimación de Claude a partir de noticias, temporada y preguntas frecuentes, no un dato de Google. Para datos reales, conecta más adelante Google Search Console, que es gratis: muestra con qué búsquedas ya llegan al sitio.
+El buscador del sitio (`/buscar`, migración `20261102002400_site_search.sql`) cuenta de forma anónima los términos que se buscan: solo el término normalizado, el día, cuántas veces y cuántos resultados hubo. No guarda persona, cuenta, IP ni navegador, descarta términos con números largos (podrían ser una cédula o un teléfono) y borra lo que tenga más de 180 días. Las búsquedas sin resultado aparecen arriba de Moderación → Sugerencias y el redactor las consulta con `busquedas`.
+
+Fuera de eso, el campo «Interés» es una estimación de Claude a partir de noticias, temporada y preguntas frecuentes, no un dato de Google. Para datos reales, conecta más adelante Google Search Console, que es gratis: muestra con qué búsquedas ya llegan al sitio.

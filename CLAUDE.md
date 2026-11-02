@@ -17,7 +17,7 @@ Si falta alguna, detente y dile a la persona que la agregue en la configuración
 
 ### «Revisa qué guías conviene publicar» → crear sugerencias
 
-1. Ejecuta `npm install` si hace falta. Después, `node scripts/editorial.mjs guias` para ver las guías existentes y `node scripts/editorial.mjs sugerencias` para ver las que ya se sugirieron. No repitas temas: **una guía por intención de búsqueda**. Si un tema ya tiene guía, sugiere actualizarla (`kind: "actualizar"`) en vez de crear otra que compita con ella.
+1. Ejecuta `npm install` si hace falta. Después, `node scripts/editorial.mjs guias` para ver las guías existentes y `node scripts/editorial.mjs sugerencias` para ver las que ya se sugirieron. Revisa también `node scripts/editorial.mjs busquedas`: lo que la gente buscó en el sitio sin encontrar nada. Es la señal de demanda más directa que tenemos; prioriza esos temas y menciónalo en `demand` (por ejemplo, «buscado 14 veces en el sitio en 30 días»). No repitas temas: **una guía por intención de búsqueda**. Si un tema ya tiene guía, sugiere actualizarla (`kind: "actualizar"`) en vez de crear otra que compita con ella.
 2. Investiga con búsqueda web temas de **todo lo relacionado con el trabajo en Colombia**, no solo la ley. Mezcla en cada ronda:
    - **Normas y derechos:**
      - leyes, decretos, resoluciones y circulares del Ministerio del Trabajo;

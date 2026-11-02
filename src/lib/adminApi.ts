@@ -308,3 +308,10 @@ export function setSuggestionStatus(id: string, status: SuggestionStatus, instru
 export function applySuggestionProposal(id: string) {
   return run<string>(requireClient().rpc('editorial_apply_proposal', { p_id: id }));
 }
+
+// ---------------------------------------------------------------- búsquedas sin resultado
+export interface SearchGap { term: string; searches: number; results: number; last_seen: string }
+
+export function listSearchGaps(days = 30) {
+  return run<SearchGap[]>(requireClient().rpc('editorial_search_gaps', { p_days: days, p_max_results: 0 }));
+}
