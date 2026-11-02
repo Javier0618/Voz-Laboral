@@ -13,6 +13,10 @@
 //   node scripts/editorial.mjs pedidas                   sugerencias pedidas, con indicaciones
 //   node scripts/editorial.mjs borrador <id> <archivo.json>       guarda la guía redactada
 //   node scripts/editorial.mjs propuesta <id> <archivo.md> "<qué cambia>"
+//   node scripts/editorial.mjs revisar <archivo.json | archivo.md>   revisa calidad y SEO (no se conecta)
+//
+// «borrador» y «propuesta» ejecutan la misma revisión y no guardan nada si hay
+// errores. Los criterios están en CLAUDE.md («Estándar de calidad de las guías»).
 //
 // Formato de «sugerir» (cada elemento):
 //   { "kind": "nueva" | "actualizar", "title": "...", "reason": "...", "demand": "...",
@@ -23,8 +27,8 @@
 //     "content": "texto" o "content_file": "ruta/al/archivo.md",
 //     "sources": [{ "label": "...", "publisher": "...", "url": "https://...", "accessed_at": "2026-11-02" }] }
 import { existsSync, readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
+import { imprimirRevision, leerGuia, revisarGuia } from './revisar-guia.mjs';
 
 for (const nombre of ['.env.local', '.env']) {
   const ruta = new URL(`../${nombre}`, import.meta.url);
@@ -34,6 +38,11 @@ for (const nombre of ['.env.local', '.env']) {
     if (!m || linea.trim().startsWith('#')) continue;
     if (process.env[m[1]] === undefined) process.env[m[1]] = m[2].replace(/^(['"])(.*)\1$/, '$2');
   }
+}
+
+if (process.argv[2] === 'revisar') {
+  const g = leerGuia(process.argv[3]);
+  process.exit(imprimirRevision(revisarGuia(g, { propuesta: g.propuesta })) ? 0 : 1);
 }
 
 const falta = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY', 'REDACTOR_EMAIL', 'REDACTOR_PASSWORD'].filter((v) => !process.env[v]);
@@ -100,8 +109,9 @@ switch (comando) {
   }
   case 'borrador': {
     const [id, ruta] = args;
-    const g = leerJson(ruta);
-    const content = g.content ?? readFileSync(resolve(dirname(ruta), g.content_file), 'utf8');
+    const g = leerGuia(ruta);
+    const content = g.content;
+    if (!imprimirRevision(revisarGuia(g))) fallar('No se guardó: corrige los errores de la revisión.');
     const { data, error } = await supabase.rpc('editorial_save_draft', {
       p_id: id, p_slug: g.slug, p_title: g.title, p_summary: g.summary, p_content: content,
       p_category_slug: g.category ?? null, p_sources: g.sources,
@@ -112,13 +122,15 @@ switch (comando) {
   }
   case 'propuesta': {
     const [id, ruta, notas = ''] = args;
-    const { error } = await supabase.rpc('editorial_save_proposal', { p_id: id, p_content: readFileSync(ruta, 'utf8'), p_notes: notas });
+    const texto = readFileSync(ruta, 'utf8');
+    if (!imprimirRevision(revisarGuia({ content: texto }, { propuesta: true }))) fallar('No se guardó: corrige los errores de la revisión.');
+    const { error } = await supabase.rpc('editorial_save_proposal', { p_id: id, p_content: texto, p_notes: notas });
     if (error) fallar(error);
     console.log('Propuesta guardada.');
     break;
   }
   default:
-    console.error('Comandos: guias | guia <slug> | sugerencias [estado] | sugerir <json> | pedidas | borrador <id> <json> | propuesta <id> <md> "<notas>"');
+    console.error('Comandos: guias | guia <slug> | sugerencias [estado] | sugerir <json> | pedidas | borrador <id> <json> | propuesta <id> <md> "<notas>" | revisar <json|md>');
     process.exit(1);
 }
 await supabase.auth.signOut();
