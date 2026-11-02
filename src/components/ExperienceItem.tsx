@@ -32,7 +32,7 @@ export function ExperienceItem({ exp, showCompany = true, full = false }: { exp:
         {exp.status === 'en_disputa' && <StatusChip status="en_disputa" />}
       </div>
       {full ? (
-        <h1 id={`exp-${exp.id}`} className="mt-4 text-4xl font-medium leading-[1.1] tracking-[-0.01em] sm:text-5xl">
+        <h1 id={`exp-${exp.id}`} className="mt-4 text-4xl font-bold leading-[1.1] tracking-[-0.01em] sm:text-5xl">
           {exp.title || exp.category_name}
         </h1>
       ) : (

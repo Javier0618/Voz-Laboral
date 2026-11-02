@@ -44,7 +44,7 @@ function Hero() {
       <div className="page grid items-center gap-14 pb-20 pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pb-24 lg:pt-12">
         <div className="min-w-0">
           <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-white/70">Para trabajadores en Colombia</p>
-          <h1 className="text-[2.5rem] font-medium leading-[2.875rem] tracking-[-0.01em] text-white sm:text-5xl lg:text-[4.25rem] lg:leading-[4.5rem]">
+          <h1 className="text-[2.5rem] font-bold leading-[2.875rem] tracking-[-0.01em] text-white sm:text-5xl lg:text-[4.25rem] lg:leading-[4.5rem]">
             Conoce tus derechos laborales en Colombia.
           </h1>
           <p className="mt-6 max-w-[36rem] text-lg leading-8 text-white/80">

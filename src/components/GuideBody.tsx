@@ -30,7 +30,7 @@ export function GuideBody({ content, slug }: { content: string; slug?: string })
   const blocks = parseGuide(content);
   const ids = headingIds(blocks);
   return (
-    <div className="guide-body max-w-prose font-serif text-[1.125rem] leading-[1.85rem] text-ink">
+    <div className="guide-body max-w-prose font-sans text-[1.125rem] leading-[1.85rem] text-ink">
       {blocks.map((b, i) => {
         switch (b.type) {
           case 'heading':

@@ -21,8 +21,12 @@ export default {
         danger: { DEFAULT: 'rgb(var(--danger) / <alpha-value>)', tint: 'rgb(var(--danger-tint) / <alpha-value>)' },
       },
       fontFamily: {
-        serif: ['"Newsreader Variable"', 'Georgia', 'serif'],
-        sans: ['"Instrument Sans Variable"', 'system-ui', 'sans-serif'],
+        // Roboto en todo el sitio, como Infobae: títulos en negrita y texto en regular.
+        // «serif» se conserva como nombre para los títulos y cifras destacadas.
+        serif: ['"Roboto Variable"', 'Roboto', 'system-ui', 'sans-serif'],
+        sans: ['"Roboto Variable"', 'Roboto', 'system-ui', 'sans-serif'],
+        // Solo el logotipo conserva su tipografía de marca.
+        logo: ['"Instrument Sans Variable"', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         xs: ['0.8125rem', { lineHeight: '1.25rem' }],

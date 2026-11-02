@@ -90,7 +90,7 @@ export default function Search() {
 
   return (
     <div className="page py-10 sm:py-14">
-      <h1 className="text-4xl font-medium tracking-[-0.01em] sm:text-5xl">Buscar</h1>
+      <h1 className="text-4xl font-bold tracking-[-0.01em] sm:text-5xl">Buscar</h1>
       <form role="search" className="mt-6 max-w-2xl" onSubmit={(e) => { e.preventDefault(); setTerm(normalizeQuery(text)); }}>
         <label htmlFor="buscar-sitio" className="sr-only">Qué quieres buscar</label>
         <div className="flex gap-2">
@@ -211,7 +211,7 @@ function NoResults({ text }: { text: string }) {
   return (
     <div className="space-y-10">
       <div className="max-w-prose">
-        <h2 className="text-2xl font-medium">No encontramos «{text}»</h2>
+        <h2 className="text-2xl font-bold">No encontramos «{text}»</h2>
         <p className="mt-3 text-slate">
           Prueba con otra palabra, por ejemplo «prima» en vez de «pago de junio». Los temas que se buscan y todavía no tienen guía nos ayudan a
           decidir qué escribir: se cuentan de forma anónima, sin guardar quién buscó.
