@@ -35,6 +35,7 @@ El sistema editorial (plantilla, temas, calendario y flujo de publicación) est�
 | Reclamaciones de empresas y respuestas empresariales | Implementado |
 | **Guías laborales** (eje principal): editor con plantilla, índice por temas editoriales, buscador, guías relacionadas, experiencias relacionadas y enlaces a calculadoras | Implementado; 31 guías en `supabase/contenido` (partes 1 a 6) |
 | Borrado definitivo de guías desde el panel, con registro en moderación | Implementado y probado en la base de datos |
+| Sugerencias editoriales: el redactor (Claude) propone temas y redacta borradores que la administración pide en Moderación → Sugerencias (`docs/sugerencias.md`) | Implementado y probado en la base de datos |
 | «Cómo se calcula» y enlace a la guía en cada calculadora | Implementado |
 | Políticas legales | **Borradores** pendientes de un abogado |
 | Eliminación de cuenta con anonimización y purga por plazo | Implementado y probado en la base de datos |
@@ -119,7 +120,7 @@ Es un sitio estático (`npm run build` genera `dist/`). Sirve en cualquier hosti
 ## Estructura
 
 ```
-supabase/migrations/   esquema, RLS, funciones y auditoría (20 migraciones)
+supabase/migrations/   esquema, RLS, funciones y auditoría (22 migraciones)
 supabase/seed.dev.sql  empresas ficticias para desarrollo
 src/config/brand.ts    nombre y textos de marca
 src/index.css          colores de marca (variables en :root)

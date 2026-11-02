@@ -75,7 +75,7 @@ export async function as<T>(db: Db, who: Identity, fn: () => Promise<T>): Promis
 let counter = 0;
 
 /** Crea un usuario en auth.users (como haría Supabase Auth) y, si se pide, su alias. */
-export async function createUser(db: Db, opts: { alias?: string; role?: 'moderator' | 'admin' } = {}) {
+export async function createUser(db: Db, opts: { alias?: string; role?: 'moderator' | 'admin' | 'redactor' } = {}) {
   counter += 1;
   const email = `persona${counter}@correo-prueba.test`;
   const { rows } = await db.query<{ id: string }>(`insert into auth.users (email) values ($1) returning id`, [email]);

@@ -278,3 +278,29 @@ export async function createGuide(input: { title: string; summary: string; categ
   }
   throw toAppError({ message: 'VL072: Ya existe una guía con un título muy parecido. Cambia el título.' });
 }
+
+// ---------------------------------------------------------------- sugerencias editoriales
+export type SuggestionStatus = 'nueva' | 'pedida' | 'redactada' | 'descartada' | 'existente';
+type GuideRef = { id: string; slug: string; title: string; status: GuideStatus } | null;
+export interface GuideSuggestion {
+  id: string; kind: 'nueva' | 'actualizar'; title: string; reason: string; demand: string; priority: 'alta' | 'media' | 'baja';
+  topic: string; keywords: string[]; sources: { label: string; url: string }[]; status: SuggestionStatus; instructions: string;
+  proposal: string | null; proposal_notes: string; requested_at: string | null; drafted_at: string | null; decided_at: string | null;
+  created_at: string; target: GuideRef; draft: GuideRef;
+}
+export function listGuideSuggestions() {
+  return run<GuideSuggestion[]>(
+    requireClient().from('guide_suggestions')
+      .select('id, kind, title, reason, demand, priority, topic, keywords, sources, status, instructions, proposal, proposal_notes, requested_at, drafted_at, decided_at, created_at, target:legal_resources!guide_suggestions_target_resource_id_fkey(id, slug, title, status), draft:legal_resources!guide_suggestions_draft_resource_id_fkey(id, slug, title, status)')
+      .order('created_at', { ascending: false })
+      .limit(200)
+      .returns<GuideSuggestion[]>(),
+  );
+}
+export function setSuggestionStatus(id: string, status: SuggestionStatus, instructions?: string) {
+  return run(requireClient().rpc('editorial_set_status', { p_id: id, p_status: status, p_instructions: instructions ?? null }));
+}
+/** Aplica a la guía el texto que propuso el redactor. Devuelve la dirección de la guía. */
+export function applySuggestionProposal(id: string) {
+  return run<string>(requireClient().rpc('editorial_apply_proposal', { p_id: id }));
+}

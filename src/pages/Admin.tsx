@@ -14,11 +14,12 @@ import { formatDate, formatPeriod, plural, relationshipLabel, todayLocal } from 
 import { MESES_REVISION, necesitaRevision } from '../lib/guide';
 import { normalizeText } from '../lib/schemas';
 import type { AppError } from '../lib/supabase';
+import { Suggestions } from './admin/Suggestions';
 import {
   Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, PageHeader, StatusChip, ToneChip, statusLabel, useAsync,
 } from '../components/ui';
 
-type Tab = 'cola' | 'comentarios' | 'reportes' | 'reclamaciones' | 'apelaciones' | 'catalogo' | 'guias' | 'historial';
+type Tab = 'cola' | 'comentarios' | 'reportes' | 'reclamaciones' | 'apelaciones' | 'catalogo' | 'guias' | 'sugerencias' | 'historial';
 
 const flagLabel: Record<string, string> = { correo: 'Correo', telefono: 'Teléfono', documento: 'Nº de documento', confidencial: 'Confidencial' };
 const statuses: ExperienceStatus[] = ['en_revision', 'publicada', 'requiere_ajustes', 'en_disputa', 'restringida', 'retirada'];
@@ -50,6 +51,7 @@ export default function Admin() {
     { id: 'apelaciones', label: 'Apelaciones' },
     { id: 'catalogo', label: 'Catálogo', admin: true },
     { id: 'guias', label: 'Guías', admin: true },
+    { id: 'sugerencias', label: 'Sugerencias', admin: true },
     { id: 'historial', label: 'Historial' },
   ];
 
@@ -75,6 +77,7 @@ export default function Admin() {
         {tab === 'apelaciones' && <Appeals />}
         {tab === 'catalogo' && isAdmin && <Catalog />}
         {tab === 'guias' && isAdmin && <Guides />}
+        {tab === 'sugerencias' && isAdmin && <Suggestions />}
         {tab === 'historial' && <History />}
       </div>
     </div>
