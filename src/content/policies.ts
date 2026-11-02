@@ -20,7 +20,9 @@ const siCaptcha = <T,>(...items: T[]): T[] => (CAPTCHA ? items : []);
 const TEXTO_CAPTCHA =
   'Para frenar los envíos automáticos, al crear una cuenta, iniciar sesión, recuperar la contraseña o enviar una experiencia sin cuenta usamos la verificación anti-robots Cloudflare Turnstile. Cloudflare, Inc. analiza datos técnicos de tu navegador y tu dirección IP, que puede tratar en Estados Unidos y en otros países, solo para comprobar que no eres un robot. No la usamos para medir visitas ni para publicidad. Puedes conocer la [política de privacidad de Turnstile](https://www.cloudflare.com/turnstile-privacy-policy/).';
 
-const RESPONSABLE = 'TuVozLaboral, sitio de guías laborales y experiencias de trabajadores en Colombia. Para cualquier asunto sobre tus datos, escríbenos al correo de contacto que aparece al final de esta página.';
+const CORREO_RESPONSABLE = 'contacto.vozlaboral@gmail.com';
+const RESPONSABLE =
+  `TuVozLaboral, sitio de guías laborales y experiencias de trabajadores en Colombia, con domicilio en Cali (Valle del Cauca, Colombia). Correo para cualquier asunto sobre tus datos personales, consultas y reclamos: [${CORREO_RESPONSABLE}](mailto:${CORREO_RESPONSABLE}).`;
 
 export const policies: Policy[] = [
   {

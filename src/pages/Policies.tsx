@@ -5,7 +5,7 @@ import { policies } from '../content/policies';
 import { EmptyState } from '../components/ui';
 import { setPageMeta } from '../lib/meta';
 
-const LINK = /\[([^\]]+)\]\(((?:https:\/\/|\/)[^)\s]*)\)/g;
+const LINK = /\[([^\]]+)\]\(((?:https:\/\/|mailto:|\/)[^)\s]*)\)/g;
 
 /** Admite enlaces con el formato [texto](https://…) o [texto](/ruta) dentro de un párrafo. */
 export function TextWithLinks({ text }: { text: string }) {
@@ -18,6 +18,8 @@ export function TextWithLinks({ text }: { text: string }) {
     parts.push(
       href.startsWith('/')
         ? <Link key={at} to={href} className="btn-link">{label}</Link>
+        : href.startsWith('mailto:')
+        ? <a key={at} href={href} className="btn-link">{label}</a>
         : <a key={at} href={href} target="_blank" rel="noopener noreferrer" className="btn-link">{label}<span className="sr-only"> (se abre en otra pestaña)</span></a>,
     );
     last = at + whole.length;
