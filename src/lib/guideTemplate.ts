@@ -1,5 +1,7 @@
 /** Plantilla editorial para guías laborales (Fase 2). */
-export const GUIDE_TEMPLATE = `## Qué dice la ley
+export const GUIDE_TEMPLATE = `Abre con una entradilla de 2 o 3 párrafos cortos: el gancho (la situación del lector, la noticia, la cifra o la fecha que vence) y la respuesta directa con la norma citada. Ver docs/estilo-editorial.md.
+
+## Qué dice la ley
 
 Resume aquí, en lenguaje claro, qué establece la norma colombiana (Código Sustantivo del Trabajo, decretos o circulares). Menciona el artículo cuando sea posible.
 
@@ -27,4 +29,4 @@ Explica cómo se aplica en el día a día. Usa ejemplos concretos (montos en pes
 `;
 
 export const GUIDE_TEMPLATE_HINT =
-  'Estructura recomendada: qué dice la ley, en la práctica, errores comunes, qué puedes hacer, y enlaces útiles.';
+  'Estructura recomendada: entradilla con gancho, qué dice la ley, en la práctica, errores comunes, qué puedes hacer, y enlaces útiles.';

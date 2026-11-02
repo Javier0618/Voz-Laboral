@@ -60,7 +60,7 @@ node scripts/editorial.mjs propuesta <id> texto.md "qué cambia"
 node scripts/editorial.mjs revisar guia.json      # revisión de calidad y SEO, sin conectarse
 ```
 
-`borrador` y `propuesta` repiten esa revisión y no guardan nada si encuentran errores: longitud mínima, secciones de la plantilla, preguntas frecuentes, enlaces internos, título, resumen, slug, fuentes y restos de plantilla. Los criterios completos están en `CLAUDE.md`, en «Estándar de calidad de las guías».
+`borrador` y `propuesta` repiten esa revisión y no guardan nada si encuentran errores: longitud mínima, secciones de la plantilla, preguntas frecuentes, enlaces internos, título, resumen, slug, fuentes, restos de plantilla y títulos anzuelo. También avisa, sin bloquear, si falta la entradilla o quedan muletillas (ver `docs/estilo-editorial.md`). Los criterios completos están en `CLAUDE.md`, en «Estándar de calidad de las guías».
 
 El formato de los archivos está al inicio del script. Una sugerencia repetida, con el mismo título aunque cambien las mayúsculas o las tildes, no se duplica mientras siga abierta.
 

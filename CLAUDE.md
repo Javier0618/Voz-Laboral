@@ -52,7 +52,7 @@ Si falta alguna, detente y dile a la persona que la agregue en la configuración
    - **`informativa`:** posibles cambios o proyectos, tendencias, consejos, cifras del mercado laboral o temas generales del trabajo. La estructura es libre, con al menos 3 secciones, y **no hace falta citar leyes**. Si menciona una norma o un proyecto, la cita igual.
 
    En los dos casos, lee la fuente antes de escribir. Cada dato (legal, cifra o fecha) debe salir de una fuente verificable: no inventes nada. Si algo es una propuesta o un proyecto, dilo así, no como si ya fuera ley.
-3. Escribe la guía cumpliendo el **«Estándar de calidad de las guías»** (abajo), con la plantilla de `src/lib/guideTemplate.ts` (en las legales), las reglas de `docs/editorial.md` y el formato de `src/lib/guide.ts`: `##`, `###`, listas, `> ` para avisos, `**negrita**`, `[texto](https://…)` y enlaces internos `[texto](/derechos/slug)` o `[texto](/calculadoras/…)`.
+3. Escribe la guía cumpliendo el **«Estándar de calidad de las guías»** (abajo) y el **estilo editorial** de `docs/estilo-editorial.md` (léelo antes de cada redacción), con la plantilla de `src/lib/guideTemplate.ts` (en las legales), las reglas de `docs/editorial.md` y el formato de `src/lib/guide.ts`: `##`, `###`, listas, `> ` para avisos, `**negrita**`, `[texto](https://…)` y enlaces internos `[texto](/derechos/slug)` o `[texto](/calculadoras/…)`.
 4. Revisa la guía con `node scripts/editorial.mjs revisar guia.json`. Si es una actualización, usa `revisar texto.md legal|informativa`. Corrige **todos** los errores. Los avisos se corrigen salvo que haya una razón para dejarlos. Después, haz la revisión manual de la lista de abajo.
 5. Guarda la guía (el script repite la revisión y no guarda si hay errores):
    - **Guía nueva:** prepara un JSON con:
@@ -66,13 +66,28 @@ Si falta alguna, detente y dile a la persona que la agregue en la configuración
 6. Di en el chat qué redactaste, cuántas palabras tiene, la búsqueda principal a la que responde y que el borrador está en Moderación → Guías (o la propuesta, en Sugerencias). Nunca publiques: la publicación la hace una persona.
 7. Recuérdale a la persona que, después de publicar, despliegue el sitio (`bash scripts/desplegar.sh` en el VPS). Así la guía entra al `sitemap.xml` y a las páginas prerenderizadas que leen Google y las redes.
 
+## Estilo editorial: que enganche y retenga
+
+Las guías se escriben como **periodismo de servicio**: con el ritmo de un medio digital de noticias (titular con dato, entradilla fuerte, subtítulos que avanzan, datos destacados) y la voz propia de TuVozLaboral: cercana, directa, del lado del trabajador y rigurosa. La guía completa, con ejemplos de antes y después, está en `docs/estilo-editorial.md`. Lo esencial:
+
+- **Entradilla:** toda guía abre, antes del primer `##`, con 2 o 3 párrafos cortos (60 a 100 palabras):
+  - el **gancho**: la situación del lector, la noticia, la cifra, la fecha que vence o el mito;
+  - la **respuesta directa**, con la norma o la fuente citada;
+  - opcional, la **promesa** concreta de lo que viene («más abajo está el cálculo con el mínimo de 2026»).
+- **Subtítulos que informan:** con la pregunta o el dato. Las secciones obligatorias de las guías legales pueden llevar un complemento («## En la práctica: cuánto te toca si ganas el mínimo»).
+- **Ritmo:** cada sección abre con su idea principal, el ejemplo con cifras llega a más tardar en la segunda sección y los enlaces internos van dentro de la frase donde se necesitan.
+- **Atribución periodística:** «según el artículo 249 del Código Sustantivo del Trabajo», «de acuerdo con el DANE».
+- **Cierre con acción:** el primer paso, el plazo o la invitación a contar la experiencia. Nunca «en conclusión».
+- **Prohibido:** anzuelos en el título, sensacionalismo, alarmismo, exclamaciones, muletillas («es importante destacar», «en este artículo») y testimonios o citas inventados. Los casos se cuentan en segunda persona o como ejemplo explícito.
+- **La exactitud manda:** nunca se sacrifica un dato por una frase con gancho.
+
 ## Estándar de calidad de las guías
 
 Muchas guías tratan temas legales y de dinero. Google los llama «Your Money or Your Life» (YMYL) y les exige más precisión, experiencia y confianza (E-E-A-T). Los artículos informativos también deben ser exactos y útiles. Cada guía debe ser **contenido útil, escrito para personas**, que Google quiera mostrar. No se publican textos pensados solo para posicionar.
 
 ### Valor (lo primero)
 
-- **Respuesta directa:** responde la pregunta principal en las primeras dos o tres frases de «Qué dice la ley». Esa respuesta es la que Google puede destacar.
+- **Respuesta directa:** responde la pregunta principal en la entradilla, en las primeras dos o tres frases. Esa respuesta es la que Google puede destacar.
 - **Algo propio:** aporta lo que una persona no encuentra junta en otro lado:
   - la norma explicada en lenguaje claro;
   - **un ejemplo con cifras vigentes** (salario mínimo y auxilio de transporte del año, plazos en días);
@@ -91,7 +106,8 @@ Muchas guías tratan temas legales y de dinero. Google los llama «Your Money or
 ### Estructura
 
 - **Sin H1:** no uses `# ` en el texto, porque el título de la página ya es el H1.
-- **Secciones `##` de las guías legales, en este orden:**
+- **Entradilla:** 2 o 3 párrafos antes del primer `##` (ver «Estilo editorial»).
+- **Secciones `##` de las guías legales, en este orden** (pueden llevar un complemento después de dos puntos):
   1. «Qué dice la ley»
   2. «En la práctica»
   3. «Errores comunes»
@@ -124,7 +140,8 @@ El sitio ya genera la dirección canónica, las etiquetas Open Graph, los datos 
 ### Lista final antes de guardar
 
 - [ ] `node scripts/editorial.mjs revisar` sin errores.
-- [ ] La primera respuesta aparece en las primeras frases.
+- [ ] La entradilla engancha y la primera respuesta aparece en las primeras frases.
+- [ ] Cumple la lista de estilo de `docs/estilo-editorial.md`: título sin anzuelos, subtítulos que informan, sin muletillas y cierre con acción.
 - [ ] Cada dato está verificado en su fuente. En las guías legales, con la norma citada.
 - [ ] Hay al menos un ejemplo con cifras del año vigente, si el tema lo permite.
 - [ ] Título, resumen y slug responden a la misma búsqueda principal, y ninguna guía existente compite por ella.

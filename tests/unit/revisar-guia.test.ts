@@ -4,7 +4,9 @@ import { describe, expect, it } from 'vitest';
 import { revisarGuia } from '../../scripts/revisar-guia.mjs';
 
 const relleno = (n: number) => Array.from({ length: n }, (_, i) => `Párrafo ${i + 1} con explicación clara del artículo 306 del Código Sustantivo del Trabajo y un ejemplo de $1.000.000 en la prima de diciembre para trabajadores con salario mínimo.`).join('\n\n');
-const contenido = `## Qué dice la ley
+const contenido = `Si trabajas con contrato laboral, a más tardar el 20 de diciembre te deben pagar la segunda parte de la prima, según el artículo 306 del Código Sustantivo del Trabajo.
+
+## Qué dice la ley
 
 ${relleno(12)}
 
@@ -77,5 +79,17 @@ describe('revisión de calidad de las guías', () => {
     expect(r.avisos.join(' ')).toMatch(/preguntas frecuentes/);
     expect(revisarGuia({ ...guia, content: informativo }).errores.join(' ')).toMatch(/guía legal/);
   });
-});
 
+  it('estilo editorial: avisa si falta la entradilla o hay muletillas, y rechaza títulos anzuelo', () => {
+    const sinEntradilla = revisarGuia({ ...guia, content: contenido.replace(/^[\s\S]*?(?=^## )/m, '') });
+    expect(sinEntradilla.errores).toEqual([]);
+    expect(sinEntradilla.avisos.join(' ')).toMatch(/entradilla/);
+
+    const muletillas = revisarGuia({ ...guia, content: `${contenido}\n\nEn conclusión, es importante destacar el plazo.` });
+    expect(muletillas.avisos.join(' ')).toMatch(/muletillas/);
+
+    expect(revisarGuia(guia).avisos.join(' ')).not.toMatch(/estilo/);
+    for (const title of ['¡No vas a creer cuánto te deben de prima!', 'PRIMA DE DICIEMBRE: lo que tu jefe no quiere que sepas'])
+      expect(revisarGuia({ ...guia, title }).errores.join(' ')).toMatch(/anzuelo/);
+  });
+});

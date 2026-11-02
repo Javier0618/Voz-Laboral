@@ -13,6 +13,8 @@ Cada guía nueva debe seguir esta estructura (bloques separados por línea en bl
 **Dónde está el botón:** Moderación → abrir una guía → pestaña **Editar** (no «Vista previa») → junto a «Insertar imagen» aparece **Insertar plantilla de guía**.
 
 ```
+Entradilla: 2 o 3 párrafos cortos con el gancho (situación del lector, noticia, cifra, fecha o mito) y la respuesta directa.
+
 ## Qué dice la ley
 
 Resumen en lenguaje claro de la norma aplicable (CST, decretos, circular). Cita el artículo cuando sea posible.
@@ -139,6 +141,8 @@ Checklist al publicar: lenguaje claro, fuente oficial, secciones cubiertas, port
 ---
 
 ## 5. Criterios de calidad
+
+**Estilo:** las guías se escriben como periodismo de servicio, con entradilla, subtítulos que informan y cierre con acción. Ver `docs/estilo-editorial.md`.
 
 **Sí:** frases cortas; distinguir ley vs. práctica; fecha de verificación; disclaimer orientativo.
 

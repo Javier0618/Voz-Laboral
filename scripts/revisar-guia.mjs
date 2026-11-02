@@ -5,6 +5,9 @@ import { dirname, resolve } from 'node:path';
 
 const palabras = (t) => (t.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').match(/[\p{L}\p{N}]+/gu) ?? []).length;
 const SECCIONES = ['Qué dice la ley', 'En la práctica', 'Errores comunes', 'Qué puedes hacer'];
+// Estilo editorial (docs/estilo-editorial.md): anzuelos prohibidos en el título y muletillas que restan ritmo.
+const ANZUELOS = /no (vas a )?creer[aá]s?|impactante|incre[ií]ble|lo que nadie te (dice|cuenta)|no quiere que sepas|te sorprender[aá]|atenci[oó]n:/i;
+const MULETILLAS = ['es importante destacar', 'es importante mencionar', 'cabe resaltar', 'cabe destacar', 'cabe mencionar', 'vale la pena mencionar', 'sin lugar a dudas', 'en este artículo', 'en esta guía te explicamos', 'hoy te explicamos', 'en conclusión', 'en resumen,'];
 
 /**
  * Revisa una guía contra el estándar de CLAUDE.md. Errores bloquean; avisos no.
@@ -25,6 +28,8 @@ export function revisarGuia({ slug, title, summary, content, sources, tipo = 'le
     const t = (title ?? '').trim().length;
     if (t < 20 || t > 90) errores.push(`título: ${t} caracteres; debe tener entre 20 y 90 (ideal, 40 a 60).`);
     else if (t < 40 || t > 60) avisos.push(`título: ${t} caracteres; lo ideal son 40 a 60 para que Google no lo corte.`);
+    if (ANZUELOS.test(title ?? '') || /[!¡]/.test(title ?? '') || /[A-ZÁÉÍÓÚÑ]{4,}\s+[A-ZÁÉÍÓÚÑ]{4,}/.test(title ?? ''))
+      errores.push('título: parece un anzuelo (exclamaciones, mayúsculas o fórmulas como «no vas a creer»); di el dato o la consecuencia concreta.');
     const r = (summary ?? '').trim().length;
     if (r < 70 || r > 300) errores.push(`resumen: ${r} caracteres; debe tener entre 70 y 300 (ideal, 120 a 160).`);
     else if (r < 120 || r > 160) avisos.push(`resumen: ${r} caracteres; lo ideal son 120 a 160 (es la meta descripción).`);
@@ -51,11 +56,18 @@ export function revisarGuia({ slug, title, summary, content, sources, tipo = 'le
   if (/\]\(\/(?:derechos|calculadoras)\/\)/.test(content)) errores.push('enlaces internos: hay enlaces de plantilla sin completar («/derechos/» o «/calculadoras/»).');
   if (/\]\([^)]*\s[^)]*\)/.test(content)) errores.push('enlaces: una dirección tiene espacios.');
 
-  for (const resto of ['Primer paso concreto', 'Primer malentendido', 'Resume aquí', 'Explica cómo se aplica', 'lorem ipsum', 'TODO', 'PENDIENTE', '[texto]'])
+  for (const resto of ['Primer paso concreto', 'Primer malentendido', 'Resume aquí', 'Explica cómo se aplica', 'Abre con una entradilla', 'lorem ipsum', 'TODO', 'PENDIENTE', '[texto]'])
     if (content.toLowerCase().includes(resto.toLowerCase())) errores.push(`relleno: queda texto de plantilla («${resto}»).`);
 
   const largos = content.split(/\n\s*\n/).filter((b) => !/^\s*([-*>]|\d+\.|#)/.test(b) && palabras(b) > 120).length;
   if (largos) avisos.push(`legibilidad: ${largos} párrafo(s) de más de 120 palabras; divídelos.`);
+  const entradilla = palabras((content.split(/^## /m)[0] ?? '').replace(/!\[[^\]]*\]\([^)]*\)/g, ''));
+  if (!entradilla) avisos.push('estilo: no hay entradilla; abre con 2 o 3 párrafos antes del primer «## »: el gancho y la respuesta directa (docs/estilo-editorial.md).');
+  else if (entradilla > 150) avisos.push(`estilo: la entradilla tiene ${entradilla} palabras; déjala en 60 a 100 y lleva el detalle a las secciones.`);
+  const bajo = content.toLowerCase();
+  const usadas = MULETILLAS.filter((m) => bajo.includes(m));
+  if (usadas.length) avisos.push(`estilo: muletillas que restan ritmo («${usadas.join('», «')}»); quítalas o di la idea directamente.`);
+  if ((content.match(/!(?!\[)/g) ?? []).length > 1) avisos.push('estilo: hay signos de exclamación; el tono de TuVozLaboral es cercano, no alarmista.');
   if (!/\d/.test(content)) avisos.push('valor: no hay ninguna cifra; añade un ejemplo con montos, plazos o porcentajes si el tema lo permite.');
   if (legal && !/(art(ículo|\.)\s*\d|Ley \d|Decreto \d|Resolución \d|Sentencia [A-Z]+-?\d)/i.test(content)) errores.push('fuente en el texto: una guía legal cita al menos una norma o sentencia (artículo, ley, decreto…). Si el texto no trata de derechos u obligaciones, márcalo como «informativa».');
 
