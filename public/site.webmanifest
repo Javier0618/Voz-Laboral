@@ -1,0 +1,13 @@
+{
+  "name": "TuVozLaboral",
+  "short_name": "TuVozLaboral",
+  "description": "Guías laborales, experiencias de trabajadores y calculadoras de nómina en Colombia.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#0F2440",
+  "theme_color": "#0F2440",
+  "icons": [
+    { "src": "/favicon-96.png", "sizes": "96x96", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
