@@ -3,9 +3,10 @@
 // Variables: SITE_URL (dominio público; por defecto https://tuvozlaboral.com),
 // VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY, del sistema o de los archivos .env. Si falta algo o Supabase no
 // responde, genera el mapa solo con las páginas fijas: nunca rompe el build.
-import { writeFileSync, existsSync, readFileSync } from 'node:fs';
+import { writeFileSync, existsSync, readFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { htmlDeGuia } from './prerender.mjs';
 
 // Lee los mismos archivos .env que Vite (las variables del sistema tienen
 // prioridad). Sin esto, el script no vería VITE_SUPABASE_URL ni SITE_URL si
@@ -55,8 +56,16 @@ async function get(path, init) {
 
 if (api && key) {
   try {
-    const guides = await get('/rest/v1/legal_resources?select=slug,updated_at&status=eq.publicado');
+    const guides = await get('/rest/v1/legal_resources?select=slug,title,summary,cover_url,updated_at,last_verified_at&status=eq.publicado');
     guides.forEach((g) => urls.set(`/derechos/${g.slug}`, g.updated_at));
+    // HTML propio de cada guía, para las vistas previas al compartir.
+    const plantilla = readFileSync(new URL('index.html', out), 'utf8');
+    for (const g of guides) {
+      const dir = new URL(`derechos/${g.slug}/`, out);
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(new URL('index.html', dir), htmlDeGuia(plantilla, g, site));
+    }
+    console.log(`[prerender] ${guides.length} guías con su propio HTML inicial.`);
     for (let offset = 0; offset < 50000; offset += 50) {
       const page = await get('/rest/v1/rpc/list_experiences', { method: 'POST', body: JSON.stringify({ p_limit: 50, p_offset: offset }) });
       page.forEach((e) => {

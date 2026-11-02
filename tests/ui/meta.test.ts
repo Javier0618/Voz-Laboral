@@ -50,4 +50,11 @@ describe('setPageMeta', () => {
     setRouteDefaults('/derechos');
     expect(document.querySelector('meta[name="robots"]')).toBeNull();
   });
+
+  it('los datos estructurados llevan @context y varios objetos van en un @graph', () => {
+    setPageMeta({ title: 'Guía', description: 'Descripción', path: '/derechos/x', jsonLd: [{ '@type': 'Article', headline: 'Guía' }, { '@type': 'BreadcrumbList', itemListElement: [] }] });
+    const json = JSON.parse(document.querySelector('script[type="application/ld+json"]')!.textContent!);
+    expect(json['@context']).toBe('https://schema.org');
+    expect(json['@graph'].map((x: { '@type': string }) => x['@type'])).toEqual(['Article', 'BreadcrumbList']);
+  });
 });

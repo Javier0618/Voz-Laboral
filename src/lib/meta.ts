@@ -87,7 +87,11 @@ function setJsonLd(data: PageMeta['jsonLd']) {
   const script = document.createElement('script');
   script.id = id;
   script.type = 'application/ld+json';
-  script.textContent = JSON.stringify(data);
+  // Google exige @context. Varios objetos van en un @graph con un solo @context.
+  const json = Array.isArray(data)
+    ? { '@context': 'https://schema.org', '@graph': data.map(({ ['@context']: _c, ...rest }) => rest) }
+    : { '@context': 'https://schema.org', ...data };
+  script.textContent = JSON.stringify(json);
   document.head.appendChild(script);
 }
 

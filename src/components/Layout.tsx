@@ -172,7 +172,8 @@ export function Layout() {
         )}
       </header>
 
-      <main id="contenido" tabIndex={-1} className="flex-1 focus:outline-none">
+      {/* min-h-screen: el pie queda bajo el pliegue mientras carga la página, así no «salta» (CLS). */}
+      <main id="contenido" tabIndex={-1} className="min-h-screen flex-1 focus:outline-none">
         <Outlet />
       </main>
 
