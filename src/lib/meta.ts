@@ -148,3 +148,19 @@ export function defaultHomeMeta(): PageMeta {
     },
   };
 }
+
+/** Rutas privadas o personales: nunca se indexan. */
+const RUTAS_PRIVADAS = /^\/(cuenta|moderacion|seguimiento|avisos)(\/|$)/;
+
+/**
+ * Valores por defecto al cambiar de ruta: la dirección canónica y og:url son
+ * los de la propia página (nunca la portada), y las rutas privadas llevan
+ * «noindex». Cada página puede sobrescribirlos después con setPageMeta.
+ */
+export function setRouteDefaults(pathname: string) {
+  const path = pathname.replace(/^\/seguimiento\/[^/]+/, '/seguimiento');
+  const url = absoluteUrl(path || '/')!;
+  setCanonical(url);
+  setMetaByProperty('og:url', url);
+  setRobots(RUTAS_PRIVADAS.test(pathname) ? 'noindex, nofollow' : null);
+}

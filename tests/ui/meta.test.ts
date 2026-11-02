@@ -1,6 +1,6 @@
 // Etiquetas para buscadores y redes: siempre con el dominio oficial.
 import { describe, expect, it } from 'vitest';
-import { setPageMeta } from '../../src/lib/meta';
+import { setPageMeta, setRouteDefaults } from '../../src/lib/meta';
 
 const prop = (p: string) => document.querySelector(`meta[property="${p}"]`)?.getAttribute('content');
 const canonical = () => document.querySelector('link[rel="canonical"]')?.getAttribute('href');
@@ -32,5 +32,22 @@ describe('setPageMeta', () => {
     setPageMeta({ title: 'Empresa vacía', description: 'Sin experiencias', path: '/empresas/x', robots: 'noindex, follow' });
     setPageMeta(null);
     expect(robots()).toBeNull();
+  });
+
+  it('cada ruta tiene su propia dirección canónica, nunca la portada', () => {
+    setRouteDefaults('/politicas/cookies');
+    expect(canonical()).toBe('https://tuvozlaboral.com/politicas/cookies');
+    expect(prop('og:url')).toBe('https://tuvozlaboral.com/politicas/cookies');
+    expect(document.querySelector('meta[name="robots"]')).toBeNull();
+  });
+
+  it('las rutas privadas no se indexan y el enlace de seguimiento no aparece', () => {
+    setRouteDefaults('/seguimiento/token-secreto');
+    expect(canonical()).toBe('https://tuvozlaboral.com/seguimiento');
+    expect(document.querySelector('meta[name="robots"]')?.getAttribute('content')).toBe('noindex, nofollow');
+    setRouteDefaults('/cuenta');
+    expect(document.querySelector('meta[name="robots"]')?.getAttribute('content')).toBe('noindex, nofollow');
+    setRouteDefaults('/derechos');
+    expect(document.querySelector('meta[name="robots"]')).toBeNull();
   });
 });

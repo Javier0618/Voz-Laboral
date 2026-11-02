@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { brand } from '../config/brand';
 import { policies } from '../content/policies';
 import { EmptyState } from '../components/ui';
+import { setPageMeta } from '../lib/meta';
 
 const LINK = /\[([^\]]+)\]\(((?:https:\/\/|\/)[^)\s]*)\)/g;
 
@@ -28,6 +29,13 @@ export function TextWithLinks({ text }: { text: string }) {
 export default function PolicyPage() {
   const { slug = '' } = useParams();
   const policy = policies.find((p) => p.slug === slug);
+
+  useEffect(() => {
+    setPageMeta(policy
+      ? { title: `${policy.title} · ${brand.name}`, description: policy.summary, path: `/politicas/${policy.slug}`, type: 'website' }
+      : { title: `Documento no encontrado · ${brand.name}`, description: 'Este documento no existe.', robots: 'noindex, follow' });
+    return () => setPageMeta(null);
+  }, [policy]);
 
   if (!policy) {
     return (
@@ -69,6 +77,11 @@ export default function PolicyPage() {
 }
 
 export function NotFound() {
+  // Página inexistente: no se indexa (evita que Google la trate como contenido).
+  useEffect(() => {
+    setPageMeta({ title: `Página no encontrada · ${brand.name}`, description: 'Esta página no existe.', robots: 'noindex, follow' });
+    return () => setPageMeta(null);
+  }, []);
   return (
     <div className="page py-16">
       <EmptyState title="Esta página no existe" action={<Link to="/" className="btn-primary">Ir al inicio</Link>}>

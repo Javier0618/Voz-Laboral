@@ -2,7 +2,25 @@
 
 La web es un sitio estático (`npm run build` genera `dist/`) con rutas del lado del navegador: `/derechos/…`, `/calculadoras/…`, `/empresas/…`. **Nginx debe responder `index.html` a cualquier ruta que no sea un archivo.** Si no, al abrir un enlace directo o recargar la página aparece «404 Not Found».
 
-## Configuración recomendada
+## Con aaPanel (configuración actual del VPS)
+
+El VPS usa **aaPanel**, que gestiona Nginx y los certificados por su cuenta:
+
+- **Nginx de aaPanel:** está en `/www/server/nginx/`. Para comprobar y recargar usa ese binario, no el comando `nginx` del sistema, que apunta a otra instalación:
+  ```bash
+  /www/server/nginx/sbin/nginx -t && /www/server/nginx/sbin/nginx -s reload
+  ```
+- **Configuración del sitio:** Website → `tuvozlaboral.com` → Conf → Config file. Debe incluir `www.tuvozlaboral.com` en `server_name`, la redirección de `www`, las cabeceras de seguridad, la caché de `/assets/` y, sobre todo:
+  ```nginx
+  location / {
+      try_files $uri $uri/ /index.html;
+  }
+  ```
+  La sección **URL rewrite** del panel debe quedar vacía si el `location /` ya está en el archivo; si no, Nginx da un error por bloque duplicado.
+- **Certificados:** se emiten desde el panel (SSL → Let's Encrypt), no con Certbot. Al cambiar el SSL o los dominios, aaPanel regenera el archivo de configuración: revisa que conserve los cambios.
+- **Cabeceras propias:** lo que pongas en `/www/server/panel/vhost/nginx/extension/tuvozlaboral.com/*.conf` el panel no lo toca.
+
+## Configuración recomendada (Nginx sin panel)
 
 Reemplaza `/var/www/tuvozlaboral/dist` por la ruta real de tu carpeta `dist`.
 

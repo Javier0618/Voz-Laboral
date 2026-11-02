@@ -3,6 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import { createAnonymousExperience, createExperience, getCompanyById, listCategories, listMyExperiences, updateMyExperience, type ExperienceStatus, type Tone } from '../lib/api';
 import { formatPeriod, relationshipLabel } from '../lib/format';
+import { setPageMeta } from '../lib/meta';
+import { brand } from '../config/brand';
 import { BODY_MAX, BODY_MIN, detectPersonalData, experienceSchema, fieldErrors, personalDataMessages, type ExperienceInput } from '../lib/schemas';
 import type { AppError } from '../lib/supabase';
 import { CompanyPicker, type PickedCompany } from '../components/CompanyPicker';
@@ -50,6 +52,16 @@ function clearDraft() {
 export default function Share() {
   const { session, profile, loading } = useAuth();
   const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    setPageMeta({
+      title: `Compartir una experiencia laboral · ${brand.name}`,
+      description: 'Cuenta cómo es trabajar en una empresa de Colombia, con un alias y sin dar tu nombre. Cada experiencia se revisa antes de publicarse.',
+      path: '/compartir',
+      type: 'website',
+    });
+    return () => setPageMeta(null);
+  }, []);
 
   if (notConfigured) return <div className="page py-10"><ConfigNotice /></div>;
   if (loading) return <div className="page py-10"><Loading /></div>;

@@ -5,6 +5,7 @@ import { AuthProvider } from './auth/AuthProvider';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AppRoutes } from './App';
 import { CookieConsent } from './components/CookieConsent';
+import { RouteMeta } from './components/RouteMeta';
 import './index.css';
 
 
@@ -13,6 +14,7 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <BrowserRouter>
         <AuthProvider>
+          <RouteMeta />
           <AppRoutes />
           <CookieConsent />
         </AuthProvider>
