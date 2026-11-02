@@ -65,6 +65,9 @@ if (api && key) {
       mkdirSync(dir, { recursive: true });
       writeFileSync(new URL('index.html', dir), htmlDeGuia(plantilla, g, site));
     }
+    // La carpeta derechos/ ya existe por las guías: sin su propio index.html,
+    // Nginx respondería 403 al abrir /derechos o /derechos/ directamente.
+    if (guides.length) writeFileSync(new URL('derechos/index.html', out), plantilla);
     console.log(`[prerender] ${guides.length} guías con su propio HTML inicial.`);
     for (let offset = 0; offset < 50000; offset += 50) {
       const page = await get('/rest/v1/rpc/list_experiences', { method: 'POST', body: JSON.stringify({ p_limit: 50, p_offset: offset }) });
