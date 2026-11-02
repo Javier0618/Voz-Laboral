@@ -28,8 +28,8 @@ Leyenda: ✅ hecho y probado · 🟡 hecho, pendiente de verificar en Supabase r
 - ✅ Mensaje idéntico en la recuperación de contraseña, exista o no la cuenta.
 - 🟡 En Supabase → Auth: activar «Confirm email», la longitud mínima de contraseña (10) y la protección de contraseñas filtradas.
 - 🟡 Configurar las URL de redirección permitidas (solo los dominios propios).
-- ⬜ Activar el CAPTCHA de Supabase Auth (hCaptcha o Turnstile) en el registro.
-- ⬜ **Antes de abrir el envío sin cuenta al público:** CAPTCHA (Turnstile) verificado en una Edge Function antes de llamar a `submit_anonymous_experience()`. Hoy solo hay un freno global de 30 envíos por hora, un campo trampa y un tiempo mínimo de redacción.
+- ✅ Código de Cloudflare Turnstile para el registro, el inicio de sesión y la recuperación de contraseña (captcha de Supabase Auth). ⬜ Falta activarlo: claves en `.env` y en Authentication → Attack Protection (`docs/despliegue-vps.md`).
+- ✅ Código de Turnstile en el envío sin cuenta: `submit_anonymous_experience()` comprueba el token con Cloudflare desde la base de datos (migración `20261102002100`). ⬜ Falta guardar la clave secreta en `private.app_settings`. Hasta entonces, el envío sin cuenta solo tiene un freno global de 30 envíos por hora, un campo trampa y un tiempo mínimo de redacción.
 - ⬜ Configurar un SMTP propio para los correos de Auth (el de Supabase tiene límites estrictos).
 
 ## Aplicación

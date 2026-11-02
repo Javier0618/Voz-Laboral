@@ -292,7 +292,7 @@ export function createExperience(input: ExperienceInput) {
 }
 
 /** Envío sin cuenta: devuelve el token del enlace privado de seguimiento. */
-export function createAnonymousExperience(input: ExperienceInput) {
+export function createAnonymousExperience(input: ExperienceInput, captchaToken?: string) {
   const row = experienceRow(input);
   return run<{ id: string; token: string; status: ExperienceStatus }>(
     requireClient().rpc('submit_anonymous_experience', {
@@ -306,6 +306,8 @@ export function createAnonymousExperience(input: ExperienceInput) {
       p_body: row.body,
       p_has_documents: row.has_documents,
       p_rules_accepted: input.rulesAccepted,
+      // Solo se envía si la verificación está activa en la web.
+      ...(captchaToken ? { p_captcha: captchaToken } : {}),
     }),
   );
 }

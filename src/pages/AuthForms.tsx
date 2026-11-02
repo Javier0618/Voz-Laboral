@@ -5,6 +5,7 @@ import { toAppError } from '../lib/errors';
 import { emailSchema, passwordSchema } from '../lib/schemas';
 import { useAuth } from '../auth/AuthProvider';
 import { Alert, Field } from '../components/ui';
+import { useTurnstile } from '../components/Turnstile';
 
 type Mode = 'login' | 'registro' | 'recuperar';
 
@@ -18,6 +19,7 @@ export function AuthForms() {
   const [error, setError] = useState<AppError | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const captcha = useTurnstile();
   const navigate = useNavigate();
   const next = params.get('siguiente');
 
@@ -39,6 +41,7 @@ export function AuthForms() {
       if (!accepted) v.accepted = 'Debes aceptar la política de tratamiento de datos para crear la cuenta.';
     }
     if (mode === 'login' && !password) v.password = 'Escribe tu contraseña.';
+    if (!captcha.ready) v.captcha = 'Completa la verificación anti-robots.';
     setErrors(v);
     if (Object.keys(v).length) return;
 
@@ -46,16 +49,17 @@ export function AuthForms() {
     setError(null);
     setNotice(null);
     const client = requireClient();
+    const captchaToken = captcha.token;
     try {
       if (mode === 'login') {
-        const { error: err } = await client.auth.signInWithPassword({ email: email.trim(), password });
+        const { error: err } = await client.auth.signInWithPassword({ email: email.trim(), password, options: { captchaToken } });
         if (err) throw err;
         if (next?.startsWith('/') && !next.startsWith('//')) navigate(next);
       } else if (mode === 'registro') {
         const { error: err } = await client.auth.signUp({
           email: email.trim(),
           password,
-          options: { emailRedirectTo: `${window.location.origin}/cuenta` },
+          options: { emailRedirectTo: `${window.location.origin}/cuenta`, captchaToken },
         });
         if (err) throw err;
         setNotice('Te enviamos un correo para confirmar la cuenta. Abre el enlace y vuelve para elegir tu alias.');
@@ -63,6 +67,7 @@ export function AuthForms() {
       } else {
         const { error: err } = await client.auth.resetPasswordForEmail(email.trim(), {
           redirectTo: `${window.location.origin}/cuenta/nueva-contrasena`,
+          captchaToken,
         });
         if (err) throw err;
         // Mismo mensaje exista o no la cuenta: no revela qué correos están registrados.
@@ -72,6 +77,8 @@ export function AuthForms() {
       setError(toAppError(err));
     } finally {
       setBusy(false);
+      // Cada token de Turnstile sirve una sola vez.
+      captcha.reset();
     }
   }
 
@@ -112,6 +119,12 @@ export function AuthForms() {
                 </span>
               </label>
               {errors.accepted && <p className="field-error">{errors.accepted}</p>}
+            </div>
+          )}
+          {captcha.widget && (
+            <div>
+              {captcha.widget}
+              {errors.captcha && <p className="field-error">{errors.captcha}</p>}
             </div>
           )}
           {error && <Alert tone="error">{error.message}</Alert>}

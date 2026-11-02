@@ -125,7 +125,7 @@ describe('compartir una experiencia', () => {
     vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 10_000);
     await user.click(screen.getByRole('button', { name: 'Enviar a revisión' }));
     expect(await screen.findByRole('heading', { name: 'Gracias por compartir' })).toBeInTheDocument();
-    expect(createAnonymousExperience).toHaveBeenCalledWith(expect.objectContaining({ tone: 'positiva' }));
+    expect(createAnonymousExperience).toHaveBeenCalledWith(expect.objectContaining({ tone: 'positiva' }), undefined);
     expect(createExperience).not.toHaveBeenCalled();
     expect((screen.getByLabelText('Enlace de seguimiento') as HTMLInputElement).value).toContain(`/seguimiento/${'a'.repeat(64)}`);
     expect(screen.getByRole('link', { name: 'Crear cuenta' })).toHaveAttribute('href', `/cuenta?siguiente=/seguimiento/${'a'.repeat(64)}`);

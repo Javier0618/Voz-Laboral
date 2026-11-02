@@ -39,6 +39,9 @@ export function toAppError(error: unknown): AppError {
   if (/Error sending .*email|sending (confirmation|recovery|magic link)/i.test(message)) {
     return new AppError('unknown', 'No pudimos enviarte el correo en este momento. Inténtalo de nuevo más tarde; si sigue pasando, avísanos.');
   }
+  if (/captcha/i.test(message)) {
+    return new AppError('validation', 'No pudimos comprobar que no eres un robot. Completa la verificación e inténtalo de nuevo.');
+  }
   if (/Password should be/i.test(message)) {
     return new AppError('validation', 'La contraseña no cumple los requisitos de seguridad.');
   }

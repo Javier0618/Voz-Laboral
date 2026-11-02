@@ -10,6 +10,7 @@ import type { AppError } from '../lib/supabase';
 import { CompanyPicker, type PickedCompany } from '../components/CompanyPicker';
 import { SuggestCompanyDialog } from '../components/SuggestCompanyDialog';
 import { Alert, ConfigNotice, Field, Loading, notConfigured, PageHeader, StatusChip, ToneChip, useAsync } from '../components/ui';
+import { useTurnstile } from '../components/Turnstile';
 
 const DRAFT_KEY = 'vozlaboral:borrador';
 
@@ -156,6 +157,8 @@ function ExperienceForm({ anonymous = false, onSent }: { anonymous?: boolean; on
   const honeypot = useRef<HTMLInputElement>(null);
   const startedAt = useRef(Date.now());
   const formTop = useRef<HTMLDivElement>(null);
+  const captcha = useTurnstile();
+  const needsCaptcha = anonymous && !editId;
 
   const categories = useAsync(() => listCategories(), []);
 
@@ -249,17 +252,22 @@ function ExperienceForm({ anonymous = false, onSent }: { anonymous?: boolean; on
     }
     const parsed = experienceSchema.safeParse(toInput());
     if (!parsed.success) return setStep('form');
+    if (needsCaptcha && !captcha.ready) {
+      setSubmitError({ kind: 'validation', message: 'Completa la verificación anti-robots antes de enviar.' } as AppError);
+      return;
+    }
     setBusy(true);
     setSubmitError(null);
     try {
       const input = parsed.data as ExperienceInput;
-      const saved = editId ? await updateMyExperience(editId, input) : anonymous ? await createAnonymousExperience(input) : await createExperience(input);
+      const saved = editId ? await updateMyExperience(editId, input) : anonymous ? await createAnonymousExperience(input, captcha.token) : await createExperience(input);
       setResult({ status: saved.status, token: 'token' in saved ? String(saved.token) : undefined });
       clearDraft();
       setStep('done');
       onSent?.();
     } catch (err) {
       setSubmitError(err as AppError);
+      if (needsCaptcha) captcha.reset();
     } finally {
       setBusy(false);
     }
@@ -325,9 +333,10 @@ function ExperienceForm({ anonymous = false, onSent }: { anonymous?: boolean; on
             </Alert>
           </div>
         )}
+        {needsCaptcha && captcha.widget && <div className="mt-6">{captcha.widget}</div>}
         {submitError && <div className="mt-6"><Alert tone="error" title="No se envió">{submitError.message} Tu texto sigue guardado en esta pestaña.</Alert></div>}
         <div className="mt-8 flex flex-wrap gap-3">
-          <button type="button" className="btn-primary" disabled={busy} onClick={submit}>{busy ? 'Enviando…' : 'Enviar a revisión'}</button>
+          <button type="button" className="btn-primary" disabled={busy || (needsCaptcha && !captcha.ready)} onClick={submit}>{busy ? 'Enviando…' : 'Enviar a revisión'}</button>
           <button type="button" className="btn-secondary" onClick={() => setStep('form')}>Seguir editando</button>
         </div>
       </div>

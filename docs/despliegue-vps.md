@@ -189,16 +189,46 @@ VITE_SUPABASE_URL=…
 VITE_SUPABASE_ANON_KEY=…
 VITE_CONTACT_EMAIL=…
 VITE_GA_ID=G-…
+VITE_TURNSTILE_SITE_KEY=0x4…
 ```
 
-Sin `VITE_GA_ID` no se carga Google Analytics ni aparece el aviso de cookies.
+Sin `VITE_GA_ID` no se carga Google Analytics ni aparece el aviso de cookies. Sin `VITE_TURNSTILE_SITE_KEY` no aparece la verificación anti-robots.
+
+## Protección contra bots (Cloudflare Turnstile)
+
+Turnstile es la casilla «No soy un robot» de Cloudflare: gratis, sin imágenes que adivinar y casi siempre invisible. Protege el registro, el inicio de sesión, la recuperación de contraseña y el envío de experiencias sin cuenta. No hace falta que el dominio esté en Cloudflare.
+
+**El orden importa.** Si activas la protección en Supabase antes de que la web envíe el token, nadie podrá iniciar sesión.
+
+1. **Crear las claves.** En [dash.cloudflare.com](https://dash.cloudflare.com) (cuenta gratis) → **Turnstile** → **Add widget**:
+   - Nombre: `TuVozLaboral`.
+   - Hostnames: `tuvozlaboral.com` y `www.tuvozlaboral.com`.
+   - Widget mode: **Managed**.
+
+   Al crearlo, Cloudflare te da una **Site Key** (pública) y una **Secret Key** (secreta).
+2. **Web.** En el `.env` del VPS añade `VITE_TURNSTILE_SITE_KEY=` seguido de la **Site Key**, y publica con `FORZAR=1 bash scripts/desplegar.sh`. Abre `/cuenta`: debe aparecer la verificación encima del botón. Supabase ignora el token mientras no actives el paso 3, así que todo sigue funcionando.
+3. **Registro e inicio de sesión.** En Supabase → **Authentication → Attack Protection** → activa **Enable Captcha protection**, elige **Cloudflare Turnstile**, pega la **Secret Key** y guarda.
+4. **Envíos sin cuenta.** En Supabase → **SQL Editor**, ejecuta la migración `20261102002100_turnstile.sql` y después esto, con tu **Secret Key**:
+   ```sql
+   insert into private.app_settings (name, value) values ('turnstile_secret', 'TU-SECRET-KEY')
+   on conflict (name) do update set value = excluded.value, updated_at = now();
+   ```
+5. **Probar.** Cierra sesión y vuelve a entrar. Luego envía una experiencia sin cuenta de prueba y recházala desde Moderación.
+
+**Desactivarla**, en orden inverso:
+
+1. Ejecuta `delete from private.app_settings where name = 'turnstile_secret';`.
+2. Desactiva el captcha en **Attack Protection**.
+3. Quita la línea del `.env` y vuelve a publicar.
+
+Si Cloudflare no responde, los envíos sin cuenta se rechazan con el mensaje «No pudimos comprobar que no eres un robot» en lugar de aceptarse sin comprobar.
 
 ## Política de seguridad de contenidos (opcional, más adelante)
 
 Una cabecera `Content-Security-Policy` limita desde dónde puede cargar scripts la página. Pruébala primero en modo solo informe, para no romper Google Analytics ni Supabase. Reemplaza `TU-PROYECTO` por el de tu URL de Supabase:
 
 ```nginx
-add_header Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://TU-PROYECTO.supabase.co https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com; img-src 'self' data: https://TU-PROYECTO.supabase.co https://www.google-analytics.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; media-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
+add_header Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self' https://TU-PROYECTO.supabase.co https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com; img-src 'self' data: https://TU-PROYECTO.supabase.co https://www.google-analytics.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; media-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
 ```
 
 Cuando actives AdSense habrá que ampliarla con los dominios de anuncios de Google.

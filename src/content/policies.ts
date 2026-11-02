@@ -4,6 +4,7 @@ export interface PolicySection { heading: string; paragraphs: string[] }
 export interface Policy { slug: string; title: string; summary: string; sections: PolicySection[] }
 
 import { adsenseClient } from '../lib/analytics';
+import { turnstileSiteKey } from '../components/Turnstile';
 
 /**
  * La publicidad (Google AdSense) solo se menciona si está activa: con
@@ -12,6 +13,12 @@ import { adsenseClient } from '../lib/analytics';
  */
 const ADS = Boolean(adsenseClient());
 const siAnuncios = <T,>(...items: T[]): T[] => (ADS ? items : []);
+
+/** La verificación anti-robots (Cloudflare Turnstile) solo se menciona si está activa. */
+const CAPTCHA = Boolean(turnstileSiteKey());
+const siCaptcha = <T,>(...items: T[]): T[] => (CAPTCHA ? items : []);
+const TEXTO_CAPTCHA =
+  'Para frenar los envíos automáticos, al crear una cuenta, iniciar sesión, recuperar la contraseña o enviar una experiencia sin cuenta usamos la verificación anti-robots Cloudflare Turnstile. Cloudflare, Inc. analiza datos técnicos de tu navegador y tu dirección IP, que puede tratar en Estados Unidos y en otros países, solo para comprobar que no eres un robot. No la usamos para medir visitas ni para publicidad. Puedes conocer la [política de privacidad de Turnstile](https://www.cloudflare.com/turnstile-privacy-policy/).';
 
 const RESPONSABLE = 'TuVozLaboral, sitio de guías laborales y experiencias de trabajadores en Colombia. Para cualquier asunto sobre tus datos, escríbenos al correo de contacto que aparece al final de esta página.';
 
@@ -60,6 +67,7 @@ export const policies: Policy[] = [
         paragraphs: [
           'Usamos proveedores de infraestructura en la nube para la base de datos, la autenticación y el alojamiento del sitio. Sus servidores pueden estar ubicados fuera de Colombia.',
           'Solo les transmitimos los datos necesarios para prestar el servicio, y los tratan por nuestra cuenta, sin usarlos para fines propios.',
+          ...siCaptcha(TEXTO_CAPTCHA),
           ADS
             ? 'Si aceptas las cookies de medición o de publicidad, Google LLC y sus filiales reciben datos de navegación y pueden tratarlos en Estados Unidos y en otros países. En la medición actúan por nuestra cuenta. En la publicidad personalizada, Google y sus socios publicitarios también los usan según sus propias políticas. Puedes conocer [cómo usa Google los datos de los sitios que usan sus servicios](https://policies.google.com/technologies/partner-sites).'
             : 'Si aceptas las cookies de medición, Google LLC y sus filiales reciben datos de navegación y pueden tratarlos en Estados Unidos y en otros países. Actúan por nuestra cuenta, para darnos informes de uso del sitio. Puedes conocer [cómo usa Google los datos de los sitios que usan sus servicios](https://policies.google.com/technologies/partner-sites).',
@@ -135,6 +143,7 @@ export const policies: Policy[] = [
         paragraphs: [
           'Sin ellas el sitio no funciona bien, así que no requieren tu autorización. Se guardan en el almacenamiento local de tu navegador y no se comparten con terceros:',
           'Tu sesión, si inicias sesión. Tu preferencia de modo claro u oscuro. El texto de la experiencia que estás escribiendo, para que no lo pierdas. Una marca para no contar dos veces la visita a una guía el mismo día. Y tu decisión sobre las cookies, para no preguntarte en cada visita.',
+          ...siCaptcha(TEXTO_CAPTCHA),
         ],
       },
       {
