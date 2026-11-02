@@ -24,14 +24,18 @@ fi
 set -a; . ./.env.respaldo; set +a
 : "${SUPABASE_DB_URL:?Falta SUPABASE_DB_URL en .env.respaldo}"
 
-command -v pg_dump >/dev/null || { echo "Falta pg_dump: instala postgresql-client (versión 17)." >&2; exit 1; }
+# Usa el pg_dump 17 del paquete postgresql-client-17 aunque otro PostgreSQL
+# del servidor (por ejemplo, el de aaPanel) tenga una versión anterior en el PATH.
+PG_DUMP=/usr/lib/postgresql/17/bin/pg_dump
+[ -x "$PG_DUMP" ] || PG_DUMP=$(command -v pg_dump || true)
+[ -n "$PG_DUMP" ] || { echo "Falta pg_dump: instala postgresql-client-17." >&2; exit 1; }
 
 umask 077
 mkdir -p "$DESTINO"
 ARCHIVO="$DESTINO/tuvozlaboral-$(date +%F-%H%M).dump"
 
 echo "→ Copiando la base de datos…"
-pg_dump "$SUPABASE_DB_URL" \
+"$PG_DUMP" "$SUPABASE_DB_URL" \
   --format=custom --compress=9 --no-owner --no-privileges \
   --schema=public --schema=private --schema=auth --schema=storage \
   --file="$ARCHIVO.tmp"
