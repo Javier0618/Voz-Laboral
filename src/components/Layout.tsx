@@ -16,17 +16,31 @@ const nav = [
   { to: '/como-funciona', label: 'Quiénes somos', wide: true },
 ];
 
-/** Logotipo: un folio con una línea tapada. Pensado para fondo tinta. */
+/**
+ * Logotipo: «tuvozlaboral» con la «o» convertida en un globo de diálogo con
+ * tres puntos, y ondas de sonido en diagonal tras «voz». Pensado para fondo tinta.
+ */
+const GLOBO = 'M11 4.2a7.3 7.3 0 1 1-4.9 12.8L3 19.6l1-4.2A7.3 7.3 0 0 1 11 4.2z';
 export function Logo() {
   return (
-    <span className="flex items-center gap-2.5">
-      <svg aria-hidden="true" width="30" height="30" viewBox="0 0 32 32">
-        <rect x="4" y="2" width="24" height="28" rx="2" fill="#fff" />
-        <rect x="9" y="9" width="14" height="2.5" rx="1" fill="rgb(var(--surface-brand))" />
-        <rect x="9" y="15" width="9" height="2.5" rx="1" fill="rgb(var(--teal))" />
-        <rect x="9" y="21" width="12" height="2.5" rx="1" fill="rgb(var(--surface-brand))" />
-      </svg>
-      <span className="font-serif text-[1.4375rem] font-semibold tracking-tight text-white">{brand.name}</span>
+    <span className="whitespace-nowrap font-sans text-[1.6875rem] font-bold leading-none tracking-[-0.03em] text-white">
+      <span className="sr-only">{brand.name}</span>
+      <span aria-hidden="true">
+        tuv
+        <svg viewBox="1.1 2.4 19.9 19.4" className="mx-[0.01em] inline-block h-[0.74em] w-auto align-[-0.13em]">
+          <path d={GLOBO} fill="#2BB3A5" stroke="#2BB3A5" strokeWidth="1.6" strokeLinejoin="round" />
+          <circle cx="8" cy="11.5" r="1.3" fill="rgb(var(--surface-brand))" />
+          <circle cx="11.2" cy="11.5" r="1.3" fill="rgb(var(--surface-brand))" />
+          <circle cx="14.4" cy="11.5" r="1.3" fill="rgb(var(--surface-brand))" />
+        </svg>
+        z
+        <svg viewBox="0 0 17 20" className="ml-[0.01em] mr-[-0.02em] inline-block h-[0.56em] w-auto origin-[0%_60%] -rotate-45 overflow-visible align-[0.25em]" fill="none" stroke="#2BB3A5" strokeWidth="2.6" strokeLinecap="round">
+          <path d="M2 6.5a5 5 0 0 1 0 7" />
+          <path d="M6.5 3a10 10 0 0 1 0 14" />
+          <path d="M11 0a14.5 14.5 0 0 1 0 20" strokeOpacity=".5" />
+        </svg>
+        <span className="font-[450] text-white/80">laboral</span>
+      </span>
     </span>
   );
 }
