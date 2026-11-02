@@ -56,8 +56,10 @@ export function revisarGuia({ slug, title, summary, content, sources, tipo = 'le
   if (/\]\(\/(?:derechos|calculadoras)\/\)/.test(content)) errores.push('enlaces internos: hay enlaces de plantilla sin completar («/derechos/» o «/calculadoras/»).');
   if (/\]\([^)]*\s[^)]*\)/.test(content)) errores.push('enlaces: una dirección tiene espacios.');
 
-  for (const resto of ['Primer paso concreto', 'Primer malentendido', 'Resume aquí', 'Explica cómo se aplica', 'Abre con una entradilla', 'lorem ipsum', 'TODO', 'PENDIENTE', '[texto]'])
+  for (const resto of ['Primer paso concreto', 'Primer malentendido', 'Resume aquí', 'Explica cómo se aplica', 'Abre con una entradilla', 'lorem ipsum', '[texto]'])
     if (content.toLowerCase().includes(resto.toLowerCase())) errores.push(`relleno: queda texto de plantilla («${resto}»).`);
+  // Marcas de trabajo pendiente: solo en mayúsculas y como palabra, para no confundirlas con «todos» o «pendientes».
+  for (const marca of content.match(/\b(TODO|PENDIENTE)\b/g) ?? []) errores.push(`relleno: queda texto de plantilla («${marca}»).`);
 
   const largos = content.split(/\n\s*\n/).filter((b) => !/^\s*([-*>]|\d+\.|#)/.test(b) && palabras(b) > 120).length;
   if (largos) avisos.push(`legibilidad: ${largos} párrafo(s) de más de 120 palabras; divídelos.`);

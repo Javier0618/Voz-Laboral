@@ -92,4 +92,10 @@ describe('revisión de calidad de las guías', () => {
     for (const title of ['¡No vas a creer cuánto te deben de prima!', 'PRIMA DE DICIEMBRE: lo que tu jefe no quiere que sepas'])
       expect(revisarGuia({ ...guia, title }).errores.join(' ')).toMatch(/anzuelo/);
   });
+
+  it('las marcas TODO y PENDIENTE solo cuentan en mayúsculas', () => {
+    const normal = `${contenido}\n\nTodos los artículos pendientes siguen en estudio.`;
+    expect(revisarGuia({ ...guia, content: normal }).errores).toEqual([]);
+    expect(revisarGuia({ ...guia, content: `${contenido}\n\nTODO: revisar la cifra.` }).errores.join(' ')).toMatch(/TODO/);
+  });
 });
