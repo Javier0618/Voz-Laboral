@@ -41,7 +41,28 @@ describe('Google Analytics', () => {
     expect(document.querySelector('script[src*="googletagmanager"]')).toBeNull();
   });
 
-  it('carga gtag con todo denegado, sin página vista automática y sin anuncios personalizados', () => {
+  it('sin aceptar no descarga Google ni registra páginas: ninguna señal', () => {
+    expect(iniciarGoogle('G-PRUEBA')).toBe(true);
+    expect(document.querySelector('script[src*="googletagmanager"]')).toBeNull();
+    registrarPagina('/derechos');
+    expect(llamadas().some((x) => x[0] === 'event')).toBe(false);
+  });
+
+  it('al aceptar la medición carga Google y registra la página actual', () => {
+    iniciarGoogle('G-PRUEBA');
+    saveConsent({ analytics: true, ads: false });
+    expect(document.querySelector<HTMLScriptElement>('script[src*="googletagmanager"]')!.src).toContain('id=G-PRUEBA');
+    expect(llamadas().some((x) => x[0] === 'event' && x[1] === 'page_view')).toBe(true);
+  });
+
+  it('si rechaza, no se carga nada', () => {
+    iniciarGoogle('G-PRUEBA');
+    saveConsent({ analytics: false, ads: false });
+    expect(document.querySelector('script[src*="googletagmanager"]')).toBeNull();
+  });
+
+  it('prepara gtag con todo denegado, sin página vista automática y sin anuncios personalizados', () => {
+    saveConsent({ analytics: true, ads: false });
     expect(iniciarGoogle('G-PRUEBA')).toBe(true);
     expect(document.querySelector<HTMLScriptElement>('script[src*="googletagmanager"]')!.src).toContain('id=G-PRUEBA');
     const c = llamadas();
@@ -61,6 +82,7 @@ describe('Google Analytics', () => {
   });
 
   it('envía las páginas vistas con la dirección limpia', () => {
+    saveConsent({ analytics: true, ads: false });
     iniciarGoogle('G-PRUEBA');
     registrarPagina('/seguimiento/token-secreto', 'Seguimiento');
     const ev = llamadas().find((x) => x[0] === 'event' && x[1] === 'page_view')!;
@@ -70,6 +92,7 @@ describe('Google Analytics', () => {
 
   it('fija la dirección limpia para todos los eventos, también al iniciar', () => {
     window.history.replaceState(null, '', '/seguimiento/token-inicial?code=abc');
+    saveConsent({ analytics: true, ads: false });
     iniciarGoogle('G-PRUEBA');
     const set0 = llamadas().find((x) => x[0] === 'set')!;
     expect(set0[1]).toMatchObject({ page_path: '/seguimiento/[enlace]' });

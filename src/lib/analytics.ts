@@ -45,11 +45,31 @@ export function consentState(c: Consent | null) {
 }
 
 let iniciado = false;
+let scriptCargado = false;
+let idActual: string | undefined;
 
-/** Carga Google Analytics con todo denegado por defecto y aplica la elección guardada. */
+/** Inserta el script de Google una sola vez: solo tras aceptar la medición o la publicidad. */
+function cargarScript() {
+  if (scriptCargado || !idActual) return;
+  scriptCargado = true;
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(idActual)}`;
+  document.head.appendChild(s);
+}
+
+const aceptaAlgo = (c: Consent | null) => Boolean(c?.analytics || c?.ads);
+
+/**
+ * Prepara Google Analytics con todo denegado. El script de Google NO se
+ * descarga ni se envía nada hasta que la persona acepta en el aviso de
+ * cookies (Ley 1581: autorización previa). Sin aceptar, Google no recibe
+ * ninguna señal, ni siquiera anónima.
+ */
 export function iniciarGoogle(id = gaId()): boolean {
   if (typeof window === 'undefined' || !id || iniciado) return iniciado;
   iniciado = true;
+  idActual = id;
   const w = window as W;
   w.dataLayer = w.dataLayer || [];
   w.gtag = function gtag() {
@@ -69,12 +89,14 @@ export function iniciarGoogle(id = gaId()): boolean {
   onConsentChange((c) => {
     w.gtag?.('consent', 'update', consentState(c));
     aplicarAnuncios(c);
+    if (c.analytics && !scriptCargado) {
+      // Acaba de aceptar: se carga Google y se registra la página actual.
+      cargarScript();
+      registrarPagina(window.location.pathname);
+    }
   });
 
-  const s = document.createElement('script');
-  s.async = true;
-  s.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
-  document.head.appendChild(s);
+  if (aceptaAlgo(guardado)) cargarScript();
   return true;
 }
 
@@ -96,7 +118,8 @@ function direccionLimpia(path: string) {
  */
 export function registrarPagina(path: string, title?: string) {
   const w = window as W;
-  if (!iniciado || !w.gtag) return;
+  // Sin consentimiento de medición no se registra nada.
+  if (!iniciado || !w.gtag || !scriptCargado || !readConsent()?.analytics) return;
   const limpia = { ...direccionLimpia(path), page_title: title ?? document.title };
   w.gtag('set', limpia);
   w.gtag('event', 'page_view', limpia);
@@ -105,4 +128,6 @@ export function registrarPagina(path: string, title?: string) {
 /** Solo para pruebas. */
 export function _reiniciarParaPruebas() {
   iniciado = false;
+  scriptCargado = false;
+  idActual = undefined;
 }
