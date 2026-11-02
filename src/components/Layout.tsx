@@ -36,7 +36,7 @@ function SearchLink() {
 
 export function Logo() {
   return (
-    <span className="whitespace-nowrap font-sans text-[1.6875rem] font-bold leading-none tracking-[-0.03em] text-white">
+    <span className="whitespace-nowrap font-logo text-[1.6875rem] font-bold leading-none tracking-[-0.03em] text-white">
       <span className="sr-only">{brand.name}</span>
       <span aria-hidden="true">
         tuv

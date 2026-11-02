@@ -218,7 +218,7 @@ export function useAsync<T>(fn: () => Promise<T>, deps: unknown[]) {
 export function PageHeader({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <header className="border-b border-ink/80 pb-8">
-      <h1 className="text-4xl font-medium tracking-[-0.01em] sm:text-5xl">{title}</h1>
+      <h1 className="text-4xl font-bold tracking-[-0.01em] sm:text-5xl">{title}</h1>
       {children && <div className="mt-4 max-w-prose text-lg leading-8 text-slate">{children}</div>}
     </header>
   );

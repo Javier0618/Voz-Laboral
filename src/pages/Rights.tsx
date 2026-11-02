@@ -368,7 +368,7 @@ export function RightsArticle() {
           </nav>
           <div className={data.cover_url ? 'mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:items-center xl:grid-cols-[minmax(0,1fr)_minmax(0,30rem)]' : 'mt-4'}>
             <div>
-              <h1 className="max-w-3xl text-4xl font-medium leading-[1.1] tracking-[-0.01em] sm:text-5xl">{data.title}</h1>
+              <h1 className="max-w-3xl text-4xl font-bold leading-[1.1] tracking-[-0.01em] sm:text-5xl">{data.title}</h1>
               <p className="mt-5 max-w-prose text-lg leading-8 text-slate">{data.summary}</p>
             </div>
             {data.cover_url && (

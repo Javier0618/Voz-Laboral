@@ -1,4 +1,4 @@
-@import '@fontsource-variable/newsreader';
+@import '@fontsource-variable/roboto';
 @import '@fontsource-variable/instrument-sans';
 
 @tailwind base;
@@ -51,8 +51,8 @@
     @apply bg-paper font-sans text-base text-ink antialiased;
   }
   h1, h2, h3 {
-    @apply font-serif text-ink;
-    font-optical-sizing: auto;
+    @apply font-serif font-bold text-ink;
+    letter-spacing: -0.01em;
     text-wrap: balance;
   }
   :focus-visible {
@@ -95,11 +95,17 @@
 }
 
 @layer components {
+  /* Títulos de tarjetas y cifras destacadas («font-serif»): en negrita, como los titulares de Infobae.
+     Un font-medium o font-semibold explícito en el elemento sigue mandando. */
+  .font-serif {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
   .page {
     @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
   }
   .testimony {
-    @apply max-w-prose font-serif text-[1.0625rem] leading-[1.75rem] text-ink;
+    @apply max-w-prose font-sans text-[1.0625rem] leading-[1.75rem] text-ink;
     white-space: pre-line;
   }
   .btn {

@@ -114,7 +114,7 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
       <p className="text-sm text-slate"><Link to="/moderacion?tab=guias" className="hover:text-ink hover:underline">Volver a las guías</Link></p>
       <header className="mt-3 flex flex-wrap items-start justify-between gap-6 border-b border-ink/80 pb-6">
         <div className="min-w-0">
-          <h1 className="text-3xl font-medium sm:text-4xl">{form.title || 'Guía sin título'}</h1>
+          <h1 className="text-3xl font-bold sm:text-4xl">{form.title || 'Guía sin título'}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate">
             <span className="rounded-[3px] border border-line px-2 py-0.5 text-xs font-semibold text-ink">{statusLabel[g.status]}</span>
             {g.last_verified_at && <span>Verificada el {formatDate(g.last_verified_at)}</span>}
