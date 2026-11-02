@@ -36,7 +36,7 @@ Estados: `nueva → pedida → redactada`. Además, `descartada` y `existente` s
    - guardar borradores y propuestas de lo que la administración pidió.
 
    No puede publicar, borrar, moderar ni ver datos de personas usuarias.
-4. **Credenciales para Claude.** No las pegues en el chat. En Claude Code, abre el menú del entorno en la nube (barra de título de la sesión) → **Edit**. Agrega como variables de entorno:
+4. **Credenciales para Claude (no van en el VPS).** El script lo ejecuta Claude en su entorno en la nube, no tu servidor. El `.env` del VPS no cambia, y la contraseña del redactor nunca se guarda allí. No pegues las credenciales en el chat. En Claude Code, abre el menú del entorno en la nube (barra de título de la sesión) → **Edit**. Agrega como variables de entorno:
    - `REDACTOR_EMAIL`
    - `REDACTOR_PASSWORD`
    - `VITE_SUPABASE_URL`
