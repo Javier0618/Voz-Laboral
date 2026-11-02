@@ -163,18 +163,18 @@ export function setGuideStatus(id: string, status: GuideStatus, userId: string) 
 export interface GuideSource { id: string; label: string; publisher: string; url: string; accessed_at: string }
 export interface GuideDetail {
   id: string; slug: string; title: string; summary: string; content: string; category_slug: string | null;
-  status: GuideStatus; last_verified_at: string | null; updated_at: string; cover_url: string | null; cover_alt: string;
+  status: GuideStatus; last_verified_at: string | null; updated_at: string; cover_url: string | null; cover_alt: string; topic: string;
   legal_resource_sources: GuideSource[];
   legal_resource_stats: Stats;
 }
 export function getGuide(id: string) {
   return run<GuideDetail | null>(
     requireClient().from('legal_resources')
-      .select('id, slug, title, summary, content, category_slug, status, last_verified_at, updated_at, cover_url, cover_alt, legal_resource_sources(id, label, publisher, url, accessed_at), legal_resource_stats(views, last_view_at)')
+      .select('id, slug, title, summary, content, category_slug, status, last_verified_at, updated_at, cover_url, cover_alt, topic, legal_resource_sources(id, label, publisher, url, accessed_at), legal_resource_stats(views, last_view_at)')
       .eq('id', id).maybeSingle(),
   );
 }
-export function updateGuide(id: string, patch: { title: string; summary: string; content: string; category_slug: string | null }) {
+export function updateGuide(id: string, patch: { title: string; summary: string; content: string; category_slug: string | null; topic: string }) {
   return run(requireClient().from('legal_resources').update(patch).eq('id', id).select('id').single());
 }
 export function addGuideSource(resourceId: string, s: Omit<GuideSource, 'id'>) {
@@ -297,10 +297,21 @@ export function listGuideSuggestions() {
       .returns<GuideSuggestion[]>(),
   );
 }
+/** Borra de forma definitiva una sugerencia descartada o marcada como «ya la tenemos». */
+export function deleteSuggestion(id: string) {
+  return run(requireClient().rpc('editorial_delete_suggestion', { p_id: id }));
+}
 export function setSuggestionStatus(id: string, status: SuggestionStatus, instructions?: string) {
   return run(requireClient().rpc('editorial_set_status', { p_id: id, p_status: status, p_instructions: instructions ?? null }));
 }
 /** Aplica a la guía el texto que propuso el redactor. Devuelve la dirección de la guía. */
 export function applySuggestionProposal(id: string) {
   return run<string>(requireClient().rpc('editorial_apply_proposal', { p_id: id }));
+}
+
+// ---------------------------------------------------------------- búsquedas sin resultado
+export interface SearchGap { term: string; searches: number; results: number; last_seen: string }
+
+export function listSearchGaps(days = 30) {
+  return run<SearchGap[]>(requireClient().rpc('editorial_search_gaps', { p_days: days, p_max_results: 0 }));
 }

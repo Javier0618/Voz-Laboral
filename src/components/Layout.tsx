@@ -21,6 +21,19 @@ const nav = [
  * tres puntos, y ondas de sonido en diagonal tras «voz». Pensado para fondo tinta.
  */
 const GLOBO = 'M11 4.2a7.3 7.3 0 1 1-4.9 12.8L3 19.6l1-4.2A7.3 7.3 0 0 1 11 4.2z';
+/** Lupa del encabezado: solo un enlace; la página del buscador se carga al abrirla. */
+function SearchLink() {
+  return (
+    <NavLink to="/buscar" aria-label="Buscar en el sitio" title="Buscar"
+      className={({ isActive }) => `inline-flex h-10 w-10 items-center justify-center rounded text-white hover:bg-white/10 ${isActive ? 'bg-white/10' : ''}`}>
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="6.5" />
+        <path d="m16 16 4.5 4.5" />
+      </svg>
+    </NavLink>
+  );
+}
+
 export function Logo() {
   return (
     <span className="whitespace-nowrap font-sans text-[1.6875rem] font-bold leading-none tracking-[-0.03em] text-white">
@@ -150,6 +163,7 @@ export function Layout() {
             ))}
           </nav>
           <div className="hidden items-center gap-1 lg:flex">
+            <SearchLink />
             <ThemeToggle />
             {session && <NotificationBell />}
             {session ? <AccountMenu /> : <NavLink to="/cuenta" className={navClass}>Iniciar sesión</NavLink>}
@@ -158,6 +172,7 @@ export function Layout() {
             </Link>
           </div>
           <div className="flex items-center gap-1 lg:hidden">
+          <SearchLink />
           <ThemeToggle />
           {session && <NotificationBell />}
           <button

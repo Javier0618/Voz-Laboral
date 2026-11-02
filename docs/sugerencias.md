@@ -19,11 +19,13 @@ No usa ninguna API de pago. Funciona en las conversaciones con Claude Code, con 
    - una **actualización** queda como propuesta en la sugerencia, con «Ver propuesta» y «Aplicar a la guía».
 4. **Publicar.** Revisas el borrador en el editor de siempre y lo publicas.
 
-Estados: `nueva → pedida → redactada`. Además, `descartada` y `existente` se pueden reabrir.
+Estados: `nueva → pedida → redactada`. Cuando publicas la guía (o aplicas la actualización), la sugerencia pasa a la pestaña **Publicadas**. Las `descartada` y `existente` se pueden reabrir o **eliminar** de forma definitiva.
+
+Las sugerencias cubren todo lo relacionado con el trabajo, no solo la ley: normas y posibles cambios, temporadas (prima, cesantías), empleo y vida laboral (buscar trabajo, entrevistas, bienestar, tendencias) y el dinero del trabajador. Cada publicación es de tipo **legal** (cita la norma y usa la plantilla) o **informativa** (estructura libre, sin obligación de citar leyes). El tema «Empleo y vida laboral» del índice reúne las publicaciones generales; puedes cambiar el tema de cualquier guía en el editor.
 
 ## Configuración (una sola vez)
 
-1. **Migración.** Ejecuta `supabase/migrations/20261102002200_guide_suggestions.sql` en el SQL Editor de Supabase.
+1. **Migraciones.** Ejecuta en el SQL Editor de Supabase `supabase/migrations/20261102002200_guide_suggestions.sql` , `20261102002300_guide_topics_and_suggestion_delete.sql` y `20261102002400_site_search.sql` (buscador). Deben estar aplicadas **antes** de desplegar el código que las usa.
 2. **Cuenta del redactor.** Regístrate en el sitio con un correo propio solo para esto, por ejemplo `redaccion.tuvozlaboral@gmail.com`. Confirma el correo y elige un alias, por ejemplo `redaccion`.
 3. **Rol.** En el SQL Editor:
    ```sql
@@ -52,6 +54,7 @@ node scripts/editorial.mjs guia <slug>               # texto de una guía
 node scripts/editorial.mjs sugerencias [estado]      # sugerencias
 node scripts/editorial.mjs sugerir sugerencias.json  # crea sugerencias
 node scripts/editorial.mjs pedidas                   # pedidas, con tus indicaciones
+node scripts/editorial.mjs busquedas [días]          # lo que se buscó en el sitio sin resultados
 node scripts/editorial.mjs borrador <id> guia.json   # guarda una guía nueva como borrador
 node scripts/editorial.mjs propuesta <id> texto.md "qué cambia"
 node scripts/editorial.mjs revisar guia.json      # revisión de calidad y SEO, sin conectarse
@@ -71,4 +74,6 @@ Usan el mismo script y las mismas credenciales del paso 4. Antes de activarlas, 
 
 ## Sobre «lo que la gente busca»
 
-El campo «Interés» es una estimación de Claude a partir de noticias, temporada y preguntas frecuentes, no un dato de Google. Para datos reales, conecta más adelante Google Search Console, que es gratis: muestra con qué búsquedas ya llegan al sitio.
+El buscador del sitio (`/buscar`, migración `20261102002400_site_search.sql`) cuenta de forma anónima los términos que se buscan: solo el término normalizado, el día, cuántas veces y cuántos resultados hubo. No guarda persona, cuenta, IP ni navegador, descarta términos con números largos (podrían ser una cédula o un teléfono) y borra lo que tenga más de 180 días. Las búsquedas sin resultado aparecen arriba de Moderación → Sugerencias y el redactor las consulta con `busquedas`.
+
+Fuera de eso, el campo «Interés» es una estimación de Claude a partir de noticias, temporada y preguntas frecuentes, no un dato de Google. Para datos reales, conecta más adelante Google Search Console, que es gratis: muestra con qué búsquedas ya llegan al sitio.

@@ -11,9 +11,10 @@
 //   node scripts/editorial.mjs sugerencias [estado]      sugerencias (todas o de un estado)
 //   node scripts/editorial.mjs sugerir <archivo.json>    crea sugerencias (lista de objetos)
 //   node scripts/editorial.mjs pedidas                   sugerencias pedidas, con indicaciones
+//   node scripts/editorial.mjs busquedas [días]          lo que se buscó en el sitio sin resultados
 //   node scripts/editorial.mjs borrador <id> <archivo.json>       guarda la guía redactada
-//   node scripts/editorial.mjs propuesta <id> <archivo.md> "<qué cambia>"
-//   node scripts/editorial.mjs revisar <archivo.json | archivo.md>   revisa calidad y SEO (no se conecta)
+//   node scripts/editorial.mjs propuesta <id> <archivo.md> "<qué cambia>" [legal|informativa]
+//   node scripts/editorial.mjs revisar <archivo.json | archivo.md> [legal|informativa]   revisa calidad y SEO (no se conecta)
 //
 // «borrador» y «propuesta» ejecutan la misma revisión y no guardan nada si hay
 // errores. Los criterios están en CLAUDE.md («Estándar de calidad de las guías»).
@@ -23,7 +24,8 @@
 //     "priority": "alta" | "media" | "baja", "topic": "reformas", "keywords": ["..."],
 //     "sources": [{ "label": "...", "url": "https://..." }], "target": "slug-si-es-actualizar" }
 // Formato de «borrador»:
-//   { "slug": "...", "title": "...", "summary": "...", "category": "pago-salarios" | null,
+//   { "tipo": "legal" | "informativa", "topic": "empleo" (tema del índice, opcional),
+//     "slug": "...", "title": "...", "summary": "...", "category": "pago-salarios" | null,
 //     "content": "texto" o "content_file": "ruta/al/archivo.md",
 //     "sources": [{ "label": "...", "publisher": "...", "url": "https://...", "accessed_at": "2026-11-02" }] }
 import { existsSync, readFileSync } from 'node:fs';
@@ -41,7 +43,7 @@ for (const nombre of ['.env.local', '.env']) {
 }
 
 if (process.argv[2] === 'revisar') {
-  const g = leerGuia(process.argv[3]);
+  const g = leerGuia(process.argv[3], process.argv[4]);
   process.exit(imprimirRevision(revisarGuia(g, { propuesta: g.propuesta })) ? 0 : 1);
 }
 
@@ -107,6 +109,13 @@ switch (comando) {
     }
     break;
   }
+  case 'busquedas': {
+    const { data, error } = await supabase.rpc('editorial_search_gaps', { p_days: Number(args[0] ?? 30), p_max_results: 0 });
+    if (error) fallar(error);
+    for (const b of data) console.log(`${String(b.searches).padStart(4)}  ${b.term}`);
+    console.log(`\n${data.length} búsquedas sin resultado (veces buscada · término)`);
+    break;
+  }
   case 'borrador': {
     const [id, ruta] = args;
     const g = leerGuia(ruta);
@@ -114,23 +123,23 @@ switch (comando) {
     if (!imprimirRevision(revisarGuia(g))) fallar('No se guardó: corrige los errores de la revisión.');
     const { data, error } = await supabase.rpc('editorial_save_draft', {
       p_id: id, p_slug: g.slug, p_title: g.title, p_summary: g.summary, p_content: content,
-      p_category_slug: g.category ?? null, p_sources: g.sources,
+      p_category_slug: g.category ?? null, p_sources: g.sources, p_topic: g.topic ?? null,
     });
     if (error) fallar(error);
     console.log(`Borrador guardado: ${data}`);
     break;
   }
   case 'propuesta': {
-    const [id, ruta, notas = ''] = args;
+    const [id, ruta, notas = '', tipo = 'legal'] = args;
     const texto = readFileSync(ruta, 'utf8');
-    if (!imprimirRevision(revisarGuia({ content: texto }, { propuesta: true }))) fallar('No se guardó: corrige los errores de la revisión.');
+    if (!imprimirRevision(revisarGuia({ content: texto, tipo }, { propuesta: true }))) fallar('No se guardó: corrige los errores de la revisión.');
     const { error } = await supabase.rpc('editorial_save_proposal', { p_id: id, p_content: texto, p_notes: notas });
     if (error) fallar(error);
     console.log('Propuesta guardada.');
     break;
   }
   default:
-    console.error('Comandos: guias | guia <slug> | sugerencias [estado] | sugerir <json> | pedidas | borrador <id> <json> | propuesta <id> <md> "<notas>" | revisar <json|md>');
+    console.error('Comandos: guias | guia <slug> | sugerencias [estado] | sugerir <json> | pedidas | busquedas [días] | borrador <id> <json> | propuesta <id> <md> "<notas>" | revisar <json|md>');
     process.exit(1);
 }
 await supabase.auth.signOut();

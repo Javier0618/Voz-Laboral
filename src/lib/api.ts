@@ -51,7 +51,7 @@ export interface TrackedExperience {
 export interface CompanyResponse { id: string; experience_id: string | null; representative_label: string; body: string; created_at: string }
 export interface LegalResource {
   id: string; slug: string; title: string; summary: string; content: string; category_slug: string | null;
-  disclaimer: string; last_verified_at: string | null; updated_at: string; cover_url: string | null; cover_alt: string;
+  disclaimer: string; last_verified_at: string | null; updated_at: string; cover_url: string | null; cover_alt: string; topic: string;
   legal_resource_sources?: { id: string; label: string; publisher: string; url: string; accessed_at: string }[];
 }
 export interface Profile {
@@ -200,7 +200,7 @@ export function listLegalResources() {
   return run<LegalResource[]>(
     requireClient()
       .from('legal_resources')
-      .select('id, slug, title, summary, content, category_slug, disclaimer, last_verified_at, updated_at, cover_url, cover_alt')
+      .select('id, slug, title, summary, content, category_slug, disclaimer, last_verified_at, updated_at, cover_url, cover_alt, topic')
       .eq('status', 'publicado')
       .order('title'),
   );
@@ -218,11 +218,23 @@ export function getLegalResource(slug: string) {
   return run<LegalResource | null>(
     requireClient()
       .from('legal_resources')
-      .select('id, slug, title, summary, content, category_slug, disclaimer, last_verified_at, updated_at, cover_url, cover_alt, legal_resource_sources(id, label, publisher, url, accessed_at)')
+      .select('id, slug, title, summary, content, category_slug, disclaimer, last_verified_at, updated_at, cover_url, cover_alt, topic, legal_resource_sources(id, label, publisher, url, accessed_at)')
       .eq('slug', slug)
       .eq('status', 'publicado')
       .maybeSingle(),
   );
+}
+
+// ---------------------------------------------------------------- buscador
+export interface GuideHit { slug: string; title: string; summary: string; topic: string; category_slug: string | null; score: number }
+
+export function searchGuides(query: string, limit = 8) {
+  return run<GuideHit[]>(requireClient().rpc('search_guides', { p_query: query, p_limit: limit }));
+}
+
+/** Registro anónimo: solo el término y cuántos resultados hubo (migración 2400). */
+export function logSearch(query: string, results: number) {
+  return run(requireClient().rpc('log_search', { p_query: query, p_results: results }));
 }
 
 // ---------------------------------------------------------------- cuenta

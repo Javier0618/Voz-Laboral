@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  applySuggestionProposal, listGuideSuggestions, setSuggestionStatus, type GuideSuggestion, type SuggestionStatus,
+  applySuggestionProposal, deleteSuggestion, listGuideSuggestions, listSearchGaps, setSuggestionStatus, type GuideSuggestion,
 } from '../../lib/adminApi';
 import { formatDate } from '../../lib/format';
 import { TEMAS_GUIAS } from '../../lib/temasGuias';
@@ -12,12 +12,18 @@ import type { AppError } from '../../lib/supabase';
 import { GuideBody } from '../../components/GuideBody';
 import { Alert, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, useAsync } from '../../components/ui';
 
-type Filter = 'nueva' | 'pedida' | 'redactada' | 'archivo';
-const filters: { id: Filter; label: string; statuses: SuggestionStatus[] }[] = [
-  { id: 'nueva', label: 'Nuevas', statuses: ['nueva'] },
-  { id: 'pedida', label: 'Pedidas', statuses: ['pedida'] },
-  { id: 'redactada', label: 'Redactadas', statuses: ['redactada'] },
-  { id: 'archivo', label: 'Descartadas', statuses: ['descartada', 'existente'] },
+type Filter = 'nueva' | 'pedida' | 'redactada' | 'publicada' | 'archivo';
+
+/** Redactada y ya publicada (guía nueva) o aplicada (actualización). */
+const isPublished = (s: GuideSuggestion) =>
+  s.status === 'redactada' && (s.kind === 'nueva' ? s.draft?.status === 'publicado' : Boolean(s.decided_at));
+
+const filters: { id: Filter; label: string; match: (s: GuideSuggestion) => boolean }[] = [
+  { id: 'nueva', label: 'Nuevas', match: (s) => s.status === 'nueva' },
+  { id: 'pedida', label: 'Pedidas', match: (s) => s.status === 'pedida' },
+  { id: 'redactada', label: 'Redactadas', match: (s) => s.status === 'redactada' && !isPublished(s) },
+  { id: 'publicada', label: 'Publicadas', match: isPublished },
+  { id: 'archivo', label: 'Descartadas', match: (s) => s.status === 'descartada' || s.status === 'existente' },
 ];
 const priorityStyle: Record<GuideSuggestion['priority'], string> = {
   alta: 'border-amber/40 bg-amber-tint text-amber',
@@ -29,8 +35,8 @@ const topicName = (slug: string) => TEMAS_GUIAS.find((t) => t.slug === slug)?.na
 export function Suggestions() {
   const { data, loading, error, reload } = useAsync(() => listGuideSuggestions(), []);
   const [filter, setFilter] = useState<Filter>('nueva');
-  const count = (f: Filter) => (data ?? []).filter((s) => filters.find((x) => x.id === f)!.statuses.includes(s.status)).length;
-  const visible = (data ?? []).filter((s) => filters.find((x) => x.id === filter)!.statuses.includes(s.status));
+  const count = (f: Filter) => (data ?? []).filter(filters.find((x) => x.id === f)!.match).length;
+  const visible = (data ?? []).filter(filters.find((x) => x.id === filter)!.match);
   const order = { alta: 0, media: 1, baja: 2 };
   if (filter === 'nueva') visible.sort((a, b) => order[a.priority] - order[b.priority]);
 
@@ -40,6 +46,7 @@ export function Suggestions() {
         Temas que conviene publicar o actualizar, con el motivo y sus fuentes. Pulsa «Redactar guía» en los que te interesen: la guía llega
         como <strong>borrador</strong> y la publicas desde Guías después de revisarla.
       </p>
+      <SearchGaps />
       <div role="tablist" aria-label="Estado de las sugerencias" className="mt-6 flex flex-wrap gap-2">
         {filters.map((f) => (
           <button key={f.id} type="button" role="tab" aria-selected={filter === f.id} onClick={() => setFilter(f.id)}
@@ -55,13 +62,44 @@ export function Suggestions() {
               ? 'Las sugerencias las crea el redactor después de revisar las fuentes oficiales. Pídelo en una conversación con Claude: «revisa qué guías conviene publicar».'
               : filter === 'pedida'
                 ? 'Cuando pulses «Redactar guía» en una sugerencia, aparecerá aquí hasta que el redactor la escriba.'
-                : 'Nada por ahora.'}
+                : filter === 'publicada'
+                  ? 'Aquí quedan las sugerencias cuya guía ya publicaste, o cuya actualización aplicaste.'
+                  : 'Nada por ahora.'}
           </EmptyState>
         ) : (
           <ul className="space-y-5">{visible.map((s) => <SuggestionCard key={s.id} s={s} onDone={reload} />)}</ul>
         )}
       </div>
     </section>
+  );
+}
+
+/** Lo que la gente buscó en el sitio sin encontrar nada (registro anónimo, migración 2400). */
+function SearchGaps() {
+  const { data, error } = useAsync(() => listSearchGaps(30), []);
+  if (error || !data) return null;
+  return (
+    <details className="mt-6 rounded-lg border border-line bg-mist/50 px-5 py-4">
+      <summary className="cursor-pointer font-semibold">
+        Búsquedas sin resultado en los últimos 30 días · {data.length}
+      </summary>
+      {data.length === 0 ? (
+        <p className="mt-3 text-sm text-slate">Nadie ha buscado algo que no encontrara. Esta lista se llena con lo que la gente escribe en el buscador.</p>
+      ) : (
+        <>
+          <p className="mt-3 max-w-prose text-sm text-slate">
+            Términos que la gente escribió en el buscador sin obtener resultados, de forma anónima. El redactor los revisa al proponer temas.
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {data.map((g) => (
+              <li key={g.term} className="rounded-full border border-line bg-paper px-3 py-1 text-sm">
+                {g.term} <span className="text-slate">· {g.searches}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </details>
   );
 }
 
@@ -72,6 +110,7 @@ function SuggestionCard({ s, onDone }: { s: GuideSuggestion; onDone: () => void 
   const [preview, setPreview] = useState(false);
   const [applying, setApplying] = useState(false);
   const [applied, setApplied] = useState<string | null>(null);
+  const [removing, setRemoving] = useState(false);
 
   async function act(task: () => Promise<unknown>) {
     setBusy(true);
@@ -147,9 +186,11 @@ function SuggestionCard({ s, onDone }: { s: GuideSuggestion; onDone: () => void 
         {s.status === 'redactada' && s.kind === 'nueva' && (
           s.draft ? (
             <>
-              <Link to={`/moderacion/guias/${s.draft.id}`} className="btn-primary">Revisar el borrador</Link>
+              {s.draft.status === 'publicado'
+                ? <Link to={`/derechos/${s.draft.slug}`} className="btn-secondary">Ver la guía publicada</Link>
+                : <Link to={`/moderacion/guias/${s.draft.id}`} className="btn-primary">Revisar el borrador</Link>}
               <p className="text-sm text-slate">
-                Redactada el {formatDate(s.drafted_at!)} · {s.draft.status === 'publicado' ? 'ya publicada' : 'en borrador, sin publicar'}
+                Redactada el {formatDate(s.drafted_at!)} · {s.draft.status === 'publicado' ? 'publicada' : 'en borrador, sin publicar'}
               </p>
             </>
           ) : <p className="text-sm text-slate">El borrador de esta sugerencia se borró.</p>
@@ -172,6 +213,7 @@ function SuggestionCard({ s, onDone }: { s: GuideSuggestion; onDone: () => void 
           <>
             <p className="text-sm text-slate">{s.status === 'existente' ? 'Marcada como «ya la tenemos»' : 'Descartada'}{s.decided_at ? ` el ${formatDate(s.decided_at)}` : ''}.</p>
             <button type="button" className="btn-secondary" disabled={busy} onClick={() => act(() => setSuggestionStatus(s.id, 'nueva'))}>Reabrir</button>
+            <button type="button" className="btn-danger" disabled={busy} onClick={() => setRemoving(true)}>Eliminar</button>
           </>
         )}
       </div>
@@ -186,6 +228,10 @@ function SuggestionCard({ s, onDone }: { s: GuideSuggestion; onDone: () => void 
         onConfirm={() => act(async () => { await applySuggestionProposal(s.id); setApplied(s.id); setApplying(false); })}>
         El texto de «{s.target?.title}» se reemplaza por el propuesto.
         {s.target?.status === 'publicado' ? ' La guía está publicada: el cambio se verá de inmediato. Revisa la propuesta antes.' : ''}
+      </ConfirmDialog>
+      <ConfirmDialog open={removing} onClose={() => setRemoving(false)} title="¿Eliminar esta sugerencia?" confirmLabel="Eliminar" busy={busy}
+        onConfirm={() => act(async () => { await deleteSuggestion(s.id); setRemoving(false); })}>
+        «{s.title}» se borra de forma definitiva. Si el redactor vuelve a encontrar el tema, podrá sugerirlo de nuevo.
       </ConfirmDialog>
     </li>
   );

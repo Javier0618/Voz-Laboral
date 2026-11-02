@@ -28,6 +28,7 @@ const PorDias = lazy(() => import('./pages/calculadoras/PorDias'));
 const PrimaPage = lazy(() => import('./pages/calculadoras/Prima'));
 const CesantiasPage = lazy(() => import('./pages/calculadoras/Cesantias'));
 const SalarioNetoPage = lazy(() => import('./pages/calculadoras/SalarioNeto'));
+const Search = lazy(() => import('./pages/Search'));
 const PrestacionServiciosPage = lazy(() => import('./pages/calculadoras/PrestacionServicios'));
 
 function LazyPage({ children }: { children: React.ReactNode }) {
@@ -46,6 +47,7 @@ export function AppRoutes() {
         <Route path="experiencias/:id" element={<ExperienceDetail />} />
         <Route path="derechos" element={<Rights />} />
         <Route path="derechos/:slug" element={<RightsArticle />} />
+        <Route path="buscar" element={<LazyPage><Search /></LazyPage>} />
         <Route path="compartir" element={<Share />} />
         <Route path="liquidacion" element={<LazyPage><CalcMeta path="/liquidacion"><Liquidacion /></CalcMeta></LazyPage>} />
         <Route path="calculadoras" element={<LazyPage><CalculadorasIndex /></LazyPage>} />

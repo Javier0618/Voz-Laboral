@@ -8,6 +8,7 @@ import {
   type GuideDetail, type GuideStatus,
 } from '../lib/adminApi';
 import { listCategories } from '../lib/api';
+import { TEMAS_GUIAS } from '../lib/temasGuias';
 import { prepareCoverImage } from '../lib/image';
 import { formatDate, todayLocal } from '../lib/format';
 import type { AppError } from '../lib/supabase';
@@ -35,7 +36,7 @@ export default function GuideEditor() {
 function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void }) {
   const { session } = useAuth();
   const categories = useAsync(() => listCategories(), []);
-  const [form, setForm] = useState({ title: g.title, summary: g.summary, content: g.content, category_slug: g.category_slug ?? '' });
+  const [form, setForm] = useState({ title: g.title, summary: g.summary, content: g.content, category_slug: g.category_slug ?? '', topic: g.topic ?? '' });
   const [view, setView] = useState<'editar' | 'vista'>('editar');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +46,7 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
   const [imageOpen, setImageOpen] = useState(false);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const caret = useRef<number | null>(null);
-  const dirty = form.title !== g.title || form.summary !== g.summary || form.content !== g.content || form.category_slug !== (g.category_slug ?? '');
+  const dirty = form.title !== g.title || form.summary !== g.summary || form.content !== g.content || form.category_slug !== (g.category_slug ?? '') || form.topic !== (g.topic ?? '');
   const { views, lastViewAt } = guideViews(g.legal_resource_stats);
 
   useEffect(() => {
@@ -73,7 +74,7 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
     setError(null);
     setNotice(null);
     try {
-      await updateGuide(g.id, { title: form.title.trim(), summary: form.summary.trim(), content: form.content.trim(), category_slug: form.category_slug || null });
+      await updateGuide(g.id, { title: form.title.trim(), summary: form.summary.trim(), content: form.content.trim(), category_slug: form.category_slug || null, topic: form.topic });
       return true;
     } catch (err) {
       setError((err as AppError).message);
@@ -141,6 +142,14 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
               <select {...p} className="input" value={form.category_slug} onChange={(e) => setForm({ ...form, category_slug: e.target.value })}>
                 <option value="">Temas generales</option>
                 {categories.data?.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+              </select>
+            )}
+          </Field>
+          <Field label="Tema en el índice de guías" optional hint="Si lo dejas en automático, se deduce de la categoría.">
+            {(p) => (
+              <select {...p} className="input" value={form.topic} onChange={(e) => setForm({ ...form, topic: e.target.value })}>
+                <option value="">Automático</option>
+                {TEMAS_GUIAS.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
               </select>
             )}
           </Field>

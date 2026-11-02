@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { listCategories, listExperiences, listLegalResources } from '../lib/api';
 import { CALCULADORAS } from '../lib/calculadoras';
 import { ordenarPorPrioridad } from '../lib/guiasPrioritarias';
-import { TEMAS_GUIAS } from '../lib/temasGuias';
+import { TEMAS_GUIAS, temaDeGuia } from '../lib/temasGuias';
 import { readingMinutes } from '../lib/guide';
 import { defaultHomeMeta, setPageMeta } from '../lib/meta';
 import { GuideCover } from '../components/GuideCover';
@@ -360,7 +360,7 @@ function Rights() {
       <div className="mt-10">
         <h3 className="font-sans text-base font-semibold text-ink">Explora las guías por tema</h3>
         <ul className="mt-4 flex flex-wrap gap-2">
-          {TEMAS_GUIAS.map((t) => (
+          {TEMAS_GUIAS.filter((t) => !guides.data?.length || guides.data.some((g) => temaDeGuia(g).slug === t.slug)).map((t) => (
             <li key={t.slug}>
               <Link
                 to={`/derechos?tema=${t.slug}`}

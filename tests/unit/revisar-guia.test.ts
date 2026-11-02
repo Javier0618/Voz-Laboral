@@ -69,4 +69,13 @@ describe('revisión de calidad de las guías', () => {
   it('una propuesta de actualización solo revisa el texto', () => {
     expect(revisarGuia({ content: contenido }, { propuesta: true }).errores).toEqual([]);
   });
+
+  it('un artículo informativo no exige citar una norma ni las secciones legales', () => {
+    const informativo = `## Antes de la entrevista\n\n${relleno(16).replace(/del artículo 306 del Código Sustantivo del Trabajo/g, 'de la preparación')}\n\n## Durante la entrevista\n\n${relleno(16).replace(/del artículo 306 del Código Sustantivo del Trabajo/g, 'de las respuestas')}\n\n## Después de la entrevista\n\nRevisa la [guía de tipos de contrato](/derechos/tipos-de-contrato-y-periodo-de-prueba) y la [calculadora de salario neto](/calculadoras/salario-neto).`;
+    const r = revisarGuia({ ...guia, content: informativo, tipo: 'informativa' });
+    expect(r.errores).toEqual([]);
+    expect(r.avisos.join(' ')).toMatch(/preguntas frecuentes/);
+    expect(revisarGuia({ ...guia, content: informativo }).errores.join(' ')).toMatch(/guía legal/);
+  });
 });
+
