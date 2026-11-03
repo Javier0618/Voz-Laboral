@@ -38,6 +38,7 @@ export const policies: Policy[] = [
         heading: 'Datos que tratamos',
         paragraphs: [
           'Para la cuenta: correo electrónico y contraseña (almacenada cifrada por el proveedor de autenticación). No pedimos nombre real ni documento de identidad.',
+          'Si entras con Google: Google nos envía tu correo, tu nombre y tu foto de perfil, y el proveedor de autenticación los guarda con tu cuenta. Solo usamos el correo para que accedas; el nombre y la foto no se muestran ni se publican en ninguna parte. No recibimos tu contraseña de Google.',
           'Para publicar: el alias que eliges y el contenido de tus experiencias, comentarios, reportes, apelaciones y solicitudes.',
           'Reacciones: guardamos qué reacción dejó cada cuenta para contar una por persona y permitir quitarla. Solo se publica el total; nadie más ve quién reaccionó.',
           'Calculadoras de nómina, solo si tienes cuenta y sesión iniciada: guardamos lo que anotas (salario, días y horarios de trabajo, horas y novedades) y el total estimado de cada período, para que lleves tu registro. Solo tú lo ves; el equipo del sitio no lo consulta ni lo usa para otra cosa. Puedes borrar cada período desde Mi cuenta, y todo se borra al eliminar la cuenta. Sin cuenta, las calculadoras no envían datos: todo se queda en tu navegador.',
@@ -70,6 +71,7 @@ export const policies: Policy[] = [
         paragraphs: [
           'Usamos proveedores de infraestructura en la nube para la base de datos, la autenticación y el alojamiento del sitio. Sus servidores pueden estar ubicados fuera de Colombia.',
           'Solo les transmitimos los datos necesarios para prestar el servicio, y los tratan por nuestra cuenta, sin usarlos para fines propios.',
+          'Si eliges entrar con Google, Google LLC verifica tu identidad y nos confirma tu correo. Ese inicio de sesión se rige también por la política de privacidad de Google.',
           ...siCaptcha(TEXTO_CAPTCHA),
           ADS
             ? 'Si aceptas las cookies de medición o de publicidad, Google LLC y sus filiales reciben datos de navegación y pueden tratarlos en Estados Unidos y en otros países. En la medición actúan por nuestra cuenta. En la publicidad personalizada, Google y sus socios publicitarios también los usan según sus propias políticas. Puedes conocer [cómo usa Google los datos de los sitios que usan sus servicios](https://policies.google.com/technologies/partner-sites).'

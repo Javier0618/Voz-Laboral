@@ -9,6 +9,21 @@ import { useTurnstile } from '../components/Turnstile';
 
 type Mode = 'login' | 'registro' | 'recuperar';
 
+/** A dónde volver después de entrar con Google (la redirección de Google siempre llega a /cuenta). */
+export const NEXT_AFTER_OAUTH = 'tuvozlaboral:siguiente';
+
+/** Logotipo «G» de Google, con sus colores oficiales (guía de marca de Google Sign-In). */
+function GoogleLogo() {
+  return (
+    <svg viewBox="0 0 48 48" className="h-5 w-5" aria-hidden="true">
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+    </svg>
+  );
+}
+
 export function AuthForms() {
   const [params] = useSearchParams();
   const [mode, setMode] = useState<Mode>((params.get('modo') as Mode) || 'login');
@@ -28,6 +43,27 @@ export function AuthForms() {
     setErrors({});
     setError(null);
     setNotice(null);
+  }
+
+  async function google() {
+    if (mode === 'registro' && !accepted) {
+      setErrors({ accepted: 'Debes aceptar la política de tratamiento de datos para crear la cuenta.' });
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      if (next?.startsWith('/') && !next.startsWith('//')) sessionStorage.setItem(NEXT_AFTER_OAUTH, next);
+      const { error: err } = await requireClient().auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/cuenta`, queryParams: { prompt: 'select_account' } },
+      });
+      if (err) throw err;
+      // El navegador sale hacia Google; al volver, Supabase abre la sesión en /cuenta.
+    } catch (err) {
+      setError(toAppError(err));
+      setBusy(false);
+    }
   }
 
   async function submit(e: React.FormEvent) {
@@ -96,6 +132,34 @@ export function AuthForms() {
             </button>
           ))}
         </div>
+        {mode !== 'recuperar' && (
+          <div className="mt-6 space-y-3">
+            {mode === 'registro' && (
+              <div>
+                <label className="flex items-start gap-3 text-sm">
+                  <input type="checkbox" className="mt-1 h-4 w-4 accent-teal" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} aria-invalid={Boolean(errors.accepted)} />
+                  <span>
+                    Acepto la <a href="/politicas/tratamiento-de-datos" target="_blank" className="btn-link">política de tratamiento de datos</a> y los{' '}
+                    <a href="/politicas/terminos" target="_blank" className="btn-link">términos de uso</a>.
+                  </span>
+                </label>
+                {errors.accepted && <p className="field-error">{errors.accepted}</p>}
+              </div>
+            )}
+            <button type="button" className="btn w-full border border-line bg-white text-[#1F1F1F] hover:bg-[#F7F8F8] dark:border-white/30" onClick={() => void google()} disabled={busy}>
+              <GoogleLogo />
+              Continuar con Google
+            </button>
+            <p className="text-xs text-slate">
+              {mode === 'registro'
+                ? 'De Google solo usamos tu correo para acceder; tu nombre y tu foto nunca se publican.'
+                : <>Si es tu primera vez, se crea una cuenta. Al continuar aceptas la <a href="/politicas/tratamiento-de-datos" target="_blank" className="btn-link">política de tratamiento de datos</a> y los <a href="/politicas/terminos" target="_blank" className="btn-link">términos de uso</a>. Tu nombre y tu foto de Google nunca se publican.</>}
+            </p>
+            <div className="flex items-center gap-3 text-xs text-slate" aria-hidden="true">
+              <span className="h-px flex-1 bg-line" />o con tu correo<span className="h-px flex-1 bg-line" />
+            </div>
+          </div>
+        )}
         <form onSubmit={submit} noValidate className="mt-6 space-y-5" aria-label={title}>
           {mode === 'recuperar' && <h2 className="text-xl">Recuperar la contraseña</h2>}
           <Field label="Correo electrónico" error={errors.email} hint={mode === 'registro' ? 'Solo lo usamos para acceder y avisarte. Nunca se publica.' : undefined}>
@@ -108,18 +172,6 @@ export function AuthForms() {
                   value={password} onChange={(e) => setPassword(e.target.value)} />
               )}
             </Field>
-          )}
-          {mode === 'registro' && (
-            <div>
-              <label className="flex items-start gap-3 text-sm">
-                <input type="checkbox" className="mt-1 h-4 w-4 accent-teal" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} aria-invalid={Boolean(errors.accepted)} />
-                <span>
-                  Acepto la <a href="/politicas/tratamiento-de-datos" target="_blank" className="btn-link">política de tratamiento de datos</a> y los{' '}
-                  <a href="/politicas/terminos" target="_blank" className="btn-link">términos de uso</a>.
-                </span>
-              </label>
-              {errors.accepted && <p className="field-error">{errors.accepted}</p>}
-            </div>
           )}
           {captcha.widget && (
             <div>
