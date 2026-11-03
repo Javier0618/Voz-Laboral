@@ -1,5 +1,5 @@
-import { lazy, Suspense, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import {
   cancelAccountDeletion, getMyExperienceHistory, listMyClaims, listMyExperiences, requestAccountDeletion, submitAppeal,
@@ -9,7 +9,7 @@ import { Comments, reactionLabels } from '../components/Engagement';
 import { formatDate, formatPeriod } from '../lib/format';
 import { aliasSchema } from '../lib/schemas';
 import type { AppError } from '../lib/supabase';
-import { AuthForms, NewPasswordForm } from './AuthForms';
+import { AuthForms, NewPasswordForm, NEXT_AFTER_OAUTH } from './AuthForms';
 import {
   Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, PageHeader, StatusChip, statusHint, statusLabel, ToneChip, useAsync,
 } from '../components/ui';
@@ -19,11 +19,32 @@ const MyPayrolls = lazy(() => import('../components/MyPayrolls').then((m) => ({ 
 
 export default function Account() {
   const { session, loading } = useAuth();
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  // Al volver de Google sin entrar (canceló o falló), Supabase deja el motivo en la dirección.
+  const oauthError = params.get('error_description') ?? params.get('error');
+
+  // Al volver de Google con sesión: sigue a la página desde donde se pidió entrar.
+  useEffect(() => {
+    if (!session) return;
+    let next: string | null = null;
+    try {
+      next = sessionStorage.getItem(NEXT_AFTER_OAUTH);
+      sessionStorage.removeItem(NEXT_AFTER_OAUTH);
+    } catch {
+      // Sin almacenamiento: se queda en Mi cuenta.
+    }
+    if (next?.startsWith('/') && !next.startsWith('//')) navigate(next, { replace: true });
+  }, [session, navigate]);
+
   if (notConfigured) return <div className="page py-10"><ConfigNotice /></div>;
   if (loading) return <div className="page py-10"><Loading /></div>;
   return (
     <div className="page py-10">
       <PageHeader title={session ? 'Mi cuenta' : 'Accede a tu cuenta'} />
+      {!session && oauthError && (
+        <div className="mt-6 max-w-md"><Alert tone="error" title="No se pudo entrar con Google">Intenta de nuevo, o entra con tu correo y contraseña.</Alert></div>
+      )}
       <div className="mt-8">{session ? <AccountHome /> : <AuthForms />}</div>
     </div>
   );

@@ -82,7 +82,7 @@ export default function CompanyProfile() {
       <header className="bg-mist">
         <div className="page pb-10 pt-8">
           <p className="text-sm text-slate"><Link to="/empresas" className="hover:text-ink hover:underline">Empresas</Link></p>
-          <h1 className="mt-3 text-4xl font-medium tracking-[-0.01em] sm:text-5xl">{c.trade_name}</h1>
+          <h1 className="mt-3 text-4xl font-bold tracking-[-0.01em] sm:text-5xl">{c.trade_name}</h1>
           {c.legal_name && c.legal_name !== c.trade_name && <p className="mt-2 text-lg text-slate">{c.legal_name}</p>}
           <dl className="mt-8 grid grid-cols-2 gap-x-8 gap-y-5 border-t border-ink/80 pt-5 sm:grid-cols-4">
             <div><dt className="text-sm text-slate">Sector</dt><dd className="mt-1 font-semibold">{c.sector}</dd></div>
