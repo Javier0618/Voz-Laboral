@@ -9,6 +9,7 @@ import { GuideBody } from '../components/GuideBody';
 import { GuideCover } from '../components/GuideCover';
 import { GuideCalculatorLinks } from '../components/GuideCalculatorLinks';
 import { RelatedExperiences } from '../components/RelatedExperiences';
+import { GuideToolLinks } from '../components/GuideToolLinks';
 import { GUIAS_PRIORITARIAS } from '../lib/guiasPrioritarias';
 import { ordenTema, resolverTema, temaDeGuia } from '../lib/temasGuias';
 import { ConfigNotice, EmptyState, ErrorState, Loading, notConfigured, PageHeader, useAsync } from '../components/ui';
@@ -405,6 +406,7 @@ export function RightsArticle() {
         <div className="min-w-0">
           <GuideBody content={data.content} slug={data.slug} />
           <GuideCalculatorLinks slug={data.slug} title={data.title} summary={data.summary} topicName={topicName} />
+          <GuideToolLinks slug={data.slug} />
 
           {sources.length > 0 && (
             <section className="mt-14 max-w-prose border-t border-ink/80 pt-8" aria-labelledby="fuentes">

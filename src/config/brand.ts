@@ -9,4 +9,6 @@ export const brand = {
   siteUrl: ((import.meta.env.VITE_SITE_URL as string | undefined) || 'https://tuvozlaboral.com').replace(/\/$/, ''),
   domain: 'tuvozlaboral.com',
   contactEmail: import.meta.env.VITE_CONTACT_EMAIL ?? '',
+  /** Canal de WhatsApp (https://whatsapp.com/channel/…). Vacío: no se muestra la invitación. */
+  whatsappChannel: /^https:\/\//.test(import.meta.env.VITE_WHATSAPP_CHANNEL_URL ?? '') ? (import.meta.env.VITE_WHATSAPP_CHANNEL_URL as string) : '',
 } as const;

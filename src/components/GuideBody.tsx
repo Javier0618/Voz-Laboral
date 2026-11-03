@@ -2,9 +2,23 @@ import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { headingIds, parseGuide, parseInline } from '../lib/guide';
 import { TextoCst } from './ArticulosCst';
+import { TerminoGlosario } from './TerminoGlosario';
+import { partesGlosario } from '../lib/glosario';
+
+/** Texto plano: marca la primera aparición de cada término del glosario y enlaza los artículos del CST. */
+function TextoPlano({ texto, slug, vistos }: { texto: string; slug?: string; vistos?: Set<string> }) {
+  if (!vistos) return <TextoCst texto={texto} actual={slug} />;
+  return (
+    <>
+      {partesGlosario(texto, vistos).map((p, i) =>
+        typeof p === 'string' ? <TextoCst key={i} texto={p} actual={slug} /> : <TerminoGlosario key={i} id={p.id} texto={p.texto} />,
+      )}
+    </>
+  );
+}
 
 /** Texto con **negrita**, enlaces https y enlaces internos. Nunca usa HTML crudo. */
-function Inline({ text, slug }: { text: string; slug?: string }) {
+function Inline({ text, slug, vistos }: { text: string; slug?: string; vistos?: Set<string> }) {
   return (
     <>
       {parseInline(text).map((n, i) =>
@@ -18,7 +32,7 @@ function Inline({ text, slug }: { text: string; slug?: string }) {
             <span className="sr-only"> (se abre en otra pestaña)</span>
           </a>
         ) : (
-          <Fragment key={i}><TextoCst texto={n.text} actual={slug} /></Fragment>
+          <Fragment key={i}><TextoPlano texto={n.text} slug={slug} vistos={vistos} /></Fragment>
         ),
       )}
     </>
@@ -29,6 +43,8 @@ function Inline({ text, slug }: { text: string; slug?: string }) {
 export function GuideBody({ content, slug }: { content: string; slug?: string }) {
   const blocks = parseGuide(content);
   const ids = headingIds(blocks);
+  // Términos del glosario ya marcados: solo la primera aparición en la guía (no en títulos).
+  const vistos = new Set<string>();
   return (
     <div className="guide-body max-w-prose font-sans text-[1.125rem] leading-[1.85rem] text-ink">
       {blocks.map((b, i) => {
@@ -54,7 +70,7 @@ export function GuideBody({ content, slug }: { content: string; slug?: string })
             return (
               <aside key={i} className="mt-6 rounded border-l-4 border-teal bg-teal-tint/60 px-5 py-4 font-sans text-base leading-7">
                 <p className="text-sm font-semibold text-teal-strong">Importante</p>
-                <p className="mt-1"><Inline text={b.text} slug={slug} /></p>
+                <p className="mt-1"><Inline text={b.text} slug={slug} vistos={vistos} /></p>
               </aside>
             );
           case 'list': {
@@ -62,13 +78,13 @@ export function GuideBody({ content, slug }: { content: string; slug?: string })
             return (
               <Tag key={i} className={`mt-5 space-y-2.5 pl-6 ${b.ordered ? 'list-decimal marker:font-sans marker:font-semibold marker:text-teal-strong' : 'list-disc marker:text-teal'}`}>
                 {b.items.map((it, j) => (
-                  <li key={j} className="pl-1"><Inline text={it} slug={slug} /></li>
+                  <li key={j} className="pl-1"><Inline text={it} slug={slug} vistos={vistos} /></li>
                 ))}
               </Tag>
             );
           }
           default:
-            return <p key={i} className="mt-5 first:mt-0"><Inline text={b.text} slug={slug} /></p>;
+            return <p key={i} className="mt-5 first:mt-0"><Inline text={b.text} slug={slug} vistos={vistos} /></p>;
         }
       })}
     </div>

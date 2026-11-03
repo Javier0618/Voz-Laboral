@@ -2,6 +2,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { listCategories, listExperiences, listLegalResources } from '../lib/api';
 import { CALCULADORAS } from '../lib/calculadoras';
+import { HERRAMIENTAS } from '../lib/herramientas';
+import { CanalWhatsApp } from '../components/CanalWhatsApp';
 import { ordenarPorPrioridad } from '../lib/guiasPrioritarias';
 import { TEMAS_GUIAS, temaDeGuia } from '../lib/temasGuias';
 import { readingMinutes } from '../lib/guide';
@@ -25,10 +27,11 @@ export default function Home() {
       {notConfigured && (
         <div className="page mt-10"><ConfigNotice /></div>
       )}
-      {/* Orden: guías (con temas) → experiencias → calculadoras → cómo funciona → qué puedes contar → identidad */}
+      {/* Orden: guías (con temas) → experiencias → calculadoras → herramientas → cómo funciona → qué puedes contar → identidad */}
       <Rights />
       {empty ? <FirstExperiences /> : <RecentExperiences {...recent} />}
       <CalculatorsPreview />
+      <ToolsPreview />
       <HowItWorks />
       <Categories />
       <Identity />
@@ -400,6 +403,34 @@ function CalculatorsPreview() {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+function ToolsPreview() {
+  return (
+    <section className="page mt-20" aria-labelledby="herramientas-inicio">
+      <div className="grid gap-6 border-t border-ink/80 pt-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12">
+        <div>
+          <h2 id="herramientas-inicio" className="text-3xl">De leer a hacer</h2>
+          <p className="mt-3 max-w-prose text-slate">
+            Arma tu carta para reclamar, revisa si te pagan bien, pon a prueba lo que sabes y agrega las fechas de pago a tu celular. Gratis y sin cuenta.
+          </p>
+        </div>
+        <Link to="/herramientas" className="btn-secondary justify-self-start px-6">Ver todas</Link>
+      </div>
+      <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+        {HERRAMIENTAS.slice(0, 4).map((h) => (
+          <li key={h.path}>
+            <Link to={h.path} className="group flex h-full flex-col rounded-lg border border-line bg-paper p-6 transition-colors hover:border-slate">
+              <span className="font-serif text-xl leading-snug text-ink group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">{h.title}</span>
+              <span className="mt-2 line-clamp-2 text-sm leading-6 text-slate">{h.description}</span>
+              <span className="mt-auto pt-5 text-sm font-semibold text-teal-strong">Abrir →</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <CanalWhatsApp className="mt-8" />
     </section>
   );
 }

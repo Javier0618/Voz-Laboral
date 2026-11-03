@@ -46,6 +46,14 @@ const urls = new Map([
   ['/', null], ['/empresas', null], ['/experiencias', null], ['/derechos', null], ['/como-funciona', null],
   ['/compartir', null], ['/politicas/reglas', null], ['/politicas/terminos', null], ['/politicas/privacidad', null],
   ['/politicas/tratamiento-de-datos', null], ['/politicas/cookies', null],
+  // Calculadoras y herramientas: páginas fijas con contenido propio.
+  ['/calculadoras', null], ['/liquidacion', null], ['/calculadoras/administrativos', null], ['/calculadoras/operativos', null],
+  ['/calculadoras/vigilantes', null], ['/calculadoras/por-dias', null], ['/calculadoras/prima', null], ['/calculadoras/cesantias', null],
+  ['/calculadoras/salario-neto', null], ['/calculadoras/prestacion-servicios', null],
+  ['/herramientas', null], ['/herramientas/cartas', null], ['/herramientas/cartas/derecho-de-peticion', null],
+  ['/herramientas/cartas/carta-de-renuncia', null], ['/herramientas/cartas/renuncia-por-justa-causa', null],
+  ['/herramientas/cartas/solicitud-de-vacaciones', null], ['/herramientas/cartas/correccion-historia-laboral', null],
+  ['/herramientas/diagnostico', null], ['/herramientas/quiz', null], ['/herramientas/calendario', null], ['/herramientas/glosario', null],
 ]);
 
 async function get(path, init) {

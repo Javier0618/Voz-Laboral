@@ -30,6 +30,13 @@ const CesantiasPage = lazy(() => import('./pages/calculadoras/Cesantias'));
 const SalarioNetoPage = lazy(() => import('./pages/calculadoras/SalarioNeto'));
 const Search = lazy(() => import('./pages/Search'));
 const PrestacionServiciosPage = lazy(() => import('./pages/calculadoras/PrestacionServicios'));
+const HerramientasIndex = lazy(() => import('./pages/herramientas/Index'));
+const CartasIndex = lazy(() => import('./pages/herramientas/Cartas').then((m) => ({ default: m.CartasIndex })));
+const CartaPage = lazy(() => import('./pages/herramientas/Cartas').then((m) => ({ default: m.CartaPage })));
+const QuizPage = lazy(() => import('./pages/herramientas/Quiz'));
+const DiagnosticoPage = lazy(() => import('./pages/herramientas/Diagnostico'));
+const CalendarioPage = lazy(() => import('./pages/herramientas/Calendario'));
+const GlosarioPage = lazy(() => import('./pages/herramientas/Glosario'));
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<div className="page py-10"><Loading /></div>}>{children}</Suspense>;
@@ -60,6 +67,13 @@ export function AppRoutes() {
         <Route path="calculadoras/salario-neto" element={<LazyPage><CalcMeta path="/calculadoras/salario-neto"><SalarioNetoPage /></CalcMeta></LazyPage>} />
         <Route path="calculadoras/prestacion-servicios" element={<LazyPage><CalcMeta path="/calculadoras/prestacion-servicios"><PrestacionServiciosPage /></CalcMeta></LazyPage>} />
         <Route path="calculadoras/liquidacion" element={<LazyPage><CalcMeta path="/liquidacion"><Liquidacion /></CalcMeta></LazyPage>} />
+        <Route path="herramientas" element={<LazyPage><HerramientasIndex /></LazyPage>} />
+        <Route path="herramientas/cartas" element={<LazyPage><CartasIndex /></LazyPage>} />
+        <Route path="herramientas/cartas/:slug" element={<LazyPage><CartaPage /></LazyPage>} />
+        <Route path="herramientas/quiz" element={<LazyPage><QuizPage /></LazyPage>} />
+        <Route path="herramientas/diagnostico" element={<LazyPage><DiagnosticoPage /></LazyPage>} />
+        <Route path="herramientas/calendario" element={<LazyPage><CalendarioPage /></LazyPage>} />
+        <Route path="herramientas/glosario" element={<LazyPage><GlosarioPage /></LazyPage>} />
         <Route path="cuenta" element={<Account />} />
         <Route path="seguimiento/:token" element={<Tracking />} />
         <Route path="como-funciona" element={<About />} />

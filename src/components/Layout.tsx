@@ -12,7 +12,8 @@ const nav = [
   { to: '/derechos', label: 'Guías' },
   { to: '/experiencias', label: 'Experiencias' },
   { to: '/calculadoras', label: 'Calculadoras' },
-  { to: '/empresas', label: 'Empresas' },
+  { to: '/herramientas', label: 'Herramientas' },
+  { to: '/empresas', label: 'Empresas', wide: true },
   { to: '/como-funciona', label: 'Quiénes somos', wide: true },
 ];
 
@@ -237,7 +238,18 @@ function Footer() {
           </ul>
         </div>
         <div>
-          <h2 className="font-sans text-sm font-semibold text-white">Contacto</h2>
+          <h2 className="font-sans text-sm font-semibold text-white">Herramientas</h2>
+          <ul className="mt-3 space-y-2 text-sm text-white/80">
+            <li><Link className="hover:text-white hover:underline" to="/herramientas/cartas">Cartas y documentos</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/herramientas/diagnostico">¿Me están pagando bien?</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/herramientas/quiz">¿Mito o realidad?</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/herramientas/calendario">Calendario laboral</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/herramientas/glosario">Glosario laboral</Link></li>
+            {brand.whatsappChannel && (
+              <li><a className="hover:text-white hover:underline" href={brand.whatsappChannel} target="_blank" rel="noopener noreferrer">Canal de WhatsApp</a></li>
+            )}
+          </ul>
+          <h2 className="mt-8 font-sans text-sm font-semibold text-white">Contacto</h2>
           <ul className="mt-3 space-y-2 text-sm text-white/80">
             <li><Link className="hover:text-white hover:underline" to="/como-funciona">Quiénes somos y cómo trabajamos</Link></li>
             <li><Link className="hover:text-white hover:underline" to="/politicas/solicitudes">Consultas y reclamos sobre tus datos</Link></li>

@@ -37,6 +37,8 @@ El sistema editorial (plantilla, temas, calendario y flujo de publicación) est�
 | Borrado definitivo de guías desde el panel, con registro en moderación | Implementado y probado en la base de datos |
 | Sugerencias editoriales: el redactor (Claude) propone temas y redacta borradores que la administración pide en Moderación → Sugerencias (`docs/sugerencias.md`) | Implementado y probado en la base de datos |
 | «Cómo se calcula» y enlace a la guía en cada calculadora | Implementado |
+| **Herramientas** (`/herramientas`): cartas laborales para imprimir o guardar en PDF (derecho de petición, renuncia, renuncia por justa causa, vacaciones, historia laboral), diagnóstico «¿Me están pagando bien?», quiz «¿Mito o realidad?», calendario laboral con archivo `.ics` y glosario con definiciones dentro de las guías | Implementado y probado (`tests/unit/herramientas.test.ts`); no guarda datos personales |
+| Invitación al canal de WhatsApp | Implementado; aparece solo si se define `VITE_WHATSAPP_CHANNEL_URL` |
 | Políticas legales | **Borradores** pendientes de un abogado |
 | Eliminación de cuenta con anonimización y purga por plazo | Implementado y probado en la base de datos |
 | Archivos de respaldo | **No habilitado** a propósito (ver `docs/decisiones.md`) |

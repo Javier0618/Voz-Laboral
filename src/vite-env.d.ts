@@ -6,6 +6,7 @@ interface ImportMetaEnv {
   readonly VITE_SITE_URL?: string;
   readonly VITE_GA_ID?: string;
   readonly VITE_ADSENSE_CLIENT?: string;
+  readonly VITE_WHATSAPP_CHANNEL_URL?: string;
 }
 interface ImportMeta {
   readonly env: ImportMetaEnv;

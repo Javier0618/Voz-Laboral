@@ -91,6 +91,11 @@
       border: 1px solid #ccc !important;
       padding: 1.5rem !important;
     }
+    /* Las cartas se imprimen como una hoja normal: sin marco ni márgenes extra. */
+    .carta-impresa {
+      border: none !important;
+      padding: 0 !important;
+    }
   }
 }
 
