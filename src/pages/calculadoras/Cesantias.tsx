@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { calcularCesantias, type DatosCesantias, type ResultadoCesantias } from '../../lib/cesantias';
-import { VALORES_2026 } from '../../lib/liquidacion';
+import { ULTIMO_ANIO, valoresDe } from '../../lib/liquidacion';
+import { SelectorAnio } from '../../components/SelectorAnio';
 import { Alert, Field, PageHeader } from '../../components/ui';
 import { CalcSharePrompt } from '../../components/CalcSharePrompt';
 import { PrintButton } from '../../components/PrintButton';
@@ -15,6 +16,7 @@ export default function CesantiasPage() {
   const [salario, setSalario] = useState('');
   const [variables, setVariables] = useState('');
   const [dias, setDias] = useState('360');
+  const [anio, setAnio] = useState<number>(ULTIMO_ANIO);
   const [resultado, setResultado] = useState<ResultadoCesantias | null>(null);
 
   function calcular(e: React.FormEvent) {
@@ -25,7 +27,7 @@ export default function CesantiasPage() {
       diasTrabajadosAnio: Number(dias || 360),
     };
     if (datos.salarioBase <= 0) return;
-    setResultado(calcularCesantias(datos));
+    setResultado(calcularCesantias(datos, valoresDe(anio)));
   }
 
   return (
@@ -36,9 +38,11 @@ export default function CesantiasPage() {
 
       <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <form onSubmit={calcular} noValidate className="space-y-6" aria-label="Datos para el cálculo de cesantías">
+          <SelectorAnio anio={anio} onChange={(a) => { setAnio(a); setResultado(null); }} />
+
           <Field
             label="Salario básico mensual"
-            hint={`El mínimo de ${VALORES_2026.anio} es ${pesos(VALORES_2026.salarioMinimo)}.`}
+            hint={`El mínimo de ${anio} es ${pesos(valoresDe(anio).salarioMinimo)}.`}
           >
             {(p) => (
               <input

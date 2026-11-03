@@ -21,7 +21,7 @@ export interface ResultadoCesantias {
   avisos: string[];
 }
 
-export function calcularCesantias(d: DatosCesantias, v = VALORES_2026): ResultadoCesantias {
+export function calcularCesantias(d: DatosCesantias, v: { salarioMinimo: number; auxilioTransporte: number } = VALORES_2026): ResultadoCesantias {
   const avisos: string[] = [];
   const dias = Math.max(0, Math.min(360, d.diasTrabajadosAnio));
   const salarioTotal = d.salarioBase + d.promedioVariables;

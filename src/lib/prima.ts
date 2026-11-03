@@ -18,7 +18,7 @@ export interface ResultadoPrima {
   fechaLimitePago: string;
 }
 
-export function calcularPrima(d: DatosPrima, semestre: 'primer' | 'segundo' = 'primer', v = VALORES_2026): ResultadoPrima {
+export function calcularPrima(d: DatosPrima, semestre: 'primer' | 'segundo' = 'primer', v: { salarioMinimo: number; auxilioTransporte: number } = VALORES_2026): ResultadoPrima {
   const dias = Math.max(0, Math.min(180, d.diasSemestre));
   const salarioTotal = d.salarioBase + d.promedioVariables;
   const tieneDerechoAuxilio = d.incluyeAuxilioTransporte ?? (d.salarioBase <= 2 * v.salarioMinimo);

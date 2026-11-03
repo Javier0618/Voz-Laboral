@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { calcularPrima, type DatosPrima, type ResultadoPrima } from '../../lib/prima';
-import { VALORES_2026 } from '../../lib/liquidacion';
+import { ULTIMO_ANIO, valoresDe } from '../../lib/liquidacion';
+import { SelectorAnio } from '../../components/SelectorAnio';
 import { Alert, Field, PageHeader } from '../../components/ui';
 import { CalcSharePrompt } from '../../components/CalcSharePrompt';
 import { PrintButton } from '../../components/PrintButton';
@@ -16,6 +17,7 @@ export default function PrimaPage() {
   const [variables, setVariables] = useState('');
   const [dias, setDias] = useState('180');
   const [semestre, setSemestre] = useState<'primer' | 'segundo'>('primer');
+  const [anio, setAnio] = useState<number>(ULTIMO_ANIO);
   const [resultado, setResultado] = useState<ResultadoPrima | null>(null);
 
   function calcular(e: React.FormEvent) {
@@ -26,7 +28,7 @@ export default function PrimaPage() {
       diasSemestre: Number(dias || 180),
     };
     if (datos.salarioBase <= 0) return;
-    setResultado(calcularPrima(datos, semestre));
+    setResultado(calcularPrima(datos, semestre, valoresDe(anio)));
   }
 
   return (
@@ -63,9 +65,11 @@ export default function PrimaPage() {
             </div>
           </fieldset>
 
+          <SelectorAnio anio={anio} onChange={(a) => { setAnio(a); setResultado(null); }} />
+
           <Field
             label="Salario básico mensual"
-            hint={`El mínimo de ${VALORES_2026.anio} es ${pesos(VALORES_2026.salarioMinimo)}.`}
+            hint={`El mínimo de ${anio} es ${pesos(valoresDe(anio).salarioMinimo)}.`}
           >
             {(p) => (
               <input

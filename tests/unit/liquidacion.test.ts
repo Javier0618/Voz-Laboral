@@ -1,6 +1,6 @@
 // Casos resueltos a mano con la convención 30/360.
 import { describe, expect, it } from 'vitest';
-import { calcularLiquidacion, dias360, validarLiquidacion, type DatosLiquidacion } from '../../src/lib/liquidacion';
+import { calcularLiquidacion, dias360, liquidacionPorAnio, validarLiquidacion, valoresDe, type DatosLiquidacion } from '../../src/lib/liquidacion';
 
 const base: DatosLiquidacion = {
   tipoContrato: 'indefinido',
@@ -83,8 +83,9 @@ describe('otros casos', () => {
     const r = calcularLiquidacion({ ...base, fechaIngreso: '2026-09-01' });
     expect(valor(r, 'cesantias')).toBe(Math.round((2_000_000 * 45) / 360));
   });
-  it('avisa si el retiro no es de 2026', () => {
-    expect(calcularLiquidacion({ ...base, fechaIngreso: '2024-01-01', fechaRetiro: '2025-06-30' }).avisos[0]).toMatch(/2026/);
+  it('avisa si un año todavía no tiene salario mínimo en la tabla', () => {
+    expect(calcularLiquidacion({ ...base, fechaIngreso: '2026-06-01', fechaRetiro: '2027-03-31' }).avisos[0]).toMatch(/2027/);
+    expect(calcularLiquidacion({ ...base, fechaIngreso: '2024-01-01', fechaRetiro: '2025-06-30' }).avisos[0]).not.toMatch(/todavía no tenemos/);
   });
 });
 
@@ -99,5 +100,73 @@ describe('validación', () => {
   });
   it('no permite «fin del plazo» en un indefinido', () => {
     expect(validarLiquidacion({ ...base, motivo: 'fin_plazo' }).motivo).toBeTruthy();
+  });
+});
+
+describe('liquidación año por año con el salario mínimo de cada año', () => {
+  // Del 15 de julio de 2024 al 30 de octubre de 2026, ganando el mínimo de cada año.
+  const minimos: DatosLiquidacion = {
+    ...base,
+    fechaIngreso: '2024-07-15',
+    fechaRetiro: '2026-10-30',
+    salarioMensual: 1_750_905,
+    salarioPorAnio: { 2024: 1_300_000, 2025: 1_423_500, 2026: 1_750_905 },
+    diasSalarioPendiente: 0,
+  };
+
+  it('usa el salario mínimo y el auxilio de transporte de cada año', () => {
+    expect(valoresDe(2024)).toMatchObject({ salarioMinimo: 1_300_000, auxilioTransporte: 162_000, aproximado: false });
+    expect(valoresDe(2025)).toMatchObject({ salarioMinimo: 1_423_500, auxilioTransporte: 200_000 });
+    const filas = liquidacionPorAnio(minimos);
+    expect(filas.map((f) => [f.anio, f.dias, f.base])).toEqual([
+      [2024, 166, 1_462_000], // 15 de julio a 31 de diciembre
+      [2025, 360, 1_623_500],
+      [2026, 300, 2_000_000], // 1 de enero a 30 de octubre
+    ]);
+    expect(Math.round(filas[0].cesantias)).toBe(674_144); // 1.462.000 × 166 ÷ 360
+    expect(Math.round(filas[1].cesantias)).toBe(1_623_500); // un año completo: un salario con auxilio
+    expect(Math.round(filas[1].intereses)).toBe(194_820); // 12 % de 1.623.500
+    expect(filas[2].esUltimo).toBe(true);
+  });
+
+  it('en la liquidación van las cesantías de 2026 y la prima del segundo semestre; las anteriores se presumen consignadas', () => {
+    const r = calcularLiquidacion(minimos);
+    expect(valor(r, 'cesantias')).toBe(1_666_667); // 2.000.000 × 300 ÷ 360
+    expect(valor(r, 'intereses')).toBe(166_667);
+    expect(valor(r, 'prima')).toBe(666_667); // 2.000.000 × 120 ÷ 360
+    expect(valor(r, 'cesantias_anteriores')).toBeUndefined();
+    expect(r.avisos.join(' ')).toMatch(/2024 y 2025 debieron consignarse/);
+    // Vacaciones de todo el contrato con el último salario (CST, art. 189): 826 días → 34,4167 días hábiles.
+    expect(valor(r, 'vacaciones')).toBe(Math.round((1_750_905 * ((826 * 15) / 360)) / 30));
+  });
+
+  it('si no consignaron las cesantías ni pagaron las primas, las suma con el mínimo de cada año', () => {
+    const r = calcularLiquidacion({ ...minimos, incluirCesantiasAnteriores: true, incluirPrimasAnteriores: true });
+    expect(valor(r, 'cesantias_anteriores')).toBe(Math.round(674_144.44 + 1_623_500));
+    expect(valor(r, 'intereses_anteriores')).toBe(Math.round((1_462_000 * 166 / 360) * 166 * 0.12 / 360 + 194_820));
+    // Primas: segundo semestre de 2024, todo 2025 y primer semestre de 2026.
+    expect(valor(r, 'primas_anteriores')).toBe(Math.round(1_462_000 * 166 / 360 + 1_623_500 + 1_000_000));
+    expect(r.avisos.join(' ')).toMatch(/un día de salario por cada día de retraso/);
+  });
+
+  it('con un solo salario para todo el contrato, el auxilio se decide con el mínimo de cada año', () => {
+    // 2.700.000 supera 2 mínimos de 2024 (2.600.000) pero no de 2025 (2.847.000).
+    const filas = liquidacionPorAnio({ ...minimos, salarioPorAnio: undefined, salarioMensual: 2_700_000 });
+    expect(filas.map((f) => f.auxilio)).toEqual([0, 200_000, 249_095]);
+  });
+});
+
+describe('calculadoras de un solo periodo con los valores de otro año', () => {
+  it('cesantías de 2025 con el mínimo y el auxilio de 2025', async () => {
+    const { calcularCesantias } = await import('../../src/lib/cesantias');
+    const r = calcularCesantias({ salarioBase: 1_423_500, promedioVariables: 0, diasTrabajadosAnio: 360 }, valoresDe(2025));
+    expect(r.baseCalculo).toBe(1_623_500);
+    expect(r.cesantias).toBe(1_623_500);
+    expect(r.interesesCesantias).toBe(194_820);
+  });
+  it('prima del primer semestre de 2024 con el auxilio de 2024', async () => {
+    const { calcularPrima } = await import('../../src/lib/prima');
+    const r = calcularPrima({ salarioBase: 1_300_000, promedioVariables: 0, diasSemestre: 180 }, 'primer', valoresDe(2024));
+    expect(r.valorPrima).toBe(731_000); // (1.300.000 + 162.000) × 180 ÷ 360
   });
 });
