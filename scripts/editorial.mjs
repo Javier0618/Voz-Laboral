@@ -15,6 +15,7 @@
 //   node scripts/editorial.mjs borrador <id> <archivo.json>       guarda la guía redactada
 //   node scripts/editorial.mjs propuesta <id> <archivo.md> "<qué cambia>" [legal|informativa]
 //   node scripts/editorial.mjs revisar <archivo.json | archivo.md> [legal|informativa]   revisa calidad y SEO (no se conecta)
+//   node scripts/editorial.mjs imagen <slug> <archivo.png|jpg|webp> "<descripción>"   sube un gráfico para el cuerpo de la guía
 //
 // «borrador» y «propuesta» ejecutan la misma revisión y no guardan nada si hay
 // errores. Los criterios están en CLAUDE.md («Estándar de calidad de las guías»).
@@ -28,7 +29,8 @@
 //     "slug": "...", "title": "...", "summary": "...", "category": "pago-salarios" | null,
 //     "content": "texto" o "content_file": "ruta/al/archivo.md",
 //     "sources": [{ "label": "...", "publisher": "...", "url": "https://...", "accessed_at": "2026-11-02" }] }
-import { existsSync, readFileSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
 import { imprimirRevision, leerGuia, revisarGuia } from './revisar-guia.mjs';
 
@@ -138,8 +140,24 @@ switch (comando) {
     console.log('Propuesta guardada.');
     break;
   }
+  case 'imagen': {
+    // Solo sube archivos nuevos a «<slug>/redaccion-<uuid>.<ext>» (migración 2600).
+    const [slug, ruta, descripcion = ''] = args;
+    const tipos = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp' };
+    const ext = ruta?.split('.').pop()?.toLowerCase();
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug ?? '') || !tipos[ext]) fallar('Uso: imagen <slug> <archivo.png|jpg|webp> "<descripción>"');
+    if (descripcion.trim().length < 20) fallar('Escribe una descripción de al menos 20 caracteres: dice qué muestra el gráfico (texto alternativo).');
+    if (statSync(ruta).size > 2 * 1024 * 1024) fallar('La imagen supera 2 MB. Redúcela.');
+    const path = `${slug}/redaccion-${randomUUID()}.${ext === 'jpeg' ? 'jpg' : ext}`;
+    const bucket = supabase.storage.from('guias');
+    const { error } = await bucket.upload(path, readFileSync(ruta), { contentType: tipos[ext], upsert: false });
+    if (error) fallar(`No se pudo subir la imagen: ${error.message}. ¿Se ejecutó la migración 20261103002600_redactor_guide_images.sql?`);
+    console.log('Pega esta línea, sola y con una línea en blanco antes y después, en el texto de la guía:\n');
+    console.log(`![${descripcion.trim().replace(/[\[\]]/g, '')}](${bucket.getPublicUrl(path).data.publicUrl})`);
+    break;
+  }
   default:
-    console.error('Comandos: guias | guia <slug> | sugerencias [estado] | sugerir <json> | pedidas | busquedas [días] | borrador <id> <json> | propuesta <id> <md> "<notas>" | revisar <json|md>');
+    console.error('Comandos: guias | guia <slug> | sugerencias [estado] | sugerir <json> | pedidas | busquedas [días] | borrador <id> <json> | propuesta <id> <md> "<notas>" | revisar <json|md> | imagen <slug> <archivo> "<descripción>"');
     process.exit(1);
 }
 await supabase.auth.signOut();

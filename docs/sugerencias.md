@@ -25,7 +25,7 @@ Las sugerencias cubren todo lo relacionado con el trabajo, no solo la ley: norma
 
 ## Configuración (una sola vez)
 
-1. **Migraciones.** Ejecuta en el SQL Editor de Supabase `supabase/migrations/20261102002200_guide_suggestions.sql` , `20261102002300_guide_topics_and_suggestion_delete.sql` y `20261102002400_site_search.sql` (buscador). Deben estar aplicadas **antes** de desplegar el código que las usa.
+1. **Migraciones.** Ejecuta en el SQL Editor de Supabase `supabase/migrations/20261102002200_guide_suggestions.sql` , `20261102002300_guide_topics_and_suggestion_delete.sql` y `20261102002400_site_search.sql` (buscador). Para que el redactor suba gráficos al cuerpo de las guías, también `20261103002600_redactor_guide_images.sql`. Deben estar aplicadas **antes** de desplegar el código que las usa.
 2. **Cuenta del redactor.** Regístrate en el sitio con un correo propio solo para esto, por ejemplo `redaccion.tuvozlaboral@gmail.com`. Confirma el correo y elige un alias, por ejemplo `redaccion`.
 3. **Rol.** En el SQL Editor:
    ```sql
@@ -58,6 +58,7 @@ node scripts/editorial.mjs busquedas [días]          # lo que se buscó en el s
 node scripts/editorial.mjs borrador <id> guia.json   # guarda una guía nueva como borrador
 node scripts/editorial.mjs propuesta <id> texto.md "qué cambia"
 node scripts/editorial.mjs revisar guia.json      # revisión de calidad y SEO, sin conectarse
+node scripts/editorial.mjs imagen <slug> grafico.jpg "descripción"   # sube un gráfico para el cuerpo de la guía
 ```
 
 `borrador` y `propuesta` repiten esa revisión y no guardan nada si encuentran errores: longitud mínima, secciones de la plantilla, preguntas frecuentes, enlaces internos, título, resumen, slug, fuentes, restos de plantilla y títulos anzuelo. También avisa, sin bloquear, si falta la entradilla o quedan muletillas (ver `docs/estilo-editorial.md`). Los criterios completos están en `CLAUDE.md`, en «Estándar de calidad de las guías».

@@ -53,6 +53,7 @@ Si falta alguna, detente y dile a la persona que la agregue en la configuración
 
    En los dos casos, lee la fuente antes de escribir. Cada dato (legal, cifra o fecha) debe salir de una fuente verificable: no inventes nada. Si algo es una propuesta o un proyecto, dilo así, no como si ya fuera ley.
 3. Escribe la guía cumpliendo el **«Estándar de calidad de las guías»** (abajo) y el **estilo editorial** de `docs/estilo-editorial.md` (léelo antes de cada redacción), con la plantilla de `src/lib/guideTemplate.ts` (en las legales), las reglas de `docs/editorial.md` y el formato de `src/lib/guide.ts`: `##`, `###`, listas, `> ` para avisos, `**negrita**`, `[texto](https://…)` y enlaces internos `[texto](/derechos/slug)` o `[texto](/calculadoras/…)`.
+   - **Imágenes en el cuerpo, solo si hacen falta:** un gráfico propio cuando explica mejor que el texto una escala, una línea de tiempo o una comparación con cifras. Créalo y súbelo con `node scripts/editorial.mjs imagen` antes de guardar, según «Imágenes dentro de la guía» en `docs/estilo-editorial.md`. Nunca fotos de banco ni imágenes decorativas.
 4. Revisa la guía con `node scripts/editorial.mjs revisar guia.json`. Si es una actualización, usa `revisar texto.md legal|informativa`. Corrige **todos** los errores. Los avisos se corrigen salvo que haya una razón para dejarlos. Después, haz la revisión manual de la lista de abajo.
 5. Guarda la guía (el script repite la revisión y no guarda si hay errores):
    - **Guía nueva:** prepara un JSON con:

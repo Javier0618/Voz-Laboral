@@ -63,6 +63,13 @@ export function revisarGuia({ slug, title, summary, content, sources, tipo = 'le
 
   const largos = content.split(/\n\s*\n/).filter((b) => !/^\s*([-*>]|\d+\.|#)/.test(b) && palabras(b) > 120).length;
   if (largos) avisos.push(`legibilidad: ${largos} párrafo(s) de más de 120 palabras; divídelos.`);
+  const imagenes = [...content.matchAll(/^!\[([^\]]*)\]\(([^)]*)\)\s*$/gm)];
+  for (const [, alt, url] of imagenes) {
+    if (!/^https:\/\//.test(url)) errores.push(`imágenes: «${url}» no es una dirección https; súbela con «editorial.mjs imagen».`);
+    if (alt.trim().length < 20) errores.push('imágenes: cada gráfico necesita una descripción de al menos 20 caracteres que diga qué muestra (texto alternativo).');
+  }
+  if (imagenes.length > 3) avisos.push(`imágenes: hay ${imagenes.length}; usa solo las que explican algo mejor que el texto (máximo recomendado, 3).`);
+  if (/^!\[[^\]]*\]\([^)]*\)/m.test(content.split(/^## /m)[0] ?? '')) avisos.push('imágenes: no pongas un gráfico en la entradilla; va junto al párrafo que explica.');
   const entradilla = palabras((content.split(/^## /m)[0] ?? '').replace(/!\[[^\]]*\]\([^)]*\)/g, ''));
   if (!entradilla) avisos.push('estilo: no hay entradilla; abre con 2 o 3 párrafos antes del primer «## »: el gancho y la respuesta directa (docs/estilo-editorial.md).');
   else if (entradilla > 150) avisos.push(`estilo: la entradilla tiene ${entradilla} palabras; déjala en 60 a 100 y lleva el detalle a las secciones.`);

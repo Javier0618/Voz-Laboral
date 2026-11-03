@@ -98,4 +98,13 @@ describe('revisión de calidad de las guías', () => {
     expect(revisarGuia({ ...guia, content: normal }).errores).toEqual([]);
     expect(revisarGuia({ ...guia, content: `${contenido}\n\nTODO: revisar la cifra.` }).errores.join(' ')).toMatch(/TODO/);
   });
+
+  it('imágenes: exigen descripción y dirección https, y avisa si sobran', () => {
+    const img = (alt: string, url = 'https://x.supabase.co/storage/v1/object/public/guias/prima/redaccion-1.jpg') => `![${alt}](${url})`;
+    const con = (extra: string) => contenido.replace('## En la práctica', `${extra}\n\n## En la práctica`);
+    expect(revisarGuia({ ...guia, content: con(img('Gráfico: la prima se paga en dos cuotas, junio y diciembre')) }).errores).toEqual([]);
+    expect(revisarGuia({ ...guia, content: con(img('Gráfico')) }).errores.join(' ')).toMatch(/descripción/);
+    const cuatro = Array.from({ length: 4 }, () => img('Gráfico: la prima se paga en dos cuotas, junio y diciembre')).join('\n\n');
+    expect(revisarGuia({ ...guia, content: con(cuatro) }).avisos.join(' ')).toMatch(/máximo recomendado/);
+  });
 });

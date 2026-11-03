@@ -99,7 +99,35 @@ Cada guía lleva una portada de 1200×628 con la identidad del sitio. Se ve en e
 
 ---
 
-## 7. Lo que no hacemos
+## 7. Imágenes dentro de la guía: solo si explican mejor que el texto
+
+Una imagen en el cuerpo de la guía tiene que **enseñar algo que el texto no logra tan bien**. Si se puede quitar sin que el lector pierda nada, sobra. La mayoría de las guías no necesitan ninguna, y ninguna necesita más de 3.
+
+**Sí vale la pena cuando muestra:**
+- **Una escala o una evolución en el tiempo:** semanas por año, el salario mínimo de los últimos años, la jornada que baja por etapas.
+- **Una línea de tiempo con plazos:** de la carta de despido a la demanda, los pagos de la prima y las cesantías en el año.
+- **Una comparación con cifras:** contrato laboral frente a prestación de servicios, o recargos nocturno, dominical y festivo.
+- **Un documento anotado, hecho por nosotros:** un desprendible de nómina de ejemplo con cada línea explicada. Nunca con datos de una persona real.
+
+**No vale la pena:**
+- fotos de banco de imágenes (manos, oficinas, gente sonriendo);
+- íconos sueltos o imágenes decorativas;
+- una tabla de texto convertida en imagen, si una lista dice lo mismo;
+- capturas de pantalla de otros sitios o de medios.
+
+**Cómo se hace:**
+- **Datos:** cada cifra sale del texto de la guía y de su fuente verificada. El gráfico no trae datos que la guía no explique.
+- **Diseño:** 1200 px de ancho, fondo blanco, Roboto, un título que dice la conclusión («Las semanas de las mujeres bajan hasta 1.000 en 2036»), un subtítulo, la fuente abajo a la izquierda y tuvozlaboral.com abajo a la derecha. Un solo color de datos, el verde de la marca (#0F766E); el gris solo para referencias. Etiquetas solo en los puntos clave, nunca en todos. El modelo es `scripts/og/graficos/semanas-mujeres-pension.html`.
+- **Revisión:** expórtalo con `node scripts/og/exportar-imagen.cjs`, ábrelo y revisa que ninguna etiqueta tape una línea y que se lea en un celular.
+- **Subida:** `node scripts/editorial.mjs imagen <slug> grafico.jpg "<descripción>"`. Devuelve la línea `![descripción](url)` que se pega en el texto.
+- **Ubicación:** justo después del párrafo que explica lo mismo, nunca en la entradilla. El texto debe entenderse sin la imagen.
+- **Descripción (texto alternativo):** dice el dato, no el tipo de imagen. Bien: «Gráfico: las semanas para las mujeres bajan de 1.300 en 2025 a 1.250 en 2026 y a 1.000 en 2036». Mal: «Gráfico de semanas».
+
+`revisar` exige la descripción y la dirección https, y avisa si hay más de 3 imágenes o si hay una en la entradilla.
+
+---
+
+## 8. Lo que no hacemos
 
 - **Sensacionalismo:** «escándalo», «terrible», «polémica» para temas que no lo son.
 - **Alarmismo:** decir que algo «ya es ley» cuando es un proyecto, o que «te pueden quitar» un derecho sin fuente.
@@ -111,7 +139,7 @@ Cada guía lleva una portada de 1200×628 con la identidad del sitio. Se ve en e
 
 ---
 
-## 8. Antes y después
+## 9. Antes y después
 
 **Antes (plano):**
 
@@ -133,7 +161,7 @@ El segundo texto responde lo mismo, con la misma norma, pero en el orden en que 
 
 ---
 
-## 9. Lista de estilo antes de guardar
+## 10. Lista de estilo antes de guardar
 
 - [ ] La entradilla engancha (situación, noticia, cifra, fecha o mito) y responde en las primeras frases.
 - [ ] El título cumple lo que promete y no tiene anzuelos.
@@ -143,3 +171,4 @@ El segundo texto responde lo mismo, con la misma norma, pero en el orden en que 
 - [ ] No quedan muletillas, exclamaciones ni párrafos de relleno.
 - [ ] El cierre deja una acción concreta.
 - [ ] La portada está generada, con un dato verificado del texto.
+- [ ] Si hay imágenes en el cuerpo, cada una explica algo mejor que el texto, tiene descripción y sus datos están en la guía.
