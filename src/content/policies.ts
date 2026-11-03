@@ -44,7 +44,7 @@ export const policies: Policy[] = [
           'Calculadoras de nómina, solo si tienes cuenta y sesión iniciada: guardamos lo que anotas (salario, días y horarios de trabajo, horas y novedades) y el total estimado de cada período, para que lleves tu registro. Solo tú lo ves; el equipo del sitio no lo consulta ni lo usa para otra cosa. Puedes borrar cada período desde Mi cuenta, y todo se borra al eliminar la cuenta. Sin cuenta, las calculadoras no envían datos: todo se queda en tu navegador.',
           'Envíos sin cuenta: no pedimos correo ni otro dato de contacto. Guardamos el contenido y una huella cifrada (hash) del enlace de seguimiento, nunca el enlace. Quien tenga el enlace puede ver el estado, las reacciones y los comentarios, y vincular la experiencia a una cuenta.',
           'Registros técnicos y de seguridad: eventos como superar límites de envío o cambios de rol. En nuestras tablas no guardamos direcciones IP; el proveedor de infraestructura puede registrarlas en sus propios registros técnicos durante el plazo que define su contrato.',
-          'Datos de navegación, solo si los aceptas en el aviso de cookies: identificadores de cookies, páginas que visitas, cómo llegaste al sitio, tipo de dispositivo y navegador, y ubicación aproximada (país o ciudad) que se deduce de tu dirección IP. ' + (ADS ? 'Los recogen Google Analytics, para medir qué páginas se visitan, y Google AdSense, para mostrar publicidad.' : 'Los recoge Google Analytics, para medir qué páginas se visitan.') + ' Lo explicamos en la [política de cookies](/politicas/cookies).',
+          'Datos de navegación, en cada visita: identificadores de cookies, páginas que visitas, cómo llegaste al sitio, tipo de dispositivo y navegador, y ubicación aproximada (país o ciudad) que se deduce de tu dirección IP. ' + (ADS ? 'Los recogen Google Analytics, para medir qué páginas se visitan, y Google AdSense, para mostrar publicidad.' : 'Los recoge Google Analytics, para medir qué páginas se visitan.') + ' Lo explicamos en la [política de cookies](/politicas/cookies).',
           'No solicitamos datos sensibles. Si un relato los incluye, el equipo de moderación puede pedir que se retiren.',
         ],
       },
@@ -52,16 +52,17 @@ export const policies: Policy[] = [
         heading: 'Finalidades',
         paragraphs: [
           'Gestionar tu cuenta, publicar y moderar contenido, atender reclamaciones y solicitudes, prevenir abusos y cumplir obligaciones legales.',
-          'Si das tu autorización en el aviso de cookies: medir qué páginas se visitan y cómo se usa el sitio, para mejorar las guías y las herramientas (Google Analytics).',
+          'Medir cuántas visitas recibe el sitio, qué páginas se leen y cómo se usa, para mejorar las guías y las herramientas (Google Analytics).',
           ...siAnuncios('Mostrar publicidad, personalizada solo si la aceptas (Google AdSense).'),
           'No vendemos datos ni los compartimos con las empresas mencionadas en las publicaciones. Los datos de tu cuenta y tus publicaciones nunca se usan para publicidad ni se envían a Google.',
         ],
       },
       {
-        heading: ADS ? 'Cookies, medición y publicidad: tu autorización' : 'Cookies y medición: tu autorización',
+        heading: ADS ? 'Cookies, medición y publicidad' : 'Cookies y medición',
         paragraphs: [
-          (ADS ? 'Las cookies de medición (Google Analytics) y de publicidad personalizada (Google AdSense)' : 'Las cookies de medición (Google Analytics)') + ' solo se activan si las aceptas en el aviso de cookies que aparece en tu primera visita. Esa aceptación es tu autorización previa, expresa e informada para ese tratamiento. Si no aceptas, el sitio funciona igual.',
-          'Puedes cambiar o retirar tu autorización cuando quieras desde «Preferencias de cookies», al pie de cada página.',
+          'Las cookies de medición (Google Analytics) se activan en todas las visitas, para contar cuántas personas leen el sitio. Te lo informamos en el aviso de cookies de tu primera visita y en esta política. Si sigues navegando después de ese aviso, autorizas ese tratamiento (Decreto 1377 de 2013, art. 7, conductas inequívocas).',
+          'Si no quieres que Google Analytics mida tus visitas, puedes bloquear sus cookies desde tu navegador o instalar el [complemento de inhabilitación de Google Analytics](https://tools.google.com/dlpage/gaoptout). El sitio funciona igual.',
+          ...siAnuncios('La publicidad personalizada (Google AdSense) solo se activa si la aceptas en el aviso de cookies. Puedes cambiar esa decisión cuando quieras desde «Preferencias de cookies», al pie de cada página.'),
           'Antes de enviar datos de navegación, quitamos de las direcciones los parámetros y los enlaces privados de seguimiento, para que no salgan datos que puedan identificarte.',
           'Los detalles de cada cookie, para qué sirve y cuánto dura están en la [política de cookies](/politicas/cookies).',
         ],
@@ -74,8 +75,8 @@ export const policies: Policy[] = [
           'Si eliges entrar con Google, Google LLC verifica tu identidad y nos confirma tu correo. Ese inicio de sesión se rige también por la política de privacidad de Google.',
           ...siCaptcha(TEXTO_CAPTCHA),
           ADS
-            ? 'Si aceptas las cookies de medición o de publicidad, Google LLC y sus filiales reciben datos de navegación y pueden tratarlos en Estados Unidos y en otros países. En la medición actúan por nuestra cuenta. En la publicidad personalizada, Google y sus socios publicitarios también los usan según sus propias políticas. Puedes conocer [cómo usa Google los datos de los sitios que usan sus servicios](https://policies.google.com/technologies/partner-sites).'
-            : 'Si aceptas las cookies de medición, Google LLC y sus filiales reciben datos de navegación y pueden tratarlos en Estados Unidos y en otros países. Actúan por nuestra cuenta, para darnos informes de uso del sitio. Puedes conocer [cómo usa Google los datos de los sitios que usan sus servicios](https://policies.google.com/technologies/partner-sites).',
+            ? 'Google LLC y sus filiales reciben los datos de navegación de la medición y, si aceptas la publicidad personalizada, también los de publicidad, y pueden tratarlos en Estados Unidos y en otros países. En la medición actúan por nuestra cuenta. En la publicidad personalizada, Google y sus socios publicitarios también los usan según sus propias políticas. Puedes conocer [cómo usa Google los datos de los sitios que usan sus servicios](https://policies.google.com/technologies/partner-sites).'
+            : 'Google LLC y sus filiales reciben los datos de navegación de la medición y pueden tratarlos en Estados Unidos y en otros países. Actúan por nuestra cuenta, para darnos informes de uso del sitio. Puedes conocer [cómo usa Google los datos de los sitios que usan sus servicios](https://policies.google.com/technologies/partner-sites).',
         ],
       },
       {
@@ -126,7 +127,7 @@ export const policies: Policy[] = [
       {
         heading: ADS ? 'Cookies, medición y publicidad' : 'Cookies y medición',
         paragraphs: [
-          (ADS ? 'Usamos Google Analytics para saber qué páginas se leen, y Google AdSense para mostrar publicidad.' : 'Usamos Google Analytics para saber qué páginas se leen.') + ' Sus cookies solo se activan si las aceptas, y puedes cambiar tu decisión en «Preferencias de cookies», al pie de cada página.',
+          (ADS ? 'Usamos Google Analytics para saber qué páginas se leen, y Google AdSense para mostrar publicidad.' : 'Usamos Google Analytics para saber qué páginas se leen.') + (ADS ? ' La medición está activa en todas las visitas; la publicidad personalizada solo si la aceptas, y puedes cambiar esa decisión en «Preferencias de cookies», al pie de cada página.' : ' La medición está activa en todas las visitas; puedes bloquearla desde tu navegador.'),
           'Tu cuenta, tu correo y tus publicaciones nunca se envían a Google. Más detalles en la [política de cookies](/politicas/cookies).',
         ],
       },
@@ -153,7 +154,7 @@ export const policies: Policy[] = [
         ],
       },
       {
-        heading: 'De medición: Google Analytics (opcionales)',
+        heading: 'De medición: Google Analytics (siempre activas)',
         paragraphs: [
           'Nos dicen qué páginas se leen, cómo llegan las visitas y desde qué tipo de dispositivo, para mejorar las guías y las herramientas. Solo vemos informes agregados, no quién eres.',
           'Las instala Google Analytics con los nombres «_ga» y «_ga_» seguido de un identificador, y duran hasta 2 años. Google conserva los datos hasta 14 meses.',
@@ -174,7 +175,8 @@ export const policies: Policy[] = [
       {
         heading: 'Cómo cambiar tu decisión',
         paragraphs: [
-          'En tu primera visita te preguntamos si aceptas las cookies de medición' + (ADS ? ' y de publicidad' : '') + '. Puedes cambiar tu decisión cuando quieras desde «Preferencias de cookies», al pie de cada página.',
+          'En tu primera visita te informamos que usamos cookies de medición' + (ADS ? ' y te preguntamos si aceptas las de publicidad personalizada. Puedes cambiar esa decisión cuando quieras desde «Preferencias de cookies», al pie de cada página.' : '.') ,
+          'Para que Google Analytics no mida tus visitas, usa el [complemento de inhabilitación de Google Analytics](https://tools.google.com/dlpage/gaoptout) o bloquea sus cookies en tu navegador.',
           'También puedes borrar o bloquear las cookies desde la configuración de tu navegador. Si bloqueas las necesarias, puede que algunas funciones, como iniciar sesión, dejen de funcionar.',
         ],
       },

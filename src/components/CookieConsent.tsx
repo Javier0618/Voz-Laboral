@@ -4,9 +4,11 @@ import { OPEN_EVENT, readConsent, saveConsent } from '../lib/consent';
 import { adsenseClient, hayServiciosOpcionales, iniciarGoogle, registrarPagina } from '../lib/analytics';
 
 /**
- * Aviso de cookies: aparece en la primera visita si hay servicios opcionales
- * configurados (Google Analytics o AdSense). Se reabre desde «Preferencias de
- * cookies», al pie de página. También registra las páginas vistas.
+ * Aviso de cookies: aparece en la primera visita si hay Google Analytics o
+ * AdSense. La medición (Analytics) está siempre activa y el aviso la informa;
+ * solo la publicidad personalizada (AdSense) se acepta o se rechaza. Se
+ * reabre desde «Preferencias de cookies», al pie de página. También registra
+ * las páginas vistas.
  */
 export function CookieConsent() {
   const activo = hayServiciosOpcionales();
@@ -15,7 +17,6 @@ export function CookieConsent() {
   const [abierto, setAbierto] = useState(() => activo && readConsent() === null);
   const [detalle, setDetalle] = useState(false);
   const previo = readConsent();
-  const [analytics, setAnalytics] = useState(previo?.analytics ?? false);
   const [ads, setAds] = useState(previo?.ads ?? false);
   const location = useLocation();
 
@@ -26,7 +27,6 @@ export function CookieConsent() {
   useEffect(() => {
     const abrir = () => {
       const c = readConsent();
-      setAnalytics(c?.analytics ?? false);
       setAds(c?.ads ?? false);
       setDetalle(true);
       setAbierto(true);
@@ -61,8 +61,8 @@ export function CookieConsent() {
         <h2 id="cookies-titulo" className="font-sans text-base font-semibold text-ink">Tu privacidad</h2>
         <p className="mt-1 max-w-3xl text-sm leading-6 text-slate">
           {conAnuncios
-            ? 'Usamos cookies necesarias para que el sitio funcione. Con tu permiso, también usamos cookies de Google para medir qué páginas se leen y para mostrar publicidad. Tu cuenta y tus publicaciones nunca se envían a Google.'
-            : 'Usamos cookies necesarias para que el sitio funcione. Con tu permiso, también usamos Google Analytics para saber qué páginas se leen más y así mejorar las guías. Tu cuenta y tus publicaciones nunca se envían a Google.'}{' '}
+            ? 'Usamos cookies necesarias para que el sitio funcione y Google Analytics para contar las visitas y saber qué páginas se leen. Con tu permiso, también usamos cookies de Google para mostrarte publicidad personalizada. Tu cuenta y tus publicaciones nunca se envían a Google.'
+            : 'Usamos cookies necesarias para que el sitio funcione y Google Analytics para contar las visitas y saber qué páginas se leen más, y así mejorar las guías. Tu cuenta y tus publicaciones nunca se envían a Google.'}{' '}
           <Link to="/politicas/cookies" className="btn-link">Política de cookies</Link>
         </p>
 
@@ -74,8 +74,8 @@ export function CookieConsent() {
               <span><strong className="text-ink">Necesarias.</strong> <span className="text-slate">Sesión, preferencias y tu decisión sobre las cookies. Siempre activas.</span></span>
             </label>
             <label className="flex items-start gap-3 text-sm">
-              <input type="checkbox" checked={analytics} onChange={(e) => setAnalytics(e.target.checked)} className="mt-1" />
-              <span><strong className="text-ink">Medición (Google Analytics).</strong> <span className="text-slate">Qué páginas se leen y cómo llegan las visitas, en informes agregados.</span></span>
+              <input type="checkbox" checked disabled className="mt-1" />
+              <span><strong className="text-ink">Medición (Google Analytics).</strong> <span className="text-slate">Cuenta las visitas y qué páginas se leen, en informes agregados. Siempre activa.</span></span>
             </label>
             {conAnuncios && (
               <label className="flex items-start gap-3 text-sm">
@@ -87,12 +87,18 @@ export function CookieConsent() {
         )}
 
         <div className="mt-4 flex flex-wrap gap-3">
-          <button type="button" className="btn-primary" onClick={() => guardar({ analytics: true, ads: conAnuncios })}>Aceptar todas</button>
-          <button type="button" className="btn-secondary" onClick={() => guardar({ analytics: false, ads: false })}>Solo necesarias</button>
-          {detalle ? (
-            <button type="button" className="btn-secondary" onClick={() => guardar({ analytics, ads: conAnuncios && ads })}>Guardar mi elección</button>
+          {conAnuncios ? (
+            <>
+              <button type="button" className="btn-primary" onClick={() => guardar({ analytics: true, ads: true })}>Aceptar publicidad personalizada</button>
+              <button type="button" className="btn-secondary" onClick={() => guardar({ analytics: true, ads: false })}>Solo anuncios no personalizados</button>
+              {detalle ? (
+                <button type="button" className="btn-secondary" onClick={() => guardar({ analytics: true, ads })}>Guardar mi elección</button>
+              ) : (
+                <button type="button" className="btn-link px-2" onClick={() => setDetalle(true)}>Configurar</button>
+              )}
+            </>
           ) : (
-            <button type="button" className="btn-link px-2" onClick={() => setDetalle(true)}>Configurar</button>
+            <button type="button" className="btn-primary" onClick={() => guardar({ analytics: true, ads: false })}>Entendido</button>
           )}
         </div>
       </div>

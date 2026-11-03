@@ -195,7 +195,7 @@ VITE_TURNSTILE_SITE_KEY=0x4…
 VITE_GOOGLE_CLIENT_ID=….apps.googleusercontent.com
 ```
 
-Sin `VITE_GA_ID` no se carga Google Analytics ni aparece el aviso de cookies. Sin `VITE_TURNSTILE_SITE_KEY` no aparece la verificación anti-robots.
+El ID de Google Analytics (`VITE_GA_ID`) ya está en `.env.production`, que va en el repositorio y se usa en cada compilación: no hace falta ponerlo en el `.env` del VPS ni pegar la etiqueta de Google en `index.html`. Sin `VITE_GA_ID` no se carga Google Analytics ni aparece el aviso de cookies. Sin `VITE_TURNSTILE_SITE_KEY` no aparece la verificación anti-robots.
 
 ## Protección contra bots (Cloudflare Turnstile)
 

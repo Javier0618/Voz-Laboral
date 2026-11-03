@@ -18,8 +18,9 @@ describe('limpiarUrl', () => {
 });
 
 describe('consentState', () => {
-  it('sin decisión todo está denegado', () => {
-    expect(consentState(null)).toEqual({ analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+  it('la medición siempre está concedida; la publicidad empieza denegada', () => {
+    expect(consentState(null)).toEqual({ analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+    expect(consentState({ analytics: false, ads: false, fecha: '' }).analytics_storage).toBe('granted');
   });
   it('concede solo lo aceptado', () => {
     expect(consentState({ analytics: true, ads: false, fecha: '' })).toEqual({ analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
@@ -41,32 +42,17 @@ describe('Google Analytics', () => {
     expect(document.querySelector('script[src*="googletagmanager"]')).toBeNull();
   });
 
-  it('sin aceptar no descarga Google ni registra páginas: ninguna señal', () => {
+  it('cuenta todas las visitas: carga Google y registra páginas sin esperar a que acepte', () => {
     expect(iniciarGoogle('G-PRUEBA')).toBe(true);
-    expect(document.querySelector('script[src*="googletagmanager"]')).toBeNull();
-    registrarPagina('/derechos');
-    expect(llamadas().some((x) => x[0] === 'event')).toBe(false);
-  });
-
-  it('al aceptar la medición carga Google y registra la página actual', () => {
-    iniciarGoogle('G-PRUEBA');
-    saveConsent({ analytics: true, ads: false });
     expect(document.querySelector<HTMLScriptElement>('script[src*="googletagmanager"]')!.src).toContain('id=G-PRUEBA');
+    registrarPagina('/derechos');
     expect(llamadas().some((x) => x[0] === 'event' && x[1] === 'page_view')).toBe(true);
   });
 
-  it('si rechaza, no se carga nada', () => {
-    iniciarGoogle('G-PRUEBA');
-    saveConsent({ analytics: false, ads: false });
-    expect(document.querySelector('script[src*="googletagmanager"]')).toBeNull();
-  });
-
-  it('prepara gtag con todo denegado, sin página vista automática y sin anuncios personalizados', () => {
-    saveConsent({ analytics: true, ads: false });
+  it('prepara gtag con la medición activa, sin página vista automática y sin anuncios personalizados', () => {
     expect(iniciarGoogle('G-PRUEBA')).toBe(true);
-    expect(document.querySelector<HTMLScriptElement>('script[src*="googletagmanager"]')!.src).toContain('id=G-PRUEBA');
     const c = llamadas();
-    expect(c[0]).toEqual(['consent', 'default', expect.objectContaining({ analytics_storage: 'denied', ad_storage: 'denied' })]);
+    expect(c[0]).toEqual(['consent', 'default', expect.objectContaining({ analytics_storage: 'granted', ad_storage: 'denied' })]);
     expect(c.find((x) => x[0] === 'config')).toEqual(['config', 'G-PRUEBA', { send_page_view: false, anonymize_ip: true }]);
     expect((window as W).adsbygoogle!.requestNonPersonalizedAds).toBe(1);
   });
