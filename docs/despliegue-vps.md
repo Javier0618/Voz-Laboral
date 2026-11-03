@@ -192,6 +192,7 @@ VITE_SUPABASE_ANON_KEY=…
 VITE_CONTACT_EMAIL=…
 VITE_GA_ID=G-…
 VITE_TURNSTILE_SITE_KEY=0x4…
+VITE_GOOGLE_CLIENT_ID=….apps.googleusercontent.com
 ```
 
 Sin `VITE_GA_ID` no se carga Google Analytics ni aparece el aviso de cookies. Sin `VITE_TURNSTILE_SITE_KEY` no aparece la verificación anti-robots.
@@ -230,7 +231,7 @@ Si Cloudflare no responde, los envíos sin cuenta se rechazan con el mensaje «N
 Una cabecera `Content-Security-Policy` limita desde dónde puede cargar scripts la página. Pruébala primero en modo solo informe, para no romper Google Analytics ni Supabase. Reemplaza `TU-PROYECTO` por el de tu URL de Supabase:
 
 ```nginx
-add_header Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self' https://TU-PROYECTO.supabase.co https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com; img-src 'self' data: https://TU-PROYECTO.supabase.co https://www.google-analytics.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; media-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
+add_header Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com https://accounts.google.com; frame-src https://challenges.cloudflare.com https://accounts.google.com; connect-src 'self' https://accounts.google.com https://TU-PROYECTO.supabase.co https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com; img-src 'self' data: https://TU-PROYECTO.supabase.co https://www.google-analytics.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://accounts.google.com; font-src 'self'; media-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
 ```
 
 Cuando actives AdSense habrá que ampliarla con los dominios de anuncios de Google.

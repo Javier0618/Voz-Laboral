@@ -1,10 +1,15 @@
 # Entrar con Google
 
-En `/cuenta`, el botón **«Continuar con Google»** inicia sesión o crea la cuenta con Google, usando el inicio de sesión de Supabase (`signInWithOAuth`). El código ya está listo. Solo falta configurarlo una vez en Google y en Supabase. Mientras no lo configures, el botón lleva a una página de error de Supabase.
+En `/cuenta` hay un botón para iniciar sesión o crear la cuenta con Google. Funciona de dos maneras:
+
+- **Con `VITE_GOOGLE_CLIENT_ID`** (la recomendada): la web muestra el **botón oficial de Google**. Google abre una ventana emergente a nombre de **tuvozlaboral.com**. La persona no sale del sitio, y la web entrega a Supabase el comprobante de Google (`signInWithIdToken`, con un *nonce* para que no se pueda reutilizar). El script de Google solo se carga en `/cuenta`.
+- **Sin esa variable**, o si el script de Google no carga, la web usa la redirección de Supabase (`signInWithOAuth`). Funciona igual, pero Google muestra «Ir a TU-PROYECTO.supabase.co».
+
+El código ya está listo. Solo falta configurarlo una vez en Google, en Supabase y en el `.env` del VPS.
 
 ## Cómo funciona
 
-- Al pulsar el botón, el navegador va a Google. Al volver, Supabase abre la sesión en `/cuenta` y la web sigue a la página desde donde se pidió entrar (por ejemplo, la calculadora con los días anotados).
+- Al entrar, la web sigue a la página desde donde se pidió entrar (por ejemplo, la calculadora con los días anotados). Con el botón oficial pasa en la misma página. Con la redirección, Supabase abre la sesión en `/cuenta` y desde ahí sigue.
 - **Crear cuenta:** en la pestaña «Crear cuenta», hay que marcar antes la casilla de la política de datos. En «Iniciar sesión», el texto bajo el botón avisa que, si es la primera vez, se crea la cuenta y que al continuar se acepta la política. Esa conducta cuenta como autorización (Decreto 1377 de 2013, art. 7).
 - **Datos:** Google envía el correo, el nombre y la foto. Supabase Auth los guarda con la cuenta, pero el sitio solo usa el correo. El nombre y la foto no se muestran. Así lo dice la política de tratamiento de datos.
 - **Misma persona, dos formas de entrar:** si alguien creó la cuenta con correo y contraseña y después entra con Google con el mismo correo, Supabase une las dos formas de acceso en la misma cuenta.
@@ -44,8 +49,20 @@ En [console.cloud.google.com](https://console.cloud.google.com), crea un proyect
    - **Site URL:** `https://tuvozlaboral.com`;
    - **Redirect URLs:** agrega `https://tuvozlaboral.com/cuenta`. Si usas también `www`, agrega `https://www.tuvozlaboral.com/cuenta`.
 
-### 3. Probar
+### 3. ID de cliente en la web (para que Google muestre tuvozlaboral.com)
 
-Abre `https://tuvozlaboral.com/cuenta`, pulsa «Continuar con Google» y elige una cuenta. Debes volver a «Mi cuenta» con la sesión abierta. Una cuenta nueva te pide elegir el alias, igual que con correo.
+En el `.env` del VPS, agrega el **ID de cliente** de Google, que es público:
+
+```
+VITE_GOOGLE_CLIENT_ID=000000000000-xxxxxxxx.apps.googleusercontent.com
+```
+
+Después publica con `FORZAR=1 bash scripts/desplegar.sh`. Las variables `VITE_*` se leen al compilar, por eso hay que forzar la compilación. El **secreto** no va en el `.env`: va solo en Supabase.
+
+Si usas la cabecera `Content-Security-Policy` de `docs/despliegue-vps.md`, agrega `https://accounts.google.com` en `script-src`, `frame-src`, `connect-src` y `style-src`.
+
+### 4. Probar
+
+Abre `https://tuvozlaboral.com/cuenta`, pulsa «Iniciar sesión con Google» y elige una cuenta. La ventana de Google debe decir «para continuar a tuvozlaboral.com». Debes volver a «Mi cuenta» con la sesión abierta. Una cuenta nueva te pide elegir el alias, igual que con correo.
 
 El secreto del cliente va solo en Supabase. No va en el repositorio, ni en el `.env` del VPS, ni en variables `VITE_*`.

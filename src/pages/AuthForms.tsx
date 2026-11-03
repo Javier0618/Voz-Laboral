@@ -6,6 +6,7 @@ import { emailSchema, passwordSchema } from '../lib/schemas';
 import { useAuth } from '../auth/AuthProvider';
 import { Alert, Field } from '../components/ui';
 import { useTurnstile } from '../components/Turnstile';
+import { GoogleSignInButton, googleClientId } from '../components/GoogleSignIn';
 
 type Mode = 'login' | 'registro' | 'recuperar';
 
@@ -43,6 +44,26 @@ export function AuthForms() {
     setErrors({});
     setError(null);
     setNotice(null);
+  }
+
+  // Con VITE_GOOGLE_CLIENT_ID se usa el botón oficial de Google (muestra tuvozlaboral.com);
+  // sin él, o si el script de Google no carga, la redirección de Supabase.
+  const clientId = googleClientId();
+  const [gisFailed, setGisFailed] = useState(false);
+  const useGis = Boolean(clientId) && !gisFailed;
+
+  async function googleIdToken(token: string, nonce: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      const { error: err } = await requireClient().auth.signInWithIdToken({ provider: 'google', token, nonce });
+      if (err) throw err;
+      if (next?.startsWith('/') && !next.startsWith('//')) navigate(next);
+    } catch (err) {
+      setError(toAppError(err));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function google() {
@@ -146,10 +167,15 @@ export function AuthForms() {
                 {errors.accepted && <p className="field-error">{errors.accepted}</p>}
               </div>
             )}
-            <button type="button" className="btn w-full border border-line bg-white text-[#1F1F1F] hover:bg-[#F7F8F8] dark:border-white/30" onClick={() => void google()} disabled={busy}>
-              <GoogleLogo />
-              Continuar con Google
-            </button>
+            {useGis && (mode === 'login' || accepted) ? (
+              <GoogleSignInButton clientId={clientId!} text={mode === 'registro' ? 'signup_with' : 'signin_with'}
+                onCredential={(t, n) => void googleIdToken(t, n)} onLoadError={() => setGisFailed(true)} />
+            ) : (
+              <button type="button" className="btn w-full border border-line bg-white text-[#1F1F1F] hover:bg-[#F7F8F8] dark:border-white/30" onClick={() => void google()} disabled={busy}>
+                <GoogleLogo />
+                Continuar con Google
+              </button>
+            )}
             <p className="text-xs text-slate">
               {mode === 'registro'
                 ? 'De Google solo usamos tu correo para acceder; tu nombre y tu foto nunca se publican.'
