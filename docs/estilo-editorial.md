@@ -85,7 +85,21 @@ Las preguntas frecuentes van al final y responden en 1 a 3 frases, como si fuera
 
 ---
 
-## 6. Lo que no hacemos
+## 6. La portada
+
+Cada guía lleva una portada de 1200×628 con la identidad del sitio. Se ve en el listado, al abrir la guía y cuando alguien la comparte en WhatsApp, Facebook o X. Es tipográfica, no una foto: fondo azul, el título, el tema y **el dato clave de la guía** en grande. Ese dato es el gancho visual. No usamos fotos de bancos de imágenes que no dicen nada.
+
+- **El dato** sale del texto de la guía y está verificado: una cifra, un plazo o una fecha («1.250 semanas para las mujeres en 2026», «20 de diciembre», «4 meses»). Si la guía no tiene un dato que se entienda solo, la portada va sin dato.
+- **El tema** es el nombre exacto del tema en el índice (`src/lib/temasGuias.ts`).
+- **Se genera** con:
+  ```bash
+  node scripts/og/generar-portada.cjs --titulo "…" --tema "…" --dato "…" --dato-texto "…" --salida portada.jpg
+  ```
+- **Se sube** en Moderación → abrir la guía → «Imagen de portada» → «Subir imagen». En la descripción va el dato en texto, por ejemplo: «Portada: 1.250 semanas para las mujeres en 2026».
+
+---
+
+## 7. Lo que no hacemos
 
 - **Sensacionalismo:** «escándalo», «terrible», «polémica» para temas que no lo son.
 - **Alarmismo:** decir que algo «ya es ley» cuando es un proyecto, o que «te pueden quitar» un derecho sin fuente.
@@ -97,7 +111,7 @@ Las preguntas frecuentes van al final y responden en 1 a 3 frases, como si fuera
 
 ---
 
-## 7. Antes y después
+## 8. Antes y después
 
 **Antes (plano):**
 
@@ -119,7 +133,7 @@ El segundo texto responde lo mismo, con la misma norma, pero en el orden en que 
 
 ---
 
-## 8. Lista de estilo antes de guardar
+## 9. Lista de estilo antes de guardar
 
 - [ ] La entradilla engancha (situación, noticia, cifra, fecha o mito) y responde en las primeras frases.
 - [ ] El título cumple lo que promete y no tiene anzuelos.
@@ -128,3 +142,4 @@ El segundo texto responde lo mismo, con la misma norma, pero en el orden en que 
 - [ ] Cada dato está atribuido en el texto a su fuente.
 - [ ] No quedan muletillas, exclamaciones ni párrafos de relleno.
 - [ ] El cierre deja una acción concreta.
+- [ ] La portada está generada, con un dato verificado del texto.

@@ -63,8 +63,9 @@ Si falta alguna, detente y dile a la persona que la agregue en la configuración
      - `content_file`;
      - `sources` (`label`, `publisher`, `url`, `accessed_at`). Después ejecuta `node scripts/editorial.mjs borrador <id> guia.json`. Queda como **borrador**.
    - **Actualización:** lee el texto actual con `node scripts/editorial.mjs guia <slug>`, escribe el texto completo actualizado en un `.md` y ejecuta `node scripts/editorial.mjs propuesta <id> texto.md "qué cambia" legal|informativa`.
-6. Di en el chat qué redactaste, cuántas palabras tiene, la búsqueda principal a la que responde y que el borrador está en Moderación → Guías (o la propuesta, en Sugerencias). Nunca publiques: la publicación la hace una persona.
-7. Recuérdale a la persona que, después de publicar, despliegue el sitio (`bash scripts/desplegar.sh` en el VPS). Así la guía entra al `sitemap.xml` y a las páginas prerenderizadas que leen Google y las redes.
+6. Genera la **portada** con `node scripts/og/generar-portada.cjs` (ver «La portada» en `docs/estilo-editorial.md`). Guárdala en el directorio de trabajo temporal, no en el repositorio, revísala y envíasela a la persona para que la suba en el editor de la guía.
+7. Di en el chat qué redactaste, cuántas palabras tiene, la búsqueda principal a la que responde y que el borrador está en Moderación → Guías (o la propuesta, en Sugerencias). Nunca publiques: la publicación la hace una persona.
+8. Recuérdale a la persona que, después de publicar, despliegue el sitio (`bash scripts/desplegar.sh` en el VPS). Así la guía entra al `sitemap.xml` y a las páginas prerenderizadas que leen Google y las redes.
 
 ## Estilo editorial: que enganche y retenga
 
