@@ -14,6 +14,7 @@ import { formatDate, todayLocal } from '../lib/format';
 import type { AppError } from '../lib/supabase';
 import { GuideBody } from '../components/GuideBody';
 import { GUIDE_TEMPLATE } from '../lib/guideTemplate';
+import { FormatToolbar } from '../components/FormatToolbar';
 import { Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, useAsync } from '../components/ui';
 
 const statusLabel: Record<GuideStatus, string> = {
@@ -189,12 +190,14 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
                   </button>
                   <p className="text-sm text-slate">Separa los bloques con una línea en blanco. La plantilla solo aparece en modo Editar.</p>
                 </div>
+                <FormatToolbar textarea={textarea} value={form.content} onChange={(content) => setForm({ ...form, content })} />
                 <label htmlFor="guia-contenido" className="sr-only">Contenido de la guía</label>
                 <textarea
                   id="guia-contenido"
                   ref={textarea}
                   aria-invalid={Boolean(errors.content)}
-                  className="input min-h-[520px] font-sans text-[0.9375rem] leading-7"
+                  className="input min-h-[520px] font-mono text-[0.875rem] leading-7"
+                  placeholder={'Entradilla: 2 o 3 párrafos cortos con el gancho y la respuesta directa.\n\n## Qué dice la ley\n\nTexto de la sección.\n\n### Un subtítulo\n\n- Un punto de la lista\n- Otro punto\n\n> Importante: un plazo o una advertencia.'}
                   value={form.content}
                   onChange={(e) => setForm({ ...form, content: e.target.value })}
                 />
