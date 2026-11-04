@@ -20,6 +20,25 @@ Este documento complementa el «Estándar de calidad de las guías» de `CLAUDE.
 
 Prueba rápida: lee el párrafo en voz alta. Si suena a lo que le dirías a un compañero de trabajo que te pregunta en la cafetería —con la ley en la mano—, está bien.
 
+### Escribir como una persona que sabe
+
+**Regla de oro:** cada texto se escribe como lo diría una persona que conoce el tema a fondo y le habla a alguien: un asesor laboral que le explica a un trabajador sentado al frente, o que le habla a un grupo en una charla. El lector debe sentir que alguien le está explicando, no que está leyendo un formulario.
+
+Cómo se nota en el texto:
+
+- **Explica el porqué, no solo el qué.** «La prima no es salario. Por eso no te descuentan salud ni pensión sobre ella» dice más que dos datos sueltos.
+- **Anticipa la siguiente duda.** Después de un dato, la pregunta que la persona se haría: «¿Y si entraste en septiembre? Te toca una parte».
+- **Usa conectores naturales,** como los de una conversación: «ojo», «eso sí», «en otras palabras», «por eso», «ahora bien». Sin abusar de ninguno.
+- **Varía el largo de las frases.** Una explicación de dos líneas, y después una frase corta que remata: «No es un favor. Es la ley».
+- **Prosa donde hay razonamiento, listas donde hay pasos o requisitos.** Un texto hecho casi todo de viñetas parece un esquema; `revisar` lo avisa.
+- **No repite la misma plantilla en cada sección.** Si todas las secciones abren igual o tienen la misma cantidad de puntos, suena mecánico.
+- **Le habla a una persona concreta:** «si ganas el mínimo», «si te despidieron estando incapacitada», no «el trabajador que se encuentre en dicha situación».
+- **Dice lo que haría alguien que sabe:** qué conviene, qué es arriesgado y cuándo pedir ayuda. Sin miedo a dar una recomendación clara, siempre con la norma detrás.
+
+**Lo que esa voz nunca hace:** inventarse una identidad ni experiencias propias («en mis 20 años como abogado», «una clienta me contó»), citar casos que no existen ni hablar en nombre de una entidad. La experiencia se demuestra con la explicación, los ejemplos y la exactitud, no con un personaje.
+
+**Prueba final:** lee el texto en voz alta. Si podrías decirlo así, palabra por palabra, en una charla con trabajadores sin que suene raro, está bien. Si suena a contrato, a informe o a lista de chequeo, reescríbelo.
+
 ---
 
 ## 2. Título y resumen: la promesa
@@ -207,6 +226,7 @@ El segundo texto responde lo mismo, con la misma norma, pero en el orden en que 
 
 ## 11. Lista de estilo antes de guardar
 
+- [ ] Leído en voz alta, suena como una persona que sabe explicándole a otra: explica el porqué, anticipa dudas y no parece un esquema.
 - [ ] La entradilla engancha (situación, noticia, cifra, fecha o mito) y responde en las primeras frases.
 - [ ] El título cumple lo que promete y no tiene anzuelos.
 - [ ] Hay un ejemplo con cifras del año, a más tardar en la segunda sección.

@@ -129,4 +129,10 @@ describe('revisión de calidad de las guías', () => {
     expect(r.avisos.join(' ')).toMatch(/sin embargo/);
     expect(r.avisos.join(' ')).toMatch(/en esta guía encontrarás/);
   });
+
+  it('avisa cuando el texto es casi todo listas y parece un esquema', () => {
+    const lista = Array.from({ length: 60 }, (_, i) => `- Punto ${i + 1} con algo de texto para que pese en la cuenta de palabras.`).join('\n');
+    expect(revisarGuia({ ...guia, content: `${contenido}\n\n${lista}` }).avisos.join(' ')).toMatch(/parece un esquema/);
+    expect(revisarGuia(guia).avisos.join(' ')).not.toMatch(/parece un esquema/);
+  });
 });

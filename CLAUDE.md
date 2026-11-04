@@ -72,6 +72,7 @@ Si falta alguna, detente y dile a la persona que la agregue en la configuración
 
 Las guías se escriben como **periodismo de servicio**, con el formato de un medio digital de noticias **como Infobae**: titular con dato, entradilla con el hecho noticioso, párrafos cortos de una idea, subtítulos que responden búsquedas, cronologías y datos destacados. Todo con la voz propia de TuVozLaboral: cercana, directa, del lado del trabajador y rigurosa. **Es el estilo por defecto de todo lo que se redacta.** La guía completa, con el modelo para reformas y ejemplos de antes y después, está en `docs/estilo-editorial.md`. Lo esencial:
 
+- **Regla de oro: escribe como una persona que sabe del tema y le habla a alguien.** Cada texto debe sonar como un asesor laboral con experiencia que le explica el asunto a un trabajador sentado al frente, o a un grupo que lo escucha: con frases naturales, que cuentan el porqué y no solo el qué, que anticipan la siguiente duda y que se oyen bien en voz alta. No como un esquema, un formulario ni un texto armado por partes iguales. Los criterios concretos están en «Escribir como una persona que sabe» de `docs/estilo-editorial.md`. Esa voz nunca inventa una identidad ni experiencias propias: no dice «en mis años como abogado» ni cita casos que no existen.
 - **Entradilla:** toda guía abre, antes del primer `##`, con 2 o 3 párrafos cortos (60 a 100 palabras):
   - el **gancho**: la situación del lector, la noticia, la cifra, la fecha que vence o el mito;
   - la **respuesta directa**, con la norma o la fuente citada;
@@ -145,6 +146,7 @@ El sitio ya genera la dirección canónica, las etiquetas Open Graph, los datos 
 ### Lista final antes de guardar
 
 - [ ] `node scripts/editorial.mjs revisar` sin errores.
+- [ ] Leído en voz alta, suena como una persona que sabe del tema explicándoselo a otra, no como un esquema.
 - [ ] La entradilla engancha y la primera respuesta aparece en las primeras frases.
 - [ ] Cumple la lista de estilo de `docs/estilo-editorial.md`: título sin anzuelos, subtítulos que informan, sin muletillas y cierre con acción.
 - [ ] Cada dato está verificado en su fuente. En las guías legales, con la norma citada.

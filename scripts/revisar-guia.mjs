@@ -72,6 +72,11 @@ export function revisarGuia({ slug, title, summary, content, sources, tipo = 'le
   const duplicadas = h2.filter((h) => /^(Fuentes|Referencias|Normas consultadas|Bibliografía)/i.test(h));
   if (duplicadas.length) errores.push(`estructura: quita «## ${duplicadas[0]}»; las fuentes van en la ficha y el sitio ya las muestra.`);
   if (/^\*\*(Verificación normativa|Última actualización|Fecha de actualización|Aviso)\b[^*]*\*\*/im.test(content)) errores.push('estructura: quita las líneas de fecha o aviso del final («Última actualización», «Verificación normativa», «Aviso»); el sitio ya las muestra.');
+  // Un texto hecho casi todo de listas parece un esquema, no una persona explicando.
+  const bloques = content.split(/\n\s*\n/).map((b) => b.trim()).filter((b) => b && !b.startsWith('#') && !b.startsWith('!['));
+  const palabrasLista = bloques.filter((b) => /^([-*]|\d+\.)\s/.test(b)).reduce((t, b) => t + palabras(b), 0);
+  const palabrasTotal = bloques.reduce((t, b) => t + palabras(b), 0);
+  if (palabrasTotal > 0 && palabrasLista / palabrasTotal > 0.55) avisos.push(`voz: el ${Math.round((100 * palabrasLista) / palabrasTotal)} % del texto está en listas y parece un esquema; explica en prosa lo que necesita razonamiento y deja las listas para pasos y requisitos.`);
   const sinEmbargo = (content.match(/sin embargo/gi) ?? []).length;
   if (sinEmbargo > 3) avisos.push(`estilo: «sin embargo» aparece ${sinEmbargo} veces; varía los conectores o divide las ideas.`);
   const imagenes = [...content.matchAll(/^!\[([^\]]*)\]\(([^)]*)\)\s*$/gm)];
