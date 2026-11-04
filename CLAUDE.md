@@ -100,7 +100,9 @@ Muchas guías tratan temas legales y de dinero. Google los llama «Your Money or
   - los errores comunes;
   - pasos concretos de qué hacer y a dónde acudir.
 - **Datos exactos:** en las guías legales, cada dato sale del texto oficial y cita el artículo, la ley, el decreto o la sentencia. En las informativas, cada cifra o afirmación sale de una fuente confiable. Si un dato no se pudo verificar, no se escribe. Si depende de una decisión pendiente o de un proyecto, se dice.
-- **Nada copiado:** no copies ni parafrasees de cerca textos de otros sitios. Los medios solo sirven para detectar el tema.
+- **Texto 100 % original:** las fuentes son una **guía de qué verificar y qué decir**, nunca un texto para copiar. Se leen para entender la norma y comprobar cada dato; después se cierran y se escribe con palabras propias, en el orden y con los ejemplos que sirven al lector. No se copian ni se parafrasean de cerca frases de leyes, sentencias, entidades ni medios. Los medios solo sirven para detectar el tema.
+  - **Única excepción:** una cita textual corta, entre comillas y atribuida, cuando las palabras exactas importan (por ejemplo, la frase que la Corte declaró inexequible). Máximo una o dos frases; `revisar` avisa las citas de más de 25 palabras.
+  - Los ejemplos, las explicaciones, la estructura y las preguntas frecuentes son siempre propios.
 - **Sin relleno:** nada de repetir ideas para alargar, ni introducciones genéricas, ni párrafos de «en conclusión», ni palabras clave forzadas.
 
 ### Longitud y legibilidad

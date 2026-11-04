@@ -37,6 +37,17 @@ Cómo se nota en el texto:
 
 **Lo que esa voz nunca hace:** inventarse una identidad ni experiencias propias («en mis 20 años como abogado», «una clienta me contó»), citar casos que no existen ni hablar en nombre de una entidad. La experiencia se demuestra con la explicación, los ejemplos y la exactitud, no con un personaje.
 
+### Las fuentes orientan, no se copian
+
+Las fuentes (la ley, la sentencia, la página de la entidad) dicen **qué** hay que contar y permiten **verificar** cada dato. Nunca son el texto. El método:
+
+1. Lee la fuente completa y entiende la regla.
+2. Anota solo los datos: números, plazos, requisitos, artículos.
+3. Cierra la fuente y escribe con tus palabras, como se lo explicarías a alguien, en el orden que le sirve al lector.
+4. Compara solo los datos con la fuente, no las frases.
+
+Una cita literal se permite solo cuando las palabras exactas importan, entre comillas, atribuida y de una o dos frases. Todo lo demás (explicaciones, ejemplos, estructura, preguntas frecuentes) es 100 % original.
+
 **Prueba final:** lee el texto en voz alta. Si podrías decirlo así, palabra por palabra, en una charla con trabajadores sin que suene raro, está bien. Si suena a contrato, a informe o a lista de chequeo, reescríbelo.
 
 ---

@@ -77,6 +77,9 @@ export function revisarGuia({ slug, title, summary, content, sources, tipo = 'le
   const palabrasLista = bloques.filter((b) => /^([-*]|\d+\.)\s/.test(b)).reduce((t, b) => t + palabras(b), 0);
   const palabrasTotal = bloques.reduce((t, b) => t + palabras(b), 0);
   if (palabrasTotal > 0 && palabrasLista / palabrasTotal > 0.55) avisos.push(`voz: el ${Math.round((100 * palabrasLista) / palabrasTotal)} % del texto está en listas y parece un esquema; explica en prosa lo que necesita razonamiento y deja las listas para pasos y requisitos.`);
+  // Las fuentes orientan, no se copian: una cita literal larga suele ser texto copiado.
+  const citasLargas = [...content.matchAll(/[«"“]([^»"”]{20,})[»"”]/g)].filter((m) => palabras(m[1]) > 25).length;
+  if (citasLargas) avisos.push(`originalidad: ${citasLargas} cita(s) textual(es) de más de 25 palabras; explica con tus palabras y deja entre comillas solo lo que necesita las palabras exactas.`);
   const sinEmbargo = (content.match(/sin embargo/gi) ?? []).length;
   if (sinEmbargo > 3) avisos.push(`estilo: «sin embargo» aparece ${sinEmbargo} veces; varía los conectores o divide las ideas.`);
   const imagenes = [...content.matchAll(/^!\[([^\]]*)\]\(([^)]*)\)\s*$/gm)];

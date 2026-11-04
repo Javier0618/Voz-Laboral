@@ -131,8 +131,14 @@ describe('revisión de calidad de las guías', () => {
   });
 
   it('avisa cuando el texto es casi todo listas y parece un esquema', () => {
-    const lista = Array.from({ length: 60 }, (_, i) => `- Punto ${i + 1} con algo de texto para que pese en la cuenta de palabras.`).join('\n');
+    const lista = Array.from({ length: 150 }, (_, i) => `- Punto ${i + 1} con algo de texto para que pese en la cuenta de palabras.`).join('\n');
     expect(revisarGuia({ ...guia, content: `${contenido}\n\n${lista}` }).avisos.join(' ')).toMatch(/parece un esquema/);
     expect(revisarGuia(guia).avisos.join(' ')).not.toMatch(/parece un esquema/);
+  });
+
+  it('avisa las citas textuales largas, que suelen ser texto copiado', () => {
+    const cita = '«El empleador está obligado a pagar a su empleado o empleados la prestación social denominada prima de servicios que corresponderá a treinta días de salario por año, el cual se reconocerá en dos pagos así»';
+    expect(revisarGuia({ ...guia, content: `${contenido}\n\nDice la ley: ${cita}.` }).avisos.join(' ')).toMatch(/originalidad/);
+    expect(revisarGuia({ ...guia, content: `${contenido}\n\nLa Corte eliminó «que no esté relacionado o influya en su ejercicio laboral».` }).avisos.join(' ')).not.toMatch(/originalidad/);
   });
 });
