@@ -4,10 +4,12 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
 const palabras = (t) => (t.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').match(/[\p{L}\p{N}]+/gu) ?? []).length;
-const SECCIONES = ['Qué dice la ley', 'En la práctica', 'Errores comunes', 'Qué puedes hacer'];
+// Obligatorias en las guías legales. Entre «Qué dice la ley» y «Errores comunes» va al menos una sección práctica, con el nombre que necesite.
+const SECCIONES = ['Qué dice la ley', 'Errores comunes', 'Qué puedes hacer'];
+const FIJAS = /^(Qué dice la ley|Errores comunes|Qué puedes hacer|Preguntas frecuentes|Herramientas y lecturas)/i;
 // Estilo editorial (docs/estilo-editorial.md): anzuelos prohibidos en el título y muletillas que restan ritmo.
 const ANZUELOS = /no (vas a )?creer[aá]s?|impactante|incre[ií]ble|lo que nadie te (dice|cuenta)|no quiere que sepas|te sorprender[aá]|atenci[oó]n:/i;
-const MULETILLAS = ['es importante destacar', 'es importante mencionar', 'cabe resaltar', 'cabe destacar', 'cabe mencionar', 'vale la pena mencionar', 'sin lugar a dudas', 'en este artículo', 'en esta guía te explicamos', 'hoy te explicamos', 'en conclusión', 'en resumen,'];
+const MULETILLAS = ['es importante destacar', 'es importante mencionar', 'cabe resaltar', 'cabe destacar', 'cabe mencionar', 'vale la pena mencionar', 'sin lugar a dudas', 'en este artículo', 'en esta guía te explicamos', 'en esta guía encontrarás', 'es importante conocer', 'es importante tener en cuenta', 'cabe señalar', 'hoy te explicamos', 'en conclusión', 'en resumen,'];
 
 /**
  * Revisa una guía contra el estándar de CLAUDE.md. Errores bloquean; avisos no.
@@ -44,6 +46,7 @@ export function revisarGuia({ slug, title, summary, content, sources, tipo = 'le
   if (/^# /m.test(content)) errores.push('estructura: no uses «# »; el título de la página ya es el H1. Usa «## » y «### ».');
   if (legal) {
     for (const s of SECCIONES) if (!h2.some((h) => h.toLowerCase().startsWith(s.toLowerCase()))) errores.push(`estructura: falta la sección «## ${s}» (guía legal).`);
+    if (!h2.some((h) => !FIJAS.test(h))) errores.push('estructura: falta una sección práctica entre «Qué dice la ley» y «Errores comunes» («## En la práctica» o una con la pregunta que responde, con el ejemplo en cifras).');
   } else if (h2.filter((h) => !/^Preguntas frecuentes/i.test(h)).length < 3) {
     errores.push('estructura: un artículo informativo necesita al menos 3 secciones «## » además de las preguntas frecuentes.');
   }
@@ -61,8 +64,16 @@ export function revisarGuia({ slug, title, summary, content, sources, tipo = 'le
   // Marcas de trabajo pendiente: solo en mayúsculas y como palabra, para no confundirlas con «todos» o «pendientes».
   for (const marca of content.match(/\b(TODO|PENDIENTE)\b/g) ?? []) errores.push(`relleno: queda texto de plantilla («${marca}»).`);
 
-  const largos = content.split(/\n\s*\n/).filter((b) => !/^\s*([-*>]|\d+\.|#)/.test(b) && palabras(b) > 120).length;
-  if (largos) avisos.push(`legibilidad: ${largos} párrafo(s) de más de 120 palabras; divídelos.`);
+  const parrafos = content.split(/\n\s*\n/).filter((b) => !/^\s*([-*>|!]|\d+\.|#)/.test(b));
+  const largos = parrafos.filter((b) => palabras(b) > 80).length;
+  if (largos) avisos.push(`legibilidad: ${largos} párrafo(s) de más de 80 palabras; deja una idea por párrafo, de 1 a 3 frases.`);
+  // Formato que el sitio no muestra o que ya pone solo.
+  if (/^\s*\|?\s*:?-{3,}:?\s*\|/m.test(content)) errores.push('formato: hay una tabla y el sitio no las muestra (saldrían las rayas «|---|»); usa una lista o un gráfico.');
+  const duplicadas = h2.filter((h) => /^(Fuentes|Referencias|Normas consultadas|Bibliografía)/i.test(h));
+  if (duplicadas.length) errores.push(`estructura: quita «## ${duplicadas[0]}»; las fuentes van en la ficha y el sitio ya las muestra.`);
+  if (/^\*\*(Verificación normativa|Última actualización|Fecha de actualización|Aviso)\b[^*]*\*\*/im.test(content)) errores.push('estructura: quita las líneas de fecha o aviso del final («Última actualización», «Verificación normativa», «Aviso»); el sitio ya las muestra.');
+  const sinEmbargo = (content.match(/sin embargo/gi) ?? []).length;
+  if (sinEmbargo > 3) avisos.push(`estilo: «sin embargo» aparece ${sinEmbargo} veces; varía los conectores o divide las ideas.`);
   const imagenes = [...content.matchAll(/^!\[([^\]]*)\]\(([^)]*)\)\s*$/gm)];
   for (const [, alt, url] of imagenes) {
     if (!/^https:\/\//.test(url)) errores.push(`imágenes: «${url}» no es una dirección https; súbela con «editorial.mjs imagen».`);

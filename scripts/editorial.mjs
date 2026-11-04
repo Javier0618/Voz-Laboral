@@ -15,6 +15,7 @@
 //   node scripts/editorial.mjs borrador <id> <archivo.json>       guarda la guía redactada
 //   node scripts/editorial.mjs propuesta <id> <archivo.md> "<qué cambia>" [legal|informativa]
 //   node scripts/editorial.mjs revisar <archivo.json | archivo.md> [legal|informativa]   revisa calidad y SEO (no se conecta)
+//   node scripts/editorial.mjs enlaces <archivo.json | archivo.md>   comprueba que los enlaces internos existan
 //   node scripts/editorial.mjs imagen <slug> <archivo.png|jpg|webp> "<descripción>"   sube un gráfico para el cuerpo de la guía
 //
 // «borrador» y «propuesta» ejecutan la misma revisión y no guardan nada si hay
@@ -64,6 +65,32 @@ function fallar(error) {
   process.exit(1);
 }
 const leerJson = (ruta) => JSON.parse(readFileSync(ruta, 'utf8'));
+
+/**
+ * Enlaces internos que no llevan a ninguna parte: guías que no existen en
+ * Supabase (de cualquier estado) o rutas que no están en src/App.tsx.
+ */
+async function enlacesRotos(content, slugPropio) {
+  const { data, error } = await supabase.rpc('editorial_existing_guides');
+  if (error) fallar(error);
+  const guias = new Set([...data.map((g) => g.slug), slugPropio].filter(Boolean));
+  const app = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
+  const rutas = new Set([...app.matchAll(/path="([^"*:]*)"/g)].map((m) => `/${m[1].replace(/^\//, '')}`));
+  const cartas = readFileSync(new URL('../src/lib/cartas.ts', import.meta.url), 'utf8');
+  for (const m of cartas.matchAll(/slug: '([a-z0-9-]+)'/g)) rutas.add(`/herramientas/cartas/${m[1]}`);
+  const rotos = [];
+  for (const m of content.matchAll(/\]\((\/[^)\s]*)\)/g)) {
+    const ruta = m[1].split(/[?#]/)[0].replace(/\/$/, '') || '/';
+    const guia = /^\/derechos\/([a-z0-9-]+)$/.exec(ruta);
+    if (guia ? !guias.has(guia[1]) : !rutas.has(ruta)) rotos.push(m[1]);
+  }
+  return [...new Set(rotos)];
+}
+
+async function exigirEnlaces(content, slugPropio) {
+  const rotos = await enlacesRotos(content, slugPropio);
+  if (rotos.length) fallar(`No se guardó: estos enlaces internos no llevan a ninguna guía ni página del sitio: ${rotos.join(', ')}. Compruébalos con «guias».`);
+}
 
 const { error: errorAcceso } = await supabase.auth.signInWithPassword({
   email: process.env.REDACTOR_EMAIL, password: process.env.REDACTOR_PASSWORD,
@@ -123,6 +150,7 @@ switch (comando) {
     const g = leerGuia(ruta);
     const content = g.content;
     if (!imprimirRevision(revisarGuia(g))) fallar('No se guardó: corrige los errores de la revisión.');
+    await exigirEnlaces(content, g.slug);
     const { data, error } = await supabase.rpc('editorial_save_draft', {
       p_id: id, p_slug: g.slug, p_title: g.title, p_summary: g.summary, p_content: content,
       p_category_slug: g.category ?? null, p_sources: g.sources, p_topic: g.topic ?? null,
@@ -135,9 +163,18 @@ switch (comando) {
     const [id, ruta, notas = '', tipo = 'legal'] = args;
     const texto = readFileSync(ruta, 'utf8');
     if (!imprimirRevision(revisarGuia({ content: texto, tipo }, { propuesta: true }))) fallar('No se guardó: corrige los errores de la revisión.');
+    await exigirEnlaces(texto);
     const { error } = await supabase.rpc('editorial_save_proposal', { p_id: id, p_content: texto, p_notes: notas });
     if (error) fallar(error);
     console.log('Propuesta guardada.');
+    break;
+  }
+  case 'enlaces': {
+    // Comprueba los enlaces internos de un texto sin guardar nada.
+    const g = leerGuia(args[0]);
+    const rotos = await enlacesRotos(g.content, g.slug);
+    console.log(rotos.length ? `✗ Enlaces rotos: ${rotos.join(', ')}` : '✓ Todos los enlaces internos existen.');
+    if (rotos.length) process.exitCode = 1;
     break;
   }
   case 'imagen': {

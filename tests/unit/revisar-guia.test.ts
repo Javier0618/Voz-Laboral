@@ -107,4 +107,26 @@ describe('revisión de calidad de las guías', () => {
     const cuatro = Array.from({ length: 4 }, () => img('Gráfico: la prima se paga en dos cuotas, junio y diciembre')).join('\n\n');
     expect(revisarGuia({ ...guia, content: con(cuatro) }).avisos.join(' ')).toMatch(/máximo recomendado/);
   });
+
+  it('formato de medio digital: la sección práctica puede tener cualquier nombre, pero tiene que existir', () => {
+    const libre = contenido.replace('## En la práctica', '## Cuánto te toca en diciembre de 2026');
+    expect(revisarGuia({ ...guia, content: libre }).errores).toEqual([]);
+    const sinPractica = contenido.replace(/## En la práctica[\s\S]*?(?=## Errores comunes)/, '');
+    expect(revisarGuia({ ...guia, content: sinPractica }).errores.join(' ')).toMatch(/sección práctica/);
+  });
+
+  it('rechaza tablas y las secciones de fuentes o fechas que el sitio ya muestra', () => {
+    const tabla = `${contenido}\n\n| Año | Semanas |\n|---|---:|\n| 2026 | 1.250 |`;
+    expect(revisarGuia({ ...guia, content: tabla }).errores.join(' ')).toMatch(/tabla/);
+    const fuentes = `${contenido}\n\n## Fuentes oficiales y normas consultadas\n\n- Ley 100.`;
+    expect(revisarGuia({ ...guia, content: fuentes }).errores.join(' ')).toMatch(/Fuentes oficiales/);
+    const fechas = `${contenido}\n\n**Última actualización:** 4 de noviembre de 2026.`;
+    expect(revisarGuia({ ...guia, content: fechas }).errores.join(' ')).toMatch(/Última actualización/);
+  });
+
+  it('avisa del abuso de «sin embargo» y de las nuevas muletillas', () => {
+    const r = revisarGuia({ ...guia, content: `${contenido}\n\nSin embargo, uno. Sin embargo, dos. Sin embargo, tres. Sin embargo, cuatro. En esta guía encontrarás todo.` });
+    expect(r.avisos.join(' ')).toMatch(/sin embargo/);
+    expect(r.avisos.join(' ')).toMatch(/en esta guía encontrarás/);
+  });
 });

@@ -54,7 +54,7 @@ Si falta alguna, detente y dile a la persona que la agregue en la configuración
    En los dos casos, lee la fuente antes de escribir. Cada dato (legal, cifra o fecha) debe salir de una fuente verificable: no inventes nada. Si algo es una propuesta o un proyecto, dilo así, no como si ya fuera ley.
 3. Escribe la guía cumpliendo el **«Estándar de calidad de las guías»** (abajo) y el **estilo editorial** de `docs/estilo-editorial.md` (léelo antes de cada redacción), con la plantilla de `src/lib/guideTemplate.ts` (en las legales), las reglas de `docs/editorial.md` y el formato de `src/lib/guide.ts`: `##`, `###`, listas, `> ` para avisos, `**negrita**`, `[texto](https://…)` y enlaces internos `[texto](/derechos/slug)` o `[texto](/calculadoras/…)`.
    - **Imágenes en el cuerpo, solo si hacen falta:** un gráfico propio cuando explica mejor que el texto una escala, una línea de tiempo o una comparación con cifras. Créalo y súbelo con `node scripts/editorial.mjs imagen` antes de guardar, según «Imágenes dentro de la guía» en `docs/estilo-editorial.md`. Nunca fotos de banco ni imágenes decorativas.
-4. Revisa la guía con `node scripts/editorial.mjs revisar guia.json`. Si es una actualización, usa `revisar texto.md legal|informativa`. Corrige **todos** los errores. Los avisos se corrigen salvo que haya una razón para dejarlos. Después, haz la revisión manual de la lista de abajo.
+4. Revisa la guía con `node scripts/editorial.mjs revisar guia.json` y sus enlaces con `node scripts/editorial.mjs enlaces guia.json`. Si es una actualización, usa `revisar texto.md legal|informativa`. Corrige **todos** los errores. Los avisos se corrigen salvo que haya una razón para dejarlos. Después, haz la revisión manual de la lista de abajo.
 5. Guarda la guía (el script repite la revisión y no guarda si hay errores):
    - **Guía nueva:** prepara un JSON con:
      - `tipo` (`legal` o `informativa`);
@@ -70,14 +70,17 @@ Si falta alguna, detente y dile a la persona que la agregue en la configuración
 
 ## Estilo editorial: que enganche y retenga
 
-Las guías se escriben como **periodismo de servicio**: con el ritmo de un medio digital de noticias (titular con dato, entradilla fuerte, subtítulos que avanzan, datos destacados) y la voz propia de TuVozLaboral: cercana, directa, del lado del trabajador y rigurosa. La guía completa, con ejemplos de antes y después, está en `docs/estilo-editorial.md`. Lo esencial:
+Las guías se escriben como **periodismo de servicio**, con el formato de un medio digital de noticias **como Infobae**: titular con dato, entradilla con el hecho noticioso, párrafos cortos de una idea, subtítulos que responden búsquedas, cronologías y datos destacados. Todo con la voz propia de TuVozLaboral: cercana, directa, del lado del trabajador y rigurosa. **Es el estilo por defecto de todo lo que se redacta.** La guía completa, con el modelo para reformas y ejemplos de antes y después, está en `docs/estilo-editorial.md`. Lo esencial:
 
 - **Entradilla:** toda guía abre, antes del primer `##`, con 2 o 3 párrafos cortos (60 a 100 palabras):
   - el **gancho**: la situación del lector, la noticia, la cifra, la fecha que vence o el mito;
   - la **respuesta directa**, con la norma o la fuente citada;
   - opcional, la **promesa** concreta de lo que viene («más abajo está el cálculo con el mínimo de 2026»).
-- **Subtítulos que informan:** con la pregunta o el dato. Las secciones obligatorias de las guías legales pueden llevar un complemento («## En la práctica: cuánto te toca si ganas el mínimo»).
-- **Ritmo:** cada sección abre con su idea principal, el ejemplo con cifras llega a más tardar en la segunda sección y los enlaces internos van dentro de la frase donde se necesitan.
+- **Subtítulos que responden búsquedas:** preguntas o afirmaciones con las palabras que la gente escribe y el tema repetido («## Cuándo empieza a regir la reforma pensional», «## Preguntas frecuentes sobre la prima»).
+- **Párrafos de 1 a 3 frases,** una idea cada uno. Cada sección abre con su idea principal, el ejemplo con cifras llega a más tardar en la segunda sección y los enlaces internos van dentro de la frase donde se necesitan.
+- **Reformas y novedades:** línea de tiempo con fechas, estado de cada parte (vigente, pendiente, proyecto), ejemplos de umbral y «qué sigue igual mientras tanto».
+- **Errores comunes y pasos con detalle:** un subtítulo `###` por error («### «La reforma sube la edad».» y la respuesta empezando por «No.») o por paso («### 1. Descarga tu historia laboral») cuando necesitan explicación.
+- **No van en el texto:** tablas (el sitio no las muestra) ni secciones finales de fuentes, fechas o aviso legal (el sitio ya las muestra desde la ficha).
 - **Atribución periodística:** «según el artículo 249 del Código Sustantivo del Trabajo», «de acuerdo con el DANE».
 - **Cierre con acción:** el primer paso, el plazo o la invitación a contar la experiencia. Nunca «en conclusión».
 - **Prohibido:** anzuelos en el título, sensacionalismo, alarmismo, exclamaciones, muletillas («es importante destacar», «en este artículo») y testimonios o citas inventados. Los casos se cuentan en segunda persona o como ejemplo explícito.
@@ -102,23 +105,23 @@ Muchas guías tratan temas legales y de dinero. Google los llama «Your Money or
 ### Longitud y legibilidad
 
 - **Longitud:** entre **1.000 y 2.000 palabras**; mínimo 800 y máximo recomendado 3.000. Google no fija una longitud: la cifra es nuestro estándar para cubrir el tema completo. Si sobran palabras, el tema se divide en dos guías.
-- **Párrafos:** de menos de 120 palabras, de 2 a 4 frases cada uno, con listas para los requisitos y los pasos.
+- **Párrafos:** de 1 a 3 frases y menos de 80 palabras, con listas para los requisitos y los pasos.
 - **Estilo:** tutea, en español de Colombia, en lenguaje claro y sin jerga jurídica sin explicar. Define cada término técnico la primera vez que aparezca.
 
 ### Estructura
 
 - **Sin H1:** no uses `# ` en el texto, porque el título de la página ya es el H1.
 - **Entradilla:** 2 o 3 párrafos antes del primer `##` (ver «Estilo editorial»).
-- **Secciones `##` de las guías legales, en este orden** (pueden llevar un complemento después de dos puntos):
+- **Secciones `##` de las guías legales, en este orden** (pueden llevar un complemento, como «sobre la prima» o «: 30 días al año»):
   1. «Qué dice la ley»
-  2. «En la práctica»
+  2. Una o más secciones prácticas: «En la práctica» o, mejor, con la pregunta que responden («Cuánto te toca en diciembre de 2026»)
   3. «Errores comunes»
   4. «Qué puedes hacer»
   5. «Preguntas frecuentes»
   6. (opcional) «Herramientas y lecturas relacionadas»
 - **Artículos informativos:** al menos 3 secciones `##` con subtítulos que respondan preguntas, más «Preguntas frecuentes», que es recomendable.
 - **Subtítulos `###`:** para dividir secciones largas, con subtítulos descriptivos que contengan las palabras que la gente busca.
-- **Preguntas frecuentes:** al menos **3** subtítulos `### ¿…?` con preguntas reales de búsqueda, cada uno con una respuesta corta de 1 a 3 frases.
+- **Preguntas frecuentes:** de **3 a 10** subtítulos `### ¿…?` con preguntas reales de búsqueda, cada uno con una respuesta corta de 1 a 3 frases.
 - **Avisos `> `:** solo para lo importante, como plazos que vencen o advertencias.
 
 ### SEO en la ficha

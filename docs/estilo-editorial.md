@@ -1,6 +1,8 @@
 # Estilo editorial — cómo escribir guías que enganchen
 
-Las guías de TuVozLaboral se escriben como **periodismo de servicio**: con el ritmo de un medio digital de noticias, que engancha desde la primera frase y lleva al lector hasta el final, pero con la precisión de una guía legal. Tomamos las técnicas de los grandes medios digitales (titular con dato, entradilla fuerte, subtítulos que avanzan la historia, datos destacados), no sus textos ni sus vicios.
+Las guías de TuVozLaboral se escriben como **periodismo de servicio**, con el formato de los grandes medios digitales de noticias como Infobae: titular con dato, entradilla con el hecho noticioso, párrafos cortos de una sola idea, subtítulos que responden lo que la gente busca, cronologías y datos destacados. A eso le sumamos la precisión de una guía legal. Tomamos sus técnicas, no sus textos ni sus vicios.
+
+**Este es el estilo por defecto de todo lo que se redacte** (guías nuevas, actualizaciones y artículos informativos). La sección 4 explica el formato y la sección 5, el modelo para temas de reformas y novedades.
 
 Este documento complementa el «Estándar de calidad de las guías» de `CLAUDE.md` y la plantilla de `docs/editorial.md`. Si algo choca, gana la exactitud: **nunca se sacrifica un dato por una frase bonita**.
 
@@ -60,20 +62,61 @@ Un caso concreto engancha más que una explicación abstracta, pero **no inventa
 
 ---
 
-## 4. El cuerpo: que cada sección empuje a la siguiente
+## 4. El cuerpo: formato de medio digital
 
+- **Párrafos de una sola idea:** de 1 a 3 frases, como en un medio digital. En el celular, un párrafo de más de 4 líneas ya se siente pesado.
 - **Pirámide invertida por sección:** cada `##` abre con su idea principal en la primera frase. El detalle viene después.
-- **Subtítulos que informan:** en vez de rótulos genéricos, subtítulos con la pregunta o el dato. En las guías legales, las secciones obligatorias pueden llevar un complemento: «## Qué dice la ley: 30 días de salario por año», «## En la práctica: cuánto te toca si ganas el mínimo».
-- **Ritmo:** alterna párrafos de 2 a 4 frases con alguna frase corta que remate. Una lista cuando hay pasos o requisitos; prosa cuando hay razonamiento.
+- **Subtítulos que responden búsquedas:** cada `##` es una pregunta o una afirmación con las palabras que la gente escribe en Google, y repite el tema: «## Cuándo empieza a regir la reforma pensional», «## Qué edad y cuántas semanas necesitas para pensionarte», «## Preguntas frecuentes sobre la reforma pensional». Las secciones obligatorias de las guías legales llevan el tema como complemento: «## Qué dice la ley sobre la prima», «## Errores comunes sobre las cesantías».
+- **Secciones prácticas libres:** entre «Qué dice la ley» y «Errores comunes» van las secciones que el tema necesite, cada una respondiendo una pregunta concreta (cuánto, cuándo, quién, cómo). Al menos una trae el ejemplo con cifras. Pueden llamarse «En la práctica» o, mejor, con la pregunta que responden.
+- **Ritmo:** una lista cuando hay pasos o requisitos; prosa cuando hay razonamiento. Alguna frase corta que remate.
 - **El ejemplo con cifras, temprano:** a más tardar en la segunda sección. Es lo que más retiene.
 - **Datos destacados:** el plazo, el monto o el porcentaje clave en **negrita**, una sola vez por párrafo. Los avisos `> ` solo para plazos y advertencias.
 - **Atribución periodística:** «según el artículo 249 del Código Sustantivo del Trabajo», «de acuerdo con el DANE», «la Corte Constitucional dijo en la sentencia T-…». El lector sabe siempre de dónde sale cada dato.
 - **Anticipos honestos:** puedes adelantar lo que viene («ese es el error más caro, y lo verás en la siguiente sección»), siempre que se cumpla enseguida.
-- **Enlaces internos en contexto:** dentro de la frase donde la persona los necesita, con texto descriptivo («usa la [calculadora de liquidación](/calculadoras/liquidacion)»), no solo en una lista al final.
+- **Enlaces internos en contexto:** dentro de la frase donde la persona los necesita, con texto descriptivo («usa la [calculadora de liquidación](/calculadoras/liquidacion)»), no solo en una lista al final. Cada enlace apunta a una guía o herramienta que existe: `borrador` y `propuesta` rechazan los enlaces rotos.
+
+### Errores comunes y pasos con detalle
+
+- **Errores comunes:** si cada uno necesita explicación, usa un subtítulo por error con la creencia entre comillas y la respuesta empezando por «No.» o «Sí.»:
+  ```
+  ### «La reforma aumenta la edad para pensionarse».
+
+  No. Las edades se mantienen en 57 años para las mujeres y 62 para los hombres.
+  ```
+  Si son cortos, basta una lista.
+- **Qué puedes hacer:** si un paso necesita explicación, documentos o enlaces, dale su propio subtítulo numerado («### 1. Descarga tu historia laboral») con 1 a 3 párrafos cortos. Si son pasos simples, una lista numerada.
+- **Preguntas frecuentes:** de 3 a 10, según lo amplio del tema. Cada respuesta de 1 a 3 frases, que se entienda sin leer el resto.
+
+### Lo que no va en el texto
+
+- **Tablas:** el sitio no las muestra (saldrían las rayas `|---|`). Usa una lista o, si de verdad ayuda, un gráfico.
+- **Secciones de fuentes, fechas o aviso legal al final** («Fuentes oficiales», «Última actualización», «Verificación normativa», «Aviso»): el sitio ya las muestra desde la ficha. En el texto saldrían dos veces. Las fuentes van en la ficha; la norma se cita dentro de la frase.
+- **El aviso orientativo se escribe una sola vez,** como aviso `> ` antes de las preguntas frecuentes.
 
 ---
 
-## 5. El cierre: una acción, no un resumen
+## 5. Temas de reformas y novedades: el modelo
+
+Para leyes nuevas, sentencias, proyectos y cambios con fecha, la guía sigue este orden (además de la entradilla con el hecho noticioso):
+
+1. **Qué dice la ley sobre…:** la norma, en lenguaje claro, con su número y su fecha.
+2. **Cuándo empieza a regir…:** una **línea de tiempo** en lista, con la fecha en negrita y un hecho por línea:
+   ```
+   - **16 de julio de 2024:** se promulgó la Ley 2381 de 2024.
+   - **25 de agosto de 2026:** la Corte profirió la sentencia C-264 de 2026.
+   - **1 de abril de 2027:** fecha prevista para la entrada en vigor.
+   ```
+3. **El estado de cada parte:** qué ya rige, qué rige desde una fecha, qué está pendiente (devuelto al Congreso, demandado, sin reglamentar) y qué es solo un proyecto. Nunca se presenta como derecho algo que está pendiente.
+4. **Las secciones del contenido,** una por pregunta: requisitos, a quién aplica, cuánto, cómo cambia lo que recibes. Con ejemplos en pesos.
+5. **Ejemplos de umbral:** cuando hay un límite (semanas, salarios, fechas), un ejemplo justo por encima y otro justo por debajo: «si tienes 760 semanas, cumples; si tienes 740, no».
+6. **Qué sigue igual mientras tanto:** lo que no cambia hasta la fecha de inicio. Responde la angustia más común del lector.
+7. **Errores comunes, Qué puedes hacer antes de [fecha] y Preguntas frecuentes.**
+
+La **atribución institucional** es la del periodismo: «la plenaria de la Cámara informó», «la Corte declaró», «según el artículo 75». Lo que viene de un comunicado se dice como comunicado, no como hecho comprobado.
+
+---
+
+## 6. El cierre: una acción, no un resumen
 
 La guía no termina con «en conclusión». Termina con lo que la persona puede hacer ahora:
 
@@ -85,7 +128,7 @@ Las preguntas frecuentes van al final y responden en 1 a 3 frases, como si fuera
 
 ---
 
-## 6. La portada
+## 7. La portada
 
 Cada guía lleva una portada de 1200×628 con la identidad del sitio. Se ve en el listado, al abrir la guía y cuando alguien la comparte en WhatsApp, Facebook o X. Es tipográfica, no una foto: fondo azul, el título, el tema y **el dato clave de la guía** en grande. Ese dato es el gancho visual. No usamos fotos de bancos de imágenes que no dicen nada.
 
@@ -99,7 +142,7 @@ Cada guía lleva una portada de 1200×628 con la identidad del sitio. Se ve en e
 
 ---
 
-## 7. Imágenes dentro de la guía: solo si explican mejor que el texto
+## 8. Imágenes dentro de la guía: solo si explican mejor que el texto
 
 Una imagen en el cuerpo de la guía tiene que **enseñar algo que el texto no logra tan bien**. Si se puede quitar sin que el lector pierda nada, sobra. La mayoría de las guías no necesitan ninguna, y ninguna necesita más de 3.
 
@@ -127,19 +170,20 @@ Una imagen en el cuerpo de la guía tiene que **enseñar algo que el texto no lo
 
 ---
 
-## 8. Lo que no hacemos
+## 9. Lo que no hacemos
 
 - **Sensacionalismo:** «escándalo», «terrible», «polémica» para temas que no lo son.
 - **Alarmismo:** decir que algo «ya es ley» cuando es un proyecto, o que «te pueden quitar» un derecho sin fuente.
 - **Anzuelos:** títulos que esconden la respuesta o prometen lo que el texto no da.
-- **Muletillas:** «es importante destacar», «cabe resaltar», «vale la pena mencionar», «sin lugar a dudas», «en este artículo», «en conclusión». `revisar` las avisa.
+- **Muletillas:** «es importante destacar», «es importante conocer», «cabe resaltar», «cabe señalar», «vale la pena mencionar», «sin lugar a dudas», «en este artículo», «en esta guía encontrarás», «en conclusión». `revisar` las avisa, y también el abuso de «sin embargo».
+- **Explicar lo mismo varias veces:** si algo está pendiente, se explica en su sección y se recuerda en una línea donde haga falta, no en tres párrafos.
 - **Signos de exclamación** y mayúsculas para llamar la atención.
 - **Relleno para alargar:** repetir lo dicho con otras palabras no retiene; espanta.
 - **Copiar** estructuras o frases de otros medios. Los medios solo son pista del tema.
 
 ---
 
-## 9. Antes y después
+## 10. Antes y después
 
 **Antes (plano):**
 
@@ -161,12 +205,16 @@ El segundo texto responde lo mismo, con la misma norma, pero en el orden en que 
 
 ---
 
-## 10. Lista de estilo antes de guardar
+## 11. Lista de estilo antes de guardar
 
 - [ ] La entradilla engancha (situación, noticia, cifra, fecha o mito) y responde en las primeras frases.
 - [ ] El título cumple lo que promete y no tiene anzuelos.
 - [ ] Hay un ejemplo con cifras del año, a más tardar en la segunda sección.
-- [ ] Los subtítulos dicen algo por sí solos.
+- [ ] Los subtítulos dicen algo por sí solos y repiten las palabras que la gente busca.
+- [ ] Párrafos de 1 a 3 frases.
+- [ ] En temas de reformas: línea de tiempo, estado de cada parte y «qué sigue igual».
+- [ ] Sin tablas ni secciones de fuentes, fechas o aviso al final.
+- [ ] Todos los enlaces internos existen.
 - [ ] Cada dato está atribuido en el texto a su fuente.
 - [ ] No quedan muletillas, exclamaciones ni párrafos de relleno.
 - [ ] El cierre deja una acción concreta.
