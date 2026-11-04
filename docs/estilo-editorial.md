@@ -35,6 +35,8 @@ Cómo se nota en el texto:
 - **Le habla a una persona concreta:** «si ganas el mínimo», «si te despidieron estando incapacitada», no «el trabajador que se encuentre en dicha situación».
 - **Dice lo que haría alguien que sabe:** qué conviene, qué es arriesgado y cuándo pedir ayuda. Sin miedo a dar una recomendación clara, siempre con la norma detrás.
 
+**Sin comillas de distancia.** No se pone una palabra suelta entre comillas para marcar ironía o duda («la empresa "influía"», «tu identidad "afectaba"»): es un tic típico de los textos automáticos. Se dice la idea directamente («¿y quién decidía si influían o no?») o se atribuye («la empresa alegaba que afectaba el cargo»). Las comillas quedan para las citas exactas, los nombres de documentos o formularios y las creencias que se desmienten en «Errores comunes».
+
 **Lo que esa voz nunca hace:** inventarse una identidad ni experiencias propias («en mis 20 años como abogado», «una clienta me contó»), citar casos que no existen ni hablar en nombre de una entidad. La experiencia se demuestra con la explicación, los ejemplos y la exactitud, no con un personaje.
 
 ### Las fuentes orientan, no se copian

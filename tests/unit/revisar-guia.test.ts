@@ -141,4 +141,10 @@ describe('revisión de calidad de las guías', () => {
     expect(revisarGuia({ ...guia, content: `${contenido}\n\nDice la ley: ${cita}.` }).avisos.join(' ')).toMatch(/originalidad/);
     expect(revisarGuia({ ...guia, content: `${contenido}\n\nLa Corte eliminó «que no esté relacionado o influya en su ejercicio laboral».` }).avisos.join(' ')).not.toMatch(/originalidad/);
   });
+
+  it('avisa las comillas de distancia en palabras sueltas', () => {
+    const r = revisarGuia({ ...guia, content: `${contenido}\n\nEl jefe decía que tu identidad «afectaba» el cargo.` });
+    expect(r.avisos.join(' ')).toMatch(/comillas de distancia en «afectaba»/);
+    expect(revisarGuia(guia).avisos.join(' ')).not.toMatch(/comillas de distancia/);
+  });
 });

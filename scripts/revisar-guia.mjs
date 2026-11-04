@@ -80,6 +80,9 @@ export function revisarGuia({ slug, title, summary, content, sources, tipo = 'le
   // Las fuentes orientan, no se copian: una cita literal larga suele ser texto copiado.
   const citasLargas = [...content.matchAll(/[«"“]([^»"”]{20,})[»"”]/g)].filter((m) => palabras(m[1]) > 25).length;
   if (citasLargas) avisos.push(`originalidad: ${citasLargas} cita(s) textual(es) de más de 25 palabras; explica con tus palabras y deja entre comillas solo lo que necesita las palabras exactas.`);
+  // Comillas de distancia: una o dos palabras en minúscula entre comillas para marcar ironía o duda. Suenan a texto automático.
+  const distancia = content.split('\n').filter((l) => !l.startsWith('#')).flatMap((l) => [...l.matchAll(/[«"“]([a-záéíóúñü]{3,}(?: [a-záéíóúñü]+)?)[»"”]/g)].map((m) => m[1]));
+  if (distancia.length) avisos.push(`voz: comillas de distancia en «${distancia.join('», «')}»; di la idea directamente sin comillas, que se reservan para citas exactas.`);
   const sinEmbargo = (content.match(/sin embargo/gi) ?? []).length;
   if (sinEmbargo > 3) avisos.push(`estilo: «sin embargo» aparece ${sinEmbargo} veces; varía los conectores o divide las ideas.`);
   const imagenes = [...content.matchAll(/^!\[([^\]]*)\]\(([^)]*)\)\s*$/gm)];
