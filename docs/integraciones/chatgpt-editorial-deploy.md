@@ -4,33 +4,41 @@ La función `supabase/functions/editorial-bridge/index.ts` no se activa solo con
 
 ## 1. Secretos
 
-Configura en Supabase:
+Configura en Supabase, en Edge Functions → Secrets:
 
 - `REDACTOR_EMAIL`: correo de la cuenta con rol `redactor`.
 - `REDACTOR_PASSWORD`: contraseña de esa cuenta. No debe estar en GitHub.
-- `EDITORIAL_BRIDGE_TOKEN`: token largo y aleatorio que se usará para autenticar al cliente externo.
+- `EDITORIAL_BRIDGE_TOKEN`: token largo, aleatorio y exclusivo para este puente.
 
-La función usa `SUPABASE_URL` y `SUPABASE_ANON_KEY` del proyecto. No usa ni necesita `service_role`.
+La función usa `SUPABASE_URL` y `SUPABASE_ANON_KEY` que Supabase proporciona al entorno. No usa ni necesita `service_role`.
 
 ## 2. Despliegue
 
-Desde el proyecto, con Supabase CLI autenticado:
+Desde la raíz del repositorio, con Supabase CLI instalado y autenticado, vincula el proyecto una sola vez:
 
 ```bash
-supabase functions deploy editorial-bridge
+supabase link --project-ref TU_PROJECT_REF
 ```
 
-Configura los secretos antes del despliegue con `supabase secrets set` o desde el panel de Supabase.
+Después despliega la función con la verificación JWT del gateway desactivada:
+
+```bash
+supabase functions deploy editorial-bridge --no-verify-jwt
+```
+
+**No quites `--no-verify-jwt`**: el puente valida su propio token Bearer. Si el gateway exige un JWT de Supabase, rechazará la llamada antes de que se ejecute esta validación.
+
+Configura los secretos antes de probar el endpoint. Puedes hacerlo desde el panel de Supabase o con `supabase secrets set`; no escribas los valores en archivos del repositorio.
 
 ## 3. Endpoint
 
 La URL tendrá esta forma:
 
 ```
-https://TU_PROYECTO.supabase.co/functions/v1/editorial-bridge
+https://TU_PROJECT_REF.supabase.co/functions/v1/editorial-bridge
 ```
 
-Usa el archivo `docs/integraciones/chatgpt-editorial.openapi.yaml` para configurar una acción/API privada en el cliente de ChatGPT.
+Usa el archivo `docs/integraciones/chatgpt-editorial.openapi.yaml` para configurar una acción/API privada en ChatGPT y reemplaza el servidor de ejemplo por la URL real del proyecto.
 
 ## 4. Permisos
 
@@ -44,12 +52,17 @@ No expone:
 - administración de usuarios;
 - modificación de roles;
 - SQL;
-- service_role.
+- `service_role`.
 
-La cuenta editorial se autentica dentro de la función y las RPC de Supabase vuelven a comprobar el rol `redactor`. Hay dos capas de protección.
+La cuenta editorial se autentica dentro de la función y las RPC de Supabase vuelven a comprobar el rol. Hay dos capas de protección.
 
-## 5. Importante
+## 5. Prueba
 
-El token `EDITORIAL_BRIDGE_TOKEN` no debe escribirse en este repositorio, en el código del frontend ni en el archivo OpenAPI.
+Usa el token Bearer configurado en Supabase para probar primero:
 
-Después de desplegar, prueba primero `GET /health` y después `GET /guias`. Si ambos funcionan, configura la acción de ChatGPT con el esquema OpenAPI.
+- `GET /health`: confirma que la función responde.
+- `GET /guias`: confirma que la autenticación de la cuenta editorial y la RPC funcionan.
+
+Si `/health` responde pero `/guias` falla, revisa las credenciales de la cuenta editorial y que su perfil esté activo y tenga el rol correspondiente.
+
+El token nunca debe escribirse en este repositorio, en el archivo OpenAPI ni en el frontend. Si se expone, rótalo en los secretos de Supabase.
