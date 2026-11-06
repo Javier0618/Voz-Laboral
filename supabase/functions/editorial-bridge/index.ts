@@ -62,7 +62,11 @@ async function handle(req: Request) {
   if (!authorized(req)) return fail("No autorizado.", 401);
 
   const url = new URL(req.url);
-  const path = url.pathname.replace(/^\/functions\/v1\/editorial-bridge/, "").replace(/\/$/, "") || "/";
+  // Supabase puede entregar la ruta completa, el nombre de la función o solo la ruta interna.
+  const path = url.pathname
+    .replace(/^\/functions\/v1\/editorial-bridge(?=\/|$)/, "")
+    .replace(/^\/editorial-bridge(?=\/|$)/, "")
+    .replace(/\/$/, "") || "/";
 
   if (req.method === "GET" && path === "/health") {
     return json({ ok: true, service: "editorial-bridge" });
