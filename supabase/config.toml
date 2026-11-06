@@ -1,0 +1,4 @@
+# El puente valida su propio token Bearer en index.ts.
+# El gateway no debe exigir un JWT de Supabase antes de ejecutar la función.
+[functions.editorial-bridge]
+verify_jwt = false

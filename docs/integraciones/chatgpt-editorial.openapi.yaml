@@ -1,0 +1,144 @@
+openapi: 3.0.3
+info:
+  title: VozLaboral Editorial Bridge
+  version: 1.0.1
+  description: API privada para asistir la redacción de guías de VozLaboral. Nunca publica ni elimina contenido.
+servers:
+  - url: https://TU_PROJECT_REF.supabase.co/functions/v1/editorial-bridge
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      operationId: health
+      responses:
+        "200":
+          description: Servicio disponible
+        "401":
+          description: Token del puente ausente o incorrecto
+  /guias:
+    get:
+      operationId: listarGuias
+      responses:
+        "200":
+          description: Guías disponibles para redacción
+  /guia:
+    get:
+      operationId: leerGuia
+      parameters:
+        - name: slug
+          in: query
+          required: true
+          schema: { type: string, minLength: 3, maxLength: 80 }
+      responses:
+        "200": { description: Guía encontrada }
+        "404": { description: Guía no encontrada }
+  /sugerencias:
+    get:
+      operationId: listarSugerencias
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [nueva, pedida, redactada, descartada, existente]
+      responses:
+        "200": { description: Sugerencias editoriales }
+  /busquedas:
+    get:
+      operationId: consultarBusquedas
+      parameters:
+        - name: dias
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 180, default: 30 }
+      responses:
+        "200": { description: Búsquedas sin resultados }
+  /sugerencia:
+    post:
+      operationId: crearSugerencia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Sugerencia"
+      responses:
+        "201": { description: Sugerencia creada }
+  /borrador:
+    post:
+      operationId: guardarBorrador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Borrador"
+      responses:
+        "201": { description: Borrador guardado, nunca publicado }
+  /propuesta:
+    post:
+      operationId: guardarPropuesta
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Propuesta"
+      responses:
+        "201": { description: Propuesta guardada, no aplicada }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Fuente:
+      type: object
+      required: [label, url]
+      properties:
+        label: { type: string, minLength: 3, maxLength: 200 }
+        publisher: { type: string, maxLength: 120 }
+        url: { type: string, format: uri }
+        accessed_at: { type: string, format: date }
+    Sugerencia:
+      type: object
+      required: [title, reason]
+      properties:
+        kind: { type: string, enum: [nueva, actualizar], default: nueva }
+        title: { type: string, minLength: 5, maxLength: 160 }
+        reason: { type: string, minLength: 20, maxLength: 2000 }
+        demand: { type: string, maxLength: 1000 }
+        priority: { type: string, enum: [alta, media, baja] }
+        topic: { type: string, maxLength: 40 }
+        keywords:
+          type: array
+          maxItems: 15
+          items: { type: string, minLength: 1, maxLength: 80 }
+        sources:
+          type: array
+          maxItems: 15
+          items: { $ref: "#/components/schemas/Fuente" }
+        target: { type: string, minLength: 3, maxLength: 80, nullable: true }
+    Borrador:
+      type: object
+      required: [id, slug, title, summary, content, sources]
+      properties:
+        id: { type: string, format: uuid }
+        slug: { type: string, minLength: 3, maxLength: 80 }
+        title: { type: string, minLength: 5, maxLength: 160 }
+        summary: { type: string, minLength: 20, maxLength: 400 }
+        content: { type: string, minLength: 50, maxLength: 50000 }
+        category: { type: string, maxLength: 80, nullable: true }
+        topic: { type: string, maxLength: 40, nullable: true }
+        sources:
+          type: array
+          items: { $ref: "#/components/schemas/Fuente" }
+    Propuesta:
+      type: object
+      required: [id, content]
+      properties:
+        id: { type: string, format: uuid }
+        content: { type: string, minLength: 50, maxLength: 50000 }
+        notes: { type: string, maxLength: 2000 }
