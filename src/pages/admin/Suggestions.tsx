@@ -59,7 +59,7 @@ export function Suggestions() {
         {loading ? <Loading /> : error ? <ErrorState error={error} onRetry={reload} /> : !visible.length ? (
           <EmptyState title={filter === 'nueva' ? 'No hay sugerencias nuevas' : 'No hay sugerencias aquí'}>
             {filter === 'nueva'
-              ? 'Las sugerencias las crea el redactor después de revisar las fuentes oficiales. Pídelo en una conversación con Claude: «revisa qué guías conviene publicar».'
+              ? 'Prepara el contexto desde el asistente editorial y realiza la investigación web en ChatGPT. Después importa el JSON de recomendaciones.'
               : filter === 'pedida'
                 ? 'Cuando pulses «Redactar guía» en una sugerencia, aparecerá aquí hasta que el redactor la escriba.'
                 : filter === 'publicada'
@@ -103,6 +103,14 @@ function EditorialAssistant() {
       existing_suggestions: data.suggestions.map((s) => ({
         kind: s.kind, title: s.title, status: s.status, topic: s.topic, target: s.target?.slug ?? null,
       })),
+      google_search_queries: [
+        'site:mintrabajo.gov.co trabajo Colombia novedades laborales 2026',
+        'site:suin-juriscol.gov.co laboral Colombia ley decreto resolución 2026',
+        'site:funcionpublica.gov.co normas laborales Colombia 2026',
+        'site:corteconstitucional.gov.co trabajo Colombia sentencia 2026',
+        'site:consejodeestado.gov.co laboral Colombia sentencia 2026',
+        ...data.searches.slice(0, 12).map((item) => `\"${item.term}\" Colombia derechos laborales`),
+      ],
       recommendation_contract: {
         output: 'JSON válido con una propiedad recommendations que contenga una lista',
         fields: ['kind', 'title', 'reason', 'demand', 'priority', 'topic', 'keywords', 'sources', 'target'],
@@ -186,7 +194,7 @@ function EditorialAssistant() {
     }
   }
 
-  const prompt = `Actúa como investigador editorial y abogado laboralista especializado en Colombia para TuVozLaboral. Analiza el JSON adjunto. Investiga en la web asuntos laborales colombianos recientes y relevantes: leyes sancionadas, decretos, resoluciones, circulares, decisiones judiciales, proyectos en trámite y fechas de entrada en vigor. Busca primero en fuentes oficiales (Diario Oficial, SUIN-Juriscol, Ministerio del Trabajo, Función Pública, Corte Constitucional, Corte Suprema, Consejo de Estado, DANE, UGPP, Colpensiones y Congreso). Puedes usar noticias fiables para descubrir temas, pero confirma cada afirmación jurídica con su fuente primaria. Distingue expresamente norma vigente, proyecto, anuncio y decisión judicial; no presentes propuestas como derecho vigente. Cruza cada hallazgo con el catálogo, las búsquedas internas y las sugerencias existentes. Detecta duplicados y decide si conviene una guía nueva o actualizar una existente. Prioriza utilidad para trabajadores, impacto, actualidad y vacíos reales. No inventes volumen de búsquedas: el interés debe indicar si procede de búsquedas internas, actualidad normativa o una estimación editorial. Devuelve SOLO JSON válido con esta estructura: {"recommendations":[{"kind":"nueva|actualizar","title":"...","reason":"Motivo concreto de al menos 20 caracteres","demand":"Señal de interés y su origen, sin inventar métricas","priority":"alta|media|baja","topic":"reformas|formas-de-trabajar|jornada|salud|dignidad|colectivos|salario|terminacion|tramites|empleo","keywords":["..."],"sources":[{"label":"Fuente oficial o verificable","url":"https://..."}],"target":"slug existente, solo si kind=actualizar"}]}. Cada recomendación debe tener al menos una fuente HTTPS verificable. Máximo 15 palabras clave y 15 fuentes por recomendación. No redactes guías ni publiques nada. Si no hay evidencia suficiente, devuelve menos recomendaciones en vez de rellenar.`;
+  const prompt = `Actúa como investigador editorial y abogado laboralista especializado en Colombia para TuVozLaboral. Analiza el JSON adjunto y utiliza google_search_queries como consultas iniciales de búsqueda web; contrasta los hallazgos con fuentes oficiales. Investiga en la web asuntos laborales colombianos recientes y relevantes: leyes sancionadas, decretos, resoluciones, circulares, decisiones judiciales, proyectos en trámite y fechas de entrada en vigor. Busca primero en fuentes oficiales (Diario Oficial, SUIN-Juriscol, Ministerio del Trabajo, Función Pública, Corte Constitucional, Corte Suprema, Consejo de Estado, DANE, UGPP, Colpensiones y Congreso). Puedes usar noticias fiables para descubrir temas, pero confirma cada afirmación jurídica con su fuente primaria. Distingue expresamente norma vigente, proyecto, anuncio y decisión judicial; no presentes propuestas como derecho vigente. Cruza cada hallazgo con el catálogo, las búsquedas internas y las sugerencias existentes. Detecta duplicados y decide si conviene una guía nueva o actualizar una existente. Prioriza utilidad para trabajadores, impacto, actualidad y vacíos reales. No inventes volumen de búsquedas: el interés debe indicar si procede de búsquedas internas, actualidad normativa o una estimación editorial. Devuelve SOLO JSON válido con esta estructura: {"recommendations":[{"kind":"nueva|actualizar","title":"...","reason":"Motivo concreto de al menos 20 caracteres","demand":"Señal de interés y su origen, sin inventar métricas","priority":"alta|media|baja","topic":"reformas|formas-de-trabajar|jornada|salud|dignidad|colectivos|salario|terminacion|tramites|empleo","keywords":["..."],"sources":[{"label":"Fuente oficial o verificable","url":"https://..."}],"target":"slug existente, solo si kind=actualizar"}]}. Cada recomendación debe tener al menos una fuente HTTPS verificable. Máximo 15 palabras clave y 15 fuentes por recomendación. No redactes guías ni publiques nada. Si no hay evidencia suficiente, devuelve menos recomendaciones en vez de rellenar.`;
 
   return (
     <section className="mt-6 rounded-lg border border-teal/30 bg-mist/50 p-5">
@@ -218,7 +226,7 @@ function EditorialAssistant() {
         <pre className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap rounded bg-paper p-3 text-xs">{prompt}</pre>
         <button type="button" className="btn-secondary mt-3" onClick={() => navigator.clipboard.writeText(prompt).then(() => setReport('Instrucciones copiadas. Adjunta también el archivo de contexto descargado.')).catch(() => setReportError('No se pudo copiar. Selecciona y copia el texto manualmente.'))}>Copiar instrucciones</button>
       </details>
-      <p className="mt-3 text-xs text-slate">La búsqueda web se realiza en ChatGPT, no desde el servidor del sitio. El panel no envía datos a terceros. Las recomendaciones importadas quedan en estado «nueva» y requieren revisión humana.</p>
+      <p className="mt-3 text-xs text-slate">La exportación se genera en tu navegador. La investigación web se realiza desde ChatGPT; el panel no ejecuta Google directamente ni necesita una API. Solo se guardan en Supabase las sugerencias que importes. Todas quedan en estado «nueva» y requieren revisión humana.</p>
     </section>
   );
 }
