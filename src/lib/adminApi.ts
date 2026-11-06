@@ -142,13 +142,14 @@ export function guideViews(stats: Stats) {
 export type GuideStatus = 'borrador' | 'pendiente_verificacion' | 'publicado' | 'archivado';
 export interface GuideRow {
   id: string; slug: string; title: string; summary: string; status: GuideStatus; last_verified_at: string | null; updated_at: string;
+  category_slug: string | null; topic: string | null;
   legal_resource_sources: { id: string }[];
   legal_resource_stats: Stats;
 }
 export function listGuides() {
   return run<GuideRow[]>(
     requireClient().from('legal_resources')
-      .select('id, slug, title, summary, status, last_verified_at, updated_at, legal_resource_sources(id), legal_resource_stats(views)')
+      .select('id, slug, title, summary, status, last_verified_at, updated_at, category_slug, topic, legal_resource_sources(id), legal_resource_stats(views)')
       .order('title'),
   );
 }
