@@ -1,8 +1,8 @@
 # Sugerencias editoriales
 
-Claude actúa como **redactor**: revisa fuentes oficiales y especializadas, propone temas de guías en **Moderación → Sugerencias** y redacta las que la administración pide. Todo lo que escribe entra como **borrador** o como **propuesta**: nada se publica sin que una persona lo revise.
+El asistente editorial con IA revisa fuentes oficiales y especializadas, propone temas de guías en **Moderación → Sugerencias** y puede redactar las que la administración pide. Todo lo que escribe entra como **borrador** o como **propuesta**: nada se publica sin que una persona lo revise.
 
-No usa ninguna API de pago. Funciona en las conversaciones con Claude Code, con el cupo del plan de Claude que ya tienes.
+No requiere una API de pago. La investigación y el análisis pueden hacerse desde ChatGPT con búsqueda web; el flujo anterior con Claude Code también puede seguir utilizándose.
 
 ## Flujo
 
@@ -79,3 +79,20 @@ Usan el mismo script y las mismas credenciales del paso 4. Antes de activarlas, 
 El buscador del sitio (`/buscar`, migración `20261102002400_site_search.sql`) cuenta de forma anónima los términos que se buscan: solo el término normalizado, el día, cuántas veces y cuántos resultados hubo. No guarda persona, cuenta, IP ni navegador, descarta términos con números largos (podrían ser una cédula o un teléfono) y borra lo que tenga más de 180 días. Las búsquedas sin resultado aparecen arriba de Moderación → Sugerencias y el redactor las consulta con `busquedas`.
 
 Fuera de eso, el campo «Interés» es una estimación de Claude a partir de noticias, temporada y preguntas frecuentes, no un dato de Google. Para datos reales, conecta más adelante Google Search Console, que es gratis: muestra con qué búsquedas ya llegan al sitio.
+
+## Asistente de investigación desde Moderación
+
+En **Moderación → Sugerencias**, el bloque «Asistente de investigación editorial» permite trabajar con ChatGPT sin conectar una API ni pagar consumo adicional:
+
+1. Pulsa **Descargar contexto de investigación**. El navegador prepara un JSON con el catálogo de guías, las búsquedas internas sin resultados de los últimos 180 días y las sugerencias existentes. También incluye consultas iniciales para buscar novedades en fuentes oficiales.
+2. Adjunta ese JSON en una conversación de ChatGPT y copia las instrucciones que aparecen en el mismo bloque.
+3. ChatGPT realiza la investigación web, contrasta las novedades con fuentes oficiales y devuelve un JSON con las recomendaciones.
+4. Pulsa **Importar recomendaciones JSON** y selecciona el archivo devuelto por ChatGPT.
+5. Revisa cada propuesta en la pestaña **Nuevas**. La importación no redacta guías, no aplica actualizaciones ni publica contenido.
+
+El importador valida el formato, las fuentes HTTPS, los temas, los slugs de las guías que se quieren actualizar y los duplicados exactos. Las recomendaciones que no superen la validación se informan para corregirlas; las demás se guardan como sugerencias nuevas.
+
+**Alcance:** la investigación web se ejecuta en ChatGPT, no en el servidor de TuVozLaboral. El panel no hace consultas directas a Google ni consume una API. Las consultas sugeridas pueden copiarse y ejecutarse manualmente en Google. Tampoco equivale a conectar Google Search Console: las búsquedas internas del sitio no son datos de impresiones o clics de Google.
+
+La investigación jurídica debe distinguir entre normas vigentes, proyectos, anuncios y decisiones judiciales. Cada recomendación debe incluir al menos una fuente HTTPS verificable y la revisión editorial sigue siendo obligatoria.
+
