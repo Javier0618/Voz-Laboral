@@ -1,20 +1,21 @@
 openapi: 3.0.3
 info:
   title: VozLaboral Editorial Bridge
-  version: 1.0.0
+  version: 1.0.1
   description: API privada para asistir la redacción de guías de VozLaboral. Nunca publica ni elimina contenido.
 servers:
-  - url: https://TU_PROYECTO.supabase.co/functions/v1/editorial-bridge
+  - url: https://TU_PROJECT_REF.supabase.co/functions/v1/editorial-bridge
 security:
   - bearerAuth: []
 paths:
   /health:
     get:
       operationId: health
-      security: []
       responses:
         "200":
           description: Servicio disponible
+        "401":
+          description: Token del puente ausente o incorrecto
   /guias:
     get:
       operationId: listarGuias
@@ -28,9 +29,10 @@ paths:
         - name: slug
           in: query
           required: true
-          schema: { type: string }
+          schema: { type: string, minLength: 3, maxLength: 80 }
       responses:
         "200": { description: Guía encontrada }
+        "404": { description: Guía no encontrada }
   /sugerencias:
     get:
       operationId: listarSugerencias
@@ -113,12 +115,12 @@ components:
         keywords:
           type: array
           maxItems: 15
-          items: { type: string }
+          items: { type: string, minLength: 1, maxLength: 80 }
         sources:
           type: array
           maxItems: 15
           items: { $ref: "#/components/schemas/Fuente" }
-        target: { type: string, nullable: true }
+        target: { type: string, minLength: 3, maxLength: 80, nullable: true }
     Borrador:
       type: object
       required: [id, slug, title, summary, content, sources]
@@ -128,8 +130,8 @@ components:
         title: { type: string, minLength: 5, maxLength: 160 }
         summary: { type: string, minLength: 20, maxLength: 400 }
         content: { type: string, minLength: 50, maxLength: 50000 }
-        category: { type: string, nullable: true }
-        topic: { type: string, nullable: true }
+        category: { type: string, maxLength: 80, nullable: true }
+        topic: { type: string, maxLength: 40, nullable: true }
         sources:
           type: array
           items: { $ref: "#/components/schemas/Fuente" }
