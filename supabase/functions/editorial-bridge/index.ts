@@ -27,9 +27,11 @@ function authorized(req: Request) {
   return value === `Bearer ${BRIDGE_TOKEN}`;
 }
 
+class ValidationError extends Error {}
+
 function textField(value: unknown, name: string, min = 1, max = 5000) {
   if (typeof value !== "string" || value.trim().length < min || value.trim().length > max) {
-    throw new Error(`${name} debe tener entre ${min} y ${max} caracteres.`);
+    throw new ValidationError(`${name} debe tener entre ${min} y ${max} caracteres.`);
   }
   return value.trim();
 }
@@ -123,12 +125,21 @@ async function handle(req: Request) {
   if (!body || typeof body !== "object" || Array.isArray(body)) return fail("JSON inválido.");
 
   if (path === "/sugerencia") {
-    const kind = body.kind === "actualizar" ? "actualizar" : "nueva";
+    const kind = body.kind ?? "nueva";
+    if (kind !== "nueva" && kind !== "actualizar") {
+      return fail("kind debe ser «nueva» o «actualizar».");
+    }
     const title = textField(body.title, "title", 5, 160);
     const reason = textField(body.reason, "reason", 20, 2000);
     const demand = optionalText(body.demand, 1000);
-    const priority = ["alta", "media", "baja"].includes(body.priority) ? body.priority : "media";
+    const priority = body.priority ?? "media";
+    if (priority !== "alta" && priority !== "media" && priority !== "baja") {
+      return fail("priority debe ser «alta», «media» o «baja».");
+    }
     const topic = optionalText(body.topic, 40);
+    if (topic && !/^[a-z0-9-]{1,40}$/.test(topic)) {
+      return fail("topic solo puede contener letras minúsculas, números y guiones.");
+    }
     if (body.keywords != null && (!Array.isArray(body.keywords) || body.keywords.length > 15)) {
       return fail("keywords debe ser una lista de máximo 15 elementos.");
     }
@@ -200,6 +211,7 @@ Deno.serve(async (req) => {
   try {
     return await handle(req);
   } catch (error) {
+    if (error instanceof ValidationError) return fail(error.message, 400);
     console.error(error instanceof Error ? error.message : "editorial bridge error");
     return fail("No se pudo completar la operación editorial.", 500);
   }
