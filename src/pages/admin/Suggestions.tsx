@@ -1,7 +1,7 @@
 // Sugerencias editoriales: temas que el redactor propone publicar o actualizar.
 // La administración pide la redacción, descarta o marca como existente; la
 // guía redactada llega como borrador y se publica desde el editor de siempre.
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import {
   applySuggestionProposal, createEditorialSuggestion, deleteSuggestion, listGuideSuggestions, listGuides, listSearchGaps, setSuggestionStatus, type GuideSuggestion,
@@ -128,7 +128,7 @@ function EditorialAssistant() {
     setReportError(null);
   }
 
-  async function importRecommendations(event: React.ChangeEvent<HTMLInputElement>) {
+  async function importRecommendations(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file) return;
