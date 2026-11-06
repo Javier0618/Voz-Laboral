@@ -47,6 +47,7 @@ export function Suggestions() {
         como <strong>borrador</strong> y la publicas desde Guías después de revisarla.
       </p>
       <EditorialAssistant />
+      <SearchGaps />
       <div role="tablist" aria-label="Estado de las sugerencias" className="mt-6 flex flex-wrap gap-2">
         {filters.map((f) => (
           <button key={f.id} type="button" role="tab" aria-selected={filter === f.id} onClick={() => setFilter(f.id)}
