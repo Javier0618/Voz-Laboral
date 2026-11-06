@@ -8,7 +8,7 @@ const BRIDGE_TOKEN = Deno.env.get("EDITORIAL_BRIDGE_TOKEN") ?? "";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, content-type",
+  "Access-Control-Allow-Headers": "authorization, content-type, apikey",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Content-Type": "application/json; charset=utf-8",
 };
@@ -86,6 +86,9 @@ async function handle(req: Request) {
 
   if (req.method === "GET" && path === "/sugerencias") {
     const estado = url.searchParams.get("estado");
+    const estadosValidos = ["nueva", "pedida", "redactada", "descartada", "existente"];
+    if (estado && !estadosValidos.includes(estado)) return fail("Estado no válido.");
+
     let query = supabase
       .from("guide_suggestions")
       .select("id, kind, status, priority, title, reason, demand, topic, keywords, sources, instructions, created_at, requested_at, drafted_at, target:legal_resources!guide_suggestions_target_resource_id_fkey(slug, title)")
@@ -99,7 +102,9 @@ async function handle(req: Request) {
   }
 
   if (req.method === "GET" && path === "/busquedas") {
-    const days = Math.min(Math.max(Number(url.searchParams.get("dias") ?? "30"), 1), 180);
+    const rawDays = Number(url.searchParams.get("dias") ?? "30");
+    if (!Number.isFinite(rawDays)) return fail("El parámetro dias debe ser un número.");
+    const days = Math.min(Math.max(Math.trunc(rawDays), 1), 180);
     const { data, error } = await supabase.rpc("editorial_search_gaps", {
       p_days: days,
       p_max_results: 0,
@@ -111,7 +116,7 @@ async function handle(req: Request) {
   if (req.method !== "POST") return fail("Método no permitido.", 405);
 
   const body = await req.json().catch(() => null);
-  if (!body || typeof body !== "object") return fail("JSON inválido.");
+  if (!body || typeof body !== "object" || Array.isArray(body)) return fail("JSON inválido.");
 
   if (path === "/sugerencia") {
     const kind = body.kind === "actualizar" ? "actualizar" : "nueva";
@@ -120,8 +125,14 @@ async function handle(req: Request) {
     const demand = optionalText(body.demand, 1000);
     const priority = ["alta", "media", "baja"].includes(body.priority) ? body.priority : "media";
     const topic = optionalText(body.topic, 40);
-    const keywords = Array.isArray(body.keywords) ? body.keywords.slice(0, 15).map((x) => textField(x, "keyword", 1, 80)) : [];
-    const sources = Array.isArray(body.sources) ? body.sources.slice(0, 15) : [];
+    if (body.keywords != null && (!Array.isArray(body.keywords) || body.keywords.length > 15)) {
+      return fail("keywords debe ser una lista de máximo 15 elementos.");
+    }
+    if (body.sources != null && (!Array.isArray(body.sources) || body.sources.length > 15)) {
+      return fail("sources debe ser una lista de máximo 15 elementos.");
+    }
+    const keywords = (body.keywords ?? []).map((x: unknown) => textField(x, "keyword", 1, 80));
+    const sources = body.sources ?? [];
     const target = body.target == null ? null : textField(body.target, "target", 3, 80);
 
     const { data, error } = await supabase.rpc("editorial_add_suggestion", {
@@ -147,7 +158,8 @@ async function handle(req: Request) {
     const content = textField(body.content, "content", 50, 50000);
     const category = body.category == null ? null : optionalText(body.category, 80);
     const topic = body.topic == null ? null : optionalText(body.topic, 40);
-    const sources = Array.isArray(body.sources) ? body.sources : [];
+    if (body.sources != null && !Array.isArray(body.sources)) return fail("sources debe ser una lista.");
+    const sources = body.sources ?? [];
 
     const { data, error } = await supabase.rpc("editorial_save_draft", {
       p_id: id,
