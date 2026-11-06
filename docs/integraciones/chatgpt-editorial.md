@@ -16,7 +16,7 @@ Permitir que un asistente pueda consultar material editorial y crear sugerencias
 - `guardar_borrador`
 - `guardar_propuesta`
 
-La subida de imágenes queda fuera del primer contrato. Se incorporará después de endurecer la política de Storage.
+La subida de imágenes queda fuera del primer contrato.
 
 ## Operaciones prohibidas
 
@@ -32,27 +32,26 @@ El puente nunca debe exponer:
 - ejecución de SQL arbitrario;
 - uso de la clave `service_role`.
 
-## Autenticación
+## Autenticación y secretos
 
-El servidor del puente debe mantener las credenciales fuera del navegador y fuera del repositorio. Las variables deben configurarse únicamente como secretos del entorno:
+El servidor del puente usa estas variables, configuradas únicamente como secretos del entorno de Supabase:
 
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-- `REDACTOR_EMAIL`
-- `REDACTOR_PASSWORD`
+- `SUPABASE_URL` y `SUPABASE_ANON_KEY`: las proporciona Supabase al entorno de Edge Functions.
+- `REDACTOR_EMAIL`: correo de la cuenta con rol `redactor`.
+- `REDACTOR_PASSWORD`: contraseña de esa cuenta.
+- `EDITORIAL_BRIDGE_TOKEN`: token largo y aleatorio que autentica al cliente externo.
 
-Nunca registrar estas variables ni devolverlas en respuestas.
+No guardes credenciales en el repositorio, en el frontend ni en el esquema OpenAPI. Nunca registres estos valores ni los devuelvas en respuestas.
 
 ## Regla de seguridad
 
-El puente debe autenticarse como la cuenta editorial `redactor` y usar exclusivamente las RPC existentes diseñadas para ese rol. No debe conceder privilegios adicionales mediante una clave de servicio.
+El endpoint comprueba `EDITORIAL_BRIDGE_TOKEN` y, después, inicia sesión en Supabase como la cuenta editorial. Las RPC vuelven a comprobar el rol `redactor`. No se utiliza una clave de servicio ni se concede privilegio adicional a la cuenta.
+
+La verificación JWT del gateway de Edge Functions debe desactivarse para esta función al desplegarla, porque el cliente externo presenta el token propio del puente, no un JWT de Supabase. Esto no deja el endpoint abierto: la función rechaza cualquier petición que no incluya el token correcto.
 
 ## Flujo
 
-ChatGPT -> endpoint/MCP editorial -> autenticación Supabase como redactor -> RPC editorial -> Supabase.
+ChatGPT -> endpoint editorial -> token privado -> autenticación Supabase como redactor -> RPC editorial -> Supabase.
 
 La publicación continúa siendo una acción humana desde Moderación.
 
-## Estado
-
-Esta especificación es deliberadamente independiente del cliente ChatGPT. Sirve como contrato para implementar después un endpoint HTTP o un servidor MCP sin modificar el flujo editorial existente.
