@@ -20,13 +20,15 @@ Desde la raíz del repositorio, con Supabase CLI instalado y autenticado, vincul
 supabase link --project-ref TU_PROJECT_REF
 ```
 
-Después despliega la función con la verificación JWT del gateway desactivada:
+El archivo `supabase/config.toml` establece `verify_jwt = false` únicamente para `editorial-bridge`. Es necesario porque el cliente externo utiliza el token Bearer propio del puente y no un JWT de Supabase. La propia función comprueba ese token antes de aceptar cualquier operación.
+
+Despliega la función:
 
 ```bash
-supabase functions deploy editorial-bridge --no-verify-jwt
+supabase functions deploy editorial-bridge
 ```
 
-**No quites `--no-verify-jwt`**: el puente valida su propio token Bearer. Si el gateway exige un JWT de Supabase, rechazará la llamada antes de que se ejecute esta validación.
+También puedes indicar explícitamente `--no-verify-jwt`; la configuración del repositorio ya deja ese comportamiento establecido para esta función.
 
 Configura los secretos antes de probar el endpoint. Puedes hacerlo desde el panel de Supabase o con `supabase secrets set`; no escribas los valores en archivos del repositorio.
 
