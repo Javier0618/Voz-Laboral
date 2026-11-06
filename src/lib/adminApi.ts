@@ -142,14 +142,13 @@ export function guideViews(stats: Stats) {
 export type GuideStatus = 'borrador' | 'pendiente_verificacion' | 'publicado' | 'archivado';
 export interface GuideRow {
   id: string; slug: string; title: string; summary: string; status: GuideStatus; last_verified_at: string | null; updated_at: string;
-  category_slug: string | null; topic: string | null;
   legal_resource_sources: { id: string }[];
   legal_resource_stats: Stats;
 }
 export function listGuides() {
   return run<GuideRow[]>(
     requireClient().from('legal_resources')
-      .select('id, slug, title, summary, status, last_verified_at, updated_at, category_slug, topic, legal_resource_sources(id), legal_resource_stats(views)')
+      .select('id, slug, title, summary, status, last_verified_at, updated_at, legal_resource_sources(id), legal_resource_stats(views)')
       .order('title'),
   );
 }
@@ -315,30 +314,4 @@ export interface SearchGap { term: string; searches: number; results: number; la
 
 export function listSearchGaps(days = 30) {
   return run<SearchGap[]>(requireClient().rpc('editorial_search_gaps', { p_days: days, p_max_results: 0 }));
-}
-
-/** Crea una sugerencia editorial nueva sin redactar ni publicar contenido. */
-export interface NewEditorialSuggestion {
-  kind: 'nueva' | 'actualizar';
-  title: string;
-  reason: string;
-  demand?: string;
-  priority: 'alta' | 'media' | 'baja';
-  topic?: string;
-  keywords?: string[];
-  sources: { label: string; url: string }[];
-  target?: string | null;
-}
-export function createEditorialSuggestion(input: NewEditorialSuggestion) {
-  return run<string>(requireClient().rpc('editorial_add_suggestion', {
-    p_kind: input.kind,
-    p_title: input.title,
-    p_reason: input.reason,
-    p_demand: input.demand ?? '',
-    p_priority: input.priority,
-    p_topic: input.topic ?? '',
-    p_keywords: input.keywords ?? [],
-    p_sources: input.sources,
-    p_target_slug: input.target ?? null,
-  }));
 }
