@@ -1,8 +1,8 @@
 # Sugerencias editoriales
 
-Claude actúa como **redactor**: revisa fuentes oficiales y especializadas, propone temas de guías en **Moderación → Sugerencias** y redacta las que la administración pide. Todo lo que escribe entra como **borrador** o como **propuesta**: nada se publica sin que una persona lo revise.
+El asistente editorial con IA revisa fuentes oficiales y especializadas, propone temas de guías en **Moderación → Sugerencias** y puede redactar las que la administración pide. Todo lo que escribe entra como **borrador** o como **propuesta**: nada se publica sin que una persona lo revise.
 
-No usa ninguna API de pago. Funciona en las conversaciones con Claude Code, con el cupo del plan de Claude que ya tienes.
+No requiere una API de pago. La investigación y el análisis pueden hacerse desde ChatGPT con búsqueda web; el flujo anterior con Claude Code también puede seguir utilizándose.
 
 ## Flujo
 
