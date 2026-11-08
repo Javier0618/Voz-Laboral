@@ -84,7 +84,6 @@ export const GUIAS_POR_CALCULADORA: Record<string, { slug: string; label: string
     { slug: 'pago-del-salario', label: 'Cuándo y cómo deben pagarte el salario' },
   ],
   '/calculadoras/prestacion-servicios': [
-    { slug: 'prestacion-de-servicios-vs-contrato-laboral', label: 'Prestación de servicios o contrato laboral' },
     { slug: 'cuando-existe-contrato-de-trabajo', label: 'Cuándo existe un contrato de trabajo' },
     { slug: 'seguridad-social-eps-pension-arl-y-caja', label: 'Seguridad social' },
   ],
