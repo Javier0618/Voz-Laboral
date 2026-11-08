@@ -197,3 +197,26 @@ describe('calculadoras de un solo periodo con los valores de otro año', () => {
     expect(r.valorPrima).toBe(731_000); // (1.300.000 + 162.000) × 180 ÷ 360
   });
 });
+
+
+describe('base salarial específica para vacaciones', () => {
+  it('permite calcular vacaciones con el promedio salarial informado, sin alterar prestaciones', () => {
+    const original = calcularLiquidacion({ ...base, variableMensual: 400_000 });
+    const ajustado = calcularLiquidacion({ ...base, variableMensual: 400_000, baseVacacionesMensual: 2_150_905 });
+    const dias = (original.diasLaborados * 15) / 360;
+    expect(valor(ajustado, 'vacaciones')).toBe(Math.round((2_150_905 * dias) / 30));
+    expect(valor(ajustado, 'cesantias')).toBe(valor(original, 'cesantias'));
+    expect(valor(ajustado, 'prima')).toBe(valor(original, 'prima'));
+    expect(ajustado.avisos.join(' ')).not.toMatch(/Se usó el salario fijo para estimar las vacaciones/);
+  });
+  it('no incorpora automáticamente horas extra a vacaciones y avisa si falta la base', () => {
+    const resultado = calcularLiquidacion({ ...base, variableMensual: 300_000 });
+    expect(valor(resultado, 'vacaciones')).toBe(valor(calcularLiquidacion(base), 'vacaciones'));
+    expect(resultado.avisos.join(' ')).toMatch(/Se usó el salario fijo/);
+  });
+  it('rechaza bases de vacaciones inválidas', () => {
+    expect(validarLiquidacion({ ...base, baseVacacionesMensual: 0 }).baseVacacionesMensual).toBeTruthy();
+    expect(validarLiquidacion({ ...base, baseVacacionesMensual: Number.NaN }).baseVacacionesMensual).toBeTruthy();
+    expect(validarLiquidacion({ ...base, baseVacacionesMensual: 2_000_000 }).baseVacacionesMensual).toBeUndefined();
+  });
+});
