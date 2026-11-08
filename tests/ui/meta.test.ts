@@ -23,6 +23,18 @@ describe('setPageMeta', () => {
     expect(prop('og:image')).toBe('https://x.supabase.co/storage/v1/object/public/guias/z/a.png');
   });
 
+  it('renueva los metadatos sociales al cambiar de portada', () => {
+    setPageMeta({ title: 'Renuncia', description: 'Guía', path: '/derechos/renuncia/',
+      image: 'https://x.supabase.co/imagen.webp', imageAlt: 'Carta de renuncia' });
+    expect(prop('og:image:type')).toBe('image/webp');
+    expect(prop('og:image:alt')).toBe('Carta de renuncia');
+    expect(document.querySelector('meta[property="og:image:width"]')).toBeNull();
+    setPageMeta({ title: 'Calculadoras', description: 'Calcula', path: '/calculadoras' });
+    expect(prop('og:image:type')).toBe('image/png');
+    expect(prop('og:image:alt')).toContain('TuVozLaboral');
+    expect(prop('og:image:width')).toBe('1200');
+  });
+
   it('pone «noindex» solo donde se pide y lo quita al cambiar de página', () => {
     const robots = () => document.querySelector('meta[name="robots"]')?.getAttribute('content') ?? null;
     setPageMeta({ title: 'Empresa vacía', description: 'Sin experiencias', path: '/empresas/x', robots: 'noindex, follow' });
