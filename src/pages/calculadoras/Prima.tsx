@@ -33,7 +33,7 @@ export default function PrimaPage() {
 
   return (
     <div className="page py-10">
-      <PageHeader title="Calculadora de Prima de Servicios">
+      <PageHeader title="Calculadora de Prima de Servicios" sharePath="/calculadoras/prima/">
         Estima el valor de tu prima semestral en Colombia (junio o diciembre). Incluye auxilio de transporte si devengas hasta 2 SMMLV.
       </PageHeader>
 
