@@ -348,7 +348,7 @@ function Rights() {
         <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((g) => (
             <li key={g.id}>
-              <Link to={`/derechos/${g.slug}`} className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-paper transition-colors hover:border-slate">
+              <Link to={`/derechos/${g.slug}/`} className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-paper transition-colors hover:border-slate">
                 <GuideCover guide={g} />
                 <span className="flex flex-1 flex-col p-6">
                   <span className="font-serif text-xl leading-snug text-ink group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">{g.title}</span>
@@ -381,6 +381,9 @@ function Rights() {
 
 function CalculatorsPreview() {
   const featured = CALCULADORAS.slice(0, 4);
+  const prestaciones = CALCULADORAS.filter((c) => [
+    '/calculadoras/prima', '/calculadoras/cesantias', '/calculadoras/salario-neto',
+  ].includes(c.path));
   return (
     <section className="page mt-20" aria-labelledby="calculadoras-inicio">
       <div className="grid gap-6 border-t border-ink/80 pt-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-12">
@@ -403,6 +406,17 @@ function CalculatorsPreview() {
           </li>
         ))}
       </ul>
+      <div className="mt-8 border-t border-line pt-6">
+        <h3 className="font-sans text-base font-semibold text-ink">Calcula tu prima, cesantías y salario neto</h3>
+        <p className="mt-2 text-sm text-slate">Consulta directamente estas calculadoras para estimar tus prestaciones y lo que recibes después de los descuentos.</p>
+        <ul className="mt-4 flex flex-wrap gap-3">
+          {prestaciones.map((c) => (
+            <li key={c.path}>
+              <Link to={`${c.path}/`} className="btn-secondary">{c.title}</Link>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }
