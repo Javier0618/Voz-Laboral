@@ -35,6 +35,8 @@ rm -rf .dist-nuevo
 npx tsc --noEmit
 npx vite build --outDir .dist-nuevo --emptyOutDir
 SITEMAP_OUT=.dist-nuevo node scripts/generar-sitemap.mjs
+# Autoriza el ID público de AdSense; nunca generar un ads.txt con HTML.
+ADS_TXT_OUT=.dist-nuevo/ads.txt node scripts/generar-ads-txt.mjs
 
 echo "→ Publicando…"
 rm -rf .dist-anterior
