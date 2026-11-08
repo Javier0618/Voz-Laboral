@@ -58,8 +58,8 @@ describe('HTML inicial de calculadoras', () => {
     const html: string = htmlDeCalculadora(plantilla, info, 'https://tuvozlaboral.com');
     expect(html).toContain('<title>Calculadora de prima de servicios en Colombia · TuVozLaboral</title>');
     expect(html).toContain('<meta name="description" content="Calcula la prima de servicios." />');
-    expect(html).toContain('<link rel="canonical" href="https://tuvozlaboral.com/calculadoras/prima" />');
-    expect(html).toContain('<meta property="og:url" content="https://tuvozlaboral.com/calculadoras/prima" />');
+    expect(html).toContain('<link rel="canonical" href="https://tuvozlaboral.com/calculadoras/prima/" />');
+    expect(html).toContain('<meta property="og:url" content="https://tuvozlaboral.com/calculadoras/prima/" />');
     expect(html).toContain('<div id="root"><main');
     expect(html).toContain('<h1>Calculadora de prima de servicios en Colombia</h1>');
     expect(html).toContain('"@type":"WebPage"');
