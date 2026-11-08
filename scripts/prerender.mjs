@@ -15,9 +15,93 @@ function setMeta(html, key, kind, value) {
     : html.replace('</head>', `    <meta ${kind}="${key}" content="${attr(value)}" />\n  </head>`);
 }
 
+
+/** Convierte el Markdown público a HTML semántico, sin insertar HTML sin escapar. */
+function inlineHtml(value) {
+  const input = String(value ?? '');
+  const token = /(!?\[([^\]]*)\]\(([^)\s]+)\)|\*\*([^*]+)\*\*)/g;
+  let html = '';
+  let start = 0;
+  for (const match of input.matchAll(token)) {
+    html += text(input.slice(start, match.index));
+    if (match[4] !== undefined) {
+      html += '<strong>' + text(match[4]) + '</strong>';
+    } else {
+      const href = match[3];
+      // Solo URLs internas y enlaces web; nunca javascript:, data: u otros esquemas.
+      if (/^(\/(?!\/)|https?:\/\/)/i.test(href)) {
+        const label = text(match[2]);
+        html += match[1].startsWith('!')
+          ? '<img src="' + attr(href) + '" alt="' + attr(match[2]) + '" loading="lazy">'
+          : '<a href="' + attr(href) + '">' + label + '</a>';
+      } else {
+        html += text(match[0]);
+      }
+    }
+    start = match.index + match[0].length;
+  }
+  return html + text(input.slice(start));
+}
+
+function renderContent(markdown) {
+  const html = [];
+  let list = null;
+  let paragraph = [];
+  const endParagraph = () => {
+    if (paragraph.length) html.push('<p>' + inlineHtml(paragraph.join(' ')) + '</p>');
+    paragraph = [];
+  };
+  const endList = () => {
+    if (list) html.push('</' + list + '>');
+    list = null;
+  };
+  for (const raw of String(markdown ?? '').split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) { endParagraph(); endList(); continue; }
+    const heading = /^(#{2,3})\s+(.+)$/.exec(line);
+    if (heading) {
+      endParagraph(); endList();
+      const tag = heading[1].length === 2 ? 'h2' : 'h3';
+      html.push('<' + tag + '>' + inlineHtml(heading[2]) + '</' + tag + '>');
+      continue;
+    }
+    const image = /^!\[([^\]]*)\]\(([^)\s]+)\)$/.exec(line);
+    if (image) {
+      endParagraph(); endList();
+      html.push('<figure>' + inlineHtml(line) + '</figure>');
+      continue;
+    }
+    const item = /^([-*]|\d+\.)\s+(.+)$/.exec(line);
+    if (item) {
+      endParagraph();
+      const tag = /^\d/.test(item[1]) ? 'ol' : 'ul';
+      if (list !== tag) { endList(); html.push('<' + tag + '>'); list = tag; }
+      html.push('<li>' + inlineHtml(item[2]) + '</li>');
+      continue;
+    }
+    if (line.startsWith('> ')) {
+      endParagraph(); endList();
+      html.push('<blockquote><p>' + inlineHtml(line.slice(2)) + '</p></blockquote>');
+      continue;
+    }
+    endList();
+    paragraph.push(line);
+  }
+  endParagraph(); endList();
+  return html.join('\n');
+}
+
+function initialArticle(g) {
+  return '<main class="page py-10"><article class="mx-auto max-w-prose">'
+    + '<h1>' + text(g.title) + '</h1>'
+    + '<p>' + text(g.summary) + '</p>'
+    + renderContent(g.content)
+    + '</article></main>';
+}
+
 /**
  * @param {string} template HTML de dist/index.html
- * @param {{slug:string,title:string,summary:string,cover_url?:string|null,updated_at?:string,last_verified_at?:string|null}} g
+ * @param {{slug:string,title:string,summary:string,content?:string,cover_url?:string|null,updated_at?:string,last_verified_at?:string|null}} g
  * @param {string} site p. ej. https://tuvozlaboral.com
  */
 export function htmlDeGuia(template, g, site) {
@@ -64,5 +148,8 @@ export function htmlDeGuia(template, g, site) {
     ],
   };
   const extra = `    <link rel="canonical" href="${attr(url)}" />\n    <script type="application/ld+json" id="vl-jsonld">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>\n  </head>`;
-  return html.replace('</head>', extra);
+  html = html.replace('</head>', extra);
+  // Incluye el artículo en el HTML inicial. React sustituye este contenido al
+  // montar la aplicación; los buscadores que no ejecutan JS pueden leerlo.
+  return html.replace('<div id="root"></div>', '<div id="root">' + initialArticle(g) + '</div>');
 }
