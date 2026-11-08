@@ -7,6 +7,7 @@ import { setPageMeta } from '../lib/meta';
 import { brand } from '../config/brand';
 import { GuideBody } from '../components/GuideBody';
 import { GuideCover } from '../components/GuideCover';
+import { publicGuideImageUrl } from '../lib/publicGuideImageUrl';
 import { GuideCalculatorLinks } from '../components/GuideCalculatorLinks';
 import { ShareLinkButton } from '../components/ShareLinkButton';
 import { RelatedExperiences } from '../components/RelatedExperiences';
@@ -305,7 +306,7 @@ export function RightsArticle() {
     setPageMeta({
       title: `${data.title} · ${brand.name}`,
       description: data.summary,
-      image: data.cover_url,
+      image: publicGuideImageUrl(data.cover_url),
       imageAlt: data.cover_alt || data.title,
       path,
       type: 'article',
@@ -318,7 +319,7 @@ export function RightsArticle() {
           // last_verified_at es la revisión jurídica, no la publicación.
           inLanguage: 'es-CO',
           mainEntityOfPage: pageUrl,
-          image: data.cover_url ? [data.cover_url] : undefined,
+          image: data.cover_url ? [publicGuideImageUrl(data.cover_url)] : undefined,
           author: { '@type': 'Organization', name: brand.name },
           publisher: { '@type': 'Organization', name: brand.name },
         },
