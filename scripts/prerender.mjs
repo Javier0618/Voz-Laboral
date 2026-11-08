@@ -157,7 +157,8 @@ export function htmlDeGuia(template, g, site) {
 
 /** HTML inicial específico de las calculadoras para buscadores sin JavaScript. */
 export function htmlDeCalculadora(template, info, site) {
-  const url = site + info.path;
+  // Las calculadoras pregeneradas son directorios con index.html.
+  const url = site + info.path + '/';
   const titulo = info.title + ' · ' + MARCA;
   let html = template.replace(/<title>[^<]*<\/title>/, '<title>' + text(titulo) + '</title>');
   html = setMeta(html, 'description', 'name', info.description);
