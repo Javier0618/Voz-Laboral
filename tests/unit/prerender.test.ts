@@ -61,6 +61,16 @@ describe('HTML inicial de cada guía', () => {
 });
 
 describe('HTML inicial de calculadoras', () => {
+  it('genera la página índice de calculadoras con canonical y contenido propio', () => {
+    const html: string = htmlDeCalculadora(plantilla, {
+      path: '/calculadoras',
+      title: 'Calculadoras laborales en Colombia',
+      description: 'Herramientas de prima, cesantías y salario.',
+    }, 'https://tuvozlaboral.com');
+    expect(html).toContain('<link rel="canonical" href="https://tuvozlaboral.com/calculadoras/" />');
+    expect(html).toContain('<h1>Calculadoras laborales en Colombia</h1>');
+    expect(html).toContain('Herramientas de prima, cesantías y salario.');
+  });
   it('incluye título, descripción, canonical y contenido propio antes de React', () => {
     const info = {
       path: '/calculadoras/prima',
