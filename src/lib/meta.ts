@@ -29,6 +29,13 @@ export type PageMeta = {
   jsonLd?: Record<string, unknown> | Record<string, unknown>[] | null;
 };
 
+/** URL preferida de páginas públicas HTML: directorios con index.html. */
+function canonicalPublicPath(path: string): string {
+  if (path === '/' || path.includes('?') || path.includes('#')) return path;
+  const eligible = /^\/(?:derechos(?:\/[^/]+)?|calculadoras(?:\/[^/]+)?|herramientas(?:\/(?:cartas(?:\/[^/]+)?|diagnostico|quiz|calendario|glosario))?|politicas\/[^/]+|empresas|experiencias|liquidacion|como-funciona|compartir)\/?$/;
+  return eligible.test(path) ? path.replace(/\/$/, '') + '/' : path;
+}
+
 function absoluteUrl(pathOrUrl: string | null | undefined): string | undefined {
   if (!pathOrUrl) return undefined;
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
@@ -147,8 +154,9 @@ export function setPageMeta(meta: PageMeta | null) {
   setMetaByName('twitter:description', meta.description);
   setMetaByName('twitter:image', image);
   if (meta.path) {
-    setCanonical(absoluteUrl(meta.path));
-    setMetaByProperty('og:url', absoluteUrl(meta.path)!);
+    const path = canonicalPublicPath(meta.path);
+    setCanonical(absoluteUrl(path));
+    setMetaByProperty('og:url', absoluteUrl(path)!);
   }
   setRobots(meta.robots);
   setJsonLd(meta.jsonLd ?? null);
@@ -186,8 +194,8 @@ const RUTAS_PRIVADAS = /^\/(cuenta|moderacion|seguimiento|avisos)(\/|$)/;
  */
 export function setRouteDefaults(pathname: string) {
   const path = pathname.replace(/^\/seguimiento\/[^/]+/, '/seguimiento');
-  // El servidor publica cada guía como /derechos/slug/ (directorio con index.html).
-  const canonicalPath = /^\/derechos\/[^/]+\/?$/.test(path) ? `${path.replace(/\/$/, '')}/` : path;
+  // El HTML pregenerado de las rutas públicas se sirve desde directorios.
+  const canonicalPath = canonicalPublicPath(path);
   const url = absoluteUrl(canonicalPath || '/')!;
   setCanonical(url);
   setMetaByProperty('og:url', url);
