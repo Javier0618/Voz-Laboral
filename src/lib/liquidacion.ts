@@ -45,6 +45,8 @@ export interface DatosLiquidacion {
   salarioMensual: number;
   /** Promedio mensual de horas extra, recargos y comisiones (pagos salariales variables). */
   variableMensual: number;
+  /** Base mensual de vacaciones informada por el usuario: salario fijo vigente o promedio pertinente si es variable. Sin auxilio de transporte. */
+  baseVacacionesMensual?: number;
   diasVacacionesDisfrutados: number;
   diasSalarioPendiente: number;
   /**
@@ -120,7 +122,8 @@ export function validarLiquidacion(d: DatosLiquidacion): Record<string, string> 
   else if (fecha(d.fechaIngreso) && d.fechaRetiro < d.fechaIngreso) e.fechaRetiro = 'La fecha de retiro no puede ser anterior a la de ingreso.';
   if (!(d.salarioMensual > 0)) e.salarioMensual = 'Indica tu salario mensual.';
   if (d.salarioPorAnio && Object.values(d.salarioPorAnio).some((x) => !(x > 0))) e.salarioPorAnio = 'Indica el salario de cada año.';
-  if (d.variableMensual < 0) e.variableMensual = 'No puede ser negativo.';
+  if (!Number.isFinite(d.variableMensual) || d.variableMensual < 0) e.variableMensual = 'Indica un promedio válido, sin valores negativos.';
+  if (d.baseVacacionesMensual !== undefined && (!Number.isFinite(d.baseVacacionesMensual) || d.baseVacacionesMensual <= 0)) e.baseVacacionesMensual = 'Indica una base mensual de vacaciones válida.';
   if (d.diasVacacionesDisfrutados < 0) e.diasVacacionesDisfrutados = 'No puede ser negativo.';
   if (d.diasSalarioPendiente < 0 || d.diasSalarioPendiente > 30) e.diasSalarioPendiente = 'Indica entre 0 y 30 días.';
   if (d.tipoContrato === 'indefinido' && d.motivo === 'fin_plazo') e.motivo = 'El vencimiento del plazo solo aplica a contratos a término fijo.';
@@ -202,9 +205,10 @@ export function calcularLiquidacion(d: DatosLiquidacion): ResultadoLiquidacion {
   // Vacaciones: 15 días hábiles por año, proporcionales al retiro (CST art. 186; Ley 995 de 2005).
   const diasVacacionesCausados = (diasLaborados * 15) / 360;
   const diasVacacionesPendientes = Math.max(0, diasVacacionesCausados - d.diasVacacionesDisfrutados);
-  const vacaciones = (d.salarioMensual * diasVacacionesPendientes) / 30;
-  if (d.variableMensual > 0) {
-    avisos.push('Las vacaciones se calculan solo con el salario fijo. Si recibes comisiones, el valor real puede ser mayor.');
+  const baseVacaciones = d.baseVacacionesMensual ?? d.salarioMensual;
+  const vacaciones = (baseVacaciones * diasVacacionesPendientes) / 30;
+  if (d.variableMensual > 0 && d.baseVacacionesMensual === undefined) {
+    avisos.push('Se usó el salario fijo para estimar las vacaciones. Si tienes salario variable (por ejemplo, comisiones), introduce la base mensual de vacaciones para obtener una estimación más precisa. No incluyas el auxilio de transporte.');
   }
 
   // Multiplicar antes de dividir evita errores de redondeo (124.547,50 y no 124.547,4999…).
@@ -215,7 +219,7 @@ export function calcularLiquidacion(d: DatosLiquidacion): ResultadoLiquidacion {
     { clave: 'cesantias', nombre: `Cesantías de ${anioRetiro}`, valor: cesantias, detalle: `${pesos(basePrestaciones)} × ${diasCesantias} días ÷ 360`, norma: 'CST, art. 249' },
     { clave: 'intereses', nombre: `Intereses de las cesantías de ${anioRetiro} (12 % anual)`, valor: intereses, detalle: `${pesos(cesantias)} × ${diasCesantias} días × 12 % ÷ 360`, norma: 'Ley 50 de 1990, art. 99' },
     { clave: 'prima', nombre: `Prima del ${inicioSemestre.endsWith('01-01') ? 'primer' : 'segundo'} semestre de ${anioRetiro}`, valor: prima, detalle: `${pesos(basePrestaciones)} × ${diasPrima} días ÷ 360`, norma: 'CST, art. 306' },
-    { clave: 'vacaciones', nombre: 'Vacaciones pendientes', valor: vacaciones, detalle: `${decimal(diasVacacionesPendientes)} días × ${pesos(d.salarioMensual / 30)} por día`, norma: 'CST, art. 186; Ley 995 de 2005' },
+    { clave: 'vacaciones', nombre: 'Vacaciones pendientes', valor: vacaciones, detalle: `${decimal(diasVacacionesPendientes)} días × ${pesos(baseVacaciones / 30)} por día`, norma: 'CST, arts. 186, 189 y 192; Ley 995 de 2005' },
   ];
   if (anteriores.length && d.incluirCesantiasAnteriores) {
     const detalle = anteriores.map((f) => `${f.anio}: ${pesos(f.cesantias)}`).join('; ');
