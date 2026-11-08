@@ -1,4 +1,5 @@
 import { brand } from '../config/brand';
+import { publicGuideImageUrl } from './publicGuideImageUrl';
 
 // Título, descripción y etiquetas sociales de la página activa.
 // Ayuda a buscadores que ejecutan JavaScript. WhatsApp, LinkedIn y similares
@@ -147,7 +148,7 @@ export function setPageMeta(meta: PageMeta | null) {
   setMetaByProperty('og:description', meta.description);
   setMetaByProperty('og:type', meta.type ?? 'website');
   // Sin imagen propia se usa la de por defecto: así no queda la de la página anterior.
-  const image = absoluteUrl(meta.image || DEFAULT_OG_IMAGE)!;
+  const image = absoluteUrl(publicGuideImageUrl(meta.image) || DEFAULT_OG_IMAGE)!;
   setMetaByProperty('og:image', image);
   setSocialImageDetails(image, meta.imageAlt);
   setMetaByName('twitter:title', meta.title);
