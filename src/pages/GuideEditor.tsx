@@ -13,6 +13,7 @@ import { prepareCoverImage } from '../lib/image';
 import { formatDate, todayLocal } from '../lib/format';
 import type { AppError } from '../lib/supabase';
 import { GuideBody } from '../components/GuideBody';
+import { publicGuideImageUrl } from '../lib/publicGuideImageUrl';
 import { GUIDE_TEMPLATE } from '../lib/guideTemplate';
 import { FormatToolbar } from '../components/FormatToolbar';
 import { Alert, ConfigNotice, ConfirmDialog, Dialog, EmptyState, ErrorState, Field, Loading, notConfigured, useAsync } from '../components/ui';
@@ -284,7 +285,7 @@ function CoverPanel({ guide: g, onChange }: { guide: GuideDetail; onChange: () =
       <p className="mt-3 text-sm text-slate">Aparece en el listado de guías y arriba de la guía. Se recorta a 1200 x 628.</p>
       <div className="mt-4 overflow-hidden rounded border border-line bg-mist">
         {g.cover_url ? (
-          <img src={g.cover_url} alt="" className="block aspect-[1200/628] w-full object-cover" />
+          <img src={publicGuideImageUrl(g.cover_url)} alt="" className="block aspect-[1200/628] w-full object-cover" />
         ) : (
           <div className="flex aspect-[1200/628] items-center justify-center px-4 text-center text-sm text-slate">Sin portada</div>
         )}

@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { headingIds, parseGuide, parseInline } from '../lib/guide';
+import { publicGuideImageUrl } from '../lib/publicGuideImageUrl';
 import { TextoCst } from './ArticulosCst';
 import { TerminoGlosario } from './TerminoGlosario';
 import { partesGlosario } from '../lib/glosario';
@@ -62,7 +63,7 @@ export function GuideBody({ content, slug }: { content: string; slug?: string })
           case 'image':
             return (
               <figure key={i} className="mt-6">
-                <img src={b.src} alt={b.alt} loading="lazy" className="w-full rounded border border-line" />
+                <img src={publicGuideImageUrl(b.src)} alt={b.alt} loading="lazy" className="w-full rounded border border-line" />
                 {b.alt && <figcaption className="mt-2 font-sans text-sm text-slate">{b.alt}</figcaption>}
               </figure>
             );

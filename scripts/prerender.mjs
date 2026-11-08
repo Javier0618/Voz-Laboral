@@ -5,6 +5,15 @@
 
 const MARCA = 'TuVozLaboral';
 
+/** Solo los archivos del bucket público "guias" del proyecto Supabase se
+ * entregan con el dominio del sitio; el resto de URLs permanece intacto. */
+function publicGuideImageUrl(url) {
+  const origin = 'https://izzpirqqqwdvwbndnuql.supabase.co/storage/v1/object/public/guias/';
+  return typeof url === 'string' && url.startsWith(origin)
+    ? 'https://tuvozlaboral.com/storage/v1/object/public/guias/' + url.slice(origin.length)
+    : url;
+}
+
 const attr = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 const text = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
@@ -32,7 +41,7 @@ function inlineHtml(value) {
       if (/^(\/(?!\/)|https?:\/\/)/i.test(href)) {
         const label = text(match[2]);
         html += match[1].startsWith('!')
-          ? '<img src="' + attr(href) + '" alt="' + attr(match[2]) + '" loading="lazy">'
+          ? '<img src="' + attr(publicGuideImageUrl(href)) + '" alt="' + attr(match[2]) + '" loading="lazy">'
           : '<a href="' + attr(href) + '">' + label + '</a>';
       } else {
         html += text(match[0]);
@@ -107,7 +116,7 @@ function initialArticle(g) {
 export function htmlDeGuia(template, g, site) {
   const url = `${site}/derechos/${g.slug}/`;
   const titulo = `${g.title} · ${MARCA}`;
-  const imagen = g.cover_url || `${site}/og-default.png`;
+  const imagen = publicGuideImageUrl(g.cover_url) || `${site}/og-default.png`;
   let html = template.replace(/<title>[^<]*<\/title>/, `<title>${text(titulo)}</title>`);
   html = setMeta(html, 'description', 'name', g.summary);
   html = setMeta(html, 'og:type', 'property', 'article');

@@ -162,3 +162,31 @@ describe('Enlaces HTML iniciales de Inicio', () => {
     expect(html).not.toContain('href="//example.org/');
   });
 });
+
+
+describe('Dominio de las imágenes públicas de las guías', () => {
+  const original = 'https://izzpirqqqwdvwbndnuql.supabase.co/storage/v1/object/public/guias/ejemplo/portada.webp';
+  const proxied = 'https://tuvozlaboral.com/storage/v1/object/public/guias/ejemplo/portada.webp';
+
+  it('actualiza la portada social, JSON-LD y la imagen interna desde Supabase', () => {
+    const h: string = htmlDeGuia(plantilla, {
+      ...guia,
+      cover_url: original,
+      content: '## Ejemplo\n\n![Gráfico explicativo](' + original + ')',
+    }, 'https://tuvozlaboral.com');
+    expect(h).toContain('og:image" content="' + proxied);
+    expect(h).toContain('twitter:image" content="' + proxied);
+    expect(h).toContain('<img src="' + proxied + '" alt="Gráfico explicativo"');
+    expect(h).not.toContain(original);
+  });
+
+  it('conserva intactas las imágenes externas no pertenecientes al bucket público', () => {
+    const external = 'https://images.example.com/ejemplo.png';
+    const h: string = htmlDeGuia(plantilla, {
+      ...guia, cover_url: external,
+      content: '![Ejemplo externo](' + external + ')',
+    }, 'https://tuvozlaboral.com');
+    expect(h).toContain('og:image" content="' + external);
+    expect(h).toContain('<img src="' + external + '" alt="Ejemplo externo"');
+  });
+});
