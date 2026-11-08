@@ -31,7 +31,7 @@ export default function SalarioNetoPage() {
 
   return (
     <div className="page py-10">
-      <PageHeader title="Calculadora de Salario Neto vs. Bruto">
+      <PageHeader title="Calculadora de Salario Neto vs. Bruto" sharePath="/calculadoras/salario-neto/">
         ¿Te hicieron una oferta de trabajo o quieres saber cuánto te llegará a la cuenta bancaria? Calcula los descuentos de ley (salud, pensión, FSP y retención en la fuente).
       </PageHeader>
 
