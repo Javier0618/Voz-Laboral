@@ -69,12 +69,12 @@ export const CARTAS: Carta[] = [
   {
     slug: 'derecho-de-peticion',
     title: 'Derecho de petición a tu empleador',
-    description: 'Para reclamar por escrito un pago (prima, cesantías, liquidación, recargos) o pedir documentos. La empresa debe responder en 15 días.',
+    description: 'Solicita pagos o documentos al empleador con una petición clara. El plazo general de respuesta es de 15 días hábiles; para información y documentos es de 10, salvo normas especiales.',
     consejos: [
       'Cuenta los hechos con fechas y cifras: cuándo debían pagarte, cuánto y qué pasó.',
       'Entrégala con copia y pide que te firmen el recibido, o envíala por correo y guarda el mensaje.',
-      'Este reclamo por escrito interrumpe una vez el plazo de 3 años para reclamar (art. 489 del CST).',
-      'Si no responden en 15 días, puedes acudir al Ministerio del Trabajo o presentar una tutela.',
+      'Un reclamo escrito recibido por el empleador puede interrumpir la prescripción una vez si identifica debidamente el derecho reclamado (art. 489 del CST). Conserva prueba de su recepción.',
+      'Si no responden en el plazo legal aplicable, solicita orientación sobre los mecanismos para exigir respuesta. Un reclamo de pago y un derecho de petición no son lo mismo.',
     ],
     guia: { slug: 'a-donde-acudir-ministerio-y-derecho-de-peticion', label: 'A dónde acudir y cómo hacer un derecho de petición' },
     campos: [
@@ -93,7 +93,7 @@ export const CARTAS: Carta[] = [
     description: 'Renuncia voluntaria con la fecha de tu último día y la solicitud de tu liquidación y tu certificado laboral.',
     consejos: [
       'En el contrato a término indefinido, la ley pide avisar con 30 días de anticipación, pero no permite cobrarte una multa por no hacerlo (art. 47 del CST).',
-      'En el contrato a término fijo, renunciar antes del plazo sin justa causa puede obligarte a indemnizar al empleador (art. 64 del CST).',
+      'En contratos a término fijo, distingue la renuncia voluntaria del aviso de no renovación. Revisa tu contrato y las circunstancias antes de fijar la fecha de salida.',
       'Al renunciar no pierdes las cesantías, la prima proporcional ni las vacaciones pendientes.',
       'Entrégala con copia y pide que te firmen el recibido.',
     ],
@@ -113,7 +113,7 @@ export const CARTAS: Carta[] = [
     consejos: [
       'Solo puedes alegar el motivo que escribas en esta carta (art. 66 del CST). Sé concreto y completo.',
       'Reúne pruebas antes de entregarla: desprendibles, mensajes, correos y testigos.',
-      'Si un juez te da la razón, te deben la indemnización como si te hubieran despedido sin justa causa.',
+      'Si se prueba una justa causa imputable al empleador, puedes reclamar la indemnización correspondiente. No se reconoce automáticamente por presentar esta carta.',
       'Conviene que un abogado o el Ministerio del Trabajo revisen tu caso antes de renunciar.',
     ],
     guia: { slug: 'renuncia-y-preaviso', label: 'Renunciar: preaviso, liquidación y renuncia por justa causa' },
@@ -132,7 +132,7 @@ export const CARTAS: Carta[] = [
     consejos: [
       'Por cada año trabajado tienes derecho a 15 días hábiles de vacaciones pagadas (art. 186 del CST).',
       'El empleador fija la fecha, pero las vacaciones también se conceden a petición del trabajador (art. 187 del CST).',
-      'Pídelas con tiempo: el empleador debe avisarte la fecha con 15 días de anticipación.',
+      'Propón fechas concretas y pide confirmación escrita. El empleador debe comunicar la fecha de disfrute con 15 días de anticipación (art. 187 del CST).',
     ],
     guia: { slug: 'vacaciones', label: 'Vacaciones: cuántos días te corresponden y cuándo tomarlas' },
     campos: [
@@ -151,7 +151,7 @@ export const CARTAS: Carta[] = [
     consejos: [
       'Antes, descarga tu historia laboral y anota exactamente qué periodos faltan.',
       'Adjunta pruebas: certificados laborales, desprendibles o planillas de pago de aportes.',
-      'Si la semana falta porque el empleador no pagó el aporte, dilo: la administradora debe cobrárselo.',
+      'Si identificas aportes omitidos o impagos del empleador, indícalos y aporta soportes para que la administradora investigue y adelante las gestiones que correspondan.',
     ],
     guia: { slug: 'pension-de-vejez-requisitos', label: 'Pensión de vejez: requisitos, semanas y cómo pedirla' },
     campos: [
@@ -172,7 +172,12 @@ const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', '
 export function fechaLarga(iso: string | undefined): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? '');
   if (!m) return '___';
-  return `${Number(m[3])} de ${MESES[Number(m[2]) - 1]} de ${m[1]}`;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return '___';
+  return `${day} de ${MESES[month - 1]} de ${year}`;
 }
 
 const v = (d: DatosCarta, k: string, vacio = '___') => (d[k] ?? '').trim() || vacio;
@@ -230,8 +235,8 @@ export function generarCarta(slug: string, d: DatosCarta): TextoCarta {
           ...(hechos.length ? hechos.map((h, i) => `${i + 2}. ${h.replace(/^\d+[.)]\s*/, '')}`) : ['2. ___']),
           'Petición',
           pedido,
-          'Les solicito dar respuesta de fondo dentro de los 15 días siguientes a la recepción de esta petición, o dentro de los 10 días si se trata de documentos o información, como lo establece el artículo 14 de la Ley 1755 de 2015.',
-          'Esta petición constituye además un reclamo escrito sobre los derechos aquí señalados, para los efectos del artículo 489 del Código Sustantivo del Trabajo.',
+          'Solicito una respuesta de fondo dentro del plazo legal aplicable: por regla general, 15 días hábiles; para peticiones de información o documentos, 10 días hábiles, salvo disposiciones especiales (art. 14 de la Ley 1755 de 2015).',
+          'En cuanto a derechos laborales debidamente identificados en este escrito, dejo constancia de mi reclamación ante el empleador para los efectos que correspondan conforme al artículo 489 del Código Sustantivo del Trabajo.',
           ...contacto(d),
         ],
         firma: firma(d),
@@ -245,7 +250,7 @@ export function generarCarta(slug: string, d: DatosCarta): TextoCarta {
         cuerpo: [
           `${yo}, presento mi renuncia voluntaria al cargo de ${v(d, 'cargo')} en ${v(d, 'empresa')}. Mi último día de trabajo será el ${fechaLarga(d.ultimoDia)}.`,
           ...(d.agradecimiento === 'no' ? [] : ['Agradezco la oportunidad de trabajar con ustedes y lo aprendido durante este tiempo.']),
-          'Les solicito el pago de mi liquidación final (salarios pendientes, cesantías y sus intereses, prima proporcional y vacaciones pendientes) y la expedición de mi certificado laboral, según el numeral 7 del artículo 57 del Código Sustantivo del Trabajo.',
+          'Solicito la liquidación detallada y el pago de los conceptos pendientes que correspondan (salarios, cesantías, intereses, prima y vacaciones), así como mi certificado laboral conforme al numeral 7 del artículo 57 del Código Sustantivo del Trabajo.',
           ...contacto(d),
         ],
         firma: firma(d),
@@ -260,7 +265,7 @@ export function generarCarta(slug: string, d: DatosCarta): TextoCarta {
           `${yo}, en mi calidad de trabajador(a) en el cargo de ${v(d, 'cargo')}, comunico que doy por terminado mi contrato de trabajo con ${v(d, 'empresa')} por justa causa imputable al empleador, con fundamento en el artículo 62, literal b), del Código Sustantivo del Trabajo. Mi último día de trabajo será el ${fechaLarga(d.ultimoDia)}.`,
           'De acuerdo con el parágrafo del artículo 62 y con el artículo 66 del mismo Código, estos son los hechos que motivan mi decisión:',
           ...(hechos.length ? hechos.map((h, i) => `${i + 1}. ${h.replace(/^\d+[.)]\s*/, '')}`) : ['1. ___']),
-          'En consecuencia, solicito el pago de mi liquidación final y de la indemnización prevista en el artículo 64 del Código Sustantivo del Trabajo, así como la expedición de mi certificado laboral.',
+          'Solicito la liquidación detallada y el pago de los conceptos pendientes. Asimismo, reclamo la indemnización que corresponda conforme al artículo 64 del Código Sustantivo del Trabajo, en caso de acreditarse la justa causa imputable al empleador, y la expedición de mi certificado laboral.',
           ...contacto(d),
         ],
         firma: firma(d),
@@ -273,8 +278,8 @@ export function generarCarta(slug: string, d: DatosCarta): TextoCarta {
         asunto: 'Solicitud de vacaciones',
         cuerpo: [
           `${yo}, en el cargo de ${v(d, 'cargo')}, solicito el disfrute de mis vacaciones correspondientes al periodo ${v(d, 'periodo')}, entre el ${fechaLarga(d.desde)} y el ${fechaLarga(d.hasta)}.`,
-          'Hago esta solicitud según los artículos 186 y 187 del Código Sustantivo del Trabajo, que reconocen 15 días hábiles consecutivos de vacaciones remuneradas por cada año de servicio y permiten concederlas a petición del trabajador.',
-          'Agradezco confirmarme por escrito las fechas aprobadas.',
+          'Presento esta solicitud de acuerdo con los artículos 186 y 187 del Código Sustantivo del Trabajo, que regulan el descanso anual remunerado y la fijación de las fechas de vacaciones.',
+          'Agradezco confirmar por escrito las fechas autorizadas y, si no es posible atender las fechas propuestas, informarme una alternativa para coordinar el disfrute.',
           ...contacto(d),
         ],
         firma: firma(d),
@@ -290,9 +295,9 @@ export function generarCarta(slug: string, d: DatosCarta): TextoCarta {
           `${yo}, afiliado(a) a ${v(d, 'administradora')}, en ejercicio del derecho de petición del artículo 23 de la Constitución Política y de la Ley 1755 de 2015, solicito la corrección de mi historia laboral.`,
           'Solicito que se incluyan los siguientes periodos, que no aparecen o aparecen incompletos:',
           ...(periodos.length ? periodos.map((p, i) => `${i + 1}. ${p}`) : ['1. ___']),
-          'Si algún aporte de estos periodos no fue pagado por el empleador, solicito que la administradora adelante su cobro y me informe el trámite.',
+          'Si se evidencia mora u omisión del empleador en alguno de estos periodos, solicito que se realicen las verificaciones y gestiones de cobro correspondientes, y se me informe por escrito el resultado.',
           ...(anexos.length ? ['Anexos:', ...anexos.map((a, i) => `${i + 1}. ${a}`)] : []),
-          'Les solicito responder dentro de los 15 días siguientes a la recepción de esta petición, como lo establece el artículo 14 de la Ley 1755 de 2015.',
+          'Solicito respuesta dentro del término legal aplicable, de acuerdo con la Ley 1755 de 2015 y las reglas especiales que correspondan a este trámite.',
           ...contacto(d),
         ],
         firma: firma(d),

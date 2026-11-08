@@ -26,7 +26,7 @@ export function CartasIndex() {
     <div className="page py-10">
       <p className="text-sm"><Link to="/herramientas" className="btn-link">Herramientas</Link></p>
       <PageHeader title="Cartas y documentos laborales">
-        Llena un formulario corto y obtén tu carta lista para imprimir o guardar en PDF, con la norma que la respalda. Lo que escribes no sale de tu
+        Completa los datos, revisa el texto antes de firmar y descarga o imprime la carta. El modelo incluye referencias legales para orientarte. Lo que escribes no sale de tu
         navegador: no lo guardamos.
       </PageHeader>
       <ul className="mt-2">
@@ -73,16 +73,25 @@ function Campo({ carta, campo, valor, onChange }: { carta: Carta; campo: Carta['
   );
 }
 
+function datosIniciales(carta: Carta | undefined): DatosCarta {
+  const inicial: DatosCarta = { fecha: hoy() };
+  for (const c of carta?.campos ?? []) if (c.type === 'select' && c.options) inicial[c.name] = c.options[0].value;
+  return inicial;
+}
+
 /** Formulario y vista previa de una carta. */
 export function CartaPage() {
   const { slug } = useParams();
   const carta = cartaPorSlug(slug);
-  const [datos, setDatos] = useState<DatosCarta>(() => {
-    const inicial: DatosCarta = { fecha: hoy() };
-    for (const c of carta?.campos ?? []) if (c.type === 'select' && c.options) inicial[c.name] = c.options[0].value;
-    return inicial;
-  });
+  const [datos, setDatos] = useState<DatosCarta>(() => datosIniciales(carta));
   const [copiado, setCopiado] = useState(false);
+
+  // React reutiliza este componente entre rutas de cartas diferentes.
+  // No arrastrar campos, motivos ni datos personales de una carta a otra.
+  useEffect(() => {
+    setDatos(datosIniciales(carta));
+    setCopiado(false);
+  }, [carta?.slug]);
 
   useEffect(() => {
     if (!carta) return;
@@ -118,8 +127,9 @@ export function CartaPage() {
         <PageHeader title={carta.title}>{carta.description}</PageHeader>
       </div>
 
-      <div className="mt-8 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-        <div className="print:hidden">
+      <div className="mt-8 grid min-w-0 gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+        <div className="min-w-0 print:hidden">
+          <p className="mb-5 text-sm text-slate">Los cambios se reflejan al instante en la vista previa. Antes de entregarla, comprueba fechas, destinatario y hechos.</p>
           <form noValidate className="space-y-5" aria-label={`Datos para la carta: ${carta.title}`} onSubmit={(e) => e.preventDefault()}>
             {carta.campos.map((c) => (
               <Campo key={c.name} carta={carta} campo={c} valor={datos[c.name] ?? ''} onChange={set(c.name)} />
@@ -136,14 +146,14 @@ export function CartaPage() {
           </section>
         </div>
 
-        <div>
-          <div className="sticky top-4">
+        <div className="min-w-0">
+          <div className="lg:sticky lg:top-4">
             <div className="mb-3 flex flex-wrap items-center gap-3 print:hidden">
               <PrintButton label="Imprimir o guardar en PDF" />
               <button type="button" className="btn-secondary text-xs" onClick={copiar}>{copiado ? 'Copiada' : 'Copiar el texto'}</button>
               <span role="status" className="sr-only">{copiado ? 'Texto de la carta copiado.' : ''}</span>
             </div>
-            <article aria-label="Vista previa de la carta" className="folio carta-impresa rounded border border-line bg-white p-6 font-sans text-[0.95rem] leading-7 text-black shadow-sm sm:p-10">
+            <article aria-label="Vista previa de la carta" className="folio carta-impresa min-w-0 break-words rounded border border-line bg-white p-6 font-sans text-[0.95rem] leading-7 text-black shadow-sm sm:p-10">
               {texto.encabezado.map((l) => <p key={l} className="text-right">{l}</p>)}
               <div className="mt-6">{texto.destinatario.map((l, i) => <p key={i}>{l}</p>)}</div>
               <p className="mt-6"><strong>Asunto: {texto.asunto}</strong></p>
@@ -158,7 +168,7 @@ export function CartaPage() {
             </article>
             <div className="mt-4 print:hidden">
               <Alert tone="info">
-                Los espacios con «___» son datos que faltan: complétalos en el formulario o a mano. Esta carta es un modelo orientativo; si tu caso es
+                Los espacios con «___» son datos que faltan: complétalos en el formulario o a mano. Comprueba que lo escrito sea cierto, guarda una copia y pide constancia de recibido. Esta carta es un modelo orientativo; si tu caso es
                 complejo, pide asesoría al Ministerio del Trabajo, a un consultorio jurídico o a un abogado.
               </Alert>
             </div>

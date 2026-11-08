@@ -32,11 +32,11 @@ export default function SalarioNetoPage() {
   return (
     <div className="page py-10">
       <PageHeader title="Calculadora de Salario Neto vs. Bruto" sharePath="/calculadoras/salario-neto/">
-        ¿Te hicieron una oferta de trabajo o quieres saber cuánto te llegará a la cuenta bancaria? Calcula los descuentos de ley (salud, pensión, FSP y retención en la fuente).
+        ¿Te hicieron una oferta de trabajo o quieres saber cuánto te llegará a la cuenta bancaria? Estima descuentos de salud, pensión, solidaridad y retención para 2026. El resultado puede variar con tu contrato, conceptos salariales y deducciones reales.
       </PageHeader>
 
       <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-        <form onSubmit={calcular} noValidate className="space-y-6" aria-label="Datos de la oferta salarial">
+        <form onSubmit={calcular} className="min-w-0 space-y-6" aria-label="Datos de la oferta salarial">
           <Field
             label="Salario mensual bruto ofrecido o pactado"
             hint={`El mínimo de ${VALORES_2026.anio} es ${pesos(VALORES_2026.salarioMinimo)}.`}
@@ -57,9 +57,9 @@ export default function SalarioNetoPage() {
           </Field>
 
           <Field
-            label="Auxilios o bonificaciones no salariales mensuales"
+            label="Otros pagos no salariales mensuales (sin auxilio legal de transporte)"
             optional
-            hint="Valores pactados como no constitutivos de salario (ej. auxilio de rodamiento, alimentación)."
+            hint="Por ejemplo, rodamiento o alimentación, si realmente son pagos no salariales. No incluyas aquí el auxilio legal de transporte porque la herramienta lo estima por separado."
           >
             {(p) => (
               <input
@@ -77,9 +77,9 @@ export default function SalarioNetoPage() {
           </Field>
 
           <Field
-            label="Aportes voluntarios / Deducciones tributarias (AFC, dependientes)"
+            label="Deducciones tributarias para estimar la retención (opcional)"
             optional
-            hint="Para reducir base de retención en la fuente si aplica."
+            hint="Solo ajusta el cálculo estimado de retención. Esta herramienta no descuenta de tu pago efectivo los aportes voluntarios que decidas realizar; el valor real depende de sus requisitos y topes."
           >
             {(p) => (
               <input
@@ -153,7 +153,7 @@ export default function SalarioNetoPage() {
                 </div>
 
                 <div className="border-t-2 border-ink pt-4 flex items-baseline justify-between gap-4">
-                  <dt className="font-serif text-xl">Neto a consignar</dt>
+                  <dt className="font-serif text-xl">Neto estimado a recibir</dt>
                   <dd className="font-serif text-3xl font-semibold tabular-nums text-teal-strong">{pesos(resultado.salarioNeto)}</dd>
                 </div>
               </div>

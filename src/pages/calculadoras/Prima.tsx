@@ -16,6 +16,7 @@ export default function PrimaPage() {
   const [salario, setSalario] = useState('');
   const [variables, setVariables] = useState('');
   const [dias, setDias] = useState('180');
+  const [auxilio, setAuxilio] = useState<'auto' | 'si' | 'no'>('auto');
   const [semestre, setSemestre] = useState<'primer' | 'segundo'>('primer');
   const [anio, setAnio] = useState<number>(ULTIMO_ANIO);
   const [resultado, setResultado] = useState<ResultadoPrima | null>(null);
@@ -25,20 +26,21 @@ export default function PrimaPage() {
     const datos: DatosPrima = {
       salarioBase: Number(salario || 0),
       promedioVariables: Number(variables || 0),
-      diasSemestre: Number(dias || 180),
+      diasSemestre: Number(dias),
+      incluyeAuxilioTransporte: auxilio === 'auto' ? undefined : auxilio === 'si',
     };
-    if (datos.salarioBase <= 0) return;
+    if (datos.salarioBase <= 0 || !Number.isInteger(datos.diasSemestre) || datos.diasSemestre < 1 || datos.diasSemestre > 180) return;
     setResultado(calcularPrima(datos, semestre, valoresDe(anio)));
   }
 
   return (
     <div className="page py-10">
       <PageHeader title="Calculadora de Prima de Servicios" sharePath="/calculadoras/prima/">
-        Estima el valor de tu prima semestral en Colombia (junio o diciembre). Incluye auxilio de transporte si devengas hasta 2 SMMLV.
+        Estima tu prima de junio o diciembre. El cálculo usa el salario, los pagos salariales variables y los días efectivamente trabajados; puedes ajustar si recibes auxilio de transporte.
       </PageHeader>
 
       <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-        <form onSubmit={calcular} noValidate className="space-y-6" aria-label="Datos para el cálculo de prima">
+        <form onSubmit={calcular} className="min-w-0 space-y-6" aria-label="Datos para el cálculo de prima">
           <fieldset>
             <legend className="label">Semestre a calcular</legend>
             <div className="mt-2 flex flex-wrap gap-6">
@@ -48,7 +50,7 @@ export default function PrimaPage() {
                   name="semestre"
                   className="h-4 w-4 accent-teal"
                   checked={semestre === 'primer'}
-                  onChange={() => setSemestre('primer')}
+                  onChange={() => { setSemestre('primer'); setResultado(null); }}
                 />
                 Primer semestre (enero a junio, se paga hasta el 30 de junio)
               </label>
@@ -58,7 +60,7 @@ export default function PrimaPage() {
                   name="semestre"
                   className="h-4 w-4 accent-teal"
                   checked={semestre === 'segundo'}
-                  onChange={() => setSemestre('segundo')}
+                  onChange={() => { setSemestre('segundo'); setResultado(null); }}
                 />
                 Segundo semestre (julio a diciembre, se paga hasta el 20 de diciembre)
               </label>
@@ -68,13 +70,14 @@ export default function PrimaPage() {
           <SelectorAnio anio={anio} onChange={(a) => { setAnio(a); setResultado(null); }} />
 
           <Field
-            label="Salario básico mensual"
+            label="Salario básico mensual (sin auxilio de transporte)"
             hint={`El mínimo de ${anio} es ${pesos(valoresDe(anio).salarioMinimo)}.`}
           >
             {(p) => (
               <input
                 {...p}
                 inputMode="numeric"
+                required
                 className="input"
                 placeholder="$"
                 value={conMiles(salario)}
@@ -107,6 +110,19 @@ export default function PrimaPage() {
           </Field>
 
           <Field
+            label="¿Te corresponde auxilio de transporte?"
+            hint="El modo automático usa el salario básico y el límite de dos salarios mínimos. Ajusta la opción si conoces tu situación real; no todos los trabajadores reciben este auxilio."
+          >
+            {(props) => (
+              <select {...props} className="input" value={auxilio} onChange={(ev) => { setAuxilio(ev.target.value as 'auto' | 'si' | 'no'); setResultado(null); }}>
+                <option value="auto">Calcular automáticamente según salario</option>
+                <option value="si">Sí, incluir auxilio</option>
+                <option value="no">No, excluir auxilio</option>
+              </select>
+            )}
+          </Field>
+
+          <Field
             label="Días laborados en el semestre"
             hint="180 días si trabajaste el semestre completo. Si ingresaste a mitad de período, pon los días proporcionales."
           >
@@ -116,6 +132,8 @@ export default function PrimaPage() {
                 type="number"
                 min="1"
                 max="180"
+                step="1"
+                required
                 className="input"
                 value={dias}
                 onChange={(e) => {
@@ -178,7 +196,7 @@ export default function PrimaPage() {
             <div className="rounded-md bg-mist px-6 py-10 sm:px-8">
               <p className="font-serif text-2xl">Tu prima calculada aparecerá aquí</p>
               <p className="mt-2 max-w-prose text-slate">
-                Ingresa tu salario y pulsa «Calcular prima». Te diremos el valor exacto a recibir y la fecha límite de pago.
+                Ingresa tu salario y pulsa «Calcular prima». Verás una estimación y la fecha límite de pago; compárala con tu caso y los soportes de nómina.
               </p>
             </div>
           )}
@@ -194,7 +212,7 @@ export default function PrimaPage() {
         <p><strong>Prima = base × días trabajados en el semestre ÷ 360</strong></p>
         <ul>
           <li><strong>Base:</strong> tu salario más el promedio de pagos variables (horas extra, recargos, comisiones).</li>
-          <li><strong>Auxilio de transporte:</strong> si ganas hasta 2 salarios mínimos, se suma a la base.</li>
+          <li><strong>Auxilio de transporte:</strong> se incluye cuando corresponde legalmente; el límite salarial por sí solo no garantiza que se reconozca en todos los casos. Puedes ajustar la selección.</li>
           <li><strong>Días:</strong> hasta 180 por semestre. Si entraste a mitad de semestre, se cuenta solo el tiempo trabajado.</li>
         </ul>
         <h3>Ejemplo</h3>
