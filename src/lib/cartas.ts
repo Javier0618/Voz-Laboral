@@ -172,7 +172,12 @@ const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', '
 export function fechaLarga(iso: string | undefined): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? '');
   if (!m) return '___';
-  return `${Number(m[3])} de ${MESES[Number(m[2]) - 1]} de ${m[1]}`;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return '___';
+  return `${day} de ${MESES[month - 1]} de ${year}`;
 }
 
 const v = (d: DatosCarta, k: string, vacio = '___') => (d[k] ?? '').trim() || vacio;
