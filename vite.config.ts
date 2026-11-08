@@ -7,9 +7,8 @@ export default defineConfig(({ mode }) => {
   // Vite carga .env y .env.production en el build (las variables VITE_ son públicas).
   const env = loadEnv(mode, process.cwd(), 'VITE_');
   const adsenseClient = env.VITE_ADSENSE_CLIENT?.trim();
-  if (adsenseClient && !/^ca-pub-\d{16}$/.test(adsenseClient)) {
-    throw new Error('VITE_ADSENSE_CLIENT debe tener el formato ca-pub- seguido de 16 dígitos.');
-  }
+  // Ignora valores incompletos sin romper el despliegue; la verificación exige un ID válido.
+  const adsenseValido = Boolean(adsenseClient && /^ca-pub-\d{16}$/.test(adsenseClient));
 
   return {
   plugins: [
@@ -17,7 +16,7 @@ export default defineConfig(({ mode }) => {
     {
       name: 'adsense-verification',
       transformIndexHtml() {
-        return adsenseClient
+        return adsenseValido
           ? { tags: [{ tag: 'meta', attrs: { name: 'google-adsense-account', content: adsenseClient }, injectTo: 'head' as const }] }
           : undefined;
       },
