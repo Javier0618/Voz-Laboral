@@ -123,10 +123,23 @@ for (const info of calculadorasSeo) {
   urls.set(info.path + '/', null);
 }
 const plantillaCalculadoras = readFileSync(new URL('index.html', out), 'utf8');
+// Enlaces reales en el HTML inicial, incluso cuando el rastreador no ejecuta
+// JavaScript (Ahrefs detectó cuatro calculadoras sin enlaces salientes).
+const enlacesCalculadoras = [
+  { path: '/calculadoras/prima/', title: 'Calculadora de prima de servicios' },
+  { path: '/calculadoras/cesantias/', title: 'Calculadora de cesantías e intereses' },
+  { path: '/calculadoras/salario-neto/', title: 'Calculadora de salario neto' },
+];
+const guiaDeCalculadora = new Map([
+  ['/calculadoras/prima', '/derechos/prima-de-servicios/'],
+  ['/calculadoras/cesantias', '/derechos/cesantias-e-intereses/'],
+  ['/calculadoras/salario-neto', '/derechos/seguridad-social-eps-pension-arl-y-caja/'],
+]);
 const indiceCalculadoras = {
   path: '/calculadoras',
   title: 'Calculadoras laborales en Colombia',
   description: 'Calculadoras de nómina, prima, cesantías, salario neto y liquidación. Consulta las herramientas gratuitas de TuVozLaboral.',
+  links: enlacesCalculadoras,
 };
 // Nginx puede rechazar /calculadoras/ con 403 si falta su index.html.
 // Crear la carpeta antes de escribir: los índices específicos se generan después.
@@ -136,7 +149,14 @@ writeFileSync(new URL('calculadoras/index.html', out), htmlDeCalculadora(plantil
 for (const info of calculadorasSeo) {
   const dir = new URL(info.path.slice(1) + '/', out);
   mkdirSync(dir, { recursive: true });
-  writeFileSync(new URL('index.html', dir), htmlDeCalculadora(plantillaCalculadoras, info, site));
+  const guidePath = guiaDeCalculadora.get(info.path);
+  const links = [
+    { path: '/calculadoras/', title: 'Ver todas las calculadoras laborales' },
+    ...(guidePath && guideNames.has(guidePath)
+      ? [{ path: guidePath, title: guideNames.get(guidePath) }]
+      : []),
+  ];
+  writeFileSync(new URL('index.html', dir), htmlDeCalculadora(plantillaCalculadoras, { ...info, links }, site));
 }
 
 // Ahrefs detectó páginas huérfanas porque el HTML inicial de Inicio no tenía
@@ -178,9 +198,15 @@ for (const info of seoPages) {
     }));
   const parentLink = info.path.startsWith('/herramientas/') ? '/herramientas/'
     : info.path.startsWith('/calculadoras/') ? '/calculadoras/'
-    : info.path.startsWith('/politicas/') ? '/'
+    : info.path.startsWith('/politicas/') ? '/politicas/privacidad/'
     : '/derechos/';
-  const links = childLinks.length ? childLinks : [{
+  // Las políticas deben enlazarse entre sí; un enlace a la raíz era filtrado
+  // por la validación de rutas del prerender y no llegaba al HTML inicial.
+  const policyLinks = info.path.startsWith('/politicas/')
+    ? seoPages.filter((page) => page.path.startsWith('/politicas/') && page.path !== info.path)
+      .map((page) => ({ path: page.path + '/', title: page.title }))
+    : [];
+  const links = policyLinks.length ? policyLinks : childLinks.length ? childLinks : [{
     path: parentLink,
     title: staticNames.get(parentLink) || 'Explorar guías y herramientas',
   }];
