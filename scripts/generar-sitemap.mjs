@@ -43,11 +43,11 @@ if (!site) {
 }
 
 const urls = new Map([
-  ['/', null], ['/empresas', null], ['/experiencias', null], ['/derechos', null], ['/como-funciona', null],
+  ['/', null], ['/empresas', null], ['/experiencias', null], ['/derechos/', null], ['/como-funciona', null],
   ['/compartir', null], ['/politicas/reglas', null], ['/politicas/terminos', null], ['/politicas/privacidad', null],
   ['/politicas/tratamiento-de-datos', null], ['/politicas/cookies', null],
   // Calculadoras y herramientas: páginas fijas con contenido propio.
-  ['/calculadoras', null], ['/liquidacion', null], ['/calculadoras/administrativos', null], ['/calculadoras/operativos', null],
+  ['/calculadoras/', null], ['/liquidacion', null], ['/calculadoras/administrativos', null], ['/calculadoras/operativos', null],
   ['/calculadoras/vigilantes', null], ['/calculadoras/por-dias', null], ['/calculadoras/prima', null], ['/calculadoras/cesantias', null],
   ['/calculadoras/salario-neto', null], ['/calculadoras/prestacion-servicios', null],
   ['/herramientas', null], ['/herramientas/cartas', null], ['/herramientas/cartas/derecho-de-peticion', null],
@@ -118,6 +118,15 @@ for (const info of calculadorasSeo) {
   urls.set(info.path + '/', null);
 }
 const plantillaCalculadoras = readFileSync(new URL('index.html', out), 'utf8');
+const indiceCalculadoras = {
+  path: '/calculadoras',
+  title: 'Calculadoras laborales en Colombia',
+  description: 'Calculadoras de nómina, prima, cesantías, salario neto y liquidación. Consulta las herramientas gratuitas de TuVozLaboral.',
+};
+// Existe calculadoras/ por sus subrutas pregeneradas. Sin index.html,
+// Nginx puede rechazar /calculadoras/ con 403 (detectado por Ahrefs).
+writeFileSync(new URL('calculadoras/index.html', out), htmlDeCalculadora(plantillaCalculadoras, indiceCalculadoras, site));
+
 for (const info of calculadorasSeo) {
   const dir = new URL(info.path.slice(1) + '/', out);
   mkdirSync(dir, { recursive: true });
