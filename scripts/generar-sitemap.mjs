@@ -112,6 +112,11 @@ const calculadorasSeo = [
     "description": "Estima cuánto recibirías de salario neto en Colombia después de aportes de salud, pensión y otras deducciones. Compara el sueldo bruto y el neto."
   }
 ];
+// El servidor sirve las páginas pregeneradas en directorios con barra final.
+for (const info of calculadorasSeo) {
+  urls.delete(info.path);
+  urls.set(info.path + '/', null);
+}
 const plantillaCalculadoras = readFileSync(new URL('index.html', out), 'utf8');
 for (const info of calculadorasSeo) {
   const dir = new URL(info.path.slice(1) + '/', out);
