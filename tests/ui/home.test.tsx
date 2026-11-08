@@ -32,6 +32,20 @@ describe('portada', () => {
     expect(screen.queryByRole('heading', { name: 'Lo que cuentan quienes trabajan ahí' })).toBeNull();
   });
 
+  it('enlaza desde Inicio a las calculadoras prioritarias con su URL canónica', () => {
+    experiences.list = [];
+    render(<MemoryRouter><Home /></MemoryRouter>);
+    const urls = [
+      '/calculadoras/prima/',
+      '/calculadoras/cesantias/',
+      '/calculadoras/salario-neto/',
+    ];
+    for (const url of urls) {
+      expect(screen.getAllByRole('link').some((link) => link.getAttribute('href') === url)).toBe(true);
+    }
+    expect(screen.getByRole('heading', { name: 'Calcula tu prima, cesantías y salario neto' })).toBeTruthy();
+  });
+
   it('con experiencias muestra las recientes', async () => {
     experiences.list = [{ id: 'e1', title: 'Pagos puntuales' }];
     render(<MemoryRouter><Home /></MemoryRouter>);
