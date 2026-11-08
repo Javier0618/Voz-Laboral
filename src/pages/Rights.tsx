@@ -305,6 +305,7 @@ export function RightsArticle() {
       title: `${data.title} · ${brand.name}`,
       description: data.summary,
       image: data.cover_url,
+      imageAlt: data.cover_alt || data.title,
       path,
       type: 'article',
       jsonLd: [
