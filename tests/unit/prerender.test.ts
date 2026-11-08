@@ -61,6 +61,21 @@ describe('HTML inicial de cada guía', () => {
 });
 
 describe('HTML inicial de calculadoras', () => {
+  it('ofrece enlaces internos en la versión HTML inicial de páginas informativas', () => {
+    const h: string = htmlDeCalculadora(plantilla, {
+      path: '/herramientas',
+      title: 'Herramientas laborales',
+      description: 'Recursos para trabajadores.',
+      links: [
+        { path: '/herramientas/cartas/', title: 'Cartas y documentos' },
+        { path: 'javascript:alert(1)', title: 'No permitido' },
+      ],
+    }, 'https://tuvozlaboral.com');
+    expect(h).toContain('<link rel="canonical" href="https://tuvozlaboral.com/herramientas/" />');
+    expect(h).toContain('<a href="/herramientas/cartas/">Cartas y documentos</a>');
+    expect(h).not.toContain('href="javascript:');
+  });
+
   it('genera la página índice de calculadoras con canonical y contenido propio', () => {
     const html: string = htmlDeCalculadora(plantilla, {
       path: '/calculadoras',
