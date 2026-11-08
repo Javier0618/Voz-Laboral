@@ -16,6 +16,7 @@ export default function CesantiasPage() {
   const [salario, setSalario] = useState('');
   const [variables, setVariables] = useState('');
   const [dias, setDias] = useState('360');
+  const [auxilio, setAuxilio] = useState<'auto' | 'si' | 'no'>('auto');
   const [anio, setAnio] = useState<number>(ULTIMO_ANIO);
   const [resultado, setResultado] = useState<ResultadoCesantias | null>(null);
 
@@ -24,9 +25,10 @@ export default function CesantiasPage() {
     const datos: DatosCesantias = {
       salarioBase: Number(salario || 0),
       promedioVariables: Number(variables || 0),
-      diasTrabajadosAnio: Number(dias || 360),
+      diasTrabajadosAnio: Number(dias),
+      incluyeAuxilioTransporte: auxilio === 'auto' ? undefined : auxilio === 'si',
     };
-    if (datos.salarioBase <= 0) return;
+    if (datos.salarioBase <= 0 || !Number.isInteger(datos.diasTrabajadosAnio) || datos.diasTrabajadosAnio < 1 || datos.diasTrabajadosAnio > 360) return;
     setResultado(calcularCesantias(datos, valoresDe(anio)));
   }
 
@@ -37,17 +39,18 @@ export default function CesantiasPage() {
       </PageHeader>
 
       <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-        <form onSubmit={calcular} noValidate className="space-y-6" aria-label="Datos para el cálculo de cesantías">
+        <form onSubmit={calcular} className="min-w-0 space-y-6" aria-label="Datos para el cálculo de cesantías">
           <SelectorAnio anio={anio} onChange={(a) => { setAnio(a); setResultado(null); }} />
 
           <Field
-            label="Salario básico mensual"
+            label="Salario básico mensual (sin auxilio de transporte)"
             hint={`El mínimo de ${anio} es ${pesos(valoresDe(anio).salarioMinimo)}.`}
           >
             {(p) => (
               <input
                 {...p}
                 inputMode="numeric"
+                required
                 className="input"
                 placeholder="$"
                 value={conMiles(salario)}
@@ -80,6 +83,19 @@ export default function CesantiasPage() {
           </Field>
 
           <Field
+            label="¿Te corresponde auxilio de transporte?"
+            hint="El cálculo automático supone que corresponde si el salario básico no supera dos mínimos. Puedes modificarlo cuando tengas información de tu caso."
+          >
+            {(props) => (
+              <select {...props} className="input" value={auxilio} onChange={(ev) => { setAuxilio(ev.target.value as 'auto' | 'si' | 'no'); setResultado(null); }}>
+                <option value="auto">Calcular automáticamente según salario</option>
+                <option value="si">Sí, incluir auxilio</option>
+                <option value="no">No, excluir auxilio</option>
+              </select>
+            )}
+          </Field>
+
+          <Field
             label="Días laborados en el año (hasta 360)"
             hint="360 días para el año completo; si ingresaste durante el año, ingresa los días proporcionales."
           >
@@ -89,6 +105,8 @@ export default function CesantiasPage() {
                 type="number"
                 min="1"
                 max="360"
+                step="1"
+                required
                 className="input"
                 value={dias}
                 onChange={(e) => {
@@ -138,12 +156,13 @@ export default function CesantiasPage() {
                 </div>
 
                 <div className="border-t-2 border-ink pt-4 flex items-baseline justify-between gap-4">
-                  <dt className="font-serif text-xl">Total beneficio económico</dt>
+                  <dt className="font-serif text-xl">Suma de ambos conceptos</dt>
                   <dd className="font-serif text-3xl font-semibold tabular-nums">{pesos(resultado.total)}</dd>
                 </div>
               </div>
 
               <div className="mt-6 space-y-3">
+                <p className="text-sm text-slate">Esta suma no es un solo pago: las cesantías se consignan al fondo y los intereses se pagan directamente al trabajador.</p>
                 <Alert tone="info" title="Sanción por no consignar a tiempo">
                   Si el empleador no consigna las cesantías antes de la medianoche del 14 de febrero, la ley establece una indemnización moratoria
                   de un día de salario por cada día de retardo (Ley 50 de 1990, art. 99).
@@ -175,7 +194,7 @@ export default function CesantiasPage() {
         <p><strong>Cesantías = base × días trabajados en el año ÷ 360</strong></p>
         <p><strong>Intereses = cesantías × días trabajados × 12 % ÷ 360</strong></p>
         <ul>
-          <li><strong>Base:</strong> tu salario más el promedio de pagos variables, y el auxilio de transporte si ganas hasta 2 salarios mínimos.</li>
+          <li><strong>Base:</strong> salario y pagos variables salariales; el auxilio se incluye cuando legalmente corresponde. Si el modo automático no refleja tu caso, cambia la selección.</li>
           <li><strong>Días:</strong> hasta 360 por año. Si no trabajaste el año completo, el cálculo es proporcional.</li>
         </ul>
         <h3>Fechas</h3>
