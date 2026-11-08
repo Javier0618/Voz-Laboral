@@ -175,7 +175,7 @@ export function Layout() {
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1 xl:hidden">
           <SearchLink />
           <ThemeToggle className="hidden sm:flex" />
-          {session && <NotificationBell />}
+          {session && <span className="hidden sm:block"><NotificationBell /></span>}
           <button
             type="button"
             className="btn shrink-0 border border-white/30 px-2.5 text-white hover:border-white sm:px-4"
@@ -195,6 +195,7 @@ export function Layout() {
               {nav.map((item) => (
                 <li key={item.to}><NavLink to={item.to} className={navClass}>{item.label}</NavLink></li>
               ))}
+              {session && <li><NavLink to="/avisos" className={navClass}>Avisos</NavLink></li>}
               {isModerator && <li><NavLink to="/moderacion" className={navClass}>Moderación</NavLink></li>}
               <li><NavLink to="/cuenta" className={navClass}>{session ? 'Mi cuenta' : 'Iniciar sesión'}</NavLink></li>
               <li className="py-3"><Link to="/compartir" className="btn w-full border border-white/40 text-white hover:border-white hover:bg-white/10">Compartir experiencia</Link></li>
