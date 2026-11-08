@@ -65,7 +65,7 @@ async function get(path, init) {
 if (api && key) {
   try {
     const guides = await get('/rest/v1/legal_resources?select=slug,title,summary,cover_url,updated_at,last_verified_at&status=eq.publicado');
-    guides.forEach((g) => urls.set(`/derechos/${g.slug}`, g.updated_at));
+    guides.forEach((g) => urls.set(`/derechos/${g.slug}/`, g.updated_at));
     // HTML propio de cada guía, para las vistas previas al compartir.
     const plantilla = readFileSync(new URL('index.html', out), 'utf8');
     for (const g of guides) {
