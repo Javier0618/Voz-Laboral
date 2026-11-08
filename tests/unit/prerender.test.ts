@@ -61,6 +61,33 @@ describe('HTML inicial de cada guía', () => {
 });
 
 describe('HTML inicial de calculadoras', () => {
+  it('muestra enlaces reales a calculadoras relacionadas y guías en el HTML inicial', () => {
+    const html: string = htmlDeCalculadora(plantilla, {
+      path: '/calculadoras/prima',
+      title: 'Calculadora de prima',
+      description: 'Calcula tu prima.',
+      links: [
+        { path: '/calculadoras/', title: 'Otras calculadoras' },
+        { path: '/derechos/prima-de-servicios/', title: 'Guía de prima de servicios' },
+      ],
+    }, 'https://tuvozlaboral.com');
+    expect(html).toContain('<a href="/calculadoras/">Otras calculadoras</a>');
+    expect(html).toContain('<a href="/derechos/prima-de-servicios/">Guía de prima de servicios</a>');
+  });
+  it('las páginas de políticas contienen enlaces a otras políticas', () => {
+    const html: string = htmlDeCalculadora(plantilla, {
+      path: '/politicas/reglas',
+      title: 'Reglas de la comunidad',
+      description: 'Reglas de publicación.',
+      links: [
+        { path: '/politicas/privacidad/', title: 'Política de privacidad' },
+        { path: '/politicas/terminos/', title: 'Términos de uso' },
+      ],
+    }, 'https://tuvozlaboral.com');
+    expect(html).toContain('<a href="/politicas/privacidad/">Política de privacidad</a>');
+    expect(html).toContain('<a href="/politicas/terminos/">Términos de uso</a>');
+  });
+
   it('ofrece enlaces internos en la versión HTML inicial de páginas informativas', () => {
     const h: string = htmlDeCalculadora(plantilla, {
       path: '/herramientas',
