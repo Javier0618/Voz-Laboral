@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { ShareLinkButton } from './ShareLinkButton';
 import type { ExperienceStatus, Tone as ExperienceTone } from '../lib/api';
 import type { AppError } from '../lib/supabase';
 import { isConfigured } from '../lib/supabase';
@@ -215,10 +216,13 @@ export function useAsync<T>(fn: () => Promise<T>, deps: unknown[]) {
   return { ...state, reload: () => setNonce((n) => n + 1) };
 }
 
-export function PageHeader({ title, children }: { title: string; children?: ReactNode }) {
+export function PageHeader({ title, children, sharePath }: { title: string; children?: ReactNode; sharePath?: string }) {
   return (
     <header className="border-b border-ink/80 pb-8">
-      <h1 className="text-4xl font-bold tracking-[-0.01em] sm:text-5xl">{title}</h1>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <h1 className="text-4xl font-bold tracking-[-0.01em] sm:text-5xl">{title}</h1>
+        {sharePath && <ShareLinkButton title={title} path={sharePath} />}
+      </div>
       {children && <div className="mt-4 max-w-prose text-lg leading-8 text-slate">{children}</div>}
     </header>
   );
