@@ -185,10 +185,17 @@ export function htmlDeCalculadora(template, info, site) {
     '    <link rel="canonical" href="' + attr(url) + '" />\n'
     + '    <script type="application/ld+json" id="vl-jsonld">'
     + JSON.stringify(structured).replace(/</g, '\\u003c') + '</script>\n  </head>');
-  // React reemplaza este contenido al iniciarse; sin JS se conserva el resumen.
+  // React reemplaza este contenido al iniciarse; sin JS se conservan el
+  // encabezado y enlaces internos reales de las secciones informativas.
+  const links = Array.isArray(info.links) ? info.links.filter((link) =>
+    /^\/(?!\/)[a-zA-Z0-9/_-]+\/?$/.test(link.path)) : [];
+  const nav = links.length ? '<nav aria-label="Más contenidos"><h2>Explorar contenidos relacionados</h2><ul>'
+    + links.map((link) => '<li><a href="' + attr(link.path) + '">'
+      + text(link.title) + '</a></li>').join('') + '</ul></nav>' : '';
   return html.replace('<div id="root"></div>',
     '<div id="root"><main class="page py-10"><h1>'
-    + text(info.title) + '</h1><p>' + text(info.description) + '</p></main></div>');
+    + text(info.title) + '</h1><p>' + text(info.description) + '</p>'
+    + nav + '</main></div>');
 }
 
 
