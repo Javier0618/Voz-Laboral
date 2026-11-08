@@ -42,6 +42,7 @@ export default function Liquidacion() {
     fechaFinPactada: '',
     salario: '',
     variable: '',
+    baseVacaciones: '',
     vacaciones: '0',
     pendientes: '0',
     modoSalario: 'minimo' as ModoSalario,
@@ -63,7 +64,7 @@ export default function Liquidacion() {
 
   function calcular(e: React.FormEvent) {
     e.preventDefault();
-    // El último salario paga vacaciones, salario pendiente e indemnización (CST, art. 189).
+    // La base de vacaciones puede diferir del último salario si hay remuneración variable.
     const salarioPorAnio: Record<number, number> | undefined =
       form.modoSalario === 'minimo' ? Object.fromEntries(anios.map((a) => [a, valoresDe(a).salarioMinimo]))
         : form.modoSalario === 'anios' ? Object.fromEntries(anios.map((a) => [a, Number(salariosAnio[a] || 0)]))
@@ -77,6 +78,7 @@ export default function Liquidacion() {
       fechaFinPactada: form.fechaFinPactada || undefined,
       salarioMensual: ultimoSalario || (form.modoSalario === 'fijo' ? 0 : 1),
       variableMensual: Number(form.variable || 0),
+      baseVacacionesMensual: form.baseVacaciones ? Number(form.baseVacaciones) : undefined,
       diasVacacionesDisfrutados: Number(form.vacaciones || 0),
       diasSalarioPendiente: Number(form.pendientes || 0),
       salarioPorAnio,
@@ -184,7 +186,7 @@ export default function Liquidacion() {
               <fieldset className="space-y-3">
                 <legend className="label">Salario mensual de cada año</legend>
                 {anios.map((a) => (
-                  <Field key={a} label={`${a}`} hint={a === anioRetiro ? 'Tu último salario: con él se pagan las vacaciones y la indemnización.' : undefined} error={errors.salarioPorAnio && !(Number(salariosAnio[a]) > 0) ? 'Indica el salario de este año.' : undefined}>
+                  <Field key={a} label={`${a}`} hint={a === anioRetiro ? 'Tu último salario: referencia para la indemnización y la base de vacaciones si no indicas otra.' : undefined} error={errors.salarioPorAnio && !(Number(salariosAnio[a]) > 0) ? 'Indica el salario de este año.' : undefined}>
                     {(p) => <input {...p} inputMode="numeric" className="input" placeholder={`$ (mínimo: ${pesos(valoresDe(a).salarioMinimo)})`} value={conMiles(salariosAnio[a] ?? '')}
                       onChange={(e) => { setSalariosAnio((s) => ({ ...s, [a]: soloDigitos(e.target.value) })); setResultado(null); }} />}
                   </Field>
@@ -194,6 +196,10 @@ export default function Liquidacion() {
           )}
           <Field label="Horas extra, recargos y comisiones" optional error={errors.variableMensual} hint="Promedio mensual de lo que recibes además del salario fijo.">
             {(p) => <input {...p} inputMode="numeric" className="input" placeholder="$ 0" value={conMiles(form.variable)} onChange={(e) => set('variable', soloDigitos(e.target.value))} />}
+          </Field>
+
+          <Field label="Base mensual para pagar vacaciones" optional error={errors.baseVacacionesMensual} hint="Si tienes salario variable, indica el promedio mensual aplicable (por ejemplo, sueldo y comisiones). No incluyas auxilio de transporte. Si lo dejas vacío, se usa el último salario fijo.">
+            {(p) => <input {...p} inputMode="numeric" className="input" placeholder="Opcional: $" value={conMiles(form.baseVacaciones)} onChange={(e) => set('baseVacaciones', soloDigitos(e.target.value))} />}
           </Field>
 
           <div className="grid gap-4 sm:grid-cols-2">
