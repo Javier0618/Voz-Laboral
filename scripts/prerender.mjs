@@ -101,7 +101,7 @@ function initialArticle(g) {
 
 /**
  * @param {string} template HTML de dist/index.html
- * @param {{slug:string,title:string,summary:string,content?:string,cover_url?:string|null,updated_at?:string,last_verified_at?:string|null}} g
+ * @param {{slug:string,title:string,summary:string,content?:string,cover_url?:string|null,cover_alt?:string|null,updated_at?:string,last_verified_at?:string|null}} g
  * @param {string} site p. ej. https://tuvozlaboral.com
  */
 export function htmlDeGuia(template, g, site) {
@@ -119,8 +119,14 @@ export function htmlDeGuia(template, g, site) {
   html = setMeta(html, 'twitter:description', 'name', g.summary);
   html = setMeta(html, 'twitter:image', 'name', imagen);
   if (g.cover_url) {
-    // Las dimensiones y el texto alternativo por defecto son de og-default.png.
+    // Eliminar los metadatos de la portada genérica.
     html = html.replace(/\s*<meta property="og:image:(width|height|type|alt)"[^>]*>/g, '');
+    const pathname = new URL(g.cover_url, site).pathname.toLowerCase();
+    const mime = pathname.endsWith('.webp') ? 'image/webp'
+      : pathname.endsWith('.png') ? 'image/png'
+      : /\.jpe?g$/.test(pathname) ? 'image/jpeg' : null;
+    if (mime) html = setMeta(html, 'og:image:type', 'property', mime);
+    html = setMeta(html, 'og:image:alt', 'property', g.cover_alt?.trim() || g.title);
   }
   const ld = {
     '@context': 'https://schema.org',
