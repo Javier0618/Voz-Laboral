@@ -41,10 +41,22 @@ describe('HTML inicial de cada guía', () => {
     expect(h).toContain('&lt;script>alert(1)&lt;/script>');
     expect(h).not.toContain('href="javascript:');
   });
+  it('describe correctamente las portadas WebP', () => {
+    const h: string = htmlDeGuia(plantilla, { ...guia,
+      cover_url: 'https://x.supabase.co/guia.webp',
+      cover_alt: 'Trabajadora entregando carta de renuncia',
+    }, 'https://tuvozlaboral.com');
+    expect(h).toContain('og:image:type" content="image/webp"');
+    expect(h).toContain('og:image:alt" content="Trabajadora entregando carta de renuncia"');
+    expect(h).not.toContain('og:image:width');
+    expect(h).not.toContain('og:image:height');
+  });
   it('usa la portada de la guía si tiene una', () => {
     const conPortada: string = htmlDeGuia(plantilla, { ...guia, cover_url: 'https://x.supabase.co/a.png' }, 'https://tuvozlaboral.com');
     expect(conPortada).toContain('<meta property="og:image" content="https://x.supabase.co/a.png" />');
     expect(conPortada).not.toContain('og:image:width');
+    expect(conPortada).toContain('og:image:type" content="image/png"');
+    expect(conPortada).toContain('og:image:alt" content="Reforma laboral:');
   });
 });
 
