@@ -190,3 +190,28 @@ export function htmlDeCalculadora(template, info, site) {
     '<div id="root"><main class="page py-10"><h1>'
     + text(info.title) + '</h1><p>' + text(info.description) + '</p></main></div>');
 }
+
+
+/**
+ * Índice navegable del contenido público disponible incluso sin JavaScript.
+ * React sustituye este HTML al iniciar la aplicación, sin duplicar páginas.
+ * Solo acepta rutas internas absolutas de la propia web.
+ */
+export function htmlDeInicio(template, links, site) {
+  const valid = links.filter((item) => item.path !== '/'
+    && /^\/[a-zA-Z0-9/_-]+\/?$/.test(item.path));
+  const guideLinks = valid.filter((item) => item.path.startsWith('/derechos/') && item.path !== '/derechos/');
+  const otherLinks = valid.filter((item) => !guideLinks.includes(item));
+  const makeList = (items) => '<ul>' + items.map((item) =>
+    '<li><a href="' + attr(item.path) + '">' + text(item.title) + '</a></li>'
+  ).join('\n') + '</ul>';
+  const content = '<main class="page py-10"><h1>TuVozLaboral: guías laborales en Colombia</h1>'
+    + '<p>Consulta derechos laborales, calculadoras y herramientas para trabajadores.</p>'
+    + '<nav aria-label="Secciones y herramientas"><h2>Secciones y herramientas</h2>'
+    + makeList(otherLinks) + '</nav>'
+    + '<nav aria-label="Guías laborales"><h2>Guías laborales</h2>'
+    + makeList(guideLinks) + '</nav></main>';
+  const canonical = site.replace(/\/$/, '') + '/';
+  return template.replace('</head>', '    <link rel="canonical" href="' + attr(canonical) + '" />\n  </head>')
+    .replace('<div id="root"></div>', '<div id="root">' + content + '</div>');
+}
