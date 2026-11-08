@@ -146,6 +146,30 @@ export function calcularTurnos(turnos: Turno[], valorHora: number, extras: ModoE
   };
 }
 
+/**
+ * Alertas de límites del régimen de vigilancia privada (Ley 1920 de 2018,
+ * art. 7). Contabiliza los minutos realmente trabajados tras descontar pausas
+ * y distribuye los turnos nocturnos en su semana calendario correspondiente.
+ * No sustituye la comprobación del acuerdo escrito ni del descanso.
+ */
+export function avisosJornadaVigilancia(turnos: Turno[]): string[] {
+  const semanas = new Map<string, number>();
+  const largas: string[] = [];
+  for (const turno of turnos) {
+    const minutos = minutosDeTurno(turno);
+    if (minutos.length > 12 * 60) largas.push(turno.fecha);
+    for (const minuto of minutos) {
+      const lunes = sumarDias(minuto.fecha, -((new Date(`${minuto.fecha}T00:00:00`).getDay() + 6) % 7));
+      semanas.set(lunes, (semanas.get(lunes) || 0) + 1);
+    }
+  }
+  const largasSemanas = [...semanas].filter(([, minutos]) => minutos > 60 * 60);
+  const avisos: string[] = [];
+  if (largas.length) avisos.push(`Hay ${largas.length} turno(s) de más de 12 horas efectivas. El régimen especial de vigilancia establece ese límite diario cuando existe acuerdo escrito (Ley 1920 de 2018, art. 7).`);
+  if (largasSemanas.length) avisos.push(`Hay ${largasSemanas.length} semana(s) con más de 60 horas efectivas. Revisa la programación: la Ley 1920 de 2018 limita a 60 horas semanales incluyendo tiempo suplementario.`);
+  return avisos;
+}
+
 export function avisoLimiteExtras({ dias, semanas }: ResultadoTurnos['excesoLimite']): string | null {
   if (!dias.length && !semanas.length) return null;
   const partes = [

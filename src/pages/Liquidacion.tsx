@@ -123,6 +123,10 @@ export default function Liquidacion() {
               </select>
             )}
           </Field>
+          <p className="hint">
+            La indemnización no está incluida en todas las terminaciones: la herramienta solo la calcula si eliges «Despido sin justa causa».
+            Si renunciaste porque tu empleador incumplió gravemente el contrato (despido indirecto), el caso necesita una valoración distinta.
+          </p>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Fecha de ingreso" error={errors.fechaIngreso}>

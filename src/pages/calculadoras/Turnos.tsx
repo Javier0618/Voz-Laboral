@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { fecha as aFecha } from '../../lib/festivos';
 import { VALORES_2026 } from '../../lib/liquidacion';
 import {
-  avisoLimiteExtras, calcularNomina, calcularTurnos, HORAS_MES_DEFECTO, novedadesVacias, otrosVacios, TIPOS_HORA, type ModoExtras, type Turno,
+  avisoLimiteExtras, avisosJornadaVigilancia, calcularNomina, calcularTurnos, HORAS_MES_DEFECTO, novedadesVacias, otrosVacios, TIPOS_HORA, type ModoExtras, type Turno,
 } from '../../lib/nomina';
 import { Field, PageHeader } from '../../components/ui';
 import {
@@ -32,8 +32,8 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
   const [periodo, setPeriodo] = useState(() => parsePeriodKey(params.get('periodo')) ?? periodoActual());
   const [salario, setSalario] = useState(0);
   const [turnos, setTurnos] = useState<Turnos>({});
-  const [modo, setModo] = useState<'diario' | 'periodo'>(vig ? 'periodo' : 'diario');
-  const [horasJornada, setHorasJornada] = useState(vig ? 12 : 8);
+  const [modo, setModo] = useState<'diario' | 'periodo'>('diario');
+  const [horasJornada, setHorasJornada] = useState(8);
   const [umbralMes, setUmbralMes] = useState(HORAS_MES_DEFECTO);
   const [novedades, setNovedades] = useState(novedadesVacias());
   const [otros, setOtros] = useState(otrosVacios());
@@ -45,21 +45,27 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
   }, [rango.desde, rango.hasta]);
 
   const umbral = (umbralMes * rango.diasNomina) / 30;
-  const extras: ModoExtras = modo === 'diario' ? { modo: 'diario', horasJornada } : { modo: 'periodo', horasUmbral: umbral };
+  // Vigilancia: Ley 1920 de 2018, art. 7, mantiene 8 horas ordinarias
+  // diarias. Un umbral mensual no reemplaza el pago de horas suplementarias.
+  const extras: ModoExtras = vig ? { modo: 'diario', horasJornada: 8 }
+    : modo === 'diario' ? { modo: 'diario', horasJornada } : { modo: 'periodo', horasUmbral: umbral };
   const valorHora = salario / HORAS_MES_DEFECTO;
   const lista = turnosLista(turnos);
   const resTurnos = calcularTurnos(lista, valorHora, extras);
   const limite = vig ? null : avisoLimiteExtras(resTurnos.excesoLimite);
+  const avisosVigilancia = vig ? avisosJornadaVigilancia(lista) : [];
   const nomina = salario > 0
     ? calcularNomina({
       salarioMensual: salario, diasPeriodo: rango.diasNomina, fechaReferencia: rango.desde, horasMes: HORAS_MES_DEFECTO,
       novedades, horasValoradas: { horas: resTurnos.horas, valores: resTurnos.valores }, otros,
     })
     : null;
-  const resultado = nomina && limite ? { ...nomina, avisos: [limite, ...nomina.avisos] } : nomina;
+  const resultado = nomina
+    ? { ...nomina, avisos: [...(limite ? [limite] : []), ...avisosVigilancia, ...nomina.avisos] }
+    : null;
 
   // Con cuenta: se guarda cada día que anotes (components/SavedPayroll.tsx).
-  const datos = { salario, turnos, modo, horasJornada, umbralMes, novedades, otros };
+  const datos = { salario, turnos, modo: vig ? 'diario' : modo, horasJornada: vig ? 8 : horasJornada, umbralMes, novedades, otros };
   const llave = periodKey(periodo);
   const diasTrabajados = lista.filter((t) => t.fecha >= rango.desde && t.fecha <= rango.hasta).length;
   const guardado = useSavedPayroll<typeof datos>({
@@ -68,8 +74,8 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
     aplicar: (d) => {
       setSalario(Number(d.salario) || 0);
       setTurnos(d.turnos ?? {});
-      if (d.modo === 'diario' || d.modo === 'periodo') setModo(d.modo);
-      if (Number(d.horasJornada) > 0) setHorasJornada(Number(d.horasJornada));
+      if (!vig && (d.modo === 'diario' || d.modo === 'periodo')) setModo(d.modo);
+      if (!vig && Number(d.horasJornada) > 0) setHorasJornada(Number(d.horasJornada));
       if (Number(d.umbralMes) > 0) setUmbralMes(Number(d.umbralMes));
       setNovedades({ ...novedadesVacias(), ...d.novedades });
       setOtros({ ...otrosVacios(), ...d.otros });
@@ -109,6 +115,20 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
             <CalendarioTurnos fechas={rango.fechas} turnos={turnos} onChange={setTurnos} plantilla={plantilla} desglose={resTurnos.porFecha} />
           </section>
 
+          {vig ? (
+            <section className="space-y-2 rounded border border-teal/40 bg-teal/5 p-4" aria-labelledby="jornada-vigilancia">
+              <h2 id="jornada-vigilancia" className="font-sans text-base font-semibold">Jornada y horas extra en vigilancia</h2>
+              <p className="text-sm text-slate">
+                Se clasifican como suplementarias las horas efectivamente trabajadas después de las primeras 8 de cada turno.
+                La Ley 1920 de 2018, artículo 7, permite hasta 4 horas suplementarias adicionales al día mediante acuerdo
+                escrito y con firma de ambas partes, sin superar 12 horas diarias ni 60 semanales.
+              </p>
+              <p className="text-sm text-slate">
+                Las 210 horas mensuales se usan aquí únicamente como divisor para estimar el valor de la hora, no como
+                condición para empezar a pagar horas extra. Revisa tu descanso obligatorio y el acuerdo de jornada.
+              </p>
+            </section>
+          ) : (
           <fieldset className="space-y-4 rounded border border-line p-4">
             <legend className="px-1 font-sans text-base font-semibold">Cómo cuenta tu empresa las horas extra</legend>
             <label className="flex items-start gap-3">
@@ -125,6 +145,7 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
                 hint={`Muchas empresas de vigilancia usan 210 h al mes. Es una práctica, no una regla legal. En una quincena se toma la mitad (${(umbralMes / 2).toLocaleString('es-CO')} h).`} />
             )}
           </fieldset>
+          )}
 
           <NovedadesFields value={novedades} onChange={setNovedades} />
           <OtrosFields value={otros} onChange={setOtros} />
@@ -162,16 +183,16 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
         </p>
         <h3>Ordinaria o extra</h3>
         <p>
-          La ley fija 42 horas semanales (CST, art. 161) y permite turnos sucesivos y jornadas flexibles que reparten las horas de forma
-          variable. En turnos de 12 horas, muchas empresas solo pagan horas extra cuando se superan 210 horas en el mes y antes pagan los
-          recargos. Esa cifra es una práctica, no un umbral legal general: no se debe usar para desconocer horas extra efectivamente causadas. Verifica la jornada aplicable, los acuerdos y el régimen de tu actividad antes de interpretar el resultado.
+          {vig
+            ? 'En vigilancia, la Ley 1920 de 2018, artículo 7, establece 8 horas ordinarias por turno y hasta 4 suplementarias con acuerdo escrito, con máximos de 12 horas efectivas diarias y 60 semanales. Superar 210 horas en el mes no es un requisito para causar horas extra.'
+            : 'La jornada ordinaria semanal general es de 42 horas. Hay modalidades de distribución de jornada previstas en la ley; el cálculo por umbral del período es orientativo y no sustituye la revisión de la jornada realmente pactada.'}
         </p>
         <h3>Límite de horas extra</h3>
         <p>
           Las horas extra no pueden pasar de 2 al día ni de 12 a la semana (CST, art. 167A, Ley 2466 de 2025).
           {vig
-            ? ' Ese límite no aplica al sector de seguridad (Ley 1920 de 2018) ni al de salud, por eso esta calculadora no avisa cuando lo pasas.'
-            : ' Si tus turnos lo pasan, el desprendible te avisa. Aun así, toda hora extra trabajada se debe pagar. Los sectores de seguridad privada y salud están exceptuados.'}
+            ? ' El límite general de 2 horas extra diarias y 12 semanales no rige en seguridad privada, pero sí los límites especiales del artículo 7 de la Ley 1920 de 2018, que esta herramienta comprueba.'
+            : ' Si tus turnos superan esos límites, el desprendible te avisa. Aun así, toda hora extra trabajada se debe pagar. Seguridad privada y salud tienen excepciones especiales.'}
         </p>
         <h3>Valor de cada hora</h3>
         <p>La hora ordinaria vale tu salario dividido entre 210. Sobre ella se aplican:</p>
