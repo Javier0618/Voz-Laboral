@@ -44,7 +44,7 @@ function Hero() {
   const [q, setQ] = useState('');
   return (
     <section className="bg-brand text-white">
-      <div className="page grid items-center gap-14 pb-20 pt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:pb-24 lg:pt-12">
+      <div className="page grid items-center gap-10 pb-16 pt-12 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] xl:gap-14 xl:pb-24 xl:pt-12">
         <div className="min-w-0">
           <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-white/70">Para trabajadores en Colombia</p>
           <h1 className="text-[2.5rem] font-bold leading-[2.875rem] tracking-[-0.01em] text-white sm:text-5xl lg:text-[4.25rem] lg:leading-[4.5rem]">
@@ -54,7 +54,7 @@ function Hero() {
             Guías claras basadas en la ley colombiana, experiencias reales de quienes trabajan en cada empresa — contadas con alias — y
             calculadoras para revisar tu pago.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap gap-3 max-sm:flex-col max-sm:items-start">
             <Link to="/derechos" className="btn min-h-[52px] bg-white px-7 text-base text-onwhite-ink hover:bg-onwhite-tint">
               Ver guías laborales
             </Link>
@@ -75,7 +75,7 @@ function Hero() {
               <input
                 id="buscar-empresa"
                 type="search"
-                className="block min-h-[52px] w-full rounded border-0 bg-transparent px-3 text-lg text-onwhite-ink placeholder:text-[#3F4A5A]/70 focus:outline-none focus:ring-2 focus:ring-teal/40"
+                className="block min-h-[52px] min-w-0 w-full rounded border-0 bg-transparent px-3 text-lg text-onwhite-ink placeholder:text-[#3F4A5A]/70 focus:outline-none focus:ring-2 focus:ring-teal/40"
                 placeholder="Nombre, sigla o NIT"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
@@ -85,7 +85,7 @@ function Hero() {
             </div>
           </form>
           <p className="mt-6 text-sm text-white/75">Compartes con un alias y sin crear cuenta. Tu nombre y tu correo nunca se publican.</p>
-          <PromoVideoTeaser className="mt-6 lg:hidden" />
+          <PromoVideoTeaser className="mt-6 xl:hidden" />
         </div>
         <RedactionSpecimen />
       </div>
@@ -99,29 +99,29 @@ function RedactionSpecimen() {
     <span className="redacted vl-redact" style={{ width: w, animationDelay: `${delay}ms` }} aria-hidden="true" />
   );
   return (
-    <figure className="relative isolate min-w-0 lg:ml-6">
-      <PromoVideoTeaser className="mb-8 hidden lg:flex" />
-      <div className="folio folio-stack p-6 sm:p-8">
+    <figure className="relative isolate min-w-0 xl:ml-6">
+      <PromoVideoTeaser className="mb-8 hidden xl:flex" />
+      <div className="folio folio-stack min-w-0 p-4 sm:p-8">
         <div className="flex items-baseline justify-between gap-4 border-b border-line pb-4 text-sm text-slate">
           <span>Experiencia de ejemplo</span>
           <span className="font-serif text-base italic text-ink">Folio 1</span>
         </div>
         <div className="folio-margin mt-5">
-          <dl className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-4 gap-y-3 text-[0.9375rem] sm:grid-cols-[8rem_minmax(0,1fr)]">
+          <dl className="grid grid-cols-[minmax(0,6rem)_minmax(0,1fr)] gap-x-3 gap-y-3 sm:gap-x-4 text-[0.9375rem] sm:grid-cols-[8rem_minmax(0,1fr)]">
             <dt className="text-slate">Alias público</dt>
-            <dd className="font-semibold">turno_de_noche</dd>
+            <dd className="min-w-0 break-words font-semibold">turno_de_noche</dd>
             <dt className="text-slate">Correo</dt>
-            <dd>{bar('11rem', 250)}<span className="sr-only">oculto</span></dd>
+            <dd className="min-w-0">{bar('11rem', 250)}<span className="sr-only">oculto</span></dd>
             <dt className="text-slate">Nombre real</dt>
             <dd>{bar('8rem', 380)}<span className="sr-only">no se pide</span></dd>
             <dt className="text-slate">Cuenta interna</dt>
             <dd>{bar('12rem', 510)}<span className="sr-only">oculta</span></dd>
             <dt className="text-slate">Empresa</dt>
-            <dd>Empresa de ejemplo</dd>
+            <dd className="min-w-0 break-words">Empresa de ejemplo</dd>
             <dt className="text-slate">Periodo</dt>
-            <dd>marzo de 2025</dd>
+            <dd className="min-w-0 break-words">marzo de 2025</dd>
             <dt className="text-slate">Tipo</dt>
-            <dd>Experiencia mixta</dd>
+            <dd className="min-w-0 break-words">Experiencia mixta</dd>
           </dl>
           <p className="testimony mt-6 border-t border-dashed border-line pt-5">
             Los pagos llegaban a tiempo y la capacitación fue buena. Lo difícil era que mi supervisor, {bar('5.5rem', 640)}
