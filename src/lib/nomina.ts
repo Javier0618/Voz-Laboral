@@ -116,7 +116,6 @@ export function calcularTurnos(turnos: Turno[], valorHora: number, extras: ModoE
   const porFecha: Record<string, Horas> = {};
   for (const t of ordenados) {
     let enTurno = 0;
-    const lunes = sumarDias(t.fecha, -((new Date(`${t.fecha}T00:00:00`).getDay() + 6) % 7));
     if (!porFecha[t.fecha]) porFecha[t.fecha] = horasVacias();
     for (const min of minutosDeTurno(t)) {
       enTurno++;
@@ -127,7 +126,10 @@ export function calcularTurnos(turnos: Turno[], valorHora: number, extras: ModoE
         ? (min.festivo ? (min.nocturno ? 'HEDN' : 'HEDD') : min.nocturno ? 'HEN' : 'HED')
         : min.festivo ? (min.nocturno ? 'RDN' : 'RDD') : min.nocturno ? 'RN' : null;
       if (extra) {
-        porDia.set(t.fecha, (porDia.get(t.fecha) ?? 0) + 1);
+        // Para comprobar los límites legales, cada minuto extra pertenece a
+        // su fecha real, incluso si el turno comenzó el día o semana anterior.
+        const lunes = sumarDias(min.fecha, -((new Date(`${min.fecha}T00:00:00`).getDay() + 6) % 7));
+        porDia.set(min.fecha, (porDia.get(min.fecha) ?? 0) + 1);
         porSemana.set(lunes, (porSemana.get(lunes) ?? 0) + 1);
       }
       if (!tipo) continue;

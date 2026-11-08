@@ -154,11 +154,17 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
           <li>Extra: según cómo cuente tu empresa, lo que pasa de tu jornada diaria o del total de horas del período.</li>
         </ul>
         <ExplicacionDescanso />
+        <h3>Qué día se considera tu descanso obligatorio</h3>
+        <p>
+          Para clasificar recargos, esta calculadora toma como referencia los domingos y festivos. Sin embargo, la ley permite pactar por escrito
+          un día de descanso obligatorio distinto del domingo. Si ese es tu caso, el resultado puede no corresponder a tu nómina y necesita
+          revisión antes de usarlo para reclamar pagos (CST, art. 179, modificado por Ley 2466 de 2025).
+        </p>
         <h3>Ordinaria o extra</h3>
         <p>
           La ley fija 42 horas semanales (CST, art. 161) y permite turnos sucesivos y jornadas flexibles que reparten las horas de forma
           variable. En turnos de 12 horas, muchas empresas solo pagan horas extra cuando se superan 210 horas en el mes y antes pagan los
-          recargos. Esa cifra es una práctica, no un umbral legal: si tu contrato dice otra cosa, ajústala.
+          recargos. Esa cifra es una práctica, no un umbral legal general: no se debe usar para desconocer horas extra efectivamente causadas. Verifica la jornada aplicable, los acuerdos y el régimen de tu actividad antes de interpretar el resultado.
         </p>
         <h3>Límite de horas extra</h3>
         <p>

@@ -40,7 +40,7 @@ export default function PorDias() {
   const clasificacion = lista.length > 0 && horasJornada > 0
     ? calcularTurnos(lista, valorDia > 0 ? valorDia / horasJornada : 0, { modo: 'diario', horasJornada })
     : null;
-  const r = valorDia > 0 && horasJornada > 0
+  const r = valorDia > 0 && horasJornada > 0 && lista.length > 0
     ? calcularPorDias({ valorDia, horasJornada, turnos: lista, cotizacion, otrosIngresos, otrosDescuentos })
     : null;
 
@@ -107,6 +107,7 @@ export default function PorDias() {
 
           <fieldset className="space-y-3 rounded border border-line p-4">
             <legend className="px-1 text-sm font-semibold">Cotización a seguridad social</legend>
+            <p className="text-sm text-slate">La cotización por semanas aplica solo en condiciones específicas: vinculación laboral por menos de 30 días del mes, remuneración mensual inferior a un salario mínimo y cumplimiento de los requisitos de afiliación. No elijas esta opción solo porque trabajaste pocos días.</p>
             <div className="flex flex-wrap gap-2">
               {([['ordinaria', 'Ordinaria (4 % salud y 4 % pensión)'], ['semanas', 'Por semanas (menos de 30 días)']] as const).map(([v, l]) => (
                 <button key={v} type="button" aria-pressed={cotizacion === v} onClick={() => setCotizacion(v)}
@@ -127,7 +128,7 @@ export default function PorDias() {
           {r ? <DesprendibleView titulo={periodoTitulo({ ...periodo, periodicidad: 'mensual' })} d={r} extra={<ResumenClasificacionHoras r={r.horas} compact />} /> : (
             <div className="rounded-md bg-mist px-6 py-10 sm:px-8">
               <p className="font-serif text-2xl">Tu desprendible aparecerá aquí</p>
-              <p className="mt-2 max-w-prose text-slate">Escribe cuánto te pagan y marca los días que trabajaste.</p>
+              <p className="mt-2 max-w-prose text-slate">Escribe cuánto te pagan y marca al menos un día de trabajo para calcular el desprendible. Sin jornadas registradas no se estiman descuentos.</p>
             </div>
           )}
         </section>
@@ -154,9 +155,9 @@ export default function PorDias() {
         <h3>Seguridad social</h3>
         <p>
           En la cotización ordinaria aportas 4 % a salud y 4 % a pensión, con una base mínima de un salario mínimo (Ley 100 de 1993). Si
-          trabajas menos de 30 días y ganas menos de un mínimo, tu empleador puede cotizar por semanas: la base de pensión es una cuarta parte
+          trabajas menos de 30 días y ganas menos de un mínimo, la cotización por semanas puede corresponder si cumples sus condiciones de afiliación: la base de pensión es una cuarta parte
           del mínimo por cada semana, según los días trabajados (1 a 7 días, una; 8 a 14, dos; 15 a 21, tres; más de 21, cuatro), y no se
-          descuenta salud (Decreto 2616 de 2013, arts. 5 y 6).
+          descuenta salud bajo ese esquema; tu cobertura en salud debe estar garantizada por otra vía (Decreto 2616 de 2013, arts. 5 y 6).
         </p>
         <h3>Prestaciones</h3>
         <p>

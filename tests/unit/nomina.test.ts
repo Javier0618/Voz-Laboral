@@ -90,6 +90,17 @@ describe('turnos', () => {
     expect(avisoLimiteExtras(ok.excesoLimite)).toBeNull();
   });
 
+  it('atribuye las horas extra de un turno nocturno al día y semana reales', () => {
+    // El turno empieza el domingo y sus cuatro horas extra ocurren el lunes.
+    const r = calcularTurnos([{
+      fecha: '2026-10-11', entrada: '18:00', salida: '06:00', descansoMin: 0,
+    }], VH, { modo: 'diario', horasJornada: 8 });
+    expect(r.excesoLimite.dias).toEqual(['2026-10-12']);
+    expect(r.excesoLimite.semanas).toEqual([]);
+    expect(r.horas.HEN).toBeCloseTo(4, 8);
+    expect(r.horas.HEDN).toBeCloseTo(0, 8);
+  });
+
   it('descuenta el descanso del turno', () => {
     const t = calcularTurnos([{ fecha: '2026-10-07', entrada: '08:00', salida: '17:00', descansoMin: 60 }], VH, sinExtras);
     expect(t.horasTrabajadas).toBe(8);

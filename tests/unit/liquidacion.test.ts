@@ -90,6 +90,12 @@ describe('otros casos', () => {
 });
 
 describe('validación', () => {
+  it('rechaza fechas imposibles para evitar una liquidación errónea', () => {
+    expect(validarLiquidacion({ ...base, fechaIngreso: '2026-02-30' }).fechaIngreso).toBeTruthy();
+    expect(validarLiquidacion({ ...base, fechaRetiro: '2026-13-01' }).fechaRetiro).toBeTruthy();
+    expect(validarLiquidacion({ ...base, tipoContrato: 'fijo', motivo: 'despido_sin_justa_causa', fechaFinPactada: '2026-02-30' }).fechaFinPactada).toBeTruthy();
+    expect(validarLiquidacion({ ...base, fechaIngreso: '2024-02-29' }).fechaIngreso).toBeUndefined();
+  });
   it('rechaza fechas invertidas y datos que faltan', () => {
     const e = validarLiquidacion({ ...base, fechaRetiro: '2024-01-01', salarioMensual: 0 });
     expect(e.fechaRetiro).toBeTruthy();

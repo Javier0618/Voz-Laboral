@@ -109,10 +109,15 @@ const decimal = (n: number) => n.toLocaleString('es-CO', { maximumFractionDigits
 /** Valida los datos y devuelve los errores por campo (vacío si todo es correcto). */
 export function validarLiquidacion(d: DatosLiquidacion): Record<string, string> {
   const e: Record<string, string> = {};
-  const fecha = /^\d{4}-\d{2}-\d{2}$/;
-  if (!fecha.test(d.fechaIngreso)) e.fechaIngreso = 'Indica la fecha de ingreso.';
-  if (!fecha.test(d.fechaRetiro)) e.fechaRetiro = 'Indica la fecha de retiro.';
-  else if (fecha.test(d.fechaIngreso) && d.fechaRetiro < d.fechaIngreso) e.fechaRetiro = 'La fecha de retiro no puede ser anterior a la de ingreso.';
+  const fecha = (iso: string): boolean => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return false;
+    const [y, m, dia] = iso.split('-').map(Number);
+    const d = new Date(Date.UTC(y, m - 1, dia));
+    return d.getUTCFullYear() === y && d.getUTCMonth() === m - 1 && d.getUTCDate() === dia;
+  };
+  if (!fecha(d.fechaIngreso)) e.fechaIngreso = 'Indica una fecha de ingreso válida.';
+  if (!fecha(d.fechaRetiro)) e.fechaRetiro = 'Indica una fecha de retiro válida.';
+  else if (fecha(d.fechaIngreso) && d.fechaRetiro < d.fechaIngreso) e.fechaRetiro = 'La fecha de retiro no puede ser anterior a la de ingreso.';
   if (!(d.salarioMensual > 0)) e.salarioMensual = 'Indica tu salario mensual.';
   if (d.salarioPorAnio && Object.values(d.salarioPorAnio).some((x) => !(x > 0))) e.salarioPorAnio = 'Indica el salario de cada año.';
   if (d.variableMensual < 0) e.variableMensual = 'No puede ser negativo.';
@@ -120,7 +125,7 @@ export function validarLiquidacion(d: DatosLiquidacion): Record<string, string> 
   if (d.diasSalarioPendiente < 0 || d.diasSalarioPendiente > 30) e.diasSalarioPendiente = 'Indica entre 0 y 30 días.';
   if (d.tipoContrato === 'indefinido' && d.motivo === 'fin_plazo') e.motivo = 'El vencimiento del plazo solo aplica a contratos a término fijo.';
   if (d.tipoContrato === 'fijo' && d.motivo === 'despido_sin_justa_causa') {
-    if (!d.fechaFinPactada || !fecha.test(d.fechaFinPactada)) e.fechaFinPactada = 'Indica la fecha en que vencía tu contrato.';
+    if (!d.fechaFinPactada || !fecha(d.fechaFinPactada)) e.fechaFinPactada = 'Indica la fecha en que vencía tu contrato.';
     else if (d.fechaFinPactada <= d.fechaRetiro) e.fechaFinPactada = 'Debe ser posterior a la fecha de retiro.';
   }
   return e;
