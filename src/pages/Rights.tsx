@@ -49,7 +49,7 @@ function HelpAside({ guides }: { guides: LegalResource[] }) {
           Estas guías explican derechos y deberes laborales en general. Para actuar en un caso concreto, acude a las autoridades del trabajo.
         </p>
         {help && (
-          <Link to={`/derechos/${help.slug}`} className="btn mt-4 w-full bg-white text-onwhite-ink hover:bg-onwhite-tint">
+          <Link to={`/derechos/${help.slug}/`} className="btn mt-4 w-full bg-white text-onwhite-ink hover:bg-onwhite-tint">
             Ver a dónde acudir
           </Link>
         )}
@@ -202,7 +202,7 @@ function FeaturedGuides({ guides }: { guides: LegalResource[] }) {
       <ul className="mt-4 grid gap-3 sm:grid-cols-2">
         {featured.slice(0, 6).map((g) => (
           <li key={g.id}>
-            <Link to={`/derechos/${g.slug}`} className="group flex h-full flex-col rounded-lg border border-line bg-paper p-4 transition-colors hover:border-slate">
+            <Link to={`/derechos/${g.slug}/`} className="group flex h-full flex-col rounded-lg border border-line bg-paper p-4 transition-colors hover:border-slate">
               <span className="font-serif text-lg leading-snug text-ink group-hover:underline group-hover:decoration-teal/60">{g.title}</span>
               <span className="mt-1 line-clamp-2 text-sm text-slate">{g.summary}</span>
               {g.last_verified_at && (
@@ -221,7 +221,7 @@ function GuideList({ guides, all }: { guides: LegalResource[]; all: LegalResourc
     <ol className="mt-3 border-t border-ink/80">
       {guides.map((g) => (
         <li key={g.id} className="border-b border-line">
-          <Link to={`/derechos/${g.slug}`}
+          <Link to={`/derechos/${g.slug}/`}
             className={`group grid gap-x-6 py-6 sm:grid-cols-[3.5rem_minmax(0,1fr)] ${g.cover_url ? 'md:grid-cols-[3.5rem_minmax(0,1fr)_11rem]' : ''}`}>
             <span aria-hidden="true" className="hidden font-serif text-3xl leading-none text-teal/70 sm:block">
               {String(all.indexOf(g) + 1).padStart(2, '0')}
@@ -263,7 +263,7 @@ function GuidesByTopic({ guides }: { guides: LegalResource[] }) {
             <ul className="divide-y divide-line">
               {items.map((g) => (
                 <li key={g.id}>
-                  <Link to={`/derechos/${g.slug}`} className="group grid gap-x-6 py-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+                  <Link to={`/derechos/${g.slug}/`} className="group grid gap-x-6 py-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
                     <span>
                       <span className="block font-serif text-xl leading-snug text-ink group-hover:underline group-hover:decoration-teal/60">
                         {g.title}
@@ -295,7 +295,7 @@ export function RightsArticle() {
   }, [data, slug]);
   useEffect(() => {
     if (!data) return;
-    const path = `/derechos/${data.slug}`;
+    const path = `/derechos/${data.slug}/`;
     const origin = brand.siteUrl;
     const pageUrl = origin ? `${origin}${path}` : path;
     const tema = temaDeGuia(data);
@@ -313,7 +313,7 @@ export function RightsArticle() {
           headline: data.title,
           description: data.summary,
           dateModified: data.updated_at,
-          ...(data.last_verified_at ? { datePublished: data.last_verified_at } : {}),
+          // last_verified_at es la revisión jurídica, no la publicación.
           inLanguage: 'es-CO',
           mainEntityOfPage: pageUrl,
           image: data.cover_url ? [data.cover_url] : undefined,
@@ -479,7 +479,7 @@ export function RightsArticle() {
             <ul className="mt-6 grid gap-4 md:grid-cols-3">
               {related.map((g) => (
                 <li key={g.id}>
-                  <Link to={`/derechos/${g.slug}`} className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-paper transition-colors hover:border-slate">
+                  <Link to={`/derechos/${g.slug}/`} className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-paper transition-colors hover:border-slate">
                     <GuideCover guide={g} />
                     <span className="flex flex-1 flex-col p-5">
                       <span className="font-serif text-lg leading-snug text-ink group-hover:underline">{g.title}</span>
