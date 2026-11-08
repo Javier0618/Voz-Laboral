@@ -49,6 +49,27 @@ describe('liquidación con salario mínimo, renuncia', () => {
 });
 
 describe('indemnización por despido sin justa causa', () => {
+  it('menos de un año en indefinido: reconoce 30 días completos de indemnización', () => {
+    const salario = 3_000_000;
+    const r = calcularLiquidacion({ ...base, fechaIngreso: '2026-09-01', fechaRetiro: '2026-10-15',
+      salarioMensual: salario, motivo: 'despido_sin_justa_causa' });
+    expect(valor(r, 'indemnizacion')).toBe(salario);
+  });
+
+  it('al cumplir exactamente el año, el primer tramo sigue siendo de 30 días', () => {
+    const salario = 3_000_000;
+    const r = calcularLiquidacion({ ...base, fechaIngreso: '2025-10-16', fechaRetiro: '2026-10-15',
+      salarioMensual: salario, motivo: 'despido_sin_justa_causa' });
+    expect(valor(r, 'indemnizacion')).toBe(salario);
+  });
+
+  it('a partir de diez salarios mínimos aplica el tramo de 20 días', () => {
+    const minimo = valoresDe(2026).salarioMinimo;
+    const r = calcularLiquidacion({ ...base, fechaIngreso: '2026-01-01', fechaRetiro: '2026-03-30',
+      salarioMensual: minimo * 10, motivo: 'despido_sin_justa_causa' });
+    expect(valor(r, 'indemnizacion')).toBe(Math.round(minimo * 10 * 20 / 30));
+  });
+
   it('indefinido, menos de 10 salarios mínimos: 30 días + 20 por año adicional', () => {
     const r = calcularLiquidacion({ ...base, motivo: 'despido_sin_justa_causa' });
     expect(valor(r, 'indemnizacion')).toBe(2_577_721); // 44,1667 días × 58.363,50
