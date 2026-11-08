@@ -6,7 +6,7 @@
 import { writeFileSync, existsSync, readFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { htmlDeGuia, htmlDeCalculadora } from './prerender.mjs';
+import { htmlDeGuia, htmlDeCalculadora, htmlDeInicio } from './prerender.mjs';
 
 // Lee los mismos archivos .env que Vite (las variables del sistema tienen
 // prioridad). Sin esto, el script no vería VITE_SUPABASE_URL ni SITE_URL si
@@ -42,6 +42,7 @@ if (!site) {
   process.exit(0);
 }
 
+const guideNames = new Map();
 const urls = new Map([
   ['/', null], ['/empresas', null], ['/experiencias', null], ['/derechos/', null], ['/como-funciona', null],
   ['/compartir', null], ['/politicas/reglas', null], ['/politicas/terminos', null], ['/politicas/privacidad', null],
@@ -65,7 +66,10 @@ async function get(path, init) {
 if (api && key) {
   try {
     const guides = await get('/rest/v1/legal_resources?select=slug,title,summary,content,cover_url,cover_alt,updated_at,last_verified_at&status=eq.publicado');
-    guides.forEach((g) => urls.set(`/derechos/${g.slug}/`, g.updated_at));
+    guides.forEach((g) => {
+      urls.set(`/derechos/${g.slug}/`, g.updated_at);
+      guideNames.set(`/derechos/${g.slug}/`, g.title);
+    });
     // HTML propio de cada guía, para las vistas previas al compartir.
     const plantilla = readFileSync(new URL('index.html', out), 'utf8');
     for (const g of guides) {
@@ -133,6 +137,35 @@ for (const info of calculadorasSeo) {
   mkdirSync(dir, { recursive: true });
   writeFileSync(new URL('index.html', dir), htmlDeCalculadora(plantillaCalculadoras, info, site));
 }
+
+// Ahrefs detectó páginas huérfanas porque el HTML inicial de Inicio no tenía
+// enlaces hasta ejecutar React. Exponer las URL públicas del sitemap como
+// enlaces HTML reales permite descubrir guías y herramientas sin JavaScript.
+const staticNames = new Map([
+  ['/derechos/', 'Guías de derechos laborales'],
+  ['/calculadoras/', 'Calculadoras laborales'],
+  ['/herramientas', 'Herramientas laborales'],
+  ['/herramientas/cartas', 'Modelos de cartas laborales'],
+  ['/experiencias', 'Experiencias laborales'],
+  ['/empresas', 'Empresas'],
+  ['/liquidacion', 'Calculadora de liquidación laboral'],
+  ['/como-funciona', 'Cómo funciona TuVozLaboral'],
+  ['/calculadoras/prima/', 'Calculadora de prima de servicios'],
+  ['/calculadoras/cesantias/', 'Calculadora de cesantías e intereses'],
+  ['/calculadoras/salario-neto/', 'Calculadora de salario neto'],
+]);
+const titleFromPath = (path) => {
+  const slug = path.replace(/\/$/, '').split('/').pop();
+  return slug.replace(/-/g, ' ').replace(/^./, (char) => char.toUpperCase());
+};
+const homeLinks = [...urls.keys()].filter((path) => path !== '/').map((path) => ({
+  path,
+  title: guideNames.get(path) || staticNames.get(path) || titleFromPath(path),
+}));
+// Escribir al final: el index.html original ya se utilizó como plantilla de las
+// guías y calculadoras pregeneradas.
+const homeTemplate = readFileSync(new URL('index.html', out), 'utf8');
+writeFileSync(new URL('index.html', out), htmlDeInicio(homeTemplate, homeLinks, site));
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const xml = [
