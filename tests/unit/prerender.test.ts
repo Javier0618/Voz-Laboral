@@ -16,6 +16,8 @@ describe('HTML inicial de cada guía', () => {
     expect(html).toContain('<meta property="og:url" content="https://tuvozlaboral.com/derechos/reforma-laboral" />');
     expect(html).toContain('<link rel="canonical" href="https://tuvozlaboral.com/derechos/reforma-laboral" />');
     expect(html).toContain('"@type":"Article"');
+    expect(html).not.toContain('"datePublished"');
+    expect(html).toContain('"dateModified":"2026-11-01T00:00:00Z"');
     expect(html).not.toContain('content="TuVozLaboral: guías laborales para trabajadores en Colombia"');
   });
   it('mantiene la web intacta: el mismo contenedor y los mismos scripts', () => {
