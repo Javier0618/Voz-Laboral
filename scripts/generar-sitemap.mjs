@@ -7,6 +7,7 @@ import { writeFileSync, existsSync, readFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { htmlDeGuia, htmlDeCalculadora, htmlDeInicio } from './prerender.mjs';
+import { seoPages } from './seo-pages.mjs';
 
 // Lee los mismos archivos .env que Vite (las variables del sistema tienen
 // prioridad). Sin esto, el script no vería VITE_SUPABASE_URL ni SITE_URL si
@@ -158,9 +159,45 @@ const titleFromPath = (path) => {
   const slug = path.replace(/\/$/, '').split('/').pop();
   return slug.replace(/-/g, ' ').replace(/^./, (char) => char.toUpperCase());
 };
+// Generar HTML inicial para las rutas públicas cuyo contenido y metadatos
+// antes dependían exclusivamente de React. Conservamos las tres calculadoras
+// ya pregeneradas y la página de inicio.
+const seoNames = new Map(seoPages.map((page) => [page.path, page.title]));
+for (const info of seoPages) {
+  const canonicalPath = info.path.replace(/\/$/, '') + '/';
+  const dir = new URL(canonicalPath.slice(1), out);
+  mkdirSync(dir, { recursive: true });
+  const childLinks = [...urls.keys()]
+    .filter((path) => path !== info.path && path !== canonicalPath &&
+      path.startsWith(canonicalPath) && path !== '/')
+    .slice(0, 80)
+    .map((path) => ({
+      path,
+      title: guideNames.get(path) || seoNames.get(path.replace(/\/$/, '')) ||
+        staticNames.get(path) || titleFromPath(path),
+    }));
+  const parentLink = info.path.startsWith('/herramientas/') ? '/herramientas/'
+    : info.path.startsWith('/calculadoras/') ? '/calculadoras/'
+    : info.path.startsWith('/politicas/') ? '/'
+    : '/derechos/';
+  const links = childLinks.length ? childLinks : [{
+    path: parentLink,
+    title: staticNames.get(parentLink) || 'Explorar guías y herramientas',
+  }];
+  writeFileSync(new URL('index.html', dir),
+    htmlDeCalculadora(plantillaCalculadoras, { ...info, links }, site));
+  // La ruta pública coincide con su archivo de directorio y su canonical.
+  urls.delete(info.path);
+  urls.set(canonicalPath, null);
+}
+// El índice principal de calculadoras, también está pregenerado.
+const calcIndex = '/calculadoras/';
+urls.delete('/calculadoras');
+urls.set(calcIndex, null);
+
 const homeLinks = [...urls.keys()].filter((path) => path !== '/').map((path) => ({
   path,
-  title: guideNames.get(path) || staticNames.get(path) || titleFromPath(path),
+  title: guideNames.get(path) || seoNames.get(path.replace(/\/$/, '')) || staticNames.get(path) || titleFromPath(path),
 }));
 // Escribir al final: el index.html original ya se utilizó como plantilla de las
 // guías y calculadoras pregeneradas.

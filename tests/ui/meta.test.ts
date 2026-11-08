@@ -48,9 +48,19 @@ describe('setPageMeta', () => {
 
   it('cada ruta tiene su propia dirección canónica, nunca la portada', () => {
     setRouteDefaults('/politicas/cookies');
-    expect(canonical()).toBe('https://tuvozlaboral.com/politicas/cookies');
-    expect(prop('og:url')).toBe('https://tuvozlaboral.com/politicas/cookies');
+    expect(canonical()).toBe('https://tuvozlaboral.com/politicas/cookies/');
+    expect(prop('og:url')).toBe('https://tuvozlaboral.com/politicas/cookies/');
     expect(document.querySelector('meta[name="robots"]')).toBeNull();
+  });
+
+  it('mantiene una sola canonical para páginas estáticas durante la navegación', () => {
+    setPageMeta({ title: 'Cartas', description: 'Herramientas', path: '/herramientas/cartas' });
+    expect(canonical()).toBe('https://tuvozlaboral.com/herramientas/cartas/');
+    expect(prop('og:url')).toBe('https://tuvozlaboral.com/herramientas/cartas/');
+    setRouteDefaults('/calculadoras/administrativos');
+    expect(canonical()).toBe('https://tuvozlaboral.com/calculadoras/administrativos/');
+    setPageMeta({ title: 'Empresa', description: 'Perfil', path: '/empresas/empresa-ejemplo' });
+    expect(canonical()).toBe('https://tuvozlaboral.com/empresas/empresa-ejemplo');
   });
 
   it('las rutas privadas no se indexan y el enlace de seguimiento no aparece', () => {
