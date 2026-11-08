@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error módulo .mjs sin tipos
-import { htmlDeGuia, htmlDeCalculadora } from '../../scripts/prerender.mjs';
+import { htmlDeGuia, htmlDeCalculadora, htmlDeInicio } from '../../scripts/prerender.mjs';
 
 const plantilla = readFileSync('index.html', 'utf8');
 const guia = { slug: 'reforma-laboral', title: 'Reforma laboral: "qué" cambió & <más>', summary: 'Resumen de la guía.', cover_url: null, updated_at: '2026-11-01T00:00:00Z', last_verified_at: '2026-11-01' };
@@ -94,5 +94,29 @@ describe('HTML inicial de calculadoras', () => {
     expect(html).not.toContain('<script>alert(1)</script>');
     expect(html).toContain('Prima &amp; &lt;riesgo>');
     expect(html).toContain('Texto con &lt;script>alert(1)&lt;/script>');
+  });
+});
+
+describe('Enlaces HTML iniciales de Inicio', () => {
+  it('incluye navegación rastreable sin ejecutar React', () => {
+    const html: string = htmlDeInicio(plantilla, [
+      { path: '/derechos/salud-mental/', title: 'Salud mental y riesgo psicosocial' },
+      { path: '/calculadoras/prima/', title: 'Calculadora de prima' },
+    ], 'https://tuvozlaboral.com');
+    expect(html).toContain('<a href="/derechos/salud-mental/">Salud mental y riesgo psicosocial</a>');
+    expect(html).toContain('<a href="/calculadoras/prima/">Calculadora de prima</a>');
+    expect(html).toContain('<link rel="canonical" href="https://tuvozlaboral.com/" />');
+    expect(html).toContain('<div id="root"><main');
+  });
+  it('escapa etiquetas y rechaza rutas externas o peligrosas', () => {
+    const html: string = htmlDeInicio(plantilla, [
+      { path: '/derechos/ejemplo/', title: '<script>Malicioso</script>' },
+      { path: 'javascript:alert(1)', title: 'Peligro' },
+      { path: '//example.org/other', title: 'Externo' },
+    ], 'https://tuvozlaboral.com');
+    expect(html).toContain('&lt;script>Malicioso&lt;/script>');
+    expect(html).not.toContain('<script>Malicioso</script>');
+    expect(html).not.toContain('href="javascript:');
+    expect(html).not.toContain('href="//example.org/');
   });
 });
