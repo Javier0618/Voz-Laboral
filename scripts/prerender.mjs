@@ -48,7 +48,8 @@ export function htmlDeGuia(template, g, site) {
         inLanguage: 'es-CO',
         mainEntityOfPage: url,
         image: [imagen],
-        ...(g.last_verified_at ? { datePublished: g.last_verified_at } : {}),
+        // La fecha de verificación jurídica no es la de publicación.
+        // Omitimos datePublished hasta contar con una fecha editorial fiable.
         ...(g.updated_at ? { dateModified: g.updated_at } : {}),
         author: { '@type': 'Organization', name: MARCA },
         publisher: { '@type': 'Organization', name: MARCA },
