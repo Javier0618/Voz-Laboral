@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { esDominicalOFestivo, festivos } from '../../src/lib/festivos';
 import {
-  avisoLimiteExtras, calcularNomina, calcularPorDias, calcularTurnos, factorHora, fondoSolidaridad, horasVacias, inicioNocturno,
+  avisoLimiteExtras, avisosJornadaVigilancia, calcularNomina, calcularPorDias, calcularTurnos, factorHora, fondoSolidaridad, horasVacias, inicioNocturno,
   novedadesVacias, otrosVacios, recargoDominical, valorarHoras, type DatosNomina,
 } from '../../src/lib/nomina';
 
@@ -60,6 +60,23 @@ describe('turnos', () => {
     expect(r2(t.horas.RN)).toBe(5);
     expect(r2(t.horas.RDN)).toBe(6);
     expect(Math.round(t.valores.RDN)).toBe(75_000); // 6 × 10.000 × 125 %
+  });
+
+  it('en vigilancia, un turno de 12 horas tiene cuatro extra después de ocho', () => {
+    const turno = { fecha: '2026-10-07', entrada: '06:00', salida: '18:00', descansoMin: 0 };
+    const r = calcularTurnos([turno], VH, { modo: 'diario', horasJornada: 8 });
+    expect(r.horas.HED).toBeCloseTo(4, 8);
+    expect(r.horasOrdinarias).toBeCloseTo(8, 8);
+    expect(avisosJornadaVigilancia([turno])).toEqual([]);
+  });
+
+  it('avisa si vigilantes superan 12 horas por turno o 60 horas semanales', () => {
+    const largo = { fecha: '2026-10-07', entrada: '06:00', salida: '19:00', descansoMin: 0 };
+    expect(avisosJornadaVigilancia([largo]).join(' ')).toContain('más de 12 horas');
+    const turnos = ['2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08', '2026-10-09', '2026-10-10']
+      .map((fecha) => ({ fecha, entrada: '06:00', salida: '18:00', descansoMin: 0 }));
+    expect(avisosJornadaVigilancia(turnos).join(' ')).toContain('más de 60 horas');
+    expect(avisosJornadaVigilancia(turnos.slice(0, 5))).toEqual([]);
   });
 
   it('horas extra por jornada diaria: después de 8 h', () => {
