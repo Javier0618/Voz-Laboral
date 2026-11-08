@@ -98,7 +98,9 @@ export function metaCalculadora(info: CalculadoraInfo): PageMeta {
   return {
     title: `${info.title} · ${brand.name}`,
     description: info.description,
-    path: info.path,
+    path: ['/calculadoras/prima', '/calculadoras/cesantias', '/calculadoras/salario-neto'].includes(info.path)
+      ? `${info.path}/`
+      : info.path,
     type: 'website',
   };
 }
