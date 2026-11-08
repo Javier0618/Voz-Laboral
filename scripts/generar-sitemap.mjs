@@ -123,8 +123,9 @@ const indiceCalculadoras = {
   title: 'Calculadoras laborales en Colombia',
   description: 'Calculadoras de nómina, prima, cesantías, salario neto y liquidación. Consulta las herramientas gratuitas de TuVozLaboral.',
 };
-// Existe calculadoras/ por sus subrutas pregeneradas. Sin index.html,
-// Nginx puede rechazar /calculadoras/ con 403 (detectado por Ahrefs).
+// Nginx puede rechazar /calculadoras/ con 403 si falta su index.html.
+// Crear la carpeta antes de escribir: los índices específicos se generan después.
+mkdirSync(new URL('calculadoras/', out), { recursive: true });
 writeFileSync(new URL('calculadoras/index.html', out), htmlDeCalculadora(plantillaCalculadoras, indiceCalculadoras, site));
 
 for (const info of calculadorasSeo) {
