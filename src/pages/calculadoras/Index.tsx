@@ -46,7 +46,7 @@ export default function CalculadorasIndex() {
   return (
     <div className="page py-10">
       <PageHeader title="Calculadoras laborales">
-        Estima tu pago y compáralo con tu desprendible. Cada resultado muestra la cuenta y la norma que la respalda. Sin cuenta, tus datos no
+        Elige una calculadora según lo que necesitas comprobar: turnos y recargos, prestaciones, liquidación o salario neto. Los resultados son estimaciones y pueden variar según las condiciones del contrato. Sin cuenta, tus datos no
         salen de este navegador.
       </PageHeader>
       <PayrollInvite />
