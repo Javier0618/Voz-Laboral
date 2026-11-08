@@ -7,8 +7,10 @@ import { notConfigured, useAsync } from './ui';
 export function CalculatorGuideLinks({ path }: { path: string }) {
   // Solo enlaza a guías publicadas: así una guía pendiente no deja un enlace roto.
   const published = useAsync(() => (notConfigured ? Promise.resolve(null) : listPublishedGuideSlugs()), []);
-  const slugs = published.data ? new Set(published.data.map((g) => g.slug)) : null;
-  const links = (GUIAS_POR_CALCULADORA[path] ?? []).filter((g) => !slugs || slugs.has(g.slug));
+  // No mostrar enlaces hasta comprobar cuáles guías están publicadas.
+  if (!published.data) return null;
+  const slugs = new Set(published.data.map((g) => g.slug));
+  const links = (GUIAS_POR_CALCULADORA[path] ?? []).filter((g) => slugs.has(g.slug));
   if (!links?.length) return null;
   return (
     <section className="mt-12 max-w-prose rounded-lg border border-line bg-mist/80 p-6" aria-labelledby="guias-calc">
@@ -19,7 +21,7 @@ export function CalculatorGuideLinks({ path }: { path: string }) {
       <ul className="mt-4 space-y-2">
         {links.map((g) => (
           <li key={g.slug}>
-            <Link to={`/derechos/${g.slug}`} className="btn-link font-semibold">
+            <Link to={`/derechos/${g.slug}/`} className="btn-link font-semibold">
               {g.label} →
             </Link>
           </li>
