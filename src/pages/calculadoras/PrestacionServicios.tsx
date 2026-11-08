@@ -34,7 +34,7 @@ export default function PrestacionServiciosPage() {
 
   return (
     <div className="page py-10">
-      <PageHeader title="Calculadora para Prestación de Servicios (OPS e Independientes)">
+      <PageHeader title="Calculadora para Prestación de Servicios (OPS e Independientes)" sharePath="/calculadoras/prestacion-servicios">
         Calcula cuánto debes pagar de seguridad social (salud, pensión y ARL) sobre el 40 % de tu contrato y cuál es tu ingreso neto real.
       </PageHeader>
 

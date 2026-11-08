@@ -8,6 +8,7 @@ import { brand } from '../config/brand';
 import { GuideBody } from '../components/GuideBody';
 import { GuideCover } from '../components/GuideCover';
 import { GuideCalculatorLinks } from '../components/GuideCalculatorLinks';
+import { ShareLinkButton } from '../components/ShareLinkButton';
 import { RelatedExperiences } from '../components/RelatedExperiences';
 import { GuideToolLinks } from '../components/GuideToolLinks';
 import { GUIAS_PRIORITARIAS } from '../lib/guiasPrioritarias';
@@ -398,6 +399,9 @@ export function RightsArticle() {
             <div>
               <dt className="text-slate">Última actualización</dt>
               <dd className="mt-0.5 font-semibold">{formatDate(data.updated_at)}</dd>
+            </div>
+            <div className="self-end">
+              <ShareLinkButton title={data.title} path={`/derechos/${data.slug}/`} label="Compartir guía" />
             </div>
           </dl>
         </div>

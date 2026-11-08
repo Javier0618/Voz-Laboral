@@ -69,7 +69,7 @@ export default function PorDias() {
   return (
     <div className="page py-10">
       <p className="text-sm text-slate"><Link to="/calculadoras" className="hover:text-ink hover:underline">Calculadoras</Link></p>
-      <PageHeader title="Nómina por días">
+      <PageHeader title="Nómina por días" sharePath="/calculadoras/por-dias">
         Para quienes trabajan algunos días del mes o cobran por jornada: servicio doméstico por días, meseros, personal de eventos, ayudantes
         de construcción, reemplazos. Marca los días que trabajaste y la calculadora suma jornadas, recargos y descuentos.
       </PageHeader>

@@ -32,7 +32,7 @@ export default function CesantiasPage() {
 
   return (
     <div className="page py-10">
-      <PageHeader title="Calculadora de Cesantías e Intereses de Cesantías">
+      <PageHeader title="Calculadora de Cesantías e Intereses de Cesantías" sharePath="/calculadoras/cesantias/">
         Calcula el valor que tu empleador debe consignar a tu fondo de cesantías antes del 14 de febrero y los intereses que te debe pagar en enero.
       </PageHeader>
 
