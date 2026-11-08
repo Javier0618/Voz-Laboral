@@ -73,16 +73,25 @@ function Campo({ carta, campo, valor, onChange }: { carta: Carta; campo: Carta['
   );
 }
 
+function datosIniciales(carta: Carta | undefined): DatosCarta {
+  const inicial: DatosCarta = { fecha: hoy() };
+  for (const c of carta?.campos ?? []) if (c.type === 'select' && c.options) inicial[c.name] = c.options[0].value;
+  return inicial;
+}
+
 /** Formulario y vista previa de una carta. */
 export function CartaPage() {
   const { slug } = useParams();
   const carta = cartaPorSlug(slug);
-  const [datos, setDatos] = useState<DatosCarta>(() => {
-    const inicial: DatosCarta = { fecha: hoy() };
-    for (const c of carta?.campos ?? []) if (c.type === 'select' && c.options) inicial[c.name] = c.options[0].value;
-    return inicial;
-  });
+  const [datos, setDatos] = useState<DatosCarta>(() => datosIniciales(carta));
   const [copiado, setCopiado] = useState(false);
+
+  // React reutiliza este componente entre rutas de cartas diferentes.
+  // No arrastrar campos, motivos ni datos personales de una carta a otra.
+  useEffect(() => {
+    setDatos(datosIniciales(carta));
+    setCopiado(false);
+  }, [carta?.slug]);
 
   useEffect(() => {
     if (!carta) return;
