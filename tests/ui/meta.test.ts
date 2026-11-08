@@ -7,9 +7,9 @@ const canonical = () => document.querySelector('link[rel="canonical"]')?.getAttr
 
 describe('setPageMeta', () => {
   it('usa el dominio oficial en la dirección canónica, og:url y la imagen', () => {
-    setPageMeta({ title: 'Guía', description: 'Descripción', path: '/derechos/x', image: '/portada.png' });
-    expect(canonical()).toBe('https://tuvozlaboral.com/derechos/x');
-    expect(prop('og:url')).toBe('https://tuvozlaboral.com/derechos/x');
+    setPageMeta({ title: 'Guía', description: 'Descripción', path: '/derechos/x/', image: '/portada.png' });
+    expect(canonical()).toBe('https://tuvozlaboral.com/derechos/x/');
+    expect(prop('og:url')).toBe('https://tuvozlaboral.com/derechos/x/');
     expect(prop('og:image')).toBe('https://tuvozlaboral.com/portada.png');
   });
 
@@ -49,6 +49,10 @@ describe('setPageMeta', () => {
     expect(document.querySelector('meta[name="robots"]')?.getAttribute('content')).toBe('noindex, nofollow');
     setRouteDefaults('/derechos');
     expect(document.querySelector('meta[name="robots"]')).toBeNull();
+    setRouteDefaults('/derechos/ejemplo');
+    expect(canonical()).toBe('https://tuvozlaboral.com/derechos/ejemplo/');
+    setRouteDefaults('/derechos/ejemplo/');
+    expect(canonical()).toBe('https://tuvozlaboral.com/derechos/ejemplo/');
   });
 
   it('los datos estructurados llevan @context y varios objetos van en un @graph', () => {
