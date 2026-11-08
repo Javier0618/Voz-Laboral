@@ -107,7 +107,7 @@
     letter-spacing: -0.01em;
   }
   .page {
-    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full min-w-0 max-w-6xl px-4 sm:px-6 lg:px-8;
   }
   .testimony {
     @apply max-w-prose font-sans text-[1.0625rem] leading-[1.75rem] text-ink;

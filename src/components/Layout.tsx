@@ -37,7 +37,7 @@ function SearchLink() {
 
 export function Logo() {
   return (
-    <span className="whitespace-nowrap font-logo text-[1.6875rem] font-bold leading-none tracking-[-0.03em] text-white">
+    <span className="whitespace-nowrap font-logo text-[1.375rem] font-bold sm:text-[1.6875rem] leading-none tracking-[-0.03em] text-white">
       <span className="sr-only">{brand.name}</span>
       <span aria-hidden="true">
         tuv
@@ -107,8 +107,8 @@ function AccountMenu() {
             <path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5" />
           </svg>
         </span>
-        <span className="hidden xl:inline">Mi cuenta</span>
-        <span className="sr-only xl:hidden">Mi cuenta</span>
+        <span className="hidden 2xl:inline">Mi cuenta</span>
+        <span className="sr-only 2xl:hidden">Mi cuenta</span>
         <svg aria-hidden="true" viewBox="0 0 20 20" className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} fill="currentColor">
           <path d="M5.2 7.5a.75.75 0 0 1 1.06 0L10 11.24l3.74-3.74a.75.75 0 1 1 1.06 1.06l-4.27 4.27a.75.75 0 0 1-1.06 0L5.2 8.56a.75.75 0 0 1 0-1.06Z" />
         </svg>
@@ -149,36 +149,36 @@ export function Layout() {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen min-w-0 flex-col">
       <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-paper focus:px-4 focus:py-2 focus:shadow">
         Saltar al contenido
       </a>
       <header className="bg-brand">
-        <div className="page flex h-16 items-center justify-between gap-4">
-          <Link to="/" aria-label={`${brand.name}, inicio`}>
+        <div className="page flex h-16 min-w-0 items-center justify-between gap-2 xl:max-w-none xl:px-6 2xl:px-10">
+          <Link to="/" aria-label={`${brand.name}, inicio`} className="min-w-0 shrink-0">
             <Logo />
           </Link>
-          <nav aria-label="Principal" className="hidden items-center gap-0.5 lg:flex">
+          <nav aria-label="Principal" className="hidden min-w-0 items-center gap-0.5 xl:flex">
             {nav.map((item) => (
-              <NavLink key={item.to} to={item.to} className={(a) => `${navClass(a)} ${item.wide ? 'hidden xl:inline-block' : ''}`}>{item.label}</NavLink>
+              <NavLink key={item.to} to={item.to} className={(a) => `${navClass(a)} ${item.wide ? 'hidden 2xl:inline-block' : ''}`}>{item.label}</NavLink>
             ))}
           </nav>
-          <div className="hidden items-center gap-1 lg:flex">
+          <div className="hidden shrink-0 items-center gap-1 xl:flex">
             <SearchLink />
             <ThemeToggle />
             {session && <NotificationBell />}
             {session ? <AccountMenu /> : <NavLink to="/cuenta" className={navClass}>Iniciar sesión</NavLink>}
             <Link to="/compartir" className="btn ml-2 whitespace-nowrap border border-white/40 text-white hover:border-white hover:bg-white/10">
-              <span>Compartir<span className="hidden xl:inline"> experiencia</span></span>
+              <span>Compartir<span className="hidden 2xl:inline"> experiencia</span></span>
             </Link>
           </div>
-          <div className="flex items-center gap-1 lg:hidden">
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1 xl:hidden">
           <SearchLink />
-          <ThemeToggle />
-          {session && <NotificationBell />}
+          <ThemeToggle className="hidden sm:flex" />
+          {session && <span className="hidden sm:block"><NotificationBell /></span>}
           <button
             type="button"
-            className="btn border border-white/30 text-white hover:border-white"
+            className="btn shrink-0 border border-white/30 px-2.5 text-white hover:border-white sm:px-4"
             aria-expanded={open}
             aria-controls="menu-movil"
             onClick={() => setOpen((v) => !v)}
@@ -188,12 +188,14 @@ export function Layout() {
           </div>
         </div>
         {open && (
-          <nav id="menu-movil" aria-label="Principal" className="border-t border-white/15 lg:hidden">
-            <ul className="page flex flex-col py-2">
+          <nav id="menu-movil" aria-label="Principal" className="border-t border-white/15 xl:hidden">
+            <ul className="page flex min-w-0 flex-col py-2">
               <li><NavLink to="/" end className={navClass}>Inicio</NavLink></li>
+              <li className="sm:hidden"><div className="flex items-center gap-2 px-2.5 py-1 text-sm text-white/80">Tema de la página <ThemeToggle /></div></li>
               {nav.map((item) => (
                 <li key={item.to}><NavLink to={item.to} className={navClass}>{item.label}</NavLink></li>
               ))}
+              {session && <li><NavLink to="/avisos" className={navClass}>Avisos</NavLink></li>}
               {isModerator && <li><NavLink to="/moderacion" className={navClass}>Moderación</NavLink></li>}
               <li><NavLink to="/cuenta" className={navClass}>{session ? 'Mi cuenta' : 'Iniciar sesión'}</NavLink></li>
               <li className="py-3"><Link to="/compartir" className="btn w-full border border-white/40 text-white hover:border-white hover:bg-white/10">Compartir experiencia</Link></li>
