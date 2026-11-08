@@ -41,23 +41,23 @@ export const CALCULADORAS: CalculadoraInfo[] = [
   },
   {
     path: '/calculadoras/prima',
-    title: 'Prima de servicios (Junio y Diciembre)',
+    title: 'Calculadora de prima de servicios en Colombia',
     description:
-      'Calcula tu prima semestral con salario básico, recargos variables y auxilio de transporte en Colombia.',
+      'Calcula cuánto te corresponde de prima de servicios en Colombia según tu salario, los días trabajados y el semestre. Incluye una explicación del cálculo.',
     match: ['prima', 'semestre', 'junio', 'diciembre', 'prestaciones', 'salario'],
   },
   {
     path: '/calculadoras/cesantias',
-    title: 'Cesantías e Intereses de cesantías',
+    title: 'Calculadora de cesantías e intereses en Colombia',
     description:
-      'Estima lo que debe consignar tu empresa al fondo antes del 14 de febrero y los intereses en enero.',
+      'Estima tus cesantías e intereses en Colombia con el salario y los días trabajados. Consulta cómo se calcula cada valor y los plazos de pago.',
     match: ['cesantia', 'cesantía', 'cesantias', 'intereses', 'fondo', 'febrero', 'ahorro'],
   },
   {
     path: '/calculadoras/salario-neto',
-    title: 'Salario neto vs. bruto (Oferta laboral)',
+    title: 'Calculadora de salario neto en Colombia',
     description:
-      'Descubre cuánto entra realmente a tu bolsillo tras salud, pensión, fondo de solidaridad y retención en la fuente.',
+      'Estima cuánto recibirías de salario neto en Colombia después de aportes de salud, pensión y otras deducciones. Compara el sueldo bruto y el neto.',
     match: ['salario neto', 'sueldo neto', 'cuanto me queda', 'retencion', 'oferta', 'bruto', 'impuesto'],
   },
   {
@@ -98,7 +98,9 @@ export function metaCalculadora(info: CalculadoraInfo): PageMeta {
   return {
     title: `${info.title} · ${brand.name}`,
     description: info.description,
-    path: info.path,
+    path: ['/calculadoras/prima', '/calculadoras/cesantias', '/calculadoras/salario-neto'].includes(info.path)
+      ? `${info.path}/`
+      : info.path,
     type: 'website',
   };
 }

@@ -6,7 +6,7 @@
 import { writeFileSync, existsSync, readFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { htmlDeGuia } from './prerender.mjs';
+import { htmlDeGuia, htmlDeCalculadora } from './prerender.mjs';
 
 // Lee los mismos archivos .env que Vite (las variables del sistema tienen
 // prioridad). Sin esto, el script no vería VITE_SUPABASE_URL ni SITE_URL si
@@ -91,6 +91,37 @@ if (api && key) {
   } catch (error) {
     console.warn(`[sitemap] No se pudo leer Supabase (${error.message}). Se generan solo las páginas fijas.`);
   }
+}
+
+
+/** Metadatos específicos para tres calculadoras con búsquedas identificadas. */
+const calculadorasSeo = [
+  {
+    "path": "/calculadoras/prima",
+    "title": "Calculadora de prima de servicios en Colombia",
+    "description": "Calcula cuánto te corresponde de prima de servicios en Colombia según tu salario, los días trabajados y el semestre. Incluye una explicación del cálculo."
+  },
+  {
+    "path": "/calculadoras/cesantias",
+    "title": "Calculadora de cesantías e intereses en Colombia",
+    "description": "Estima tus cesantías e intereses en Colombia con el salario y los días trabajados. Consulta cómo se calcula cada valor y los plazos de pago."
+  },
+  {
+    "path": "/calculadoras/salario-neto",
+    "title": "Calculadora de salario neto en Colombia",
+    "description": "Estima cuánto recibirías de salario neto en Colombia después de aportes de salud, pensión y otras deducciones. Compara el sueldo bruto y el neto."
+  }
+];
+// El servidor sirve las páginas pregeneradas en directorios con barra final.
+for (const info of calculadorasSeo) {
+  urls.delete(info.path);
+  urls.set(info.path + '/', null);
+}
+const plantillaCalculadoras = readFileSync(new URL('index.html', out), 'utf8');
+for (const info of calculadorasSeo) {
+  const dir = new URL(info.path.slice(1) + '/', out);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(new URL('index.html', dir), htmlDeCalculadora(plantillaCalculadoras, info, site));
 }
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
