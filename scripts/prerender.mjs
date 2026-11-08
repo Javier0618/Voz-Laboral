@@ -153,3 +153,33 @@ export function htmlDeGuia(template, g, site) {
   // montar la aplicación; los buscadores que no ejecutan JS pueden leerlo.
   return html.replace('<div id="root"></div>', '<div id="root">' + initialArticle(g) + '</div>');
 }
+
+
+/** HTML inicial específico de las calculadoras para buscadores sin JavaScript. */
+export function htmlDeCalculadora(template, info, site) {
+  const url = site + info.path;
+  const titulo = info.title + ' · ' + MARCA;
+  let html = template.replace(/<title>[^<]*<\/title>/, '<title>' + text(titulo) + '</title>');
+  html = setMeta(html, 'description', 'name', info.description);
+  html = setMeta(html, 'og:title', 'property', titulo);
+  html = setMeta(html, 'og:description', 'property', info.description);
+  html = setMeta(html, 'og:url', 'property', url);
+  html = setMeta(html, 'twitter:title', 'name', titulo);
+  html = setMeta(html, 'twitter:description', 'name', info.description);
+  const structured = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: info.title,
+    description: info.description,
+    url,
+    inLanguage: 'es-CO',
+  };
+  html = html.replace('</head>',
+    '    <link rel="canonical" href="' + attr(url) + '" />\n'
+    + '    <script type="application/ld+json" id="vl-jsonld">'
+    + JSON.stringify(structured).replace(/</g, '\\u003c') + '</script>\n  </head>');
+  // React reemplaza este contenido al iniciarse; sin JS se conserva el resumen.
+  return html.replace('<div id="root"></div>',
+    '<div id="root"><main class="page py-10"><h1>'
+    + text(info.title) + '</h1><p>' + text(info.description) + '</p></main></div>');
+}
