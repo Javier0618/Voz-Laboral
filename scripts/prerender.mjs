@@ -21,7 +21,7 @@ function setMeta(html, key, kind, value) {
  * @param {string} site p. ej. https://tuvozlaboral.com
  */
 export function htmlDeGuia(template, g, site) {
-  const url = `${site}/derechos/${g.slug}`;
+  const url = `${site}/derechos/${g.slug}/`;
   const titulo = `${g.title} · ${MARCA}`;
   const imagen = g.cover_url || `${site}/og-default.png`;
   let html = template.replace(/<title>[^<]*<\/title>/, `<title>${text(titulo)}</title>`);

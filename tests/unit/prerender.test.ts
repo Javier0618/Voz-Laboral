@@ -13,8 +13,8 @@ describe('HTML inicial de cada guía', () => {
     expect(html).toContain('<meta name="description" content="Resumen de la guía." />');
     expect(html).toContain('<meta property="og:title" content="Reforma laboral: &quot;qué&quot; cambió &amp; &lt;más> · TuVozLaboral" />');
     expect(html).toContain('<meta property="og:type" content="article" />');
-    expect(html).toContain('<meta property="og:url" content="https://tuvozlaboral.com/derechos/reforma-laboral" />');
-    expect(html).toContain('<link rel="canonical" href="https://tuvozlaboral.com/derechos/reforma-laboral" />');
+    expect(html).toContain('<meta property="og:url" content="https://tuvozlaboral.com/derechos/reforma-laboral/" />');
+    expect(html).toContain('<link rel="canonical" href="https://tuvozlaboral.com/derechos/reforma-laboral/" />');
     expect(html).toContain('"@type":"Article"');
     expect(html).not.toContain('"datePublished"');
     expect(html).toContain('"dateModified":"2026-11-01T00:00:00Z"');
