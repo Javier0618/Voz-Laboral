@@ -96,7 +96,7 @@ export default function Liquidacion() {
 
   return (
     <div className="page py-10">
-      <PageHeader title="Calcula tu liquidación">
+      <PageHeader title="Calcula tu liquidación" sharePath="/liquidacion">
         Estima lo que te corresponde al terminar tu contrato: cesantías, intereses, prima, vacaciones y, si te despidieron sin justa causa,
         la indemnización. Tus datos no salen de este navegador.
       </PageHeader>
