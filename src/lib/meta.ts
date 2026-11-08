@@ -18,6 +18,7 @@ export type PageMeta = {
   description: string;
   /** URL absoluta o relativa al origen actual */
   image?: string | null;
+  imageAlt?: string | null;
   /** Ruta o URL canónica (p. ej. /derechos/slug) */
   path?: string | null;
   /** website | article */
@@ -55,6 +56,26 @@ function setMetaByProperty(property: string, content: string) {
     document.head.appendChild(el);
   }
   el.setAttribute('content', content);
+}
+
+const DEFAULT_IMAGE_ALT = 'TuVozLaboral: guías laborales claras para trabajadores en Colombia.';
+
+function setSocialImageDetails(url: string, alt?: string | null) {
+  const pathname = new URL(url).pathname.toLowerCase();
+  const mime = pathname.endsWith('.webp') ? 'image/webp'
+    : pathname.endsWith('.png') ? 'image/png'
+    : /\.jpe?g$/.test(pathname) ? 'image/jpeg' : null;
+  const remove = (name: string) => document.querySelector('meta[property="' + name + '"]')?.remove();
+  if (mime) setMetaByProperty('og:image:type', mime);
+  else remove('og:image:type');
+  setMetaByProperty('og:image:alt', alt?.trim() || DEFAULT_IMAGE_ALT);
+  if (pathname.endsWith('/og-default.png')) {
+    setMetaByProperty('og:image:width', '1200');
+    setMetaByProperty('og:image:height', '630');
+  } else {
+    remove('og:image:width');
+    remove('og:image:height');
+  }
 }
 
 function setRobots(value: string | null | undefined) {
@@ -106,6 +127,7 @@ export function setPageMeta(meta: PageMeta | null) {
     setMetaByName('twitter:description', DEFAULT_DESCRIPTION);
     setMetaByProperty('og:image', absoluteUrl(DEFAULT_OG_IMAGE)!);
     setMetaByName('twitter:image', absoluteUrl(DEFAULT_OG_IMAGE)!);
+    setSocialImageDetails(absoluteUrl(DEFAULT_OG_IMAGE)!);
     setMetaByProperty('og:url', absoluteUrl('/')!);
     setCanonical(undefined);
     setRobots(null);
@@ -120,6 +142,7 @@ export function setPageMeta(meta: PageMeta | null) {
   // Sin imagen propia se usa la de por defecto: así no queda la de la página anterior.
   const image = absoluteUrl(meta.image || DEFAULT_OG_IMAGE)!;
   setMetaByProperty('og:image', image);
+  setSocialImageDetails(image, meta.imageAlt);
   setMetaByName('twitter:title', meta.title);
   setMetaByName('twitter:description', meta.description);
   setMetaByName('twitter:image', image);
