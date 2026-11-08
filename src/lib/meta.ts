@@ -163,7 +163,9 @@ const RUTAS_PRIVADAS = /^\/(cuenta|moderacion|seguimiento|avisos)(\/|$)/;
  */
 export function setRouteDefaults(pathname: string) {
   const path = pathname.replace(/^\/seguimiento\/[^/]+/, '/seguimiento');
-  const url = absoluteUrl(path || '/')!;
+  // El servidor publica cada guía como /derechos/slug/ (directorio con index.html).
+  const canonicalPath = /^\/derechos\/[^/]+\/?$/.test(path) ? `${path.replace(/\/$/, '')}/` : path;
+  const url = absoluteUrl(canonicalPath || '/')!;
   setCanonical(url);
   setMetaByProperty('og:url', url);
   setRobots(RUTAS_PRIVADAS.test(pathname) ? 'noindex, nofollow' : null);
