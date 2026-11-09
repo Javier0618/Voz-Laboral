@@ -5,8 +5,8 @@ import { adsenseClient, hayServiciosOpcionales, iniciarGoogle, registrarPagina }
 
 /**
  * Aviso de cookies: aparece en la primera visita si hay Google Analytics o
- * AdSense. La medición (Analytics) está siempre activa y el aviso la informa;
- * solo la publicidad personalizada (AdSense) se acepta o se rechaza. Se
+ * AdSense. Las cookies opcionales de medición y publicidad requieren una
+ * elección explícita; las necesarias permanecen activas. Se
  * reabre desde «Preferencias de cookies», al pie de página. También registra
  * las páginas vistas.
  */
@@ -18,6 +18,7 @@ export function CookieConsent() {
   const [detalle, setDetalle] = useState(false);
   const previo = readConsent();
   const [ads, setAds] = useState(previo?.ads ?? false);
+  const [analytics, setAnalytics] = useState(previo?.analytics ?? false);
   const location = useLocation();
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export function CookieConsent() {
     const abrir = () => {
       const c = readConsent();
       setAds(c?.ads ?? false);
+      setAnalytics(c?.analytics ?? false);
       setDetalle(true);
       setAbierto(true);
     };
@@ -74,8 +76,8 @@ export function CookieConsent() {
               <span><strong className="text-ink">Necesarias.</strong> <span className="text-slate">Sesión, preferencias y tu decisión sobre las cookies. Siempre activas.</span></span>
             </label>
             <label className="flex items-start gap-3 text-sm">
-              <input type="checkbox" checked disabled className="mt-1" />
-              <span><strong className="text-ink">Medición (Google Analytics).</strong> <span className="text-slate">Cuenta las visitas y qué páginas se leen, en informes agregados. Siempre activa.</span></span>
+              <input type="checkbox" checked={analytics} onChange={(e) => setAnalytics(e.target.checked)} className="mt-1" />
+              <span><strong className="text-ink">Medición (Google Analytics).</strong> <span className="text-slate">Nos ayuda a saber qué contenidos se consultan y mejorar el sitio. Es opcional.</span></span>
             </label>
             {conAnuncios && (
               <label className="flex items-start gap-3 text-sm">
@@ -89,16 +91,24 @@ export function CookieConsent() {
         <div className="mt-4 flex flex-wrap gap-3">
           {conAnuncios ? (
             <>
-              <button type="button" className="btn-primary" onClick={() => guardar({ analytics: true, ads: true })}>Aceptar publicidad personalizada</button>
-              <button type="button" className="btn-secondary" onClick={() => guardar({ analytics: true, ads: false })}>Solo anuncios no personalizados</button>
+              <button type="button" className="btn-primary" onClick={() => guardar({ analytics: true, ads: true })}>Aceptar todas</button>
+              <button type="button" className="btn-secondary" onClick={() => guardar({ analytics: false, ads: false })}>Rechazar (solo necesarias)</button>
               {detalle ? (
-                <button type="button" className="btn-secondary" onClick={() => guardar({ analytics: true, ads })}>Guardar mi elección</button>
+                <button type="button" className="btn-secondary" onClick={() => guardar({ analytics, ads })}>Guardar mi elección</button>
               ) : (
                 <button type="button" className="btn-link px-2" onClick={() => setDetalle(true)}>Configurar</button>
               )}
             </>
           ) : (
-            <button type="button" className="btn-primary" onClick={() => guardar({ analytics: true, ads: false })}>Entendido</button>
+            <>
+              <button type="button" className="btn-primary" onClick={() => guardar({ analytics: true, ads: false })}>Aceptar todas</button>
+              <button type="button" className="btn-secondary" onClick={() => guardar({ analytics: false, ads: false })}>Rechazar (solo necesarias)</button>
+              {detalle ? (
+                <button type="button" className="btn-secondary" onClick={() => guardar({ analytics, ads: false })}>Guardar mi elección</button>
+              ) : (
+                <button type="button" className="btn-link px-2" onClick={() => setDetalle(true)}>Configurar</button>
+              )}
+            </>
           )}
         </div>
       </div>
