@@ -24,27 +24,27 @@ describe('aviso de cookies', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('sin AdSense informa de la medición y se cierra con «Entendido»', async () => {
+  it('sin AdSense informa de la medición y permite rechazarla', async () => {
     render(<MemoryRouter><CookieConsent /></MemoryRouter>);
     const aviso = screen.getByRole('dialog', { name: 'Tu privacidad' });
     expect(aviso.textContent).toMatch(/mejorar tu experiencia y navegación/);
     expect(aviso.textContent).toMatch(/medir las visitas al sitio/);
     expect(aviso.textContent).not.toMatch(/publicidad/i);
     expect(screen.getByRole('link', { name: 'Política de cookies' }).getAttribute('href')).toBe('/politicas/cookies');
-    expect(screen.queryByRole('button', { name: 'Solo necesarias' })).toBeNull();
-    await userEvent.click(screen.getByRole('button', { name: 'Entendido' }));
-    expect(readConsent()).toMatchObject({ analytics: true, ads: false });
+    expect(screen.getByRole('button', { name: 'Rechazar (solo necesarias)' })).toBeTruthy();
+    await userEvent.click(screen.getByRole('button', { name: 'Rechazar (solo necesarias)' }));
+    expect(readConsent()).toMatchObject({ analytics: false, ads: false });
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('se reabre desde las preferencias y la medición aparece siempre activa', async () => {
+  it('se reabre desde las preferencias y permite elegir medición', async () => {
     render(<MemoryRouter><CookieConsent /></MemoryRouter>);
     await userEvent.click(screen.getByRole('button', { name: 'Entendido' }));
     openConsentPreferences();
     expect(await screen.findByRole('dialog')).toBeTruthy();
     const medicion = screen.getByLabelText(/Medición \(Google Analytics\)/) as HTMLInputElement;
-    expect(medicion.checked).toBe(true);
-    expect(medicion.disabled).toBe(true);
+    expect(medicion.checked).toBe(false);
+    expect(medicion.disabled).toBe(false);
   });
 
   it('con AdSense pregunta solo por la publicidad personalizada', async () => {
@@ -52,7 +52,7 @@ describe('aviso de cookies', () => {
     render(<MemoryRouter><CookieConsent /></MemoryRouter>);
     expect(screen.getByRole('dialog').textContent).toMatch(/mejorar tu experiencia y navegación/);
     expect(screen.getByRole('dialog').textContent).toMatch(/publicidad personalizada/i);
-    await userEvent.click(screen.getByRole('button', { name: 'Sin personalización' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Rechazar (solo necesarias)' }));
     expect(readConsent()).toMatchObject({ analytics: true, ads: false });
     localStorage.clear();
   });
