@@ -52,7 +52,7 @@ describe('aviso de cookies', () => {
     render(<MemoryRouter><CookieConsent /></MemoryRouter>);
     expect(screen.getByRole('dialog').textContent).toMatch(/mejorar tu experiencia y navegación/);
     expect(screen.getByRole('dialog').textContent).toMatch(/publicidad personalizada/i);
-    await userEvent.click(screen.getByRole('button', { name: 'Solo anuncios no personalizados' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Sin personalización' }));
     expect(readConsent()).toMatchObject({ analytics: true, ads: false });
     localStorage.clear();
   });
@@ -60,7 +60,7 @@ describe('aviso de cookies', () => {
   it('con AdSense permite aceptar la publicidad personalizada', async () => {
     servicios.ads = true;
     render(<MemoryRouter><CookieConsent /></MemoryRouter>);
-    await userEvent.click(screen.getByRole('button', { name: 'Aceptar publicidad personalizada' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Aceptar todas' }));
     expect(readConsent()).toMatchObject({ analytics: true, ads: true });
   });
 });
