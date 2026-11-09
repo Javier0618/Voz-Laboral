@@ -1,4 +1,4 @@
-// Aviso de cookies: informa de la medición (siempre activa) y pregunta solo por la publicidad.
+// Aviso de cookies: informa sobre medición y publicidad opcionales.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
@@ -39,7 +39,7 @@ describe('aviso de cookies', () => {
 
   it('se reabre desde las preferencias y permite elegir medición', async () => {
     render(<MemoryRouter><CookieConsent /></MemoryRouter>);
-    await userEvent.click(screen.getByRole('button', { name: 'Entendido' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Rechazar (solo necesarias)' }));
     openConsentPreferences();
     expect(await screen.findByRole('dialog')).toBeTruthy();
     const medicion = screen.getByLabelText(/Medición \(Google Analytics\)/) as HTMLInputElement;
@@ -53,7 +53,7 @@ describe('aviso de cookies', () => {
     expect(screen.getByRole('dialog').textContent).toMatch(/mejorar tu experiencia y navegación/);
     expect(screen.getByRole('dialog').textContent).toMatch(/publicidad personalizada/i);
     await userEvent.click(screen.getByRole('button', { name: 'Rechazar (solo necesarias)' }));
-    expect(readConsent()).toMatchObject({ analytics: true, ads: false });
+    expect(readConsent()).toMatchObject({ analytics: false, ads: false });
     localStorage.clear();
   });
 
