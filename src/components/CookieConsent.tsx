@@ -61,8 +61,8 @@ export function CookieConsent() {
         <h2 id="cookies-titulo" className="font-sans text-base font-semibold text-ink">Tu privacidad</h2>
         <p className="mt-1 max-w-3xl text-sm leading-6 text-slate">
           {conAnuncios
-            ? 'Usamos cookies necesarias para que el sitio funcione y Google Analytics para contar las visitas y saber qué páginas se leen. Con tu permiso, también usamos cookies de Google para mostrarte publicidad personalizada. Tu cuenta y tus publicaciones nunca se envían a Google.'
-            : 'Usamos cookies necesarias para que el sitio funcione y Google Analytics para contar las visitas y saber qué páginas se leen más, y así mejorar las guías. Tu cuenta y tus publicaciones nunca se envían a Google.'}{' '}
+            ? 'Usamos cookies para mejorar tu experiencia y navegación. También medimos las visitas y, si lo autorizas, mostramos publicidad personalizada. Conoce los detalles en nuestra'
+            : 'Usamos cookies para mejorar tu experiencia y navegación, y medir las visitas al sitio. Conoce los detalles en nuestra'}{' '}
           <Link to="/politicas/cookies" className="btn-link">Política de cookies</Link>
         </p>
 

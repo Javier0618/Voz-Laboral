@@ -27,7 +27,8 @@ describe('aviso de cookies', () => {
   it('sin AdSense informa de la medición y se cierra con «Entendido»', async () => {
     render(<MemoryRouter><CookieConsent /></MemoryRouter>);
     const aviso = screen.getByRole('dialog', { name: 'Tu privacidad' });
-    expect(aviso.textContent).toMatch(/Google Analytics para contar las visitas/);
+    expect(aviso.textContent).toMatch(/mejorar tu experiencia y navegación/);
+    expect(aviso.textContent).toMatch(/medir las visitas al sitio/);
     expect(aviso.textContent).not.toMatch(/publicidad/i);
     expect(screen.getByRole('link', { name: 'Política de cookies' }).getAttribute('href')).toBe('/politicas/cookies');
     expect(screen.queryByRole('button', { name: 'Solo necesarias' })).toBeNull();
@@ -49,6 +50,7 @@ describe('aviso de cookies', () => {
   it('con AdSense pregunta solo por la publicidad personalizada', async () => {
     servicios.ads = true;
     render(<MemoryRouter><CookieConsent /></MemoryRouter>);
+    expect(screen.getByRole('dialog').textContent).toMatch(/mejorar tu experiencia y navegación/);
     expect(screen.getByRole('dialog').textContent).toMatch(/publicidad personalizada/i);
     await userEvent.click(screen.getByRole('button', { name: 'Solo anuncios no personalizados' }));
     expect(readConsent()).toMatchObject({ analytics: true, ads: false });
