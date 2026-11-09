@@ -89,8 +89,8 @@ export function CookieConsent() {
         <div className="mt-4 flex flex-wrap gap-3">
           {conAnuncios ? (
             <>
-              <button type="button" className="btn-primary" onClick={() => guardar({ analytics: true, ads: true })}>Aceptar publicidad personalizada</button>
-              <button type="button" className="btn-secondary" onClick={() => guardar({ analytics: true, ads: false })}>Solo anuncios no personalizados</button>
+              <button type="button" className="btn-primary" onClick={() => guardar({ analytics: true, ads: true })}>Aceptar todas</button>
+              <button type="button" className="btn-secondary" onClick={() => guardar({ analytics: true, ads: false })}>Sin personalización</button>
               {detalle ? (
                 <button type="button" className="btn-secondary" onClick={() => guardar({ analytics: true, ads })}>Guardar mi elección</button>
               ) : (
