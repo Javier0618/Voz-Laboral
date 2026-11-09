@@ -2,9 +2,8 @@
  * Google Analytics 4 con Consent Mode v2 y preparación para Google AdSense.
  *
  * - Solo se carga si al compilar existe VITE_GA_ID (p. ej. G-XXXXXXXXXX).
- * - La medición (Analytics) se activa en TODA visita, para contar todas las
- *   páginas vistas; el aviso de cookies informa de ello
- *   (src/components/CookieConsent.tsx) y la política lo explica.
+ * - Google Analytics se carga solo tras aceptar las cookies de medición.
+ *   Rechazar significa que no se registran páginas vistas.
  * - La publicidad personalizada (AdSense) sigue necesitando que se acepte.
  * - Las páginas vistas se envían a mano, con la dirección pasada por
  *   limpiarUrl: sin parámetros (?code= del inicio de sesión, búsquedas) y con
@@ -39,8 +38,7 @@ export function hayServiciosOpcionales(): boolean {
 export function consentState(c: Consent | null) {
   const g = (ok: boolean | undefined) => (ok ? 'granted' : 'denied');
   return {
-    // Medición siempre activa: decisión de la administración para contar todas las visitas.
-    analytics_storage: 'granted',
+    analytics_storage: g(c?.analytics),
     ad_storage: g(c?.ads),
     ad_user_data: g(c?.ads),
     ad_personalization: g(c?.ads),
@@ -50,6 +48,7 @@ export function consentState(c: Consent | null) {
 let iniciado = false;
 let scriptCargado = false;
 let idActual: string | undefined;
+let listenerInstalado = false;
 
 /** Inserta el script de Google una sola vez. */
 function cargarScript() {
@@ -62,11 +61,23 @@ function cargarScript() {
 }
 
 /**
- * Prepara y carga Google Analytics en cada visita. La publicidad empieza
- * denegada y solo se concede si la persona la acepta en el aviso de cookies.
+ * Espera la autorización para cargar Google Analytics. Si se rechaza,
+ * no se descarga su script ni se envían páginas vistas.
  */
 export function iniciarGoogle(id = gaId()): boolean {
-  if (typeof window === 'undefined' || !id || iniciado) return iniciado;
+  if (typeof window === 'undefined' || !id) return false;
+  if (!listenerInstalado) {
+    listenerInstalado = true;
+    onConsentChange((c) => {
+      if (c.analytics && !iniciado) iniciarGoogle(id);
+      if (iniciado) {
+        (window as W).gtag?.('consent', 'update', consentState(c));
+        aplicarAnuncios(c);
+      }
+    });
+  }
+  if (iniciado) return true;
+  if (!readConsent()?.analytics) return false;
   iniciado = true;
   idActual = id;
   const w = window as W;
@@ -85,11 +96,6 @@ export function iniciarGoogle(id = gaId()): boolean {
   w.gtag('set', direccionLimpia(window.location.pathname));
   w.gtag('config', id, { send_page_view: false, anonymize_ip: true });
   aplicarAnuncios(guardado);
-  onConsentChange((c) => {
-    w.gtag?.('consent', 'update', consentState(c));
-    aplicarAnuncios(c);
-  });
-
   cargarScript();
   return true;
 }
@@ -112,7 +118,7 @@ function direccionLimpia(path: string) {
  */
 export function registrarPagina(path: string, title?: string) {
   const w = window as W;
-  if (!iniciado || !w.gtag || !scriptCargado) return;
+  if (!iniciado || !readConsent()?.analytics || !w.gtag || !scriptCargado) return;
   const limpia = { ...direccionLimpia(path), page_title: title ?? document.title };
   w.gtag('set', limpia);
   w.gtag('event', 'page_view', limpia);
@@ -123,4 +129,6 @@ export function _reiniciarParaPruebas() {
   iniciado = false;
   scriptCargado = false;
   idActual = undefined;
+  // El listener anterior permanece registrado en el navegador. En tests, evitar
+  // instalar uno duplicado cuando se reinicializa el módulo entre casos.
 }
