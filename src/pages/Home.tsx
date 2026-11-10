@@ -12,6 +12,7 @@ import { GuideCover } from '../components/GuideCover';
 import { ExperienceItem } from '../components/ExperienceItem';
 import { PromoVideoButton, PromoVideoTeaser, PromoVideoThumb } from '../components/PromoVideo';
 import { ConfigNotice, ErrorState, Loading, notConfigured, useAsync } from '../components/ui';
+import { publicPath } from '../lib/publicPath.mjs';
 
 export default function Home() {
   useEffect(() => {
@@ -55,10 +56,10 @@ function Hero() {
             calculadoras para revisar tu pago.
           </p>
           <div className="mt-8 flex flex-wrap gap-3 max-sm:flex-col max-sm:items-start">
-            <Link to="/derechos" className="btn min-h-[52px] bg-white px-7 text-base text-onwhite-ink hover:bg-onwhite-tint">
+            <Link to="/derechos/" className="btn min-h-[52px] bg-white px-7 text-base text-onwhite-ink hover:bg-onwhite-tint">
               Ver guías laborales
             </Link>
-            <Link to="/compartir" className="btn min-h-[52px] border border-white/40 px-7 text-base text-white hover:border-white hover:bg-white/10">
+            <Link to="/compartir/" className="btn min-h-[52px] border border-white/40 px-7 text-base text-white hover:border-white hover:bg-white/10">
               Compartir experiencia
             </Link>
           </div>
@@ -151,7 +152,7 @@ function SectionHeading({ id, title, children, action }: { id: string; title: st
 function RecentExperiences({ data, loading, error, reload }: ReturnType<typeof useAsync<Awaited<ReturnType<typeof listExperiences>>>>) {
   return (
     <section className="page mt-20" aria-labelledby="recientes">
-      <SectionHeading id="recientes" title="Lo que cuentan quienes trabajan ahí" action={<Link to="/experiencias" className="btn-link">Ver todas las experiencias</Link>}>
+      <SectionHeading id="recientes" title="Lo que cuentan quienes trabajan ahí" action={<Link to="/experiencias/" className="btn-link">Ver todas las experiencias</Link>}>
         Experiencias recientes de trabajadores, contadas con alias: buenas, malas y mixtas. Complementan las guías con lo que pasa en la
         práctica. La moderación revisa que cumplan las reglas, no que los hechos sean ciertos.
       </SectionHeading>
@@ -178,7 +179,7 @@ function FirstExperiences() {
       </SectionHeading>
       <ul className="mt-8 grid gap-4 md:grid-cols-3">
         <li>
-          <Link to="/compartir" className={`${card} border-brand bg-brand text-white hover:bg-navy`}>
+          <Link to="/compartir/" className={`${card} border-brand bg-brand text-white hover:bg-navy`}>
             <span className="font-serif text-2xl leading-snug">Cuenta cómo te fue</span>
             <span className="mt-2 text-white/80">En unos minutos, con un alias o sin crear cuenta. La moderación la revisa antes de publicarla.</span>
             <span className="mt-auto pt-6 font-semibold text-[#5FD3C5]">Compartir mi experiencia →</span>
@@ -197,7 +198,7 @@ function FirstExperiences() {
           </PromoVideoButton>
         </li>
         <li>
-          <Link to="/empresas" className={`${card} border-line bg-paper hover:border-slate`}>
+          <Link to="/empresas/" className={`${card} border-line bg-paper hover:border-slate`}>
             <span className="font-serif text-2xl leading-snug text-ink">Busca tu empresa</span>
             <span className="mt-2 text-slate">Si no aparece, pide que la agreguen y vuelve a contar tu experiencia cuando esté en la lista.</span>
             <span className="mt-auto pt-6 font-semibold text-teal-strong">Ver empresas →</span>
@@ -247,7 +248,7 @@ function Categories() {
           <ul className="grid border-t border-ink/80 sm:grid-cols-2 sm:gap-x-12">
             {data?.map((c) => (
               <li key={c.slug} className="border-b border-line">
-                <Link to={`/experiencias?categoria=${c.slug}`} className="group block py-5">
+                <Link to={`/experiencias/?categoria=${c.slug}`} className="group block py-5">
                   <span className="font-serif text-xl text-ink group-hover:text-teal-strong group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
                     {c.name}
                   </span>
@@ -271,7 +272,7 @@ function HowItWorks() {
   return (
     <section className="mt-24 bg-mist" aria-labelledby="como-funciona">
       <div className="page py-16 sm:py-20">
-        <SectionHeading id="como-funciona" title="Cómo te ayuda TuVozLaboral" action={<Link to="/como-funciona" className="btn-link">Quiénes somos y cómo trabajamos</Link>} />
+        <SectionHeading id="como-funciona" title="Cómo te ayuda TuVozLaboral" action={<Link to="/como-funciona/" className="btn-link">Quiénes somos y cómo trabajamos</Link>} />
         <ol className="relative mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
           <span aria-hidden="true" className="absolute left-5 right-5 top-5 hidden h-px bg-ink/25 md:block" />
           {steps.map((s, i) => (
@@ -303,7 +304,7 @@ function Identity() {
             No prometemos anonimato absoluto: si cuentas detalles que solo tú conoces, alguien cercano podría reconocerte. Por eso te
             avisamos cuando el texto parece incluir datos personales.
           </p>
-          <Link to="/politicas/privacidad" className="btn-link mt-5 inline-block">Qué datos tratamos y por cuánto tiempo</Link>
+          <Link to="/politicas/privacidad/" className="btn-link mt-5 inline-block">Qué datos tratamos y por cuánto tiempo</Link>
         </div>
         <div className="grid gap-8 sm:grid-cols-2">
           <div>
@@ -342,7 +343,7 @@ function Rights() {
             norma, cita su fuente oficial y la fecha de revisión. Son orientativas: no sustituyen al Ministerio del Trabajo ni a un abogado.
           </p>
         </div>
-        <Link to="/derechos" className="btn-primary justify-self-start px-6">Ver todas las guías</Link>
+        <Link to="/derechos/" className="btn-primary justify-self-start px-6">Ver todas las guías</Link>
       </div>
       {featured.length > 0 && (
         <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -366,7 +367,7 @@ function Rights() {
           {TEMAS_GUIAS.filter((t) => !guides.data?.length || guides.data.some((g) => temaDeGuia(g).slug === t.slug)).map((t) => (
             <li key={t.slug}>
               <Link
-                to={`/derechos?tema=${t.slug}`}
+                to={`/derechos/?tema=${t.slug}`}
                 className="inline-flex min-h-[40px] items-center rounded-full border border-line bg-paper px-4 text-sm font-semibold text-ink hover:border-slate"
               >
                 {t.name}
@@ -393,12 +394,12 @@ function CalculatorsPreview() {
             Estima nómina, recargos, prima, cesantías o liquidación. Son orientativas: compáralas siempre con el desprendible de tu empresa.
           </p>
         </div>
-        <Link to="/calculadoras" className="btn-secondary justify-self-start px-6">Ver todas</Link>
+        <Link to="/calculadoras/" className="btn-secondary justify-self-start px-6">Ver todas</Link>
       </div>
       <ul className="mt-8 grid gap-4 sm:grid-cols-2">
         {featured.map((c) => (
           <li key={c.path}>
-            <Link to={c.path} className="group flex h-full flex-col rounded-lg border border-line bg-paper p-6 transition-colors hover:border-slate">
+            <Link to={publicPath(c.path)} className="group flex h-full flex-col rounded-lg border border-line bg-paper p-6 transition-colors hover:border-slate">
               <span className="font-serif text-xl leading-snug text-ink group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">{c.title}</span>
               <span className="mt-2 line-clamp-2 text-sm leading-6 text-slate">{c.description}</span>
               <span className="mt-auto pt-5 text-sm font-semibold text-teal-strong">Abrir calculadora →</span>
@@ -431,12 +432,12 @@ function ToolsPreview() {
             Arma tu carta para reclamar, revisa si te pagan bien, pon a prueba lo que sabes y agrega las fechas de pago a tu celular. Gratis y sin cuenta.
           </p>
         </div>
-        <Link to="/herramientas" className="btn-secondary justify-self-start px-6">Ver todas</Link>
+        <Link to="/herramientas/" className="btn-secondary justify-self-start px-6">Ver todas</Link>
       </div>
       <ul className="mt-8 grid gap-4 sm:grid-cols-2">
         {HERRAMIENTAS.slice(0, 4).map((h) => (
           <li key={h.path}>
-            <Link to={h.path} className="group flex h-full flex-col rounded-lg border border-line bg-paper p-6 transition-colors hover:border-slate">
+            <Link to={publicPath(h.path)} className="group flex h-full flex-col rounded-lg border border-line bg-paper p-6 transition-colors hover:border-slate">
               <span className="font-serif text-xl leading-snug text-ink group-hover:underline group-hover:decoration-teal/60 group-hover:underline-offset-4">{h.title}</span>
               <span className="mt-2 line-clamp-2 text-sm leading-6 text-slate">{h.description}</span>
               <span className="mt-auto pt-5 text-sm font-semibold text-teal-strong">Abrir →</span>

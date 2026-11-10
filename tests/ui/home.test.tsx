@@ -24,7 +24,7 @@ describe('portada', () => {
     experiences.list = [];
     render(<MemoryRouter><Home /></MemoryRouter>);
     expect(await screen.findByRole('heading', { name: 'Sé de las primeras personas en contar' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: /Compartir mi experiencia/ }).getAttribute('href')).toBe('/compartir');
+    expect(screen.getByRole('link', { name: /Compartir mi experiencia/ }).getAttribute('href')).toBe('/compartir/');
     expect(screen.getByRole('link', { name: /Enviar por WhatsApp/ }).getAttribute('href')).toMatch(/^https:\/\/wa\.me\//);
     const h = headings();
     expect(h.indexOf('Sé de las primeras personas en contar')).toBe(h.indexOf('Guías laborales') + 1);

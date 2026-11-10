@@ -17,6 +17,7 @@ import { setPageMeta } from '../lib/meta';
 import { plural } from '../lib/format';
 import { brand } from '../config/brand';
 import { ConfigNotice, Loading, notConfigured } from '../components/ui';
+import { publicPath } from '../lib/publicPath.mjs';
 
 const DEBOUNCE_MS = 300;
 const LOG_AFTER_MS = 1500;
@@ -127,7 +128,7 @@ export default function Search() {
               <Group title="Guías">
                 {results.guides.map((g) => (
                   <li key={g.slug}>
-                    <Link to={`/derechos/${g.slug}`} className="group block py-4">
+                    <Link to={`/derechos/${g.slug}/`} className="group block py-4">
                       <span className="text-lg font-semibold group-hover:underline">{g.title}</span>
                       <span className="mt-1 block max-w-prose text-slate">{g.summary}</span>
                     </Link>
@@ -139,7 +140,7 @@ export default function Search() {
               <Group title="Calculadoras">
                 {calculators.map((c) => (
                   <li key={c.path}>
-                    <Link to={c.path} className="group block py-4">
+                    <Link to={publicPath(c.path)} className="group block py-4">
                       <span className="text-lg font-semibold group-hover:underline">{c.title}</span>
                       <span className="mt-1 block max-w-prose text-slate">{c.description}</span>
                     </Link>
@@ -151,7 +152,7 @@ export default function Search() {
               <Group title="Temas de guías">
                 {topics.map((t) => (
                   <li key={t.slug}>
-                    <Link to={`/derechos?tema=${t.slug}`} className="group block py-4">
+                    <Link to={`/derechos/?tema=${t.slug}`} className="group block py-4">
                       <span className="text-lg font-semibold group-hover:underline">{t.name}</span>
                       <span className="mt-1 block max-w-prose text-slate">{t.description}</span>
                     </Link>
@@ -172,7 +173,7 @@ export default function Search() {
                   </li>
                 ))}
                 <li className="py-4">
-                  <Link to={`/empresas?q=${encodeURIComponent(text.trim())}`} className="font-semibold underline">Ver todas las empresas que coinciden</Link>
+                  <Link to={`/empresas/?q=${encodeURIComponent(text.trim())}`} className="font-semibold underline">Ver todas las empresas que coinciden</Link>
                 </li>
               </Group>
             )}
@@ -199,7 +200,7 @@ function Suggestions() {
       <ul className="mt-4 flex flex-wrap gap-2">
         {TEMAS_GUIAS.map((t) => (
           <li key={t.slug}>
-            <Link to={`/derechos?tema=${t.slug}`} className="inline-block rounded-full border border-line px-4 py-1.5 text-sm font-semibold hover:border-ink">{t.name}</Link>
+            <Link to={`/derechos/?tema=${t.slug}`} className="inline-block rounded-full border border-line px-4 py-1.5 text-sm font-semibold hover:border-ink">{t.name}</Link>
           </li>
         ))}
       </ul>
@@ -217,12 +218,12 @@ function NoResults({ text }: { text: string }) {
           decidir qué escribir: se cuentan de forma anónima, sin guardar quién buscó.
         </p>
         <p className="mt-3 text-slate">
-          ¿Buscabas una empresa que no está? <Link to="/empresas" className="font-semibold text-ink underline">Pide que la agreguen desde Empresas</Link>.
+          ¿Buscabas una empresa que no está? <Link to="/empresas/" className="font-semibold text-ink underline">Pide que la agreguen desde Empresas</Link>.
         </p>
       </div>
       <Group title="Calculadoras">
         {CALCULADORAS.slice(0, 5).map((c) => (
-          <li key={c.path}><Link to={c.path} className="block py-3 font-semibold hover:underline">{c.title}</Link></li>
+          <li key={c.path}><Link to={publicPath(c.path)} className="block py-3 font-semibold hover:underline">{c.title}</Link></li>
         ))}
       </Group>
       <Suggestions />

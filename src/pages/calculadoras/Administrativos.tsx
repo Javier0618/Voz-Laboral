@@ -66,7 +66,7 @@ export default function Administrativos() {
 
   return (
     <div className="page py-10">
-      <p className="text-sm text-slate"><Link to="/calculadoras" className="hover:text-ink hover:underline">Calculadoras</Link></p>
+      <p className="text-sm text-slate"><Link to="/calculadoras/" className="hover:text-ink hover:underline">Calculadoras</Link></p>
       <PageHeader title="Nómina para cargos administrativos" sharePath="/calculadoras/administrativos">
         Para quienes tienen un salario fijo mensual: personal de oficina, auxiliares, analistas, vendedores internos. Escribe tu salario y,
         si los tuviste, tus horas extra, recargos y novedades. El desprendible se actualiza mientras escribes.

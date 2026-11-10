@@ -24,7 +24,7 @@ export function CartasIndex() {
   }, []);
   return (
     <div className="page py-10">
-      <p className="text-sm"><Link to="/herramientas" className="btn-link">Herramientas</Link></p>
+      <p className="text-sm"><Link to="/herramientas/" className="btn-link">Herramientas</Link></p>
       <PageHeader title="Cartas y documentos laborales">
         Completa los datos, revisa el texto antes de firmar y descarga o imprime la carta. El modelo incluye referencias legales para orientarte. Lo que escribes no sale de tu
         navegador: no lo guardamos.
@@ -32,7 +32,7 @@ export function CartasIndex() {
       <ul className="mt-2">
         {CARTAS.map((c) => (
           <li key={c.slug} className="border-b border-line">
-            <Link to={`/herramientas/cartas/${c.slug}`} className="group grid gap-1 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8">
+            <Link to={`/herramientas/cartas/${c.slug}/`} className="group grid gap-1 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8">
               <span>
                 <span className="block font-serif text-2xl text-ink group-hover:text-teal-strong group-hover:underline group-hover:underline-offset-4">{c.title}</span>
                 <span className="mt-1 block text-slate">{c.description}</span>
@@ -122,7 +122,7 @@ export function CartaPage() {
 
   return (
     <div className="page py-10">
-      <p className="text-sm print:hidden"><Link to="/herramientas/cartas" className="btn-link">Cartas y documentos</Link></p>
+      <p className="text-sm print:hidden"><Link to="/herramientas/cartas/" className="btn-link">Cartas y documentos</Link></p>
       <div className="print:hidden">
         <PageHeader title={carta.title}>{carta.description}</PageHeader>
       </div>
@@ -141,7 +141,7 @@ export function CartaPage() {
               {carta.consejos.map((c) => <li key={c}>{c}</li>)}
             </ul>
             <p className="mt-4 text-sm">
-              Lee la guía: <Link to={`/derechos/${carta.guia.slug}`} className="btn-link">{carta.guia.label}</Link>
+              Lee la guía: <Link to={`/derechos/${carta.guia.slug}/`} className="btn-link">{carta.guia.label}</Link>
             </p>
           </section>
         </div>

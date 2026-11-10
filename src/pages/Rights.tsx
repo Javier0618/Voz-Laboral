@@ -59,7 +59,7 @@ function HelpAside({ guides }: { guides: LegalResource[] }) {
       <div className="rounded-lg border border-line p-6">
         <h2 className="font-sans text-base font-semibold">¿Te pasó algo así?</h2>
         <p className="mt-2 text-sm leading-6 text-slate">Cuéntalo con un alias. Tu experiencia ayuda a otras personas a saber qué esperar.</p>
-        <Link to="/compartir" className="btn-primary mt-4 w-full">Compartir una experiencia</Link>
+        <Link to="/compartir/" className="btn-primary mt-4 w-full">Compartir una experiencia</Link>
       </div>
       <p className="text-sm leading-6 text-slate">{disclaimer}</p>
     </aside>
@@ -295,6 +295,12 @@ export function RightsArticle() {
   useEffect(() => {
     if (data) countViewOncePerDay(slug);
   }, [data, slug]);
+  // Guía inexistente o archivada: «noindex» para que Google no la tome como página válida (soft 404).
+  useEffect(() => {
+    if (loading || error || data) return;
+    setPageMeta({ title: `Guía no encontrada · ${brand.name}`, description: 'Esta guía no existe o se archivó.', robots: 'noindex, follow' });
+    return () => setPageMeta(null);
+  }, [loading, error, data]);
   useEffect(() => {
     if (!data) return;
     const path = `/derechos/${data.slug}/`;
@@ -302,7 +308,7 @@ export function RightsArticle() {
     const pageUrl = origin ? `${origin}${path}` : path;
     const tema = temaDeGuia(data);
     const topicLabel = tema.name;
-    const temaPath = `/derechos?tema=${tema.slug}`;
+    const temaPath = `/derechos/?tema=${tema.slug}`;
     setPageMeta({
       title: `${data.title} · ${brand.name}`,
       description: data.summary,
@@ -326,7 +332,7 @@ export function RightsArticle() {
         {
           '@type': 'BreadcrumbList',
           itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Guías', item: origin ? `${origin}/derechos` : '/derechos' },
+            { '@type': 'ListItem', position: 1, name: 'Guías', item: origin ? `${origin}/derechos/` : '/derechos/' },
             { '@type': 'ListItem', position: 2, name: topicLabel, item: origin ? `${origin}${temaPath}` : temaPath },
             { '@type': 'ListItem', position: 3, name: data.title, item: pageUrl },
           ],
@@ -342,7 +348,7 @@ export function RightsArticle() {
   if (!data) {
     return (
       <div className="page py-10">
-        <EmptyState title="No encontramos esta guía" action={<Link to="/derechos" className="btn-primary">Ver todas las guías</Link>}>
+        <EmptyState title="No encontramos esta guía" action={<Link to="/derechos/" className="btn-primary">Ver todas las guías</Link>}>
           Puede que se haya archivado mientras se actualiza su contenido.
         </EmptyState>
       </div>
@@ -366,9 +372,9 @@ export function RightsArticle() {
       <header className="border-b border-line bg-mist">
         <div className="page py-10 sm:py-14">
           <nav aria-label="Ruta de navegación" className="text-sm text-slate print:hidden">
-            <Link to="/derechos" className="hover:text-ink hover:underline">Guías</Link>
+            <Link to="/derechos/" className="hover:text-ink hover:underline">Guías</Link>
             <span aria-hidden="true" className="mx-2">/</span>
-            <Link to={`/derechos?tema=${tema.slug}`} className="hover:text-ink hover:underline">{tema.name}</Link>
+            <Link to={`/derechos/?tema=${tema.slug}`} className="hover:text-ink hover:underline">{tema.name}</Link>
           </nav>
           <div className={data.cover_url ? 'mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:items-center xl:grid-cols-[minmax(0,1fr)_minmax(0,30rem)]' : 'mt-4'}>
             <div>
@@ -443,11 +449,11 @@ export function RightsArticle() {
             <p className="mt-2 text-white/80">Lee lo que han contado otras personas sobre este tema o comparte tu experiencia con un alias.</p>
             <div className="mt-5 flex flex-wrap gap-3">
               {data.category_slug && (
-                <Link to={`/experiencias?categoria=${data.category_slug}`} className="btn bg-white text-onwhite-ink hover:bg-onwhite-tint">
+                <Link to={`/experiencias/?categoria=${data.category_slug}`} className="btn bg-white text-onwhite-ink hover:bg-onwhite-tint">
                   Ver experiencias sobre {topicName.toLowerCase()}
                 </Link>
               )}
-              <Link to="/compartir" className="btn border border-white/40 text-white hover:border-white">Compartir mi experiencia</Link>
+              <Link to="/compartir/" className="btn border border-white/40 text-white hover:border-white">Compartir mi experiencia</Link>
             </div>
           </section>
         </div>

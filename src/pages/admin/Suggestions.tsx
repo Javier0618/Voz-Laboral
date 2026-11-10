@@ -187,7 +187,7 @@ function SuggestionCard({ s, onDone }: { s: GuideSuggestion; onDone: () => void 
           s.draft ? (
             <>
               {s.draft.status === 'publicado'
-                ? <Link to={`/derechos/${s.draft.slug}`} className="btn-secondary">Ver la guía publicada</Link>
+                ? <Link to={`/derechos/${s.draft.slug}/`} className="btn-secondary">Ver la guía publicada</Link>
                 : <Link to={`/moderacion/guias/${s.draft.id}`} className="btn-primary">Revisar el borrador</Link>}
               <p className="text-sm text-slate">
                 Redactada el {formatDate(s.drafted_at!)} · {s.draft.status === 'publicado' ? 'publicada' : 'en borrador, sin publicar'}

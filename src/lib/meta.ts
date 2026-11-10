@@ -1,5 +1,7 @@
 import { brand } from '../config/brand';
 import { publicGuideImageUrl } from './publicGuideImageUrl';
+import { publicPath } from './publicPath.mjs';
+import { seoPageFor } from './seoPages.mjs';
 
 // Título, descripción y etiquetas sociales de la página activa.
 // Ayuda a buscadores que ejecutan JavaScript. WhatsApp, LinkedIn y similares
@@ -30,11 +32,10 @@ export type PageMeta = {
   jsonLd?: Record<string, unknown> | Record<string, unknown>[] | null;
 };
 
-/** URL preferida de páginas públicas HTML: directorios con index.html. */
+/** URL preferida de páginas públicas HTML: directorios con index.html (src/lib/publicPath.mjs). */
 function canonicalPublicPath(path: string): string {
-  if (path === '/' || path.includes('?') || path.includes('#')) return path;
-  const eligible = /^\/(?:derechos(?:\/[^/]+)?|calculadoras(?:\/[^/]+)?|herramientas(?:\/(?:cartas(?:\/[^/]+)?|diagnostico|quiz|calendario|glosario))?|politicas\/[^/]+|empresas|experiencias|liquidacion|como-funciona|compartir)\/?$/;
-  return eligible.test(path) ? path.replace(/\/$/, '') + '/' : path;
+  if (path.includes('?') || path.includes('#')) return path;
+  return publicPath(path);
 }
 
 function absoluteUrl(pathOrUrl: string | null | undefined): string | undefined {
@@ -142,6 +143,11 @@ export function setPageMeta(meta: PageMeta | null) {
     setJsonLd(null);
     return;
   }
+  // Páginas fijas (calculadoras, herramientas, cartas, índices, políticas): el
+  // título y la descripción salen de src/lib/seoPages.mjs, los mismos del HTML
+  // inicial, para que Google no vea dos títulos distintos para la misma página.
+  const seo = meta.type === 'article' || meta.robots ? undefined : seoPageFor(meta.path ?? window.location.pathname);
+  if (seo) meta = { ...meta, title: `${seo.title} · ${brand.name}`, description: seo.description };
   document.title = meta.title;
   setMetaByName('description', meta.description);
   setMetaByProperty('og:title', meta.title);

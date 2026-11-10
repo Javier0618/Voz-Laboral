@@ -5,6 +5,7 @@ import { setPageMeta } from '../../lib/meta';
 import { calendarioLaboral, enlaceGoogleCalendar, generarIcs, type FechaLaboral, type TipoFecha } from '../../lib/calendarioLaboral';
 import { PageHeader } from '../../components/ui';
 import { CanalWhatsApp } from '../../components/CanalWhatsApp';
+import { publicPath } from '../../lib/publicPath.mjs';
 
 const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
@@ -52,7 +53,7 @@ export default function CalendarioPage() {
 
   return (
     <div className="page py-10">
-      <p className="text-sm"><Link to="/herramientas" className="btn-link">Herramientas</Link></p>
+      <p className="text-sm"><Link to="/herramientas/" className="btn-link">Herramientas</Link></p>
       <PageHeader title={`Calendario laboral ${anio}`}>
         Las fechas en que te deben pagar, los festivos y los cambios de la ley. Agrégalas a tu celular y te avisará el día anterior a las 9 a. m.
       </PageHeader>
@@ -100,7 +101,7 @@ export default function CalendarioPage() {
                     <p className="mt-1 font-semibold">{f.titulo}</p>
                     {f.tipo !== 'festivo' && <p className="mt-1 text-sm text-slate">{f.detalle}{f.norma ? ` (${f.norma}).` : ''}</p>}
                     <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-                      {f.enlace && <Link to={f.enlace.to} className="btn-link">{f.enlace.label}</Link>}
+                      {f.enlace && <Link to={publicPath(f.enlace.to)} className="btn-link">{f.enlace.label}</Link>}
                       {f.tipo !== 'festivo' && f.fecha >= hoy && (
                         <>
                           <a href={enlaceGoogleCalendar(f, brand.siteUrl)} target="_blank" rel="noopener noreferrer" className="btn-link">

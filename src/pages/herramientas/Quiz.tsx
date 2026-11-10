@@ -55,7 +55,7 @@ export default function QuizPage() {
 
   return (
     <div className="page py-10">
-      <p className="text-sm"><Link to="/herramientas" className="btn-link">Herramientas</Link></p>
+      <p className="text-sm"><Link to="/herramientas/" className="btn-link">Herramientas</Link></p>
       <PageHeader title="¿Mito o realidad?">
         Diez frases que se oyen en todos los trabajos. Decide si son mito o realidad y mira la explicación con la norma.
       </PageHeader>
@@ -105,7 +105,7 @@ export default function QuizPage() {
                 <p className="mt-2">{pregunta.explicacion}</p>
                 <p className="mt-2 text-sm text-slate">Norma: {pregunta.norma}.</p>
                 <p className="mt-2 text-sm">
-                  Lee la guía: <Link to={`/derechos/${pregunta.guia.slug}`} className="btn-link">{pregunta.guia.label}</Link>
+                  Lee la guía: <Link to={`/derechos/${pregunta.guia.slug}/`} className="btn-link">{pregunta.guia.label}</Link>
                 </p>
                 <button type="button" className="btn-primary mt-5" onClick={() => setEstado((e) => ({ ...e, indice: e.indice + 1 }))}>
                   {indice + 1 < QUIZ.length ? 'Siguiente pregunta' : 'Ver mi resultado'}
@@ -133,7 +133,7 @@ export default function QuizPage() {
                     <span>
                       <span className="sr-only">{bien ? 'Acertaste: ' : 'Fallaste: '}</span>
                       «{q.afirmacion}» <strong>{q.realidad ? 'Realidad' : 'Mito'}.</strong>{' '}
-                      <Link to={`/derechos/${q.guia.slug}`} className="btn-link text-sm">{q.guia.label}</Link>
+                      <Link to={`/derechos/${q.guia.slug}/`} className="btn-link text-sm">{q.guia.label}</Link>
                     </span>
                   </li>
                 );

@@ -46,7 +46,7 @@ export function RelatedExperiences({ category, topicName }: { category: string |
           );
         })}
       </ul>
-      <Link to={`/experiencias?categoria=${category}`} className="btn-link mt-4 inline-block">
+      <Link to={`/experiencias/?categoria=${category}`} className="btn-link mt-4 inline-block">
         Ver más experiencias sobre {topicName.toLowerCase()}
       </Link>
     </section>

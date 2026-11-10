@@ -6,6 +6,7 @@ import { hayServiciosOpcionales } from '../lib/analytics';
 import { openConsentPreferences } from '../lib/consent';
 import { useAuth } from '../auth/AuthProvider';
 import { NotificationBell } from './NotificationBell';
+import { publicPath } from '../lib/publicPath.mjs';
 
 // `wide`: en pantallas medianas se omite de la barra (sigue en el menú móvil y en el pie).
 const nav = [
@@ -160,7 +161,7 @@ export function Layout() {
           </Link>
           <nav aria-label="Principal" className="hidden min-w-0 items-center gap-0.5 xl:flex">
             {nav.map((item) => (
-              <NavLink key={item.to} to={item.to} className={(a) => `${navClass(a)} ${item.wide ? 'hidden 2xl:inline-block' : ''}`}>{item.label}</NavLink>
+              <NavLink key={item.to} to={publicPath(item.to)} className={(a) => `${navClass(a)} ${item.wide ? 'hidden 2xl:inline-block' : ''}`}>{item.label}</NavLink>
             ))}
           </nav>
           <div className="hidden shrink-0 items-center gap-1 xl:flex">
@@ -168,7 +169,7 @@ export function Layout() {
             <ThemeToggle />
             {session && <NotificationBell />}
             {session ? <AccountMenu /> : <NavLink to="/cuenta" className={navClass}>Iniciar sesión</NavLink>}
-            <Link to="/compartir" className="btn ml-2 whitespace-nowrap border border-white/40 text-white hover:border-white hover:bg-white/10">
+            <Link to="/compartir/" className="btn ml-2 whitespace-nowrap border border-white/40 text-white hover:border-white hover:bg-white/10">
               <span>Compartir<span className="hidden 2xl:inline"> experiencia</span></span>
             </Link>
           </div>
@@ -193,12 +194,12 @@ export function Layout() {
               <li><NavLink to="/" end className={navClass}>Inicio</NavLink></li>
               <li className="sm:hidden"><div className="flex items-center gap-2 px-2.5 py-1 text-sm text-white/80">Tema de la página <ThemeToggle /></div></li>
               {nav.map((item) => (
-                <li key={item.to}><NavLink to={item.to} className={navClass}>{item.label}</NavLink></li>
+                <li key={item.to}><NavLink to={publicPath(item.to)} className={navClass}>{item.label}</NavLink></li>
               ))}
               {session && <li><NavLink to="/avisos" className={navClass}>Avisos</NavLink></li>}
               {isModerator && <li><NavLink to="/moderacion" className={navClass}>Moderación</NavLink></li>}
               <li><NavLink to="/cuenta" className={navClass}>{session ? 'Mi cuenta' : 'Iniciar sesión'}</NavLink></li>
-              <li className="py-3"><Link to="/compartir" className="btn w-full border border-white/40 text-white hover:border-white hover:bg-white/10">Compartir experiencia</Link></li>
+              <li className="py-3"><Link to="/compartir/" className="btn w-full border border-white/40 text-white hover:border-white hover:bg-white/10">Compartir experiencia</Link></li>
             </ul>
           </nav>
         )}
@@ -229,11 +230,11 @@ function Footer() {
         <div>
           <h2 className="font-sans text-sm font-semibold text-white">Políticas</h2>
           <ul className="mt-3 space-y-2 text-sm text-white/80">
-            <li><Link className="hover:text-white hover:underline" to="/politicas/tratamiento-de-datos">Tratamiento de datos personales</Link></li>
-            <li><Link className="hover:text-white hover:underline" to="/politicas/privacidad">Aviso de privacidad</Link></li>
-            <li><Link className="hover:text-white hover:underline" to="/politicas/terminos">Términos de uso</Link></li>
-            <li><Link className="hover:text-white hover:underline" to="/politicas/reglas">Reglas de publicación</Link></li>
-            <li><Link className="hover:text-white hover:underline" to="/politicas/cookies">Política de cookies</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/politicas/tratamiento-de-datos/">Tratamiento de datos personales</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/politicas/privacidad/">Aviso de privacidad</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/politicas/terminos/">Términos de uso</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/politicas/reglas/">Reglas de publicación</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/politicas/cookies/">Política de cookies</Link></li>
             {hayServiciosOpcionales() && (
               <li><button type="button" className="text-left hover:text-white hover:underline" onClick={openConsentPreferences}>Preferencias de cookies</button></li>
             )}
@@ -242,20 +243,20 @@ function Footer() {
         <div>
           <h2 className="font-sans text-sm font-semibold text-white">Herramientas</h2>
           <ul className="mt-3 space-y-2 text-sm text-white/80">
-            <li><Link className="hover:text-white hover:underline" to="/herramientas/cartas">Cartas y documentos</Link></li>
-            <li><Link className="hover:text-white hover:underline" to="/herramientas/diagnostico">¿Me están pagando bien?</Link></li>
-            <li><Link className="hover:text-white hover:underline" to="/herramientas/quiz">¿Mito o realidad?</Link></li>
-            <li><Link className="hover:text-white hover:underline" to="/herramientas/calendario">Calendario laboral</Link></li>
-            <li><Link className="hover:text-white hover:underline" to="/herramientas/glosario">Glosario laboral</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/herramientas/cartas/">Cartas y documentos</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/herramientas/diagnostico/">¿Me están pagando bien?</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/herramientas/quiz/">¿Mito o realidad?</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/herramientas/calendario/">Calendario laboral</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/herramientas/glosario/">Glosario laboral</Link></li>
             {brand.whatsappChannel && (
               <li><a className="hover:text-white hover:underline" href={brand.whatsappChannel} target="_blank" rel="noopener noreferrer">Canal de WhatsApp</a></li>
             )}
           </ul>
           <h2 className="mt-8 font-sans text-sm font-semibold text-white">Contacto</h2>
           <ul className="mt-3 space-y-2 text-sm text-white/80">
-            <li><Link className="hover:text-white hover:underline" to="/como-funciona">Quiénes somos y cómo trabajamos</Link></li>
-            <li><Link className="hover:text-white hover:underline" to="/politicas/solicitudes">Consultas y reclamos sobre tus datos</Link></li>
-            <li><Link className="hover:text-white hover:underline" to="/empresas">Soy una empresa: solicitar una corrección</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/como-funciona/">Quiénes somos y cómo trabajamos</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/politicas/solicitudes/">Consultas y reclamos sobre tus datos</Link></li>
+            <li><Link className="hover:text-white hover:underline" to="/empresas/">Soy una empresa: solicitar una corrección</Link></li>
             {brand.contactEmail && (
               <li><a className="hover:text-white hover:underline" href={`mailto:${brand.contactEmail}`}>{brand.contactEmail}</a></li>
             )}

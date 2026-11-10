@@ -30,7 +30,7 @@ describe('aviso de cookies', () => {
     expect(aviso.textContent).toMatch(/mejorar tu experiencia y navegación/);
     expect(aviso.textContent).toMatch(/medir las visitas al sitio/);
     expect(aviso.textContent).not.toMatch(/publicidad/i);
-    expect(screen.getByRole('link', { name: 'Política de cookies' }).getAttribute('href')).toBe('/politicas/cookies');
+    expect(screen.getByRole('link', { name: 'Política de cookies' }).getAttribute('href')).toBe('/politicas/cookies/');
     expect(screen.getByRole('button', { name: 'Rechazar (solo necesarias)' })).toBeTruthy();
     await userEvent.click(screen.getByRole('button', { name: 'Rechazar (solo necesarias)' }));
     expect(readConsent()).toMatchObject({ analytics: false, ads: false });

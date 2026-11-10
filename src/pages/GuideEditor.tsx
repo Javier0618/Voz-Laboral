@@ -220,7 +220,7 @@ function Editor({ guide: g, onSaved }: { guide: GuideDetail; onSaved: () => void
               {busy ? 'Guardando…' : 'Guardar cambios'}
             </button>
             {g.status !== 'publicado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => setPublishing(true)}>Publicar guía</button>}
-            {g.status === 'publicado' && <Link to={`/derechos/${g.slug}`} className="btn-secondary">Ver publicada</Link>}
+            {g.status === 'publicado' && <Link to={`/derechos/${g.slug}/`} className="btn-secondary">Ver publicada</Link>}
             {g.status === 'publicado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => changeStatus('pendiente_verificacion')}>Retirar para revisar</button>}
             {g.status !== 'archivado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => changeStatus('archivado')}>Archivar</button>}
           </div>

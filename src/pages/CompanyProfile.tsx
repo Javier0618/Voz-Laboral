@@ -62,7 +62,7 @@ export default function CompanyProfile() {
   if (!profile.data) {
     return (
       <div className="page py-10">
-        <EmptyState title="No encontramos esta empresa" action={<Link to="/empresas" className="btn-primary">Buscar empresas</Link>}>
+        <EmptyState title="No encontramos esta empresa" action={<Link to="/empresas/" className="btn-primary">Buscar empresas</Link>}>
           Puede que el enlace esté mal escrito o que el perfil se haya fusionado con otro.
         </EmptyState>
       </div>
@@ -81,7 +81,7 @@ export default function CompanyProfile() {
       {/* Carátula del expediente de la empresa. */}
       <header className="bg-mist">
         <div className="page pb-10 pt-8">
-          <p className="text-sm text-slate"><Link to="/empresas" className="hover:text-ink hover:underline">Empresas</Link></p>
+          <p className="text-sm text-slate"><Link to="/empresas/" className="hover:text-ink hover:underline">Empresas</Link></p>
           <h1 className="mt-3 text-4xl font-bold tracking-[-0.01em] sm:text-5xl">{c.trade_name}</h1>
           {c.legal_name && c.legal_name !== c.trade_name && <p className="mt-2 text-lg text-slate">{c.legal_name}</p>}
           <dl className="mt-8 grid grid-cols-2 gap-x-8 gap-y-5 border-t border-ink/80 pt-5 sm:grid-cols-4">
@@ -95,7 +95,7 @@ export default function CompanyProfile() {
           </dl>
           {c.aliases.length > 0 && <p className="mt-5 text-sm text-slate">También conocida como {c.aliases.join(', ')}</p>}
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to={`/compartir?empresa=${c.id}`} className="btn-primary px-5">Compartir una experiencia sobre esta empresa</Link>
+            <Link to={`/compartir/?empresa=${c.id}`} className="btn-primary px-5">Compartir una experiencia sobre esta empresa</Link>
             {c.website && <a href={c.website} className="btn-secondary" target="_blank" rel="noopener noreferrer nofollow">Sitio web oficial</a>}
           </div>
         </div>
@@ -161,17 +161,17 @@ export default function CompanyProfile() {
             <p className="mt-1 text-slate text-xs">Verifica si tus pagos corresponden con la normativa laboral vigente:</p>
             <ul className="mt-3 space-y-2">
               <li>
-                <Link to="/liquidacion" className="font-semibold text-teal-strong hover:underline block">
+                <Link to="/liquidacion/" className="font-semibold text-teal-strong hover:underline block">
                   → Liquidación de contrato e indemnización
                 </Link>
               </li>
               <li>
-                <Link to="/calculadoras/prima" className="font-semibold text-teal-strong hover:underline block">
+                <Link to="/calculadoras/prima/" className="font-semibold text-teal-strong hover:underline block">
                   → Prima de servicios (semestral)
                 </Link>
               </li>
               <li>
-                <Link to="/calculadoras/administrativos" className="font-semibold text-teal-strong hover:underline block">
+                <Link to="/calculadoras/administrativos/" className="font-semibold text-teal-strong hover:underline block">
                   → Recargos nocturnos y horas extra
                 </Link>
               </li>

@@ -310,7 +310,7 @@ function Desprendible({ r }: { r: ResultadoLiquidacion }) {
         <Alert tone="warning" title="Es una estimación, no tu liquidación oficial">
           Usa convención 30/360 y no contempla todos los casos especiales. Lo de años o semestres anteriores solo se suma si marcaste que no te lo
           pagaron. Para entender cada concepto y qué hacer si no te pagan, lee la guía{' '}
-          <Link to="/derechos/liquidacion-al-terminar-el-contrato" className="btn-link">Liquidación al terminar el contrato</Link>.
+          <Link to="/derechos/liquidacion-al-terminar-el-contrato/" className="btn-link">Liquidación al terminar el contrato</Link>.
         </Alert>
         <CalcSharePrompt
           categoria="salario-y-pagos"

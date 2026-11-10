@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { publicPath } from '../lib/publicPath.mjs';
 
 interface SharePromptProps {
   categoria?: string;
@@ -20,7 +21,7 @@ export function CalcSharePrompt({
           <p className="font-semibold text-ink">{motivo}</p>
           <p className="mt-1 text-slate">{mensaje}</p>
         </div>
-        <Link to={url} className="btn-primary shrink-0 self-start sm:self-center">
+        <Link to={publicPath(url)} className="btn-primary shrink-0 self-start sm:self-center">
           Compartir experiencia
         </Link>
       </div>

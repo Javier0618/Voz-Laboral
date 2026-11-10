@@ -4,6 +4,7 @@ import { ShareLinkButton } from './ShareLinkButton';
 import type { ExperienceStatus, Tone as ExperienceTone } from '../lib/api';
 import type { AppError } from '../lib/supabase';
 import { isConfigured } from '../lib/supabase';
+import { publicPath } from '../lib/publicPath.mjs';
 
 // ---------------------------------------------------------------- estados
 const statusStyles: Record<ExperienceStatus, { label: string; className: string; hint: string }> = {
@@ -229,5 +230,5 @@ export function PageHeader({ title, children, sharePath }: { title: string; chil
 }
 
 export function TextLink({ to, children }: { to: string; children: ReactNode }) {
-  return <Link to={to} className="btn-link">{children}</Link>;
+  return <Link to={publicPath(to)} className="btn-link">{children}</Link>;
 }

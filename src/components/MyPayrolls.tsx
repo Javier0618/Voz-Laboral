@@ -44,7 +44,7 @@ export function MyPayrolls() {
       )}
       <div className="mt-6">
         {loading ? <Loading /> : !data?.length ? (
-          <EmptyState title="Aún no tienes nóminas guardadas" action={<Link to="/calculadoras/operativos" className="btn-primary">Anotar mis turnos</Link>}>
+          <EmptyState title="Aún no tienes nóminas guardadas" action={<Link to="/calculadoras/operativos/" className="btn-primary">Anotar mis turnos</Link>}>
             Abre una de estas calculadoras con tu sesión iniciada y anota tus días: {CALCULADORAS_CON_GUARDADO.map((c) => c.name.toLowerCase()).join(', ')}.
           </EmptyState>
         ) : (

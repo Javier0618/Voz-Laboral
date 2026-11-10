@@ -62,7 +62,7 @@ export default function Experiences() {
       <PageHeader title="Experiencias">
         Lo que cuentan quienes trabajan en empresas de Colombia: experiencias buenas, malas y mixtas, publicadas tras la moderación. Cada
         una refleja la vivencia de quien la escribe: no verificamos los hechos. Para saber qué dice la ley sobre cada tema, consulta las{' '}
-        <Link to="/derechos" className="btn-link">guías laborales</Link>.
+        <Link to="/derechos/" className="btn-link">guías laborales</Link>.
       </PageHeader>
 
       {notConfigured ? (
@@ -167,7 +167,7 @@ export default function Experiences() {
                     Prueba con otra búsqueda o amplía los criterios.
                   </EmptyState>
                 ) : (
-                  <EmptyState title="Todavía no hay experiencias publicadas" action={<Link to="/compartir" className="btn-primary">Compartir una experiencia</Link>}>
+                  <EmptyState title="Todavía no hay experiencias publicadas" action={<Link to="/compartir/" className="btn-primary">Compartir una experiencia</Link>}>
                     Cuando una experiencia supere la revisión, aparecerá aquí.
                   </EmptyState>
                 )}

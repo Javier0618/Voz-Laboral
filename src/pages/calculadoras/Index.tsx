@@ -7,6 +7,7 @@ import { CALCULADORAS } from '../../lib/calculadoras';
 import { PageHeader } from '../../components/ui';
 import { pesos } from '../../components/nomina';
 import { useAuth } from '../../auth/AuthProvider';
+import { publicPath } from '../../lib/publicPath.mjs';
 
 /** Invitación a guardar la nómina: el plus de tener cuenta. */
 function PayrollInvite() {
@@ -25,7 +26,7 @@ function PayrollInvite() {
         ) : (
           <Link to="/cuenta?modo=registro&siguiente=/calculadoras" className="btn-primary">Crear cuenta gratis</Link>
         )}
-        <Link to="/calculadoras/operativos" className="btn-secondary">Anotar mis turnos</Link>
+        <Link to="/calculadoras/operativos/" className="btn-secondary">Anotar mis turnos</Link>
       </div>
     </section>
   );
@@ -53,7 +54,7 @@ export default function CalculadorasIndex() {
       <ul className="mt-2">
         {CALCULADORAS.map((c) => (
           <li key={c.path} className="border-b border-line">
-            <Link to={c.path} className="group grid gap-1 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8">
+            <Link to={publicPath(c.path)} className="group grid gap-1 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8">
               <span>
                 <span className="block font-serif text-2xl text-ink group-hover:text-teal-strong group-hover:underline group-hover:underline-offset-4">{c.title}</span>
                 <span className="mt-1 block text-slate">{c.description}</span>
@@ -65,7 +66,7 @@ export default function CalculadorasIndex() {
       </ul>
       <p className="mt-10 max-w-prose text-slate">
         Para entender la norma detrás de cada cifra, consulta las{' '}
-        <Link to="/derechos" className="btn-link">guías laborales</Link>.
+        <Link to="/derechos/" className="btn-link">guías laborales</Link>.
       </p>
       <section className="mt-12 max-w-prose rounded-md bg-mist p-6" aria-labelledby="valores">
         <h2 id="valores" className="font-sans text-base font-semibold">Valores de 2026 que usan</h2>

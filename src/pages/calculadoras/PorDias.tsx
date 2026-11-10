@@ -68,7 +68,7 @@ export default function PorDias() {
 
   return (
     <div className="page py-10">
-      <p className="text-sm text-slate"><Link to="/calculadoras" className="hover:text-ink hover:underline">Calculadoras</Link></p>
+      <p className="text-sm text-slate"><Link to="/calculadoras/" className="hover:text-ink hover:underline">Calculadoras</Link></p>
       <PageHeader title="Nómina por días" sharePath="/calculadoras/por-dias">
         Para quienes trabajan algunos días del mes o cobran por jornada: servicio doméstico por días, meseros, personal de eventos, ayudantes
         de construcción, reemplazos. Marca los días que trabajaste y la calculadora suma jornadas, recargos y descuentos.
@@ -162,7 +162,7 @@ export default function PorDias() {
         <h3>Prestaciones</h3>
         <p>
           Trabajar por días no quita el derecho a prima, cesantías y vacaciones en proporción al tiempo trabajado (CST, art. 306). Puedes
-          estimarlas en la <Link to="/liquidacion" className="btn-link">calculadora de liquidación</Link>.
+          estimarlas en la <Link to="/liquidacion/" className="btn-link">calculadora de liquidación</Link>.
         </p>
         <h3>Si trabajas por tu cuenta</h3>
         <p>Esta calculadora es para trabajadores con empleador. Si eres independiente, tus aportes se calculan con otras reglas.</p>

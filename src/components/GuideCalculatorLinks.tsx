@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { brand } from '../config/brand';
 import { calculadorasRelacionadas } from '../lib/calculadoras';
+import { publicPath } from '../lib/publicPath.mjs';
 
 /** Bloque de calculadoras sugeridas según el texto de una guía. */
 export function GuideCalculatorLinks(props: {
@@ -20,7 +21,7 @@ export function GuideCalculatorLinks(props: {
       <ul className="mt-4 space-y-3">
         {tools.map((t) => (
           <li key={t.path}>
-            <Link to={t.path} className="group block rounded-md border border-line bg-paper px-4 py-3 hover:border-slate">
+            <Link to={publicPath(t.path)} className="group block rounded-md border border-line bg-paper px-4 py-3 hover:border-slate">
               <span className="font-semibold text-ink group-hover:text-teal-strong group-hover:underline">{t.title}</span>
               <span className="mt-0.5 block text-sm text-slate">{t.description}</span>
             </Link>
@@ -28,7 +29,7 @@ export function GuideCalculatorLinks(props: {
         ))}
       </ul>
       <p className="mt-4 text-sm">
-        <Link to="/calculadoras" className="btn-link">Ver todas las calculadoras</Link>
+        <Link to="/calculadoras/" className="btn-link">Ver todas las calculadoras</Link>
       </p>
     </section>
   );

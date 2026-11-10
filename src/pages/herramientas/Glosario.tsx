@@ -40,7 +40,7 @@ export default function GlosarioPage() {
 
   return (
     <div className="page py-10">
-      <p className="text-sm"><Link to="/herramientas" className="btn-link">Herramientas</Link></p>
+      <p className="text-sm"><Link to="/herramientas/" className="btn-link">Herramientas</Link></p>
       <PageHeader title="Glosario laboral">
         Las palabras que aparecen en tu contrato, tu desprendible y las guías, explicadas en una o dos frases. En las guías, toca una palabra subrayada
         con puntos para ver su definición.
@@ -56,7 +56,7 @@ export default function GlosarioPage() {
           <div key={t.id} id={t.id} className="scroll-mt-6 border-b border-line py-5 target:bg-teal-tint/60">
             <dt className="font-serif text-xl">{t.termino}{t.variantes?.some((v) => v === v.toUpperCase()) && <span className="ml-2 font-sans text-sm text-slate">({t.variantes.filter((v) => v === v.toUpperCase()).join(', ')})</span>}</dt>
             <dd className="mt-1">{t.definicion}</dd>
-            {t.guia && <dd className="mt-1 text-sm"><Link to={`/derechos/${t.guia.slug}`} className="btn-link">{t.guia.label}</Link></dd>}
+            {t.guia && <dd className="mt-1 text-sm"><Link to={`/derechos/${t.guia.slug}/`} className="btn-link">{t.guia.label}</Link></dd>}
           </div>
         ))}
       </dl>

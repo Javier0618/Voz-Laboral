@@ -7,7 +7,7 @@ import { writeFileSync, existsSync, readFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { htmlDeGuia, htmlDeCalculadora, htmlDeInicio } from './prerender.mjs';
-import { seoPages } from './seo-pages.mjs';
+import { calculatorIndexSeo, calculatorSeoPages, seoPages } from '../src/lib/seoPages.mjs';
 
 // Lee los mismos archivos .env que Vite (las variables del sistema tienen
 // prioridad). Sin esto, el script no vería VITE_SUPABASE_URL ni SITE_URL si
@@ -99,24 +99,8 @@ if (api && key) {
 }
 
 
-/** Metadatos específicos para tres calculadoras con búsquedas identificadas. */
-const calculadorasSeo = [
-  {
-    "path": "/calculadoras/prima",
-    "title": "Calculadora de prima de servicios en Colombia",
-    "description": "Calcula cuánto te corresponde de prima de servicios en Colombia según tu salario, los días trabajados y el semestre. Incluye una explicación del cálculo."
-  },
-  {
-    "path": "/calculadoras/cesantias",
-    "title": "Calculadora de cesantías e intereses en Colombia",
-    "description": "Estima tus cesantías e intereses en Colombia con el salario y los días trabajados. Consulta cómo se calcula cada valor y los plazos de pago."
-  },
-  {
-    "path": "/calculadoras/salario-neto",
-    "title": "Calculadora de salario neto en Colombia",
-    "description": "Estima cuánto recibirías de salario neto en Colombia después de aportes de salud, pensión y otras deducciones. Compara el sueldo bruto y el neto."
-  }
-];
+/** Metadatos específicos para tres calculadoras con búsquedas identificadas (src/lib/seoPages.mjs). */
+const calculadorasSeo = calculatorSeoPages;
 // El servidor sirve las páginas pregeneradas en directorios con barra final.
 for (const info of calculadorasSeo) {
   urls.delete(info.path);
@@ -135,12 +119,7 @@ const guiaDeCalculadora = new Map([
   ['/calculadoras/cesantias', '/derechos/cesantias-e-intereses/'],
   ['/calculadoras/salario-neto', '/derechos/seguridad-social-eps-pension-arl-y-caja/'],
 ]);
-const indiceCalculadoras = {
-  path: '/calculadoras',
-  title: 'Calculadoras laborales en Colombia',
-  description: 'Calculadoras de nómina, prima, cesantías, salario neto y liquidación. Consulta las herramientas gratuitas de TuVozLaboral.',
-  links: enlacesCalculadoras,
-};
+const indiceCalculadoras = { ...calculatorIndexSeo, links: enlacesCalculadoras };
 // Nginx puede rechazar /calculadoras/ con 403 si falta su index.html.
 // Crear la carpeta antes de escribir: los índices específicos se generan después.
 mkdirSync(new URL('calculadoras/', out), { recursive: true });

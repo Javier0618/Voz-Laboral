@@ -5,6 +5,7 @@ import { setPageMeta } from '../../lib/meta';
 import { DIAGNOSTICO, resultadoDiagnostico, type PreguntaDiagnostico, type Respuesta } from '../../lib/diagnostico';
 import { PageHeader } from '../../components/ui';
 import { CanalWhatsApp } from '../../components/CanalWhatsApp';
+import { publicPath } from '../../lib/publicPath.mjs';
 
 const OPCIONES: { v: Respuesta; label: string }[] = [
   { v: 'si', label: 'Sí' },
@@ -20,7 +21,7 @@ function Punto({ p, tono }: { p: PreguntaDiagnostico; tono: 'revisar' | 'dudas' 
       <p className="mt-1">{p.siNo}</p>
       {tono === 'dudas' && p.ayuda && <p className="mt-1 text-sm text-slate">{p.ayuda}</p>}
       <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm">
-        {p.enlaces.map((e) => <li key={e.to + e.label}><Link to={e.to} className="btn-link">{e.label}</Link></li>)}
+        {p.enlaces.map((e) => <li key={e.to + e.label}><Link to={publicPath(e.to)} className="btn-link">{e.label}</Link></li>)}
       </ul>
     </li>
   );
@@ -49,7 +50,7 @@ export default function DiagnosticoPage() {
 
   return (
     <div className="page py-10">
-      <p className="text-sm"><Link to="/herramientas" className="btn-link">Herramientas</Link></p>
+      <p className="text-sm"><Link to="/herramientas/" className="btn-link">Herramientas</Link></p>
       <PageHeader title="¿Me están pagando bien?">
         Responde diez preguntas de sí o no sobre tu trabajo. Al final verás qué está bien, qué conviene revisar y qué puedes hacer. No guardamos tus
         respuestas.
@@ -107,7 +108,7 @@ export default function DiagnosticoPage() {
             <div className="mt-8 rounded-md bg-mist p-5">
               <p className="font-semibold">El primer paso: pedirlo por escrito</p>
               <p className="mt-1">Un reclamo por escrito deja constancia y te protege. Arma tu carta en minutos.</p>
-              <Link to="/herramientas/cartas/derecho-de-peticion" className="btn-primary mt-4 inline-flex">Hacer un derecho de petición</Link>
+              <Link to="/herramientas/cartas/derecho-de-peticion/" className="btn-primary mt-4 inline-flex">Hacer un derecho de petición</Link>
             </div>
           )}
           <p className="mt-6 text-sm text-slate">Este diagnóstico es orientativo. No reemplaza la revisión de tu caso por el Ministerio del Trabajo o un abogado.</p>

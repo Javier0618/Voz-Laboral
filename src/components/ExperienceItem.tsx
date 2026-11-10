@@ -23,7 +23,7 @@ export function ExperienceItem({ exp, showCompany = true, full = false }: { exp:
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
         <ToneChip tone={exp.tone} />
         <Link
-          to={`/experiencias?categoria=${exp.category_slug}`}
+          to={`/experiencias/?categoria=${exp.category_slug}`}
           className="rounded-full border border-teal/30 bg-teal-tint px-3 py-0.5 font-semibold text-teal-strong hover:border-teal"
         >
           {exp.category_name}

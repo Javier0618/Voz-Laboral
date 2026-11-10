@@ -5,6 +5,7 @@ import type { ExperienceStatus } from '../lib/api';
 import { setPageMeta } from '../lib/meta';
 import { PageHeader, StatusChip, statusHint } from '../components/ui';
 import { PromoVideoInline } from '../components/PromoVideo';
+import { publicPath } from '../lib/publicPath.mjs';
 
 const pillars = [
   {
@@ -102,7 +103,7 @@ export default function About() {
               <span className="text-sm font-semibold text-teal-strong">{i === 0 ? 'Lo principal' : 'Complemento'}</span>
               <h3 className="mt-1 font-serif text-2xl">{p.title}</h3>
               <p className="mt-2 max-w-prose text-slate">{p.text}</p>
-              <Link to={p.to} className={`mt-4 self-start ${i === 0 ? 'btn-primary' : 'btn-link'}`}>{p.cta}</Link>
+              <Link to={publicPath(p.to)} className={`mt-4 self-start ${i === 0 ? 'btn-primary' : 'btn-link'}`}>{p.cta}</Link>
             </li>
           ))}
         </ol>
@@ -131,7 +132,7 @@ export default function About() {
             <li>Busca una empresa y lee lo que cuentan quienes trabajan ahí.</li>
             <li>Cuenta cómo te fue con un alias, o sin cuenta.</li>
           </ul>
-          <Link to="/derechos" className="btn-primary mt-7">Ver las guías</Link>
+          <Link to="/derechos/" className="btn-primary mt-7">Ver las guías</Link>
         </div>
         <PromoVideoInline />
       </section>
@@ -206,8 +207,8 @@ export default function About() {
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link to="/derechos" className="btn bg-white text-onwhite-ink hover:bg-onwhite-tint">Ver las guías</Link>
-          <Link to="/compartir" className="btn border border-white/40 text-white hover:border-white">Compartir una experiencia</Link>
+          <Link to="/derechos/" className="btn bg-white text-onwhite-ink hover:bg-onwhite-tint">Ver las guías</Link>
+          <Link to="/compartir/" className="btn border border-white/40 text-white hover:border-white">Compartir una experiencia</Link>
         </div>
       </section>
     </div>

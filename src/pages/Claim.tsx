@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import { getCompanyProfile, submitClaim } from '../lib/api';
 import { claimSchema, fieldErrors } from '../lib/schemas';
 import type { AppError } from '../lib/supabase';
+import { setPageMeta } from '../lib/meta';
+import { brand } from '../config/brand';
 import { Alert, ConfigNotice, EmptyState, ErrorState, Field, Loading, notConfigured, PageHeader, useAsync } from '../components/ui';
 
 const claimTypes = [
@@ -29,6 +31,16 @@ export default function Claim() {
   const [error, setError] = useState<AppError | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const nombre = company.data?.company.trade_name;
+  // Formulario sin contenido propio: no se indexa (miles de empresas tendrían una página casi vacía).
+  useEffect(() => {
+    setPageMeta({
+      title: `Solicitar una corrección${nombre ? ` sobre ${nombre}` : ''} · ${brand.name}`,
+      description: 'Formulario para que una empresa solicite la corrección o el retiro de una publicación.',
+      robots: 'noindex, follow',
+    });
+    return () => setPageMeta(null);
+  }, [nombre]);
 
   if (notConfigured) return <div className="page py-10"><ConfigNotice /></div>;
   if (company.loading) return <div className="page py-10"><Loading /></div>;

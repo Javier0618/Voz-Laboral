@@ -76,7 +76,7 @@ describe('formato enriquecido de las guías', () => {
   it('reconoce enlaces internos a otras guías y rechaza rutas a otros sitios', () => {
     expect(parseInline('Lee [la prima](/derechos/prima-de-servicios#cuando).')).toEqual([
       { type: 'text', text: 'Lee ' },
-      { type: 'link', text: 'la prima', href: '/derechos/prima-de-servicios#cuando', internal: true },
+      { type: 'link', text: 'la prima', href: '/derechos/prima-de-servicios/#cuando', internal: true },
       { type: 'text', text: '.' },
     ]);
     expect(parseInline('[x](//otro.test)')[0].type).toBe('text');

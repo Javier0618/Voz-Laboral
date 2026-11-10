@@ -75,7 +75,7 @@ export default function Notifications() {
         <div className="mt-8"><ErrorState error={error} onRetry={reload} /></div>
       ) : !data?.length ? (
         <div className="mt-8">
-          <EmptyState title="Aún no tienes avisos" action={<Link to="/compartir" className="btn-primary">Compartir una experiencia</Link>}>
+          <EmptyState title="Aún no tienes avisos" action={<Link to="/compartir/" className="btn-primary">Compartir una experiencia</Link>}>
             Cuando moderen tu experiencia o alguien reaccione o comente, te lo contamos aquí.
           </EmptyState>
         </div>

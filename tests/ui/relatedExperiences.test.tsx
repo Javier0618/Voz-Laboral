@@ -26,7 +26,7 @@ describe('experiencias relacionadas en una guía', () => {
     expect(state.calls).toEqual([{ category: 'jornadas-descansos', pageSize: 3 }]);
     expect(screen.getByRole('link', { name: /Me cambiaban el turno/ }).getAttribute('href')).toBe('/experiencias/e1');
     expect(screen.getByText(/…$/)).toBeTruthy();
-    expect(screen.getByRole('link', { name: /Ver más experiencias/ }).getAttribute('href')).toBe('/experiencias?categoria=jornadas-descansos');
+    expect(screen.getByRole('link', { name: /Ver más experiencias/ }).getAttribute('href')).toBe('/experiencias/?categoria=jornadas-descansos');
   });
 
   it('no muestra nada si no hay experiencias o la guía no tiene categoría', async () => {

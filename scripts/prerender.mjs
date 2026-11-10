@@ -3,6 +3,8 @@
 // ejecutan JavaScript: sin esto, al compartir una guía se ve la información
 // genérica del sitio. La web se monta igual encima (el contenido lo pone React).
 
+import { publicPath } from '../src/lib/publicPath.mjs';
+
 const MARCA = 'TuVozLaboral';
 
 /** Solo los archivos del bucket público "guias" del proyecto Supabase se
@@ -42,7 +44,7 @@ function inlineHtml(value) {
         const label = text(match[2]);
         html += match[1].startsWith('!')
           ? '<img src="' + attr(publicGuideImageUrl(href)) + '" alt="' + attr(match[2]) + '" loading="lazy">'
-          : '<a href="' + attr(href) + '">' + label + '</a>';
+          : '<a href="' + attr(publicPath(href)) + '">' + label + '</a>';
       } else {
         html += text(match[0]);
       }
@@ -100,10 +102,31 @@ function renderContent(markdown) {
   return html.join('\n');
 }
 
+/** Fecha legible en español de Colombia, como la muestra la página (src/lib/format.ts). */
+function fecha(iso) {
+  const d = iso ? new Date(String(iso).length === 10 ? iso + 'T12:00:00' : iso) : null;
+  return d && !Number.isNaN(d.getTime())
+    ? d.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Bogota' })
+    : '';
+}
+
+/** Fechas de verificación y actualización: las mismas que React muestra en la ficha de la guía. */
+function fechasGuia(g) {
+  const partes = [];
+  if (g.last_verified_at && fecha(g.last_verified_at)) {
+    partes.push('Verificada contra la fuente oficial: <time datetime="' + attr(String(g.last_verified_at).slice(0, 10)) + '">' + text(fecha(g.last_verified_at)) + '</time>');
+  }
+  if (g.updated_at && fecha(g.updated_at)) {
+    partes.push('Última actualización: <time datetime="' + attr(String(g.updated_at).slice(0, 10)) + '">' + text(fecha(g.updated_at)) + '</time>');
+  }
+  return partes.length ? '<p>' + partes.join(' · ') + '</p>' : '';
+}
+
 function initialArticle(g) {
   return '<main class="page py-10"><article class="mx-auto max-w-prose">'
     + '<h1>' + text(g.title) + '</h1>'
     + '<p>' + text(g.summary) + '</p>'
+    + fechasGuia(g)
     + renderContent(g.content)
     + '</article></main>';
 }
@@ -156,7 +179,7 @@ export function htmlDeGuia(template, g, site) {
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Guías', item: `${site}/derechos` },
+          { '@type': 'ListItem', position: 1, name: 'Guías', item: `${site}/derechos/` },
           { '@type': 'ListItem', position: 2, name: g.title, item: url },
         ],
       },
@@ -199,7 +222,7 @@ export function htmlDeCalculadora(template, info, site) {
   const links = Array.isArray(info.links) ? info.links.filter((link) =>
     /^\/(?!\/)[a-zA-Z0-9/_-]+\/?$/.test(link.path)) : [];
   const nav = links.length ? '<nav aria-label="Más contenidos"><h2>Explorar contenidos relacionados</h2><ul>'
-    + links.map((link) => '<li><a href="' + attr(link.path) + '">'
+    + links.map((link) => '<li><a href="' + attr(publicPath(link.path)) + '">'
       + text(link.title) + '</a></li>').join('') + '</ul></nav>' : '';
   return html.replace('<div id="root"></div>',
     '<div id="root"><main class="page py-10"><h1>'
@@ -219,7 +242,7 @@ export function htmlDeInicio(template, links, site) {
   const guideLinks = valid.filter((item) => item.path.startsWith('/derechos/') && item.path !== '/derechos/');
   const otherLinks = valid.filter((item) => !guideLinks.includes(item));
   const makeList = (items) => '<ul>' + items.map((item) =>
-    '<li><a href="' + attr(item.path) + '">' + text(item.title) + '</a></li>'
+    '<li><a href="' + attr(publicPath(item.path)) + '">' + text(item.title) + '</a></li>'
   ).join('\n') + '</ul>';
   const content = '<main class="page py-10"><h1>TuVozLaboral: guías laborales en Colombia</h1>'
     + '<p>Consulta derechos laborales, calculadoras y herramientas para trabajadores.</p>'
@@ -228,6 +251,16 @@ export function htmlDeInicio(template, links, site) {
     + '<nav aria-label="Guías laborales"><h2>Guías laborales</h2>'
     + makeList(guideLinks) + '</nav></main>';
   const canonical = site.replace(/\/$/, '') + '/';
-  return template.replace('</head>', '    <link rel="canonical" href="' + attr(canonical) + '" />\n  </head>')
+  // Identidad del sitio para Google: nombre del sitio y organización.
+  const ld = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'WebSite', '@id': canonical + '#sitio', name: MARCA, url: canonical, inLanguage: 'es-CO', publisher: { '@id': canonical + '#organizacion' } },
+      { '@type': 'Organization', '@id': canonical + '#organizacion', name: MARCA, url: canonical, logo: canonical + 'icon-512.png' },
+    ],
+  };
+  const withOgUrl = setMeta(template, 'og:url', 'property', canonical);
+  return withOgUrl.replace('</head>', '    <link rel="canonical" href="' + attr(canonical) + '" />\n'
+    + '    <script type="application/ld+json" id="vl-jsonld">' + JSON.stringify(ld).replace(/</g, '\\u003c') + '</script>\n  </head>')
     .replace('<div id="root"></div>', '<div id="root">' + content + '</div>');
 }

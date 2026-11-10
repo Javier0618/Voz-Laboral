@@ -711,7 +711,7 @@ function GuideRowItem({ guide: g, onDone }: { guide: GuideRow; onDone: () => voi
       <div className="mt-4 flex flex-wrap gap-3">
         <Link to={`/moderacion/guias/${g.id}`} className="btn-primary">Abrir y editar</Link>
         {g.status !== 'publicado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => setConfirming(true)}>Publicar guía</button>}
-        {g.status === 'publicado' && <Link to={`/derechos/${g.slug}`} className="btn-secondary">Ver publicada</Link>}
+        {g.status === 'publicado' && <Link to={`/derechos/${g.slug}/`} className="btn-secondary">Ver publicada</Link>}
         {g.status === 'publicado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => setVerifying(true)}>Marcar como verificada hoy</button>}
         {g.status === 'publicado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => change('pendiente_verificacion')}>Retirar para revisar</button>}
         {g.status !== 'archivado' && <button type="button" className="btn-secondary" disabled={busy} onClick={() => change('archivado')}>Archivar</button>}

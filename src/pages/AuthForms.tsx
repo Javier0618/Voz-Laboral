@@ -160,8 +160,8 @@ export function AuthForms() {
                 <label className="flex items-start gap-3 text-sm">
                   <input type="checkbox" className="mt-1 h-4 w-4 accent-teal" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} aria-invalid={Boolean(errors.accepted)} />
                   <span>
-                    Acepto la <a href="/politicas/tratamiento-de-datos" target="_blank" className="btn-link">política de tratamiento de datos</a> y los{' '}
-                    <a href="/politicas/terminos" target="_blank" className="btn-link">términos de uso</a>.
+                    Acepto la <a href="/politicas/tratamiento-de-datos/" target="_blank" className="btn-link">política de tratamiento de datos</a> y los{' '}
+                    <a href="/politicas/terminos/" target="_blank" className="btn-link">términos de uso</a>.
                   </span>
                 </label>
                 {errors.accepted && <p className="field-error">{errors.accepted}</p>}
@@ -179,7 +179,7 @@ export function AuthForms() {
             <p className="text-xs text-slate">
               {mode === 'registro'
                 ? 'De Google solo usamos tu correo para acceder; tu nombre y tu foto nunca se publican.'
-                : <>Si es tu primera vez, se crea una cuenta. Al continuar aceptas la <a href="/politicas/tratamiento-de-datos" target="_blank" className="btn-link">política de tratamiento de datos</a> y los <a href="/politicas/terminos" target="_blank" className="btn-link">términos de uso</a>. Tu nombre y tu foto de Google nunca se publican.</>}
+                : <>Si es tu primera vez, se crea una cuenta. Al continuar aceptas la <a href="/politicas/tratamiento-de-datos/" target="_blank" className="btn-link">política de tratamiento de datos</a> y los <a href="/politicas/terminos/" target="_blank" className="btn-link">términos de uso</a>. Tu nombre y tu foto de Google nunca se publican.</>}
             </p>
             <div className="flex items-center gap-3 text-xs text-slate" aria-hidden="true">
               <span className="h-px flex-1 bg-line" />o con tu correo<span className="h-px flex-1 bg-line" />

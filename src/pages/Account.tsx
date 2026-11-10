@@ -81,7 +81,7 @@ function AccountHome() {
         <section className="text-sm text-slate">
           <h2 className="font-sans text-base font-semibold text-ink">Tus datos</h2>
           <p className="mt-2">Puedes consultar, corregir o pedir la supresión de tus datos personales.</p>
-          <Link to="/politicas/solicitudes" className="btn-link mt-2 inline-block">Cómo presentar una solicitud</Link>
+          <Link to="/politicas/solicitudes/" className="btn-link mt-2 inline-block">Cómo presentar una solicitud</Link>
         </section>
       </aside>
     </div>
@@ -146,11 +146,11 @@ function MyExperiences() {
     <section aria-labelledby="mis-exp">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h2 id="mis-exp" className="text-2xl">Mis experiencias</h2>
-        <Link to="/compartir" className="btn-secondary">Compartir otra</Link>
+        <Link to="/compartir/" className="btn-secondary">Compartir otra</Link>
       </div>
       <div className="mt-4">
         {loading ? <Loading /> : error ? <ErrorState error={error} onRetry={reload} /> : !data?.length ? (
-          <EmptyState title="Aún no has compartido experiencias" action={<Link to="/compartir" className="btn-primary">Compartir una experiencia</Link>} />
+          <EmptyState title="Aún no has compartido experiencias" action={<Link to="/compartir/" className="btn-primary">Compartir una experiencia</Link>} />
         ) : (
           <ul>{data.map((e) => <MyExperienceRow key={e.id} exp={e} onChange={reload} />)}</ul>
         )}
@@ -225,7 +225,7 @@ function MyExperienceRow({ exp, onChange }: { exp: MyExperience; onChange: () =>
       {error && <div className="mt-3"><Alert tone="error">{error.message}</Alert></div>}
       <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
         {exp.status === 'publicada' && <Link className="btn-link" to={`/empresas/${exp.company_slug}`}>Ver en el perfil de la empresa</Link>}
-        {editable && <Link className="btn-link" to={`/compartir?editar=${exp.id}`}>{exp.status === 'requiere_ajustes' ? 'Hacer los ajustes' : 'Editar'}</Link>}
+        {editable && <Link className="btn-link" to={`/compartir/?editar=${exp.id}`}>{exp.status === 'requiere_ajustes' ? 'Hacer los ajustes' : 'Editar'}</Link>}
         <button type="button" className="btn-link" onClick={() => setHistoryOpen(true)}>Ver historial</button>
         {appealable && <button type="button" className="btn-link" onClick={() => setAppealOpen(true)}>Apelar la decisión</button>}
         {exp.status !== 'retirada' && <button type="button" className="font-semibold text-danger underline-offset-4 hover:underline" onClick={() => setWithdrawOpen(true)}>Retirar</button>}

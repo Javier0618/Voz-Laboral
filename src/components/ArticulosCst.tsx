@@ -28,7 +28,7 @@ export function TextoCst({ texto, actual }: { texto: string; actual?: string }) 
         if (typeof p === 'string') return <Fragment key={i}>{p}</Fragment>;
         const slug = guiaDeArticulo(p.articulo, publicadasSet, actual);
         return slug
-          ? <Link key={i} to={`/derechos/${slug}`} className="btn-link font-normal" title="Leer la guía sobre este artículo">{p.texto}</Link>
+          ? <Link key={i} to={`/derechos/${slug}/`} className="btn-link font-normal" title="Leer la guía sobre este artículo">{p.texto}</Link>
           : <Fragment key={i}>{p.texto}</Fragment>;
       })}
     </>

@@ -65,7 +65,7 @@ export function CookieConsent() {
           {conAnuncios
             ? 'Usamos cookies para mejorar tu experiencia y navegación. También medimos las visitas y, si lo autorizas, mostramos publicidad personalizada. Conoce los detalles en nuestra'
             : 'Usamos cookies para mejorar tu experiencia y navegación, y medir las visitas al sitio. Conoce los detalles en nuestra'}{' '}
-          <Link to="/politicas/cookies" className="btn-link">Política de cookies</Link>
+          <Link to="/politicas/cookies/" className="btn-link">Política de cookies</Link>
         </p>
 
         {detalle && (

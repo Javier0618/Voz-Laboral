@@ -5,6 +5,7 @@ import { setPageMeta } from '../../lib/meta';
 import { HERRAMIENTAS } from '../../lib/herramientas';
 import { PageHeader } from '../../components/ui';
 import { CanalWhatsApp } from '../../components/CanalWhatsApp';
+import { publicPath } from '../../lib/publicPath.mjs';
 
 export default function HerramientasIndex() {
   useEffect(() => {
@@ -24,7 +25,7 @@ export default function HerramientasIndex() {
       <ul className="mt-2">
         {HERRAMIENTAS.map((h) => (
           <li key={h.path} className="border-b border-line">
-            <Link to={h.path} className="group grid gap-1 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8">
+            <Link to={publicPath(h.path)} className="group grid gap-1 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8">
               <span>
                 <span className="block font-serif text-2xl text-ink group-hover:text-teal-strong group-hover:underline group-hover:underline-offset-4">{h.title}</span>
                 <span className="mt-1 block text-slate">{h.description}</span>
@@ -34,7 +35,7 @@ export default function HerramientasIndex() {
           </li>
         ))}
         <li className="border-b border-line">
-          <Link to="/calculadoras" className="group grid gap-1 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8">
+          <Link to="/calculadoras/" className="group grid gap-1 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8">
             <span>
               <span className="block font-serif text-2xl text-ink group-hover:text-teal-strong group-hover:underline group-hover:underline-offset-4">Calculadoras</span>
               <span className="mt-1 block text-slate">Nómina, prima, cesantías, salario neto y liquidación, con las cifras de {new Date().getFullYear()}.</span>

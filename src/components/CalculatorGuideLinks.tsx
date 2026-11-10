@@ -28,7 +28,7 @@ export function CalculatorGuideLinks({ path }: { path: string }) {
         ))}
       </ul>
       <p className="mt-4 text-sm">
-        <Link to="/derechos" className="btn-link">Ver todas las guías laborales</Link>
+        <Link to="/derechos/" className="btn-link">Ver todas las guías laborales</Link>
       </p>
     </section>
   );

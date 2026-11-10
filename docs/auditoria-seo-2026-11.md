@@ -8,6 +8,32 @@ Diagnóstico hecho el 10 de noviembre de 2026, **antes de cambiar el código**. 
 
 No hubo acceso a Search Console en vivo (cobertura del índice, inspección de URL), a Analytics ni al servidor. Lo que depende de eso está en «Hipótesis por confirmar».
 
+## Estado de la implementación
+
+**Fases 1 y 2, en código** (10 de noviembre de 2026, autorizadas por la administración):
+
+- **B1. Enlaces internos sin redirecciones.**
+  - `src/lib/publicPath.mjs` es la regla única de URL canónica y la usan React, el texto de las guías y el prerender.
+  - En el HTML generado con las 41 guías reales, los enlaces internos que redirigen pasaron de 181 de 342 a 0.
+- **B2.** «Guía no encontrada» lleva `noindex, follow` y su propio título (`src/pages/Rights.tsx`).
+- **B3.** El formulario de reclamación de empresas lleva `noindex, follow` y un título propio (`src/pages/Claim.tsx`).
+- **B5. Una sola fuente de títulos.**
+  - `src/lib/seoPages.mjs` (antes `scripts/seo-pages.mjs`) da el título y la descripción de las páginas fijas, tanto al HTML inicial como a React (`setPageMeta`).
+  - Comprobado en el navegador: el título es igual antes y después de JavaScript en `/liquidacion/`, `/calculadoras/prima/`, `/calculadoras/administrativos/` y `/herramientas/cartas/carta-de-renuncia/`.
+- **B7, parcial.**
+  - El HTML inicial de cada guía muestra «Verificada contra la fuente oficial» y «Última actualización» con `<time>`.
+  - `datePublished` sigue sin ponerse: el código ya lo omitía a propósito hasta tener una fecha editorial fiable, y aquí no se inventa.
+- **B9.** La portada tiene `og:url` y datos `WebSite` y `Organization` en el HTML inicial. El `BreadcrumbList` de las guías apunta a `/derechos/`.
+
+**Pendiente:**
+
+- **En el servidor**, lo hace la administración en el VPS:
+  - comprobar `curl -I http://tuvozlaboral.com/`, que debe responder 301 a https;
+  - dejar una sola cabecera `Cache-Control` en `/assets/`;
+  - opcionalmente, redirigir `www` directo a la URL final.
+- **B8.** El texto «Cómo se calcula» de las calculadoras en el HTML inicial. Prioridad baja: Googlebot ya lo ve al renderizar.
+- **Fases 3 y 4, editoriales.** Van como sugerencias en Moderación → Sugerencias, para revisarlas antes de aplicarlas.
+
 ---
 
 ## A. Resumen ejecutivo

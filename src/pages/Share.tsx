@@ -71,7 +71,7 @@ export default function Share() {
     <div className="page py-10">
       <PageHeader title="Compartir una experiencia">
         Buena, mala o mixta: cuenta cómo es trabajar en una empresa. Se publica con un alias después de una revisión. Si quieres saber
-        antes qué dice la ley sobre lo que viviste, revisa las <Link to="/derechos" className="btn-link">guías laborales</Link>.
+        antes qué dice la ley sobre lo que viviste, revisa las <Link to="/derechos/" className="btn-link">guías laborales</Link>.
       </PageHeader>
       <div className="mt-8">
         {!session ? (
@@ -485,7 +485,7 @@ function ExperienceForm({ anonymous = false, onSent }: { anonymous?: boolean; on
             <input type="checkbox" className="mt-1 h-4 w-4 accent-teal" checked={draft.rulesAccepted} aria-invalid={Boolean(errors.rulesAccepted)}
               onChange={(e) => set('rulesAccepted', e.target.checked)} />
             <span>
-              Leí y acepto las <Link to="/politicas/reglas" target="_blank" className="btn-link">reglas de publicación</Link>
+              Leí y acepto las <Link to="/politicas/reglas/" target="_blank" className="btn-link">reglas de publicación</Link>
             </span>
           </label>
           {errors.rulesAccepted && <p className="field-error">{errors.rulesAccepted}</p>}
@@ -508,7 +508,7 @@ function ExperienceForm({ anonymous = false, onSent }: { anonymous?: boolean; on
             <li>Cuenta hechos y cómo te afectaron. Tu opinión vale si la presentas como tal.</li>
             <li>Lo bueno también ayuda: dice qué esperar de un trabajo.</li>
             <li>No escribas nombres, teléfonos, cédulas ni correos de nadie.</li>
-            <li>Si estás en riesgo, acude primero a las <Link to="/derechos" className="btn-link">autoridades</Link>.</li>
+            <li>Si estás en riesgo, acude primero a las <Link to="/derechos/" className="btn-link">autoridades</Link>.</li>
           </ul>
         </section>
         <section>

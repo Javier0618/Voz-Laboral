@@ -66,7 +66,7 @@ export default function PolicyPage() {
         <ul className="space-y-2">
           {policies.map((p) => (
             <li key={p.slug}>
-              <Link to={`/politicas/${p.slug}`} aria-current={p.slug === slug ? 'page' : undefined}
+              <Link to={`/politicas/${p.slug}/`} aria-current={p.slug === slug ? 'page' : undefined}
                 className={p.slug === slug ? 'font-semibold text-teal-strong' : 'text-slate hover:text-ink hover:underline'}>
                 {p.title}
               </Link>

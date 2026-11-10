@@ -43,7 +43,7 @@ export function TerminoGlosario({ id, texto }: { id: string; texto: string }) {
           <span className="block font-semibold">{t.termino}</span>
           <span className="mt-1 block">{t.definicion}</span>
           <span className="mt-2 block">
-            <Link to={`/herramientas/glosario#${t.id}`} className="btn-link">Ver en el glosario</Link>
+            <Link to={`/herramientas/glosario/#${t.id}`} className="btn-link">Ver en el glosario</Link>
           </span>
         </span>
       )}

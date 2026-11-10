@@ -1,5 +1,6 @@
-// Metadatos estáticos de rutas públicas para HTML inicial y rastreadores sin JavaScript.
-// La interfaz React sigue proporcionando los formularios y contenidos interactivos.
+// Títulos y descripciones de las páginas fijas: una sola fuente para el HTML
+// inicial (scripts/generar-sitemap.mjs) y para React (src/lib/meta.ts), así
+// Google ve el mismo título antes y después de ejecutar JavaScript.
 export const seoPages = [
   {
     "path": "/derechos",
@@ -137,3 +138,41 @@ export const seoPages = [
     "description": "Cuenta tu experiencia de trabajo mediante los canales de TuVozLaboral y conoce el proceso de revisión."
   }
 ];
+
+/** Calculadoras con HTML inicial propio y enlace a su guía (scripts/generar-sitemap.mjs). */
+export const calculatorSeoPages = [
+  {
+    "path": "/calculadoras/prima",
+    "title": "Calculadora de prima de servicios en Colombia",
+    "description": "Calcula cuánto te corresponde de prima de servicios en Colombia según tu salario, los días trabajados y el semestre. Incluye una explicación del cálculo."
+  },
+  {
+    "path": "/calculadoras/cesantias",
+    "title": "Calculadora de cesantías e intereses en Colombia",
+    "description": "Estima tus cesantías e intereses en Colombia con el salario y los días trabajados. Consulta cómo se calcula cada valor y los plazos de pago."
+  },
+  {
+    "path": "/calculadoras/salario-neto",
+    "title": "Calculadora de salario neto en Colombia",
+    "description": "Estima cuánto recibirías de salario neto en Colombia después de aportes de salud, pensión y otras deducciones. Compara el sueldo bruto y el neto."
+  }
+];
+
+/** Índice de calculadoras. */
+export const calculatorIndexSeo = {
+  "path": "/calculadoras",
+  "title": "Calculadoras laborales en Colombia",
+  "description": "Calculadoras de nómina, prima, cesantías, salario neto y liquidación. Consulta las herramientas gratuitas de TuVozLaboral."
+};
+
+const BY_PATH = new Map([...seoPages, ...calculatorSeoPages, calculatorIndexSeo].map((page) => [page.path, page]));
+
+/**
+ * Título y descripción fijos de una ruta, o undefined si no es una página fija.
+ * @param {string} path
+ * @returns {{ path: string, title: string, description: string } | undefined}
+ */
+export function seoPageFor(path) {
+  const clean = String(path ?? '').split(/[?#]/)[0].replace(/\/+$/, '') || '/';
+  return BY_PATH.get(clean);
+}

@@ -38,7 +38,7 @@ export default function ExperienceDetail() {
   if (!data) {
     return (
       <div className="page py-10">
-        <EmptyState title="Esta experiencia no está disponible" action={<Link to="/experiencias" className="btn-primary">Ver otras experiencias</Link>}>
+        <EmptyState title="Esta experiencia no está disponible" action={<Link to="/experiencias/" className="btn-primary">Ver otras experiencias</Link>}>
           Puede que su autor la haya retirado, que esté en revisión o que el enlace esté incompleto.
         </EmptyState>
       </div>
@@ -51,7 +51,7 @@ export default function ExperienceDetail() {
   return (
     <div className="page py-10">
       <nav aria-label="Ruta de navegación" className="text-sm text-slate">
-        <Link to="/experiencias" className="hover:text-ink hover:underline">Experiencias</Link>
+        <Link to="/experiencias/" className="hover:text-ink hover:underline">Experiencias</Link>
         <span aria-hidden="true" className="mx-2">/</span>
         <Link to={`/empresas/${data.company_slug}`} className="hover:text-ink hover:underline">{data.company_name}</Link>
       </nav>
@@ -73,7 +73,7 @@ export default function ExperienceDetail() {
             <p className="text-sm text-slate">Empresa</p>
             <p className="mt-1 font-serif text-2xl leading-tight">{data.company_name}</p>
             <Link to={`/empresas/${data.company_slug}`} className="btn-secondary mt-4 w-full">Ver todas sus experiencias</Link>
-            <Link to={`/compartir?empresa=${data.company_id}`} className="btn-primary mt-3 w-full">Contar mi experiencia aquí</Link>
+            <Link to={`/compartir/?empresa=${data.company_id}`} className="btn-primary mt-3 w-full">Contar mi experiencia aquí</Link>
           </div>
           <div className="rounded-lg bg-mist p-6">
             <p className="font-semibold">¿Le sirve a alguien que conoces?</p>

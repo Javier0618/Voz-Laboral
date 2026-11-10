@@ -55,7 +55,7 @@ describe('sugerencias editoriales', () => {
     await userEvent.click(await screen.findByRole('tab', { name: /Redactadas/ }));
     expect(screen.queryByText('Guía ya publicada')).toBeNull();
     await userEvent.click(screen.getByRole('tab', { name: /Publicadas/ }));
-    expect(screen.getByRole('link', { name: 'Ver la guía publicada' }).getAttribute('href')).toBe('/derechos/guia-publicada');
+    expect(screen.getByRole('link', { name: 'Ver la guía publicada' }).getAttribute('href')).toBe('/derechos/guia-publicada/');
     await userEvent.click(screen.getByRole('tab', { name: /Descartadas/ }));
     await userEvent.click(screen.getByRole('button', { name: 'Eliminar' }));
     await userEvent.click(screen.getAllByRole('button', { name: 'Eliminar' }).at(-1)!);

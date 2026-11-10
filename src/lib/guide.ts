@@ -6,6 +6,8 @@
 // - Dentro del texto: **negrita**, [enlace](https://…) y enlaces internos
 //   [otra guía](/derechos/slug).
 // Así las guías se editan en la base de datos y nunca se inserta HTML.
+import { publicPath } from './publicPath.mjs';
+
 export type GuideBlock =
   | { type: 'heading'; text: string; level?: 3 }
   | { type: 'image'; alt: string; src: string }
@@ -73,7 +75,7 @@ export function parseInline(text: string): InlineNode[] {
   for (const m of text.matchAll(INLINE)) {
     if (m.index > last) nodes.push({ type: 'text', text: text.slice(last, m.index) });
     if (m[1] !== undefined) nodes.push({ type: 'strong', text: m[1] });
-    else if (m[3].startsWith('/')) nodes.push({ type: 'link', text: m[2], href: m[3], internal: true });
+    else if (m[3].startsWith('/')) nodes.push({ type: 'link', text: m[2], href: publicPath(m[3]), internal: true });
     else nodes.push({ type: 'link', text: m[2], href: m[3] });
     last = m.index + m[0].length;
   }

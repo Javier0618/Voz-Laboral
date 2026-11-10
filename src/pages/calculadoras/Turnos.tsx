@@ -89,7 +89,7 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
 
   return (
     <div className="page py-10">
-      <p className="text-sm text-slate"><Link to="/calculadoras" className="hover:text-ink hover:underline">Calculadoras</Link></p>
+      <p className="text-sm text-slate"><Link to="/calculadoras/" className="hover:text-ink hover:underline">Calculadoras</Link></p>
       <PageHeader title={vig ? 'Nómina para vigilantes' : 'Nómina para cargos operativos'} sharePath={vig ? '/calculadoras/vigilantes' : '/calculadoras/operativos'}>
         {vig
           ? 'Para turnos rotativos de 12 horas (2×2, 3×3, 4×2). Arma tu calendario con la rotación y corrige los días que cambien: la calculadora separa cada hora en diurna, nocturna, dominical o festiva y en ordinaria o extra.'
