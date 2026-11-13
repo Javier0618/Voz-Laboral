@@ -214,3 +214,62 @@ describe('trabajo por días', () => {
     expect(linea(r, 'RDD')).toBe(72_000); // 8 h × 10.000 × 90 %
   });
 });
+
+
+describe('tabla de liquidación 2026 con salario mínimo y divisor de 210', () => {
+  const salario = 1_750_905;
+  const hora = salario / 210;
+  const dia = '2026-11-13';
+  it('respeta cada factor y valor de la tabla sin redondeos intermedios', () => {
+    expect(Math.round(hora)).toBe(8_338);
+    const expected = [
+      ['RN', 0.35, 2_918], ['HED', 1.25, 10_422],
+      ['HEN', 1.75, 14_591], ['RDD', 0.9, 7_504],
+      ['RDN', 1.25, 10_422], ['HEDD', 2.15, 17_926],
+      ['HEDN', 2.65, 22_095],
+    ] as const;
+    expected.forEach(([tipo, factor, pesos]) => {
+      expect(factorHora(tipo, dia)).toBeCloseTo(factor, 10);
+      expect(Math.round(valorarHoras({ ...horasVacias(), [tipo]: 1 }, hora, dia)[tipo])).toBe(pesos);
+    });
+    expect(Math.round(hora * 1.35)).toBe(11_256);
+    expect(Math.round(hora * 1.9)).toBe(15_842);
+    expect(Math.round(hora * 2.25)).toBe(18_760);
+  });
+  it('añade solo el recargo para jornada ordinaria, sin duplicar salario base', () => {
+    const horas = { ...horasVacias(), RN: 1, RDD: 1, RDN: 1, HED: 1, HEN: 1, HEDD: 1, HEDN: 1 };
+    const resultado = calcularNomina(base({
+      horasValoradas: { horas, valores: valorarHoras(horas, hora, dia) },
+    }));
+    expect(linea(resultado, 'salario')).toBe(salario);
+    (Object.keys(horas) as (keyof typeof horas)[]).forEach((tipo) => {
+      expect(linea(resultado, tipo)).toBe(Math.round(hora * factorHora(tipo, dia)));
+    });
+  });
+  it('aplica proporciones idénticas a otro salario', () => {
+    expect(valorarHoras({ ...horasVacias(), HEDN: 2 }, 3_000_000 / 210, dia).HEDN).toBeCloseTo((3_000_000 / 210) * 2.65 * 2, 6);
+  });
+});
+
+describe('descanso obligatorio pactado en otro día de la semana', () => {
+  const jornada = { modo: 'diario' as const, horasJornada: 8 };
+  const t = (fecha: string) => ({ fecha, entrada: '08:00', salida: '16:00', descansoMin: 0 });
+  it('al pactar lunes, el lunes ordinario recibe 90 % y el domingo ordinario no', () => {
+    const lunes = calcularTurnos([t('2026-11-09')], 10_000, jornada, 1);
+    const domingo = calcularTurnos([t('2026-11-08')], 10_000, jornada, 1);
+    expect(lunes.horas.RDD).toBeCloseTo(8);
+    expect(lunes.valores.RDD).toBeCloseTo(72_000);
+    expect(domingo.horas.RDD).toBeCloseTo(0);
+  });
+  it('festivo sigue causando recargo aunque no sea día de descanso semanal', () => {
+    const festivo = calcularTurnos([t('2026-11-16')], 10_000, jornada, 2);
+    expect(festivo.valores.RDD).toBeCloseTo(72_000);
+  });
+  it('mantiene domingo como opción por defecto', () => {
+    expect(calcularTurnos([t('2026-11-08')], 10_000, jornada).horas.RDD).toBeCloseTo(8);
+  });
+  it('por días también respeta el descanso pactado', () => {
+    const r = calcularPorDias({ valorDia: 80_000, horasJornada: 8, turnos: [t('2026-11-09')], cotizacion: 'ordinaria', otrosIngresos: 0, otrosDescuentos: 0, diaDescanso: 1 });
+    expect(linea(r, 'RDD')).toBe(72_000);
+  });
+});
