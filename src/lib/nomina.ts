@@ -1,7 +1,7 @@
 // Motor de las calculadoras de nómina. Funciones puras: no guardan nada.
 // Cada regla cita su norma; las que son práctica de empresa y no ley se
 // señalan como tales en la interfaz.
-import { esDominicalOFestivo, sumarDias } from './festivos';
+import { esFestivo, fecha, sumarDias } from './festivos';
 import { VALORES_2026 } from './liquidacion';
 
 export const UVT_2026 = 52_374; // Resolución DIAN 000238 de 2025
@@ -58,6 +58,9 @@ export const horasVacias = (): Horas => ({ RN: 0, RDD: 0, RDN: 0, HED: 0, HEN: 0
 
 // ---------------------------------------------------------------- turnos
 
+/** Día semanal de descanso obligatorio (0 = domingo, 1 = lunes ... 6 = sábado). */
+export type DiaDescanso = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
 export interface Turno {
   fecha: string;
   entrada: string;
@@ -72,7 +75,12 @@ const aMin = (hhmm: string) => {
   return h * 60 + m;
 };
 
-function minutosDeTurno(t: Turno): { fecha: string; nocturno: boolean; festivo: boolean }[] {
+/** Festivo siempre genera recargo; el descanso semanal puede ser distinto al domingo si se pactó por escrito. */
+export function esDescansoOFestivo(fechaISO: string, diaDescanso: DiaDescanso = 0): boolean {
+  return esFestivo(fechaISO) || fecha(fechaISO).getDay() === diaDescanso;
+}
+
+function minutosDeTurno(t: Turno, diaDescanso: DiaDescanso = 0): { fecha: string; nocturno: boolean; festivo: boolean }[] {
   const ini = aMin(t.entrada);
   let fin = aMin(t.salida);
   if (fin <= ini) fin += 1440;
@@ -84,7 +92,7 @@ function minutosDeTurno(t: Turno): { fecha: string; nocturno: boolean; festivo: 
     if (m >= pausaIni && m < pausaIni + descanso) continue;
     const f = sumarDias(t.fecha, Math.floor(m / 1440));
     const delDia = m % 1440;
-    out.push({ fecha: f, nocturno: delDia >= inicioNocturno(f) * 60 || delDia < 360, festivo: esDominicalOFestivo(f) });
+    out.push({ fecha: f, nocturno: delDia >= inicioNocturno(f) * 60 || delDia < 360, festivo: esDescansoOFestivo(f, diaDescanso) });
   }
   return out;
 }
@@ -104,7 +112,7 @@ export interface ResultadoTurnos {
  * Reparte los minutos de los turnos en ordinarios y extra, y en diurnos,
  * nocturnos y festivos. Las horas extra son las últimas en orden cronológico.
  */
-export function calcularTurnos(turnos: Turno[], valorHora: number, extras: ModoExtras): ResultadoTurnos {
+export function calcularTurnos(turnos: Turno[], valorHora: number, extras: ModoExtras, diaDescanso: DiaDescanso = 0): ResultadoTurnos {
   const horas = horasVacias();
   const valores = horasVacias();
   let total = 0;
@@ -117,7 +125,7 @@ export function calcularTurnos(turnos: Turno[], valorHora: number, extras: ModoE
   for (const t of ordenados) {
     let enTurno = 0;
     if (!porFecha[t.fecha]) porFecha[t.fecha] = horasVacias();
-    for (const min of minutosDeTurno(t)) {
+    for (const min of minutosDeTurno(t, diaDescanso)) {
       enTurno++;
       acumulado++;
       total++;
@@ -323,13 +331,14 @@ export interface DatosPorDias {
   cotizacion: 'ordinaria' | 'semanas';
   otrosIngresos: number;
   otrosDescuentos: number;
+  diaDescanso?: DiaDescanso;
 }
 
 export function calcularPorDias(d: DatosPorDias, v = VALORES_2026): Desprendible & { dias: number; horas: ResultadoTurnos } {
   const avisos: string[] = [];
   const dias = new Set(d.turnos.map((t) => t.fecha)).size;
   const valorHora = d.valorDia / d.horasJornada;
-  const t = calcularTurnos(d.turnos, valorHora, { modo: 'diario', horasJornada: d.horasJornada });
+  const t = calcularTurnos(d.turnos, valorHora, { modo: 'diario', horasJornada: d.horasJornada }, d.diaDescanso ?? 0);
   const limite = avisoLimiteExtras(t.excesoLimite);
   if (limite) avisos.push(limite);
   const devengados: Linea[] = [];

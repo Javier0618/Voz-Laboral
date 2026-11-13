@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { fecha as aFecha } from '../../lib/festivos';
 import { VALORES_2026 } from '../../lib/liquidacion';
 import {
-  avisoLimiteExtras, avisosJornadaVigilancia, calcularNomina, calcularTurnos, HORAS_MES_DEFECTO, novedadesVacias, otrosVacios, TIPOS_HORA, type ModoExtras, type Turno,
+  avisoLimiteExtras, avisosJornadaVigilancia, calcularNomina, calcularTurnos, HORAS_MES_DEFECTO, novedadesVacias, otrosVacios, TIPOS_HORA, type DiaDescanso, type ModoExtras, type Turno,
 } from '../../lib/nomina';
 import { Field, PageHeader } from '../../components/ui';
 import {
@@ -34,6 +34,7 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
   const [turnos, setTurnos] = useState<Turnos>({});
   const [modo, setModo] = useState<'diario' | 'periodo'>('diario');
   const [horasJornada, setHorasJornada] = useState(8);
+  const [diaDescanso, setDiaDescanso] = useState<DiaDescanso>(0);
   const [umbralMes, setUmbralMes] = useState(HORAS_MES_DEFECTO);
   const [novedades, setNovedades] = useState(novedadesVacias());
   const [otros, setOtros] = useState(otrosVacios());
@@ -51,7 +52,7 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
     : modo === 'diario' ? { modo: 'diario', horasJornada } : { modo: 'periodo', horasUmbral: umbral };
   const valorHora = salario / HORAS_MES_DEFECTO;
   const lista = turnosLista(turnos);
-  const resTurnos = calcularTurnos(lista, valorHora, extras);
+  const resTurnos = calcularTurnos(lista, valorHora, extras, diaDescanso);
   const limite = vig ? null : avisoLimiteExtras(resTurnos.excesoLimite);
   const avisosVigilancia = vig ? avisosJornadaVigilancia(lista) : [];
   const nomina = salario > 0
@@ -65,7 +66,7 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
     : null;
 
   // Con cuenta: se guarda cada día que anotes (components/SavedPayroll.tsx).
-  const datos = { salario, turnos, modo: vig ? 'diario' : modo, horasJornada: vig ? 8 : horasJornada, umbralMes, novedades, otros };
+  const datos = { salario, turnos, modo: vig ? 'diario' : modo, horasJornada: vig ? 8 : horasJornada, umbralMes, diaDescanso, novedades, otros };
   const llave = periodKey(periodo);
   const diasTrabajados = lista.filter((t) => t.fecha >= rango.desde && t.fecha <= rango.hasta).length;
   const guardado = useSavedPayroll<typeof datos>({
@@ -77,6 +78,7 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
       if (!vig && (d.modo === 'diario' || d.modo === 'periodo')) setModo(d.modo);
       if (!vig && Number(d.horasJornada) > 0) setHorasJornada(Number(d.horasJornada));
       if (Number(d.umbralMes) > 0) setUmbralMes(Number(d.umbralMes));
+      if (Number.isInteger(d.diaDescanso) && Number(d.diaDescanso) >= 0 && Number(d.diaDescanso) <= 6) setDiaDescanso(Number(d.diaDescanso) as DiaDescanso);
       setNovedades({ ...novedadesVacias(), ...d.novedades });
       setOtros({ ...otrosVacios(), ...d.otros });
     },
@@ -106,6 +108,15 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
           <PeriodoFields value={periodo} onChange={setPeriodo} />
           <MoneyInput label="Salario mensual" value={salario} onChange={setSalario}
             hint={`El salario del mes completo. El mínimo de 2026 es ${pesos(VALORES_2026.salarioMinimo)}.`} />
+
+          <fieldset className="space-y-2 rounded border border-line p-4">
+            <legend className="font-sans text-base font-semibold">Día de descanso obligatorio</legend>
+            <label htmlFor="dia-descanso" className="block text-sm text-slate">Selecciona el día semanal que tienes pactado por escrito. Si no hay acuerdo distinto, es domingo.</label>
+            <select id="dia-descanso" className="input" value={diaDescanso} onChange={(e) => setDiaDescanso(Number(e.target.value) as DiaDescanso)}>
+              {(['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'] as const).map((nombre, i) => <option key={nombre} value={i}>{nombre}</option>)}
+            </select>
+            <p className="text-sm text-slate">Los festivos conservan su recargo aunque el descanso semanal sea otro día. El cálculo es orientativo y no reemplaza la revisión del acuerdo.</p>
+          </fieldset>
 
           <section aria-labelledby="turnos-titulo" className="space-y-4">
             <h2 id="turnos-titulo" className="font-sans text-base font-semibold">Tus turnos del período</h2>
@@ -171,15 +182,15 @@ export default function TurnosPage({ tipo }: { tipo: Tipo }) {
         </p>
         <ul>
           <li>Diurna: de 6:00 a. m. a 7:00 p. m. Nocturna: de 7:00 p. m. a 6:00 a. m. (CST, art. 160, desde el 25 de diciembre de 2025).</li>
-          <li>Dominical o festiva: domingos y los 18 festivos de Colombia, que la calculadora conoce para cada año (Ley 51 de 1983).</li>
+          <li>Descanso obligatorio o festivo: el día semanal que seleccionaste y los 18 festivos de Colombia (Ley 51 de 1983).</li>
           <li>Extra: según cómo cuente tu empresa, lo que pasa de tu jornada diaria o del total de horas del período.</li>
         </ul>
         <ExplicacionDescanso />
         <h3>Qué día se considera tu descanso obligatorio</h3>
         <p>
-          Para clasificar recargos, esta calculadora toma como referencia los domingos y festivos. Sin embargo, la ley permite pactar por escrito
-          un día de descanso obligatorio distinto del domingo. Si ese es tu caso, el resultado puede no corresponder a tu nómina y necesita
-          revisión antes de usarlo para reclamar pagos (CST, art. 179, modificado por Ley 2466 de 2025).
+          El cálculo usa el día semanal que selecciones arriba. Si el descanso obligatorio se pactó por escrito en un día distinto del domingo,
+          ese día recibe el recargo por descanso obligatorio, además de los festivos. Si no hay pacto expreso, se presume domingo
+          (CST, art. 179, modificado por Ley 2466 de 2025).
         </p>
         <h3>Ordinaria o extra</h3>
         <p>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { calcularPorDias, calcularTurnos, type Turno } from '../../lib/nomina';
+import { calcularPorDias, calcularTurnos, type DiaDescanso, type Turno } from '../../lib/nomina';
 import { PageHeader } from '../../components/ui';
 import { setPageMeta } from '../../lib/meta';
 import { calculadoraPorPath, metaCalculadora } from '../../lib/calculadoras';
@@ -29,6 +29,7 @@ export default function PorDias() {
   const [forma, setForma] = useState<'dia' | 'mensual'>('dia');
   const [valor, setValor] = useState(0);
   const [horasJornada, setHorasJornada] = useState(8);
+  const [diaDescanso, setDiaDescanso] = useState<DiaDescanso>(0);
   const [turnos, setTurnos] = useState<Turnos>({});
   const [cotizacion, setCotizacion] = useState<'ordinaria' | 'semanas'>('ordinaria');
   const [otrosIngresos, setOtrosIngresos] = useState(0);
@@ -38,14 +39,14 @@ export default function PorDias() {
   const plantilla: Turno = { fecha: rango.desde, entrada: '08:00', salida: '17:00', descansoMin: 60 };
   const lista = turnosLista(turnos).filter((t) => t.fecha >= rango.desde && t.fecha <= rango.hasta);
   const clasificacion = lista.length > 0 && horasJornada > 0
-    ? calcularTurnos(lista, valorDia > 0 ? valorDia / horasJornada : 0, { modo: 'diario', horasJornada })
+    ? calcularTurnos(lista, valorDia > 0 ? valorDia / horasJornada : 0, { modo: 'diario', horasJornada }, diaDescanso)
     : null;
   const r = valorDia > 0 && horasJornada > 0 && lista.length > 0
-    ? calcularPorDias({ valorDia, horasJornada, turnos: lista, cotizacion, otrosIngresos, otrosDescuentos })
+    ? calcularPorDias({ valorDia, horasJornada, turnos: lista, cotizacion, otrosIngresos, otrosDescuentos, diaDescanso })
     : null;
 
   // Con cuenta: se guarda cada día que anotes (components/SavedPayroll.tsx).
-  const datos = { forma, valor, horasJornada, turnos, cotizacion, otrosIngresos, otrosDescuentos };
+  const datos = { forma, valor, horasJornada, diaDescanso, turnos, cotizacion, otrosIngresos, otrosDescuentos };
   const llave = periodKey({ ...periodo, periodicidad: 'mensual' });
   const guardado = useSavedPayroll<typeof datos>({
     calculator: 'por-dias', periodKey: llave, datos, neto: r?.neto ?? 0, diasTrabajados: lista.length,
@@ -54,6 +55,7 @@ export default function PorDias() {
       if (d.forma === 'dia' || d.forma === 'mensual') setForma(d.forma);
       setValor(Number(d.valor) || 0);
       if (Number(d.horasJornada) > 0) setHorasJornada(Number(d.horasJornada));
+      if (Number.isInteger(d.diaDescanso) && Number(d.diaDescanso) >= 0 && Number(d.diaDescanso) <= 6) setDiaDescanso(Number(d.diaDescanso) as DiaDescanso);
       setTurnos(d.turnos ?? {});
       if (d.cotizacion === 'ordinaria' || d.cotizacion === 'semanas') setCotizacion(d.cotizacion);
       setOtrosIngresos(Number(d.otrosIngresos) || 0);
@@ -97,6 +99,14 @@ export default function PorDias() {
               hint={forma === 'mensual' ? 'Se divide entre 30 para obtener el valor del día.' : undefined} />
             <NumberInput label="Horas de tu jornada por día" suffix="h" value={horasJornada} onChange={setHorasJornada}
               hint="Sirve para calcular recargos y horas extra cuando el turno se alarga." />
+          </fieldset>
+
+          <fieldset className="space-y-2 rounded border border-line p-4">
+            <legend className="font-sans text-base font-semibold">Día de descanso obligatorio</legend>
+            <label htmlFor="dia-descanso-por-dias" className="block text-sm text-slate">Selecciona el día semanal pactado por escrito. Sin pacto distinto, se presume domingo.</label>
+            <select id="dia-descanso-por-dias" className="input" value={diaDescanso} onChange={(e) => setDiaDescanso(Number(e.target.value) as DiaDescanso)}>
+              {(['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'] as const).map((nombre, i) => <option key={nombre} value={i}>{nombre}</option>)}
+            </select>
           </fieldset>
 
           <fieldset className="space-y-3">
@@ -143,7 +153,7 @@ export default function PorDias() {
         <ExplicacionDescanso />
         <h3>Recargos y horas extra</h3>
         <p>
-          Las horas de noche (de 7:00 p. m. a 6:00 a. m.) pagan un 35 % más; las de domingo o festivo, un 90 % más desde julio de 2026; y lo
+          Las horas de noche (de 7:00 p. m. a 6:00 a. m.) pagan un 35 % más; las del descanso obligatorio pactado o festivo, un 90 % más desde julio de 2026; y lo
           que pasa de tu jornada, como hora extra (CST, arts. 160, 168 y 179). Las horas extra no pueden pasar de 2 al día ni de 12 a la
           semana (CST, art. 167A); si las pasas, el desprendible te avisa.
         </p>
